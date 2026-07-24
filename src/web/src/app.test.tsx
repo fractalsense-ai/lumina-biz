@@ -292,11 +292,6 @@ describe('App', () => {
           confirmation_id: 'confirm-1', confidence_record_id: 'conf-2', tier: 'require_confirmation',
         }) })
       }
-      if (url.includes('/api/decision-precedent/conf-2/confirm')) {
-        return Promise.resolve({ ok: true, json: async () => ({
-          confirmation_id: 'confirm-1', confidence_record_id: 'conf-2', tier: 'require_confirmation',
-        }) })
-      }
       if (url.includes('/api/chat')) {
         return Promise.resolve({ ok: true, json: async () => ({
           session_id: 'session-1', response: 'Confirmed chat response', action: 'continue',

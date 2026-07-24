@@ -867,6 +867,7 @@ function ChatInterface({
     setPendingRouting(null)
     setPendingDecisionPrecedent(null)
     setDecisionPrecedentError(null)
+    setLastDecisionStatus(null)
   }
 
   const saveCurrentSession = async () => {
@@ -1590,7 +1591,7 @@ function ChatInterface({
                 {decisionPrecedentError}
               </div>
             )}
-            {lastDecisionStatus && !pendingDecisionPrecedent && (
+            {lastDecisionStatus && !pendingDecisionPrecedent && !isLoading && (
               <div className="max-w-3xl mx-auto mb-3 text-xs text-muted-foreground">
                 Decision check: {lastDecisionStatus.tier} | {lastDecisionStatus.rationale_codes.join(', ')}
               </div>
