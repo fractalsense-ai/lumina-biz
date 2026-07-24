@@ -384,6 +384,7 @@ describe('App', () => {
     })
     const chatCalls = fetchMock.mock.calls.filter((call: unknown[]) => String(call[0]).includes('/api/chat'))
     expect(chatCalls.length).toBe(0)
+    expect(chatCalled).toBe(false)
   })
 
   it('preflight failure surfaces error and does not send chat', async () => {
