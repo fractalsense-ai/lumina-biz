@@ -53,7 +53,18 @@ def parse_latest_changelog_version(changelog_path: Path) -> str:
 
 
 def check_runtime_config_paths(errors: list[str]) -> None:
-    runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "runtime-config.yaml"
+    runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "cfg" / "runtime-config.yaml"
+    if not runtime_cfg_path.exists():
+        legacy_runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "runtime-config.yaml"
+        if legacy_runtime_cfg_path.exists():
+            runtime_cfg_path = legacy_runtime_cfg_path
+        else:
+            errors.append(
+                "runtime-config.yaml missing at model-packs/education/cfg/runtime-config.yaml "
+                "and model-packs/education/runtime-config.yaml"
+            )
+            return
+
     cfg = load_yaml(runtime_cfg_path)
 
     runtime_cfg = cfg.get("runtime")

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-logistics-shipment-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business Logistics Shipment Schema V1",
+  "description": "Canonical provider-neutral shipment contract spanning farms, processing facilities, kitchens, warehouses, and customer destinations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "shipment_id",
+    "shipment_class",
+    "status",
+    "origin_reference",
+    "destination_reference",
+    "requested_pickup_utc"
+  ],
+  "properties": {
+    "shipment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "shipment_class": {
+      "type": "string",
+      "enum": [
+        "live_animals",
+        "processed_meat",
+        "prepared_food",
+        "supplies",
+        "returnables"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "dispatched",
+        "in_transit",
+        "delivered",
+        "exception",
+        "cancelled"
+      ]
+    },
+    "origin_reference": {
+      "$ref": "external-system-reference-schema-v1.json"
+    },
+    "destination_reference": {
+      "$ref": "external-system-reference-schema-v1.json"
+    },
+    "requested_pickup_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "required_delivery_utc": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "cold_chain_required": {
+      "type": "boolean"
+    },
+    "towing_required": {
+      "type": "boolean"
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "$ref": "business-logistics-shipment-schema-v1.json#/$defs/line_item"
+      }
+    },
+    "metadata": {
+      "$ref": "business-logistics-shipment-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "line_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_code", "quantity", "uom"],
+      "properties": {
+        "item_code": {"type": "string", "minLength": 1},
+        "quantity": {"type": "number", "exclusiveMinimum": 0},
+        "uom": {"type": "string", "minLength": 1}
+      }
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

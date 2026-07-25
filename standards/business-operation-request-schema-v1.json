@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-operation-request-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business Operation Request Schema V1",
+  "description": "Canonical provider-neutral request envelope for business-system operations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "action_class",
+    "capability_namespace",
+    "actor_scope",
+    "requested_utc",
+    "payload"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action_class": {
+      "$ref": "business-operation-request-schema-v1.json#/$defs/action_class"
+    },
+    "capability_namespace": {
+      "$ref": "business-operation-request-schema-v1.json#/$defs/capability_namespace"
+    },
+    "actor_scope": {
+      "$ref": "business-operation-request-schema-v1.json#/$defs/actor_scope"
+    },
+    "target_reference": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "external-system-reference-schema-v1.json"}
+      ]
+    },
+    "requested_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "$ref": "business-operation-request-schema-v1.json#/$defs/safe_object"
+    },
+    "metadata": {
+      "$ref": "business-operation-request-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "action_class": {
+      "type": "string",
+      "enum": [
+        "query",
+        "create_draft",
+        "update_draft",
+        "request_commit",
+        "request_cancel",
+        "sync_event"
+      ]
+    },
+    "capability_namespace": {
+      "type": "string",
+      "enum": [
+        "party/customer",
+        "catalog/item",
+        "inventory",
+        "sales/pos",
+        "purchasing",
+        "service/work-order",
+        "scheduling",
+        "timekeeping",
+        "accounting/invoice",
+        "farm/poultry",
+        "farm/beef-cattle",
+        "processing/meat",
+        "kitchen/production",
+        "warehouse/storage",
+        "logistics/fleet",
+        "logistics/dispatch",
+        "logistics/towing",
+        "logistics/delivery",
+        "logistics/route-zone"
+      ]
+    },
+    "actor_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["organization_id", "site_id", "actor_id"],
+      "properties": {
+        "organization_id": {"type": "string", "minLength": 1},
+        "site_id": {"type": "string", "minLength": 1},
+        "actor_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

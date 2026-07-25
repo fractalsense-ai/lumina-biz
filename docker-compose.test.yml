@@ -16,7 +16,9 @@ services:
         target: /workspace/.pytest_cache
     command: >
       bash -lc "python -m pip install -e '.[providers,sqlite,passwords,nlp,math,retrieval,calendar,dev]'
-      && tr -d '\015' < scripts/check-local-secret-hygiene.sh | bash && python -m pytest tests -q
+      && git check-ignore -q -- src/web/lib/openaikey.md
+      && test -z \"$(git ls-files -- src/web/lib/openaikey.md)\"
+      && python -m pytest tests -q
       --cov=lumina --cov-report=term-missing --cov-fail-under=85"
 
   frontend-unit:

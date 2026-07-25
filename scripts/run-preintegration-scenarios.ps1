@@ -253,13 +253,13 @@ Write-Host "Escalation ledger:   $escLedger"
 Write-Host "Exhaustion ledger:   $exhaustLedger"
 
 Write-Section "Validate System Log Hash Chain"
-& $PythonExe "reference-implementations/system-log-validator.py" --verify-chain $noEscLedger
+& $PythonExe "model-packs/system/controllers/system_log_validator.py" --verify-chain $noEscLedger
 Assert-Condition ($LASTEXITCODE -eq 0) "System Log chain validation failed for non-escalation ledger"
 
-& $PythonExe "reference-implementations/system-log-validator.py" --verify-chain $escLedger
+& $PythonExe "model-packs/system/controllers/system_log_validator.py" --verify-chain $escLedger
 Assert-Condition ($LASTEXITCODE -eq 0) "System Log chain validation failed for escalation ledger"
 
-& $PythonExe "reference-implementations/system-log-validator.py" --verify-chain $exhaustLedger
+& $PythonExe "model-packs/system/controllers/system_log_validator.py" --verify-chain $exhaustLedger
 Assert-Condition ($LASTEXITCODE -eq 0) "System Log chain validation failed for standing-order exhaustion ledger"
 
 Write-Section "Validate EscalationRecord Exists"
