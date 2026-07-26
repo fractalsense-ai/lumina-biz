@@ -1,10 +1,16 @@
 ---
 title: "Slice 30 — Canonical Business-System Contracts and Capability Taxonomy"
 slice: 30
-status: planned
-version: 0.1.0
-last_updated: 2026-07-11
+status: delivered
+version: 0.2.0
+last_updated: 2026-07-26
 ---
+
+## Delivery Note
+
+Slice 30 is delivered. Canonical provider-neutral contracts, logistics coverage,
+deterministic fixtures, recursive secret-key denylist enforcement, and manifest
+integrity updates were completed in PR #91.
 
 ## Purpose
 

@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-07-25
+last_updated: 2026-07-26
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -151,17 +151,17 @@ artifacts:
 - path: docs/roadmap/slices/30-erpnext-adapter-foundation-and-fixtures.md
   type: doc
   section: 0
-  doc_version: 1.0.0
-  status: planned
-  last_updated: 2026-07-11
-  sha256: 2b19417ac8180907cc10626e4d997dbc88ed1891c488dddbc0d003d765ba9d28
+  doc_version: 0.2.0
+  status: delivered
+  last_updated: 2026-07-26
+  sha256: 7e43ed6900525a374d456cb5736799b178835b2f3988ec30b0ab8ea200ad3e65
 - path: docs/roadmap/slices/30-canonical-contracts-execution-plan.md
   type: doc
   section: 0
-  doc_version: 0.1.0
-  status: planned
-  last_updated: 2026-07-24
-  sha256: d5255b16f285b99f33f4f8ea551e433fc213b5f60258b36ff4dadb779ee7ec01
+  doc_version: 0.2.0
+  status: delivered
+  last_updated: 2026-07-26
+  sha256: 4777877006450b867ee1bbb80b1d47f15d62030cfe11612a180c9ea8885c9c7b
 - path: docs/roadmap/slices/31-business-ops-pack-bootstrap.md
   type: doc
   section: 0
@@ -169,6 +169,13 @@ artifacts:
   status: planned
   last_updated: 2026-07-11
   sha256: f862ee779eafc1b9bb627587bdab047a054c654e1422cff7d6200c076fba72f7
+- path: docs/roadmap/slices/31-connector-registry-capability-routing-execution-plan.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-07-26
+  sha256: c4d03a4e7a9bb5fda66d47f10c70432e9ecf9e81f338acbc14c64437efa48b30
 - path: docs/roadmap/slices/32-auto-repair-mvp-and-single-box-deployment.md
   type: doc
   section: 0
@@ -2141,7 +2148,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: a8b615756c6f172107129339ed97a5497fa7451f8d088ac8b93499a94490e2cc
+  sha256: 02f9af89421f0c77218f4c53e67e395a6aa788eea4b800c0b1771341129e9aed
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0

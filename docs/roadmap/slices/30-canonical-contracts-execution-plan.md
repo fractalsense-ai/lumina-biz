@@ -1,11 +1,22 @@
 ---
 title: "Slice 30 Execution Plan - Canonical Business-System Contracts"
 slice: 30
-status: planned
-version: 0.1.0
-last_updated: 2026-07-24
+status: delivered
+version: 0.2.0
+last_updated: 2026-07-26
 source_overview: docs/roadmap/slices/30-erpnext-adapter-foundation-and-fixtures.md
 ---
+
+## Completion Summary
+
+Execution is complete.
+
+- Canonical schemas were added and validated under `standards/`.
+- Capability taxonomy and execution-plan documentation were delivered.
+- Deterministic fixture validation and negative security tests were added.
+- Recursive denylist enforcement now rejects credential-bearing keys at nested
+   object levels in canonical safe-object surfaces.
+- Manifest hashes were regenerated after final schema/doc changes.
 
 ## Objective
 
@@ -134,11 +145,11 @@ Slice 30: Canonical business-system contracts, capability taxonomy, and fixtures
 
 ### Test Checklist
 
-- [ ] Run schema validation tests for all new canonical contracts.
-- [ ] Run positive fixture tests for all action classes.
-- [ ] Run negative fixture tests for malformed/forbidden payloads.
-- [ ] Run security checks proving no credential-bearing fields are accepted.
-- [ ] Run backward-compat standards tests and verify no regressions.
+- [x] Run schema validation tests for all new canonical contracts.
+- [x] Run positive fixture tests for all action classes.
+- [x] Run negative fixture tests for malformed/forbidden payloads.
+- [x] Run security checks proving no credential-bearing fields are accepted.
+- [x] Run backward-compat standards tests and verify no regressions.
 
 ### Out of Scope Confirmations
 
