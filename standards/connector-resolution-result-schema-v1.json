@@ -8,6 +8,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema_version",
     "resolution_id",
     "request_id",
     "organization_id",

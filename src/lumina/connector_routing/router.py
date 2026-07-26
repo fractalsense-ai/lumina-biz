@@ -127,17 +127,27 @@ def _utc_now() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
+def _normalize_optional(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
 def _is_entry_eligible(
     entry: ConnectorRegistryEntry,
     *,
     action_class: ActionClass,
     capability_namespace: str,
 ) -> tuple[bool, ReasonCode]:
+    normalized_capabilities = {
+        capability.strip() for capability in entry.capability_namespaces if capability and capability.strip()
+    }
     if not entry.enabled:
         return False, "no_eligible_connector"
     if entry.health_status == "unhealthy":
         return False, "connector_unhealthy"
-    if capability_namespace not in entry.capability_namespaces:
+    if capability_namespace not in normalized_capabilities:
         return False, "unsupported_capability"
     if action_class not in entry.supported_action_classes:
         return False, "unsupported_action"
@@ -179,7 +189,9 @@ def _result(
         correlation_id=correlation_id,
         policy_version=policy_version,
         candidate_connector_ids=tuple(sorted(candidate_connector_ids)),
-        evaluated_utc=(evaluated_utc or datetime.now(UTC)).isoformat().replace("+00:00", "Z"),
+        evaluated_utc=(
+            evaluated_utc.isoformat().replace("+00:00", "Z") if evaluated_utc is not None else _utc_now()
+        ),
     )
 
 
@@ -200,8 +212,12 @@ def resolve_connector(
     """Resolve one connector deterministically without side effects."""
     request_id = _require_scope(request_id, "request_id")
     actor_id = _require_scope(actor_id, "actor_id")
+    capability_namespace = _require_scope(capability_namespace, "capability_namespace")
     organization_id = _require_scope(policy.organization_id, "organization_id")
     site_id = _require_scope(policy.site_id, "site_id")
+    operation_override_connector_id = _normalize_optional(operation_override_connector_id)
+    idempotency_key = _normalize_optional(idempotency_key)
+    correlation_id = _normalize_optional(correlation_id)
 
     scoped_entries = [
         entry
@@ -211,7 +227,7 @@ def resolve_connector(
     scoped_entries.sort(key=lambda item: item.connector_instance_id)
     candidate_ids = tuple(entry.connector_instance_id for entry in scoped_entries)
 
-    if action_class in _MUTATION_ACTIONS and (not idempotency_key or not idempotency_key.strip()):
+    if action_class in _MUTATION_ACTIONS and not idempotency_key:
         return _result(
             request_id=request_id,
             organization_id=organization_id,
@@ -231,7 +247,7 @@ def resolve_connector(
             evaluated_utc=evaluated_utc,
         )
 
-    if operation_override_connector_id:
+    if operation_override_connector_id is not None:
         override = next(
             (entry for entry in scoped_entries if entry.connector_instance_id == operation_override_connector_id),
             None,
@@ -301,7 +317,7 @@ def resolve_connector(
     matching_routes = [
         route
         for route in policy.routes
-        if route.capability_namespace == capability_namespace
+        if route.capability_namespace.strip() == capability_namespace
         and (not route.supported_action_classes or action_class in route.supported_action_classes)
     ]
     matching_routes.sort(key=lambda route: (route.priority, route.connector_instance_id))

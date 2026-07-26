@@ -1157,7 +1157,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-26
-  sha256: a0c05759523ecc3797866f607e76e0d9956142a737a71fd84f9d680b0b7f3672
+  sha256: a07bf0a9e08622dae5368f1e5836451051ad2b173a91ae6e1e93ddb6dbede096
 - path: standards/admin-command-schemas/approve-interpretation.json
   type: schema
   doc_version: 1.0.0

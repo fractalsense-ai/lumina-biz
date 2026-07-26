@@ -97,6 +97,22 @@ def test_capability_route_used_before_site_primary() -> None:
 
 
 @pytest.mark.unit
+def test_capability_namespace_is_normalized_for_matching() -> None:
+    result = resolve_connector(
+        [_entry("conn-cap", capabilities=(" service/work-order ",))],
+        _policy(routes=(CapabilityRoute(" service/work-order ", "conn-cap", ("query",), 1),)),
+        request_id="req-3b",
+        actor_id="actor-a",
+        action_class="query",
+        capability_namespace="  service/work-order  ",
+    )
+
+    assert result.status == "resolved"
+    assert result.source == "capability_route"
+    assert result.connector_instance_id == "conn-cap"
+
+
+@pytest.mark.unit
 def test_ambiguous_capability_route_is_error() -> None:
     result = resolve_connector(
         [_entry("conn-a"), _entry("conn-b")],
