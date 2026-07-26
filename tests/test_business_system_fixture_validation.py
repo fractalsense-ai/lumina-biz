@@ -160,6 +160,19 @@ def test_request_payload_rejects_credential_bearing_property_names() -> None:
 
 
 @pytest.mark.unit
+def test_request_payload_rejects_nested_credential_bearing_property_names() -> None:
+    request = _scenario("query")["request"]
+    request["payload"] = {
+        "query": "select *",
+        "meta": {
+            "token": "forbidden",
+        },
+    }
+    with pytest.raises(jsonschema.ValidationError):
+        _validator(REQUEST_SCHEMA_PATH).validate(request)
+
+
+@pytest.mark.unit
 def test_external_reference_provider_data_rejects_credential_bearing_property_names() -> None:
     payload = _external_ref()
     payload["provider_data"] = {

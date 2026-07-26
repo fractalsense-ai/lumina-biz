@@ -107,6 +107,20 @@
         }
       }
     },
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
     "safe_object": {
       "type": "object",
       "propertyNames": {
@@ -114,7 +128,9 @@
           "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
         }
       },
-      "additionalProperties": true
+      "additionalProperties": {
+        "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_value"
+      }
     }
   }
 }
