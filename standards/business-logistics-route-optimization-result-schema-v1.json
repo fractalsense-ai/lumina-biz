@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-logistics-route-optimization-result-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business Logistics Route Optimization Result Schema V1",
+  "description": "Canonical provider-neutral route optimization output for dispatch planning and fallback routing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "optimization_id",
+    "route_zone_id",
+    "generated_utc",
+    "optimizer_version",
+    "objective_metrics",
+    "recommended_trips"
+  ],
+  "properties": {
+    "optimization_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_zone_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "optimizer_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "objective_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_distance_km", "estimated_drive_minutes", "estimated_cost_usd"],
+      "properties": {
+        "total_distance_km": {"type": "number", "minimum": 0},
+        "estimated_drive_minutes": {"type": "number", "minimum": 0},
+        "estimated_cost_usd": {"type": "number", "minimum": 0},
+        "on_time_probability": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "recommended_trips": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "$ref": "business-logistics-route-optimization-result-schema-v1.json#/$defs/recommended_trip"
+      }
+    },
+    "unassigned_shipment_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "violations": {
+      "type": "array",
+      "items": {
+        "$ref": "connector-error-schema-v1.json"
+      }
+    },
+    "metadata": {
+      "$ref": "business-logistics-route-optimization-result-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "recommended_trip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trip_id", "shipment_ids", "stop_count"],
+      "properties": {
+        "trip_id": {"type": "string", "minLength": 1},
+        "shipment_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "stop_count": {"type": "integer", "minimum": 2},
+        "requires_towing_support": {"type": "boolean"},
+        "towing_support_asset_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1},
+          "uniqueItems": true
+        },
+        "cold_chain_required": {"type": "boolean"},
+        "cold_chain_supported": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"requires_towing_support": {"const": true}},
+            "required": ["requires_towing_support"]
+          },
+          "then": {
+            "required": ["towing_support_asset_ids"],
+            "properties": {
+              "towing_support_asset_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"cold_chain_required": {"const": true}},
+            "required": ["cold_chain_required"]
+          },
+          "then": {
+            "properties": {"cold_chain_supported": {"const": true}},
+            "required": ["cold_chain_supported"]
+          }
+        }
+      ]
+    },
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "business-logistics-route-optimization-result-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "business-logistics-route-optimization-result-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "business-logistics-route-optimization-result-schema-v1.json#/$defs/safe_value"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "recommended_trips": {
+            "maxItems": 0
+          }
+        },
+        "required": ["recommended_trips"]
+      },
+      "then": {
+        "required": ["unassigned_shipment_ids", "violations"],
+        "properties": {
+          "unassigned_shipment_ids": {
+            "minItems": 1
+          },
+          "violations": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

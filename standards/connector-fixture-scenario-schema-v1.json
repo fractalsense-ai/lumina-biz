@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/connector-fixture-scenario-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Connector Fixture Scenario Schema V1",
+  "description": "Deterministic fixture scenario for canonical connector contract conformance testing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario_id",
+    "description",
+    "action_class",
+    "capability_namespace",
+    "request",
+    "expected_result"
+  ],
+  "properties": {
+    "scenario_id": {"type": "string", "minLength": 1},
+    "description": {"type": "string", "minLength": 1},
+    "action_class": {
+      "type": "string",
+      "enum": [
+        "query",
+        "create_draft",
+        "update_draft",
+        "request_commit",
+        "request_cancel",
+        "sync_event"
+      ]
+    },
+    "capability_namespace": {
+      "type": "string",
+      "enum": [
+        "party/customer",
+        "catalog/item",
+        "inventory",
+        "sales/pos",
+        "purchasing",
+        "service/work-order",
+        "scheduling",
+        "timekeeping",
+        "accounting/invoice",
+        "farm/poultry",
+        "farm/beef-cattle",
+        "processing/meat",
+        "kitchen/production",
+        "warehouse/storage",
+        "logistics/fleet",
+        "logistics/dispatch",
+        "logistics/towing",
+        "logistics/delivery",
+        "logistics/route-zone"
+      ]
+    },
+    "request": {"$ref": "business-operation-request-schema-v1.json"},
+    "expected_result": {"$ref": "business-operation-result-schema-v1.json"},
+    "expected_event": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "business-system-event-schema-v1.json"}
+      ]
+    },
+    "expected_error": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "connector-error-schema-v1.json"}
+      ]
+    }
+  }
+}

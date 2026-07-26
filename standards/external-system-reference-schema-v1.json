@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/external-system-reference-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "External System Reference Schema V1",
+  "description": "Provider-neutral reference to an external business-system entity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "connector_instance_id",
+    "external_record_type",
+    "external_record_id"
+  ],
+  "properties": {
+    "connector_instance_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "external_record_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "external_record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "external_parent_record_id": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "facility_role": {
+      "type": ["string", "null"],
+      "enum": [
+        "farm/poultry",
+        "farm/beef-cattle",
+        "processing/meat",
+        "kitchen/production",
+        "warehouse/storage",
+        "customer/site",
+        "fleet/hub",
+        null
+      ]
+    },
+    "geo": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "region_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "service_zone_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "route_cluster_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "provider_data": {
+      "description": "Provider namespaced metadata only; credentials are forbidden.",
+      "$ref": "external-system-reference-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "external-system-reference-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "external-system-reference-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "external-system-reference-schema-v1.json#/$defs/safe_value"
+      }
+    }
+  }
+}

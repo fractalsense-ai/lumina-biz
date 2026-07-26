@@ -86,7 +86,7 @@ if (-not $SkipFrontend) {
 }
 
 Write-Section "Repo Integrity"
-& $PythonExe "reference-implementations/verify-repo-integrity.py"
+& $PythonExe "model-packs/system/controllers/verify_repo.py"
 if ($LASTEXITCODE -ne 0) {
     throw "verify-repo-integrity.py failed"
 }
@@ -99,7 +99,7 @@ if ($LASTEXITCODE -ne 0) {
 
 if (-not $SkipOrchestratorDemo) {
     Write-Section "Orchestrator Demo"
-    & $PythonExe "reference-implementations/dsa-orchestrator-demo.py"
+    & $PythonExe "model-packs/system/controllers/ppa_demo.py"
     if ($LASTEXITCODE -ne 0) {
         throw "dsa-orchestrator-demo.py failed"
     }
@@ -153,7 +153,7 @@ if (-not $SkipApiScenarios) {
             $env:LUMINA_PORT = "$apiPort"
 
             if ([string]::IsNullOrWhiteSpace($env:LUMINA_RUNTIME_CONFIG_PATH)) {
-                $defaultRuntimeConfig = "model-packs/education/runtime-config.yaml"
+                $defaultRuntimeConfig = "model-packs/education/cfg/runtime-config.yaml"
                 Write-Host "LUMINA_RUNTIME_CONFIG_PATH not set; defaulting to '$defaultRuntimeConfig' for local API startup."
                 $env:LUMINA_RUNTIME_CONFIG_PATH = $defaultRuntimeConfig
             }
@@ -178,7 +178,7 @@ if (-not $SkipApiScenarios) {
             $logToken = [guid]::NewGuid().ToString("N")
             $apiStdoutLog = Join-Path ([System.IO.Path]::GetTempPath()) ("lumina-api-" + $logToken + "-out.log")
             $apiStderrLog = Join-Path ([System.IO.Path]::GetTempPath()) ("lumina-api-" + $logToken + "-err.log")
-            $apiProcess = Start-Process -FilePath $PythonExe -ArgumentList "reference-implementations/lumina-api-server.py" -WorkingDirectory $repoRoot -RedirectStandardOutput $apiStdoutLog -RedirectStandardError $apiStderrLog -PassThru
+            $apiProcess = Start-Process -FilePath $PythonExe -ArgumentList "src/lumina/api/server.py" -WorkingDirectory $repoRoot -RedirectStandardOutput $apiStdoutLog -RedirectStandardError $apiStderrLog -PassThru
             $startedApiServer = $true
 
             if (-not (Wait-ApiHealth -BaseUrl $ApiBaseUrl -TimeoutSec 30)) {
@@ -187,7 +187,7 @@ if (-not $SkipApiScenarios) {
         }
 
         Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
-        & "reference-implementations/run-preintegration-scenarios.ps1" -BaseUrl $ApiBaseUrl -PythonExe $PythonExe
+        & "scripts/run-preintegration-scenarios.ps1" -BaseUrl $ApiBaseUrl -PythonExe $PythonExe
         if ($LASTEXITCODE -ne 0) {
             throw "run-preintegration-scenarios.ps1 failed"
         }

@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-07-22
+last_updated: 2026-07-26
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -151,10 +151,17 @@ artifacts:
 - path: docs/roadmap/slices/30-erpnext-adapter-foundation-and-fixtures.md
   type: doc
   section: 0
-  doc_version: 1.0.0
-  status: planned
-  last_updated: 2026-07-11
-  sha256: 2b19417ac8180907cc10626e4d997dbc88ed1891c488dddbc0d003d765ba9d28
+  doc_version: 0.2.0
+  status: delivered
+  last_updated: 2026-07-26
+  sha256: 7e43ed6900525a374d456cb5736799b178835b2f3988ec30b0ab8ea200ad3e65
+- path: docs/roadmap/slices/30-canonical-contracts-execution-plan.md
+  type: doc
+  section: 0
+  doc_version: 0.2.0
+  status: delivered
+  last_updated: 2026-07-26
+  sha256: 4777877006450b867ee1bbb80b1d47f15d62030cfe11612a180c9ea8885c9c7b
 - path: docs/roadmap/slices/31-business-ops-pack-bootstrap.md
   type: doc
   section: 0
@@ -162,6 +169,13 @@ artifacts:
   status: planned
   last_updated: 2026-07-11
   sha256: f862ee779eafc1b9bb627587bdab047a054c654e1422cff7d6200c076fba72f7
+- path: docs/roadmap/slices/31-connector-registry-capability-routing-execution-plan.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-07-26
+  sha256: c4d03a4e7a9bb5fda66d47f10c70432e9ecf9e81f338acbc14c64437efa48b30
 - path: docs/roadmap/slices/32-auto-repair-mvp-and-single-box-deployment.md
   type: doc
   section: 0
@@ -596,6 +610,13 @@ artifacts:
   status: active
   last_updated: 2026-06-14
   sha256: b89ab1e58cabc7b2c68da2c457cda056518406c599027c5f9a3c23bf80673a08
+- path: docs/7-concepts/business-system-capability-taxonomy.md
+  type: doc
+  section: 7
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 7cc888a796c75c7d18d608cb0301af20323adb3128d61b076e8a2ad3948a1a74
 - path: docs/7-concepts/affect-monitoring-pipeline.md
   type: doc
   section: 7
@@ -1047,6 +1068,78 @@ artifacts:
   status: active
   last_updated: 2026-07-19
   sha256: 276c9e1d39ff172a842617b375e19461f24890668ae60662848bd963c8ce2eb5
+- path: standards/external-system-reference-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: e8740ff78fdf3f80cbdd6abee355e791a1c6c0ede8fab4d4d7964957514ca638
+- path: standards/business-system-connector-manifest-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: a458c2a030b0cfead9d4076afad0fc2a48f5b8992c1aae66ef8646cf5fa38e34
+- path: standards/business-operation-request-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 993134a3f0fc3f471f6f29b840ef1baed2a724d8a85472c1e5022a82e2a1c43d
+- path: standards/business-logistics-asset-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 9b019bfac4e363ebc5b0dcac6e7500833cdd6c7994540b9d97293aacbd32501a
+- path: standards/business-logistics-shipment-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 6b1f988cb1ce3ec54de2082e51c55744641ae051885110261b94a41cbb6721af
+- path: standards/business-logistics-trip-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 0e79ede37fdb7bdec2bc8aae2f5810d99d4aa8a3d80d84f8e85bd2227e6d8c8d
+- path: standards/business-logistics-dispatch-assignment-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 0c796d5f05e0ad2644fcc4368cf5d45afe1723122568bb2400aab3c9759ab66d
+- path: standards/business-logistics-route-optimization-result-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: f18cb98321d3b0ea9e55aa1f066c21ad946feb1df9eb9145e7ef7ba276587016
+- path: standards/business-operation-result-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: fff794ef572a251c6ac3f5f342ae181d9572359a81bf5814ddfd21aaabe1c607
+- path: standards/business-system-event-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 57430540a664a63da0e07fba542988ca56db860669a233fa3100ea497099a2cd
+- path: standards/connector-error-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 7fd748c3714f5b6be393b2a1e5da1f20dd8dceb9ff415dec98c4d127b61c8272
+- path: standards/connector-fixture-scenario-schema-v1.json
+  type: schema
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-24
+  sha256: 153a9fa7bd2dd230b4b4e1c3ca256e730cd575ddf892e31fe488caff74a208ef
 - path: standards/admin-command-schemas/approve-interpretation.json
   type: schema
   doc_version: 1.0.0
@@ -2055,7 +2148,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: a8b615756c6f172107129339ed97a5497fa7451f8d088ac8b93499a94490e2cc
+  sha256: 02f9af89421f0c77218f4c53e67e395a6aa788eea4b800c0b1771341129e9aed
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0

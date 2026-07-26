@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-system-event-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business System Event Schema V1",
+  "description": "Canonical provider-neutral event envelope emitted by or mirrored from a business system.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "action_class",
+    "capability_namespace",
+    "occurred_utc",
+    "actor_scope",
+    "external_system_reference"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "event_type": {"type": "string", "minLength": 1},
+    "action_class": {"$ref": "business-system-event-schema-v1.json#/$defs/action_class"},
+    "capability_namespace": {"$ref": "business-system-event-schema-v1.json#/$defs/capability_namespace"},
+    "occurred_utc": {"type": "string", "format": "date-time"},
+    "actor_scope": {"$ref": "business-system-event-schema-v1.json#/$defs/actor_scope"},
+    "external_system_reference": {"$ref": "external-system-reference-schema-v1.json"},
+    "payload": {"$ref": "business-system-event-schema-v1.json#/$defs/safe_object"},
+    "payload_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "metadata": {"$ref": "business-system-event-schema-v1.json#/$defs/safe_object"}
+  },
+  "$defs": {
+    "action_class": {
+      "type": "string",
+      "enum": [
+        "query",
+        "create_draft",
+        "update_draft",
+        "request_commit",
+        "request_cancel",
+        "sync_event"
+      ]
+    },
+    "capability_namespace": {
+      "type": "string",
+      "enum": [
+        "party/customer",
+        "catalog/item",
+        "inventory",
+        "sales/pos",
+        "purchasing",
+        "service/work-order",
+        "scheduling",
+        "timekeeping",
+        "accounting/invoice",
+        "farm/poultry",
+        "farm/beef-cattle",
+        "processing/meat",
+        "kitchen/production",
+        "warehouse/storage",
+        "logistics/fleet",
+        "logistics/dispatch",
+        "logistics/towing",
+        "logistics/delivery",
+        "logistics/route-zone"
+      ]
+    },
+    "actor_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["organization_id", "site_id", "actor_id"],
+      "properties": {
+        "organization_id": {"type": "string", "minLength": 1},
+        "site_id": {"type": "string", "minLength": 1},
+        "actor_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "business-system-event-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "business-system-event-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "business-system-event-schema-v1.json#/$defs/safe_value"
+      }
+    }
+  }
+}

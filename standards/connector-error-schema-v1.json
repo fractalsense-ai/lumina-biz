@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/connector-error-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Connector Error Schema V1",
+  "description": "Canonical provider-neutral connector error envelope.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["code", "message", "severity", "retryable"],
+  "properties": {
+    "code": {"type": "string", "minLength": 1},
+    "message": {"type": "string", "minLength": 1, "maxLength": 2048},
+    "severity": {"type": "string", "enum": ["info", "warning", "error", "critical"]},
+    "retryable": {"type": "boolean"},
+    "action_class": {
+      "type": ["string", "null"],
+      "enum": [
+        "query",
+        "create_draft",
+        "update_draft",
+        "request_commit",
+        "request_cancel",
+        "sync_event",
+        null
+      ]
+    },
+    "capability_namespace": {
+      "type": ["string", "null"],
+      "enum": [
+        "party/customer",
+        "catalog/item",
+        "inventory",
+        "sales/pos",
+        "purchasing",
+        "service/work-order",
+        "scheduling",
+        "timekeeping",
+        "accounting/invoice",
+        "farm/poultry",
+        "farm/beef-cattle",
+        "processing/meat",
+        "kitchen/production",
+        "warehouse/storage",
+        "logistics/fleet",
+        "logistics/dispatch",
+        "logistics/towing",
+        "logistics/delivery",
+        "logistics/route-zone",
+        null
+      ]
+    },
+    "provider_error_code": {"type": ["string", "null"]},
+    "provider_message": {"type": ["string", "null"], "maxLength": 2048},
+    "details": {
+      "$ref": "connector-error-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "connector-error-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "connector-error-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "connector-error-schema-v1.json#/$defs/safe_value"
+      }
+    }
+  }
+}

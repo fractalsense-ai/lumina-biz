@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-logistics-trip-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business Logistics Trip Schema V1",
+  "description": "Canonical provider-neutral trip contract for dispatch, towing, and final-mile delivery routing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trip_id",
+    "capability_namespace",
+    "status",
+    "route_zone_id",
+    "primary_asset",
+    "stops"
+  ],
+  "properties": {
+    "trip_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_namespace": {
+      "type": "string",
+      "enum": [
+        "logistics/dispatch",
+        "logistics/towing",
+        "logistics/delivery"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "assigned",
+        "en_route",
+        "completed",
+        "exception",
+        "cancelled"
+      ]
+    },
+    "route_zone_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "primary_asset": {
+      "$ref": "business-logistics-asset-schema-v1.json"
+    },
+    "supporting_assets": {
+      "type": "array",
+      "items": {
+        "$ref": "business-logistics-asset-schema-v1.json"
+      }
+    },
+    "shipment_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "stops": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "$ref": "business-logistics-trip-schema-v1.json#/$defs/stop"
+      }
+    },
+    "metadata": {
+      "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "stop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "stop_role",
+        "facility_reference",
+        "planned_arrival_utc"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "stop_role": {
+          "type": "string",
+          "enum": [
+            "pickup",
+            "dropoff",
+            "transfer",
+            "service",
+            "tow_origin",
+            "tow_destination"
+          ]
+        },
+        "facility_reference": {
+          "$ref": "external-system-reference-schema-v1.json"
+        },
+        "planned_arrival_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "planned_departure_utc": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "business-logistics-trip-schema-v1.json#/$defs/safe_value"
+      }
+    }
+  }
+}

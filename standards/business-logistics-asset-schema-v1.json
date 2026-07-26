@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-logistics-asset-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business Logistics Asset Schema V1",
+  "description": "Canonical provider-neutral logistics asset contract for fleets, trailers, and support equipment.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "asset_id",
+    "asset_type",
+    "status",
+    "home_hub_reference"
+  ],
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "vehicle",
+        "trailer",
+        "equipment"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "in_service",
+        "out_of_service"
+      ]
+    },
+    "fleet_class": {
+      "type": ["string", "null"],
+      "enum": [
+        "linehaul",
+        "local_delivery",
+        "towing_unit",
+        "support_unit",
+        null
+      ]
+    },
+    "home_hub_reference": {
+      "$ref": "external-system-reference-schema-v1.json"
+    },
+    "capacity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["kg", "lb", "crate", "pallet", "head"]
+        }
+      }
+    },
+    "metadata": {
+      "$ref": "business-logistics-asset-schema-v1.json#/$defs/safe_object"
+    }
+  },
+  "$defs": {
+    "safe_value": {
+      "oneOf": [
+        {"type": ["string", "number", "boolean", "null"]},
+        {
+          "type": "array",
+          "items": {
+            "$ref": "business-logistics-asset-schema-v1.json#/$defs/safe_value"
+          }
+        },
+        {
+          "$ref": "business-logistics-asset-schema-v1.json#/$defs/safe_object"
+        }
+      ]
+    },
+    "safe_object": {
+      "type": "object",
+      "propertyNames": {
+        "not": {
+          "pattern": "^(api_key|apikey|token|access_token|refresh_token|password|secret|client_secret|private_key|authorization|bearer_token)$"
+        }
+      },
+      "additionalProperties": {
+        "$ref": "business-logistics-asset-schema-v1.json#/$defs/safe_value"
+      }
+    }
+  }
+}

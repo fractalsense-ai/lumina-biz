@@ -1,13 +1,13 @@
 ---
-version: 1.2.0
-last_updated: 2026-07-11
+version: 1.2.1
+last_updated: 2026-07-26
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.0
+**Version:** 1.2.1
 **Status:** Active
-**Last updated:** 2026-07-11
+**Last updated:** 2026-07-26
 
 ---
 
@@ -55,7 +55,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [27](slices/27-institutional-vector-memory-layer.md) | Institutional Vector Memory Layer | Delivered |
 | [28](slices/28-semantic-thread-routing-and-forking.md) | Semantic Thread Routing and Context Forking | Delivered |
 | [29](slices/29-decision-precedent-confidence-and-escalation.md) | Decision Precedent, Confidence, and Escalation | Planned |
-| [30](slices/30-erpnext-adapter-foundation-and-fixtures.md) | Canonical Business-System Contracts and Capability Taxonomy | Planned |
+| [30](slices/30-erpnext-adapter-foundation-and-fixtures.md) | Canonical Business-System Contracts and Capability Taxonomy | Delivered |
 | [31](slices/31-business-ops-pack-bootstrap.md) | Connector Registry and Capability Routing | Planned |
 | [32](slices/32-auto-repair-mvp-and-single-box-deployment.md) | Business Ops Pack Bootstrap | Planned |
 | [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Planned |

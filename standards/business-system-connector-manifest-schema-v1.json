@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectlumina.org/standards/business-system-connector-manifest-schema-v1.json",
+  "schema_version": "1.0.0",
+  "last_updated": "2026-07-24",
+  "title": "Business System Connector Manifest Schema V1",
+  "description": "Provider-neutral connector manifest declaring capability and action-class conformance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "connector_id",
+    "display_name",
+    "provider_family",
+    "version",
+    "capabilities",
+    "authentication",
+    "supports_action_classes"
+  ],
+  "properties": {
+    "connector_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider_family": {
+      "type": "string",
+      "description": "Informational provider family label only; not used in canonical workflow requirements.",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "business-system-connector-manifest-schema-v1.json#/$defs/capability_declaration"
+      }
+    },
+    "supports_action_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "business-system-connector-manifest-schema-v1.json#/$defs/action_class"
+      },
+      "uniqueItems": true
+    },
+    "authentication": {
+      "$ref": "business-system-connector-manifest-schema-v1.json#/$defs/authentication_contract"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "action_class": {
+      "type": "string",
+      "enum": [
+        "query",
+        "create_draft",
+        "update_draft",
+        "request_commit",
+        "request_cancel",
+        "sync_event"
+      ]
+    },
+    "capability_namespace": {
+      "type": "string",
+      "enum": [
+        "party/customer",
+        "catalog/item",
+        "inventory",
+        "sales/pos",
+        "purchasing",
+        "service/work-order",
+        "scheduling",
+        "timekeeping",
+        "accounting/invoice",
+        "farm/poultry",
+        "farm/beef-cattle",
+        "processing/meat",
+        "kitchen/production",
+        "warehouse/storage",
+        "logistics/fleet",
+        "logistics/dispatch",
+        "logistics/towing",
+        "logistics/delivery",
+        "logistics/route-zone"
+      ]
+    },
+    "capability_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "supported_actions"],
+      "properties": {
+        "namespace": {
+          "$ref": "business-system-connector-manifest-schema-v1.json#/$defs/capability_namespace"
+        },
+        "supported_actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "business-system-connector-manifest-schema-v1.json#/$defs/action_class"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "authentication_contract": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode"],
+          "properties": {
+            "mode": {
+              "const": "none"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "secret_ref"],
+          "properties": {
+            "mode": {
+              "enum": ["runtime_secret", "oauth_token_ref", "api_key_ref", "managed_identity_ref"]
+            },
+            "secret_ref": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Reference to runtime secret/config key; never the credential value."
+            }
+          }
+        }
+      ]
+    }
+  }
+}
