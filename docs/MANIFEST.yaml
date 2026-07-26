@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-07-24
+last_updated: 2026-07-25
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -1066,7 +1066,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: 98d20b6f7ad507adc0a2dc3a726124d034834a8434b9536f323d688945cb7edf
+  sha256: e8740ff78fdf3f80cbdd6abee355e791a1c6c0ede8fab4d4d7964957514ca638
 - path: standards/business-system-connector-manifest-schema-v1.json
   type: schema
   doc_version: 1.0.0
@@ -1078,55 +1078,55 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: f4016f28ae3ccbdbd44e03db6185dcc73d011d86469d23d99bbfef2a76dd79df
+  sha256: 993134a3f0fc3f471f6f29b840ef1baed2a724d8a85472c1e5022a82e2a1c43d
 - path: standards/business-logistics-asset-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: e68d14d81fbcddbbb271cf81abbb2145dbf4d4ae0a347123678aaa7994bddd5b
+  sha256: 9b019bfac4e363ebc5b0dcac6e7500833cdd6c7994540b9d97293aacbd32501a
 - path: standards/business-logistics-shipment-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: a04b099227a3353a696e9b5dec86d2d6297acce2dfb6a881c7d66d2b05af5595
+  sha256: 6b1f988cb1ce3ec54de2082e51c55744641ae051885110261b94a41cbb6721af
 - path: standards/business-logistics-trip-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: 1bfe830dcf126c44ae4765f865c3b962c383746ce3e4353805cf204699953801
+  sha256: 0e79ede37fdb7bdec2bc8aae2f5810d99d4aa8a3d80d84f8e85bd2227e6d8c8d
 - path: standards/business-logistics-dispatch-assignment-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: f4c0f6d9cc2e0a8e96b50c31ee2172709e34425ed31f5585fd91de1983ee268e
+  sha256: 0c796d5f05e0ad2644fcc4368cf5d45afe1723122568bb2400aab3c9759ab66d
 - path: standards/business-logistics-route-optimization-result-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: 29da309f29af2f48c5d35a04cc06195274621a9db121b7665390380985a13c3b
+  sha256: f18cb98321d3b0ea9e55aa1f066c21ad946feb1df9eb9145e7ef7ba276587016
 - path: standards/business-operation-result-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: a49b4eb276b1ebe8eb96ebfb34385fe7d5c9f4543d2105e1569aa5f51c3e2b36
+  sha256: fff794ef572a251c6ac3f5f342ae181d9572359a81bf5814ddfd21aaabe1c607
 - path: standards/business-system-event-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: a5176b902c8f86bf7dad1a2c2982dced48481a471350152fe66833a14b6ec4c4
+  sha256: 57430540a664a63da0e07fba542988ca56db860669a233fa3100ea497099a2cd
 - path: standards/connector-error-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: afc820370f0c8bf865f484dc5169907a1811749b65e548d73a1343bf65bcfdd3
+  sha256: 7fd748c3714f5b6be393b2a1e5da1f20dd8dceb9ff415dec98c4d127b61c8272
 - path: standards/connector-fixture-scenario-schema-v1.json
   type: schema
   doc_version: 1.0.0
