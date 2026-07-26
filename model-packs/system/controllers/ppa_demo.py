@@ -28,6 +28,7 @@ import tempfile
 import uuid
 from pathlib import Path
 from typing import Any
+import importlib.util as _ilu
 
 if hasattr(sys.stdout, "reconfigure"):
     # Avoid Windows cp1252 encoding failures when printing box-drawing chars.
@@ -35,35 +36,27 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-# Allow running from repo root or from the reference-implementations directory
-sys.path.insert(0, os.path.dirname(__file__))
+# Wire import roots for running this file directly from any working directory.
+_THIS_FILE = Path(__file__).resolve()
+_REPO_ROOT = _THIS_FILE.parents[3]
+_SRC_ROOT = _REPO_ROOT / "src"
 
-# Import the orchestrator (same directory — regular import works because
-# dsa-orchestrator.py registers itself in sys.modules via importlib internally)
-import importlib.util as _ilu
+if str(_SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SRC_ROOT))
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
-_orch_spec = _ilu.spec_from_file_location(
-    "ppa_orchestrator",
-    os.path.join(os.path.dirname(__file__), "ppa-orchestrator.py"),
+# Import maintained engine/shared modules from src.
+from lumina.orchestrator.ppa_orchestrator import (  # noqa: E402
+    PPAOrchestrator,
+    hash_record,
+    load_domain_physics,
 )
-_orch_mod = _ilu.module_from_spec(_orch_spec)  # type: ignore[arg-type]
-sys.modules["ppa_orchestrator"] = _orch_mod
-_orch_spec.loader.exec_module(_orch_mod)  # type: ignore[union-attr]
-
-PPAOrchestrator = _orch_mod.PPAOrchestrator
-load_domain_physics = _orch_mod.load_domain_physics
-hash_record = _orch_mod.hash_record
-
-# Import the YAML loader from the shared utility (not from the engine).
-_yaml_spec = _ilu.spec_from_file_location(
-    "yaml_loader",
-    os.path.join(os.path.dirname(__file__), "yaml-loader.py"),
+from lumina.core.yaml_loader import load_yaml  # noqa: E402
+from lumina.systools.system_log_validator import (  # noqa: E402
+    load_ledger,
+    verify_chain,
 )
-_yaml_mod = _ilu.module_from_spec(_yaml_spec)  # type: ignore[arg-type]
-sys.modules["yaml_loader"] = _yaml_mod
-_yaml_spec.loader.exec_module(_yaml_mod)  # type: ignore[union-attr]
-
-load_yaml = _yaml_mod.load_yaml
 
 # Import the education-domain ZPD monitor.
 # The engine no longer loads this automatically; the education integration layer
@@ -71,8 +64,7 @@ load_yaml = _yaml_mod.load_yaml
 # A non-education domain pack (e.g. agriculture) would simply omit these lines.
 _zpd_spec = _ilu.spec_from_file_location(
     "zpd_monitor",
-    os.path.join(os.path.dirname(__file__),
-                 "../model-packs/education/reference-implementations/zpd-monitor-v0.2.py"),
+    str(_REPO_ROOT / "model-packs" / "education" / "domain-lib" / "zpd_monitor_v0_2.py"),
 )
 _zpd_mod = _ilu.module_from_spec(_zpd_spec)  # type: ignore[arg-type]
 sys.modules["zpd_monitor"] = _zpd_mod
@@ -83,24 +75,11 @@ RecentWindow = _zpd_mod.RecentWindow
 LearningState = _zpd_mod.LearningState
 zpd_monitor_step = _zpd_mod.zpd_monitor_step
 
-# Also grab the System Logs chain verifier from system-log-validator.py
-_log_spec = _ilu.spec_from_file_location(
-    "system_log_validator",
-    os.path.join(os.path.dirname(__file__), "system-log-validator.py"),
-)
-_log_mod = _ilu.module_from_spec(_log_spec)  # type: ignore[arg-type]
-sys.modules["system_log_validator"] = _log_mod
-_log_spec.loader.exec_module(_log_mod)  # type: ignore[union-attr]
-
-verify_chain = _log_mod.verify_chain
-load_ledger = _log_mod.load_ledger
-
 
 # ─────────────────────────────────────────────────────────────
 # Repo path helpers
 # ─────────────────────────────────────────────────────────────
 
-_REPO_ROOT = Path(__file__).parent.parent
 _DOMAIN_PHYSICS_PATH = (
     _REPO_ROOT / "model-packs" / "education" / "modules" / "algebra-level-1" / "domain-physics.json"
 )
@@ -553,6 +532,10 @@ def run_demo() -> None:
     except Exception as exc:
         print(f"  ! YAML parse issue ({exc}); using hard-coded Alice profile")
         profile = _ALICE_PROFILE_FALLBACK
+
+    # CommitmentRecord now requires explicit scope identifiers.
+    profile.setdefault("organization_id", "org-demo")
+    profile.setdefault("site_id", "site-demo")
 
     # Record initial mastery for the session summary
     initial_mastery = dict(
