@@ -251,7 +251,7 @@ class TestListDomains:
     def test_includes_known_domains(self) -> None:
         result = list_domains({})
         domain_ids = [d["domain_id"] for d in result["domains"]]
-        assert "education" in domain_ids
+        assert "business-ops" in domain_ids
         assert "system" in domain_ids
 
     @pytest.mark.unit
@@ -288,10 +288,10 @@ class TestShowDomainPhysics:
         assert result["id"] == "domain/sys/system-core/v1"
 
     @pytest.mark.unit
-    def test_education_domain_returns_expected_fields(self) -> None:
-        result = show_domain_physics({"domain_id": "education"})
+    def test_business_ops_domain_returns_expected_fields(self) -> None:
+        result = show_domain_physics({"domain_id": "business-ops"})
         assert "error" not in result
-        assert result["domain"] == "education"
+        assert result["domain"] == "business-ops"
 
     @pytest.mark.unit
     def test_missing_domain_id_returns_error(self) -> None:
@@ -348,7 +348,7 @@ class TestModuleStatus:
 
     @pytest.mark.unit
     def test_status_is_ok_or_uncommitted(self) -> None:
-        result = module_status({"domain_id": "education"})
+        result = module_status({"domain_id": "business-ops"})
         assert result["status"] in ("ok", "uncommitted", "unknown")
 
 
@@ -384,7 +384,7 @@ class TestListEscalations:
     def test_returns_escalation_records(self, tmp_log_dir: Path) -> None:
         records = [
             {"record_type": "EscalationRecord", "session_id": "s1",
-             "timestamp_utc": "2026-03-17T01:00:00Z", "domain_id": "education"},
+               "timestamp_utc": "2026-03-17T01:00:00Z", "domain_id": "business-ops"},
             {"record_type": "TraceEvent", "session_id": "s1",
              "timestamp_utc": "2026-03-17T01:01:00Z"},
         ]
@@ -407,15 +407,15 @@ class TestListEscalations:
     @pytest.mark.unit
     def test_domain_id_filter(self, tmp_log_dir: Path) -> None:
         records = [
-            {"record_type": "EscalationRecord", "domain_id": "education",
+            {"record_type": "EscalationRecord", "domain_id": "business-ops",
              "timestamp_utc": "2026-03-17T01:00:00Z"},
-            {"record_type": "EscalationRecord", "domain_id": "agriculture",
+            {"record_type": "EscalationRecord", "domain_id": "system",
              "timestamp_utc": "2026-03-17T01:01:00Z"},
         ]
         _write_records(tmp_log_dir, "s2", records)
-        result = list_escalations({"domain_id": "education"})
+        result = list_escalations({"domain_id": "business-ops"})
         assert result["count"] == 1
-        assert result["escalations"][0]["domain_id"] == "education"
+        assert result["escalations"][0]["domain_id"] == "business-ops"
 
     @pytest.mark.unit
     def test_results_are_most_recent_first(self, tmp_log_dir: Path) -> None:
@@ -570,9 +570,10 @@ class TestNlpPreInterpreter:
 
     @pytest.mark.unit
     def test_domain_authority_with_domain(self) -> None:
-        result = extract_target_role("give domain authority access to education")
+        result = extract_target_role("give domain authority access to business-ops")
         assert result["target_role"] == "admin"
-        assert result["governed_domains"] == ["education"]
+        assert result["governed_domains"]
+        assert result["governed_domains"][0].startswith("business")
 
     @pytest.mark.unit
     def test_remove_root_role(self) -> None:

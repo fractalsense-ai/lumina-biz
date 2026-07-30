@@ -23,6 +23,9 @@ from lumina.core.domain_registry import DomainRegistry
 from lumina.core.runtime_loader import load_runtime_context
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
+_PRIMARY_DOMAIN = "business-ops"
+_ADMIN_DOMAIN = "system"
+_PRIMARY_DOMAIN_ID = "domain/bizops/auto-repair/v1"
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -228,7 +231,7 @@ class TestListCommandsDomainScoping:
 
     @pytest.mark.integration
     def test_system_domain_excludes_education_ops(self, multi_client: TestClient, multi_api_module) -> None:
-        """When domain_id='system', education-specific ops must not appear."""
+        """When domain_id='system', removed education ops must not appear."""
         token = _register_root(multi_client)
         with patch("lumina.core.slm.slm_available", return_value=True), \
              patch("lumina.core.slm.slm_parse_admin_command") as mock_parse:
@@ -248,24 +251,24 @@ class TestListCommandsDomainScoping:
 
     @pytest.mark.integration
     def test_education_domain_includes_education_ops(self, multi_client: TestClient, multi_api_module) -> None:
-        """When domain_id='education', education-specific ops should appear."""
+        """When domain_id='business-ops', command listing still succeeds and excludes removed ops."""
         token = _register_root(multi_client)
         with patch("lumina.core.slm.slm_available", return_value=True), \
              patch("lumina.core.slm.slm_parse_admin_command") as mock_parse:
             mock_parse.return_value = {
                 "operation": "list_commands",
-                "params": {"domain_id": "education"},
+                "params": {"domain_id": _PRIMARY_DOMAIN},
             }
             resp = multi_client.post(
                 "/api/command",
-                json={"instruction": "list commands", "domain_id": "education"},
+                json={"instruction": "list commands", "domain_id": _PRIMARY_DOMAIN},
                 headers=_auth_header(token),
             )
         assert resp.status_code == 200
         names = {c["name"] for c in resp.json()["result"]["commands"]}
-        # At minimum assign_student and remove_student should be present
-        assert "assign_student" in names, "assign_student missing from education domain"
-        assert "remove_student" in names, "remove_student missing from education domain"
+        leaked = names & _EDUCATION_ONLY_OPS
+        assert not leaked, f"Removed education ops should not be present: {leaked}"
+        assert "list_domains" in names
 
     @pytest.mark.integration
     def test_domain_id_from_request_body(self, multi_client: TestClient, multi_api_module) -> None:
@@ -372,15 +375,15 @@ class TestDepartmentTag:
 
     @pytest.mark.unit
     def test_algebra1_department(self) -> None:
-        path = _REPO_ROOT / "model-packs" / "education" / "modules" / "algebra-1" / "domain-physics.json"
+        path = _REPO_ROOT / "model-packs" / "business-ops" / "modules" / "auto-repair" / "domain-physics.json"
         data = json.loads(path.read_text(encoding="utf-8"))
-        assert data["department"] == "Mathematics"
+        assert data["department"] == "Operations"
 
     @pytest.mark.unit
     def test_agriculture_department(self) -> None:
-        path = _REPO_ROOT / "model-packs" / "agriculture" / "modules" / "operations-level-1" / "domain-physics.json"
+        path = _REPO_ROOT / "model-packs" / "system" / "cfg" / "system-physics.json"
         data = json.loads(path.read_text(encoding="utf-8"))
-        assert data["department"] == "Field Operations"
+        assert data["system_identity"]["system_name"] == "Project Lumina"
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -401,7 +404,7 @@ class TestGracefulDegradationChat:
         ):
             resp = multi_client.post(
                 "/api/chat",
-                json={"message": "hello", "domain_id": "education"},
+                json={"message": "hello", "domain_id": _PRIMARY_DOMAIN},
             )
         assert resp.status_code == 422
         detail = resp.json()["detail"]
@@ -418,7 +421,7 @@ class TestGracefulDegradationChat:
         ):
             resp = multi_client.post(
                 "/api/chat",
-                json={"message": "hello", "domain_id": "education"},
+                json={"message": "hello", "domain_id": _PRIMARY_DOMAIN},
             )
         assert resp.status_code == 503
         detail = resp.json()["detail"]
@@ -432,7 +435,7 @@ class TestGracefulDegradationChat:
         ):
             resp = multi_client.post(
                 "/api/chat",
-                json={"message": "hello", "domain_id": "education"},
+                json={"message": "hello", "domain_id": _PRIMARY_DOMAIN},
             )
         assert resp.status_code == 500
 
@@ -477,13 +480,12 @@ class TestRoleAwareDomainInfo:
     """Feature D: /api/domain-info resolves domain based on authenticated user role."""
 
     @pytest.mark.integration
-    def test_anonymous_returns_education(self, multi_client: TestClient) -> None:
-        """Unauthenticated request defaults to education (unauthenticated_domain)."""
+    def test_anonymous_returns_default_domain(self, multi_client: TestClient) -> None:
+        """Unauthenticated request defaults to unauthenticated_domain."""
         resp = multi_client.get("/api/domain-info")
         assert resp.status_code == 200
         body = resp.json()
-        assert body["ui_manifest"]["domain_label"] == "Education"
-        assert body["ui_manifest"]["subtitle"] == "Education"
+        assert body["domain_id"] == _PRIMARY_DOMAIN_ID
 
     @pytest.mark.integration
     def test_root_returns_system(self, multi_client: TestClient) -> None:
@@ -504,16 +506,16 @@ class TestRoleAwareDomainInfo:
         token = _make_token("root")
         resp = multi_client.get(
             "/api/domain-info",
-            params={"domain_id": "education"},
+            params={"domain_id": _PRIMARY_DOMAIN},
             headers=_auth_header(token),
         )
         assert resp.status_code == 200
         body = resp.json()
-        assert body["ui_manifest"]["domain_label"] == "Education"
+        assert body["domain_id"] == _PRIMARY_DOMAIN_ID
 
     @pytest.mark.integration
-    def test_regular_user_returns_education(self, multi_client: TestClient) -> None:
-        """A regular user with no role_defaults override gets education (global default)."""
+    def test_regular_user_returns_default_domain(self, multi_client: TestClient) -> None:
+        """A regular user with no role_defaults override gets global default."""
         token = _make_token("user")
         resp = multi_client.get(
             "/api/domain-info",
@@ -521,4 +523,4 @@ class TestRoleAwareDomainInfo:
         )
         assert resp.status_code == 200
         body = resp.json()
-        assert body["ui_manifest"]["domain_label"] == "Education"
+        assert body["domain_id"] == _PRIMARY_DOMAIN_ID
