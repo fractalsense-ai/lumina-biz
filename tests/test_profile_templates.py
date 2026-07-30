@@ -197,7 +197,7 @@ class TestEnsureUserProfile:
 
         flat_template = layers / "flat.yaml"
         flat_template.write_text(yaml.safe_dump({
-            "student_id": None, "domain_id": "domain/edu/algebra-level-1/v1",
+            "student_id": None, "domain_id": "domain/bizops/auto-repair/v1",
             "learning_state": {"challenge": 0.3},
         }), encoding="utf-8")
 
@@ -222,7 +222,7 @@ class TestEnsureUserProfile:
             },
         }
         path = _ensure_user_profile(
-            "user_001", "education",
+            "user_001", "business-ops",
             template_path=profile_env["flat_template"],
             runtime=runtime, domain_role="student",
         )
@@ -243,7 +243,7 @@ class TestEnsureUserProfile:
             },
         }
         path = _ensure_user_profile(
-            "user_002", "education",
+            "user_002", "business-ops",
             template_path=profile_env["flat_template"],
             runtime=runtime, domain_role="teacher",
         )
@@ -264,7 +264,7 @@ class TestEnsureUserProfile:
             },
         }
         path = _ensure_user_profile(
-            "da_001", "education",
+            "da_001", "business-ops",
             template_path=profile_env["flat_template"],
             runtime=runtime, domain_role=None, system_role="admin",
         )
@@ -277,11 +277,11 @@ class TestEnsureUserProfile:
     def test_backward_compat_flat_copy(self, profile_env):
         """Without profile_templates, falls back to shutil.copy2."""
         path = _ensure_user_profile(
-            "user_flat", "education",
+            "user_flat", "business-ops",
             template_path=profile_env["flat_template"],
         )
         profile = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-        assert profile["domain_id"] == "domain/edu/algebra-level-1/v1"
+        assert profile["domain_id"] == "domain/bizops/auto-repair/v1"
         assert profile["learning_state"]["challenge"] == 0.3
 
     def test_existing_profile_not_overwritten(self, profile_env):
@@ -297,13 +297,13 @@ class TestEnsureUserProfile:
         }
         # First call creates profile as student
         path1 = _ensure_user_profile(
-            "user_existing", "education",
+            "user_existing", "business-ops",
             template_path=profile_env["flat_template"],
             runtime=runtime, domain_role="student",
         )
         # Second call with teacher role should NOT overwrite
         path2 = _ensure_user_profile(
-            "user_existing", "education",
+            "user_existing", "business-ops",
             template_path=profile_env["flat_template"],
             runtime=runtime, domain_role="teacher",
         )
@@ -324,7 +324,7 @@ class TestEnsureUserProfile:
             },
         }
         path = _ensure_user_profile(
-            "user_unknown", "education",
+            "user_unknown", "business-ops",
             template_path=profile_env["flat_template"],
             runtime=runtime, domain_role="observer",
         )
@@ -341,32 +341,24 @@ class TestRealLayerFiles:
     """Verify the actual YAML files in model-packs/ compose correctly."""
 
     BASE_PATH = REPO_ROOT / "model-packs" / "system" / "cfg" / "base-entity-profile.yaml"
-    DOMAIN_EXT = REPO_ROOT / "model-packs" / "education" / "cfg" / "domain-profile-extension.yaml"
-    PROFILES_DIR = REPO_ROOT / "model-packs" / "education" / "profiles"
+    DOMAIN_EXT = REPO_ROOT / "model-packs" / "business-ops" / "cfg" / "domain-profile-extension.yaml"
+    PROFILE_TEMPLATE = REPO_ROOT / "model-packs" / "business-ops" / "profiles" / "entity.yaml"
 
-    @pytest.mark.parametrize("role,expected_key,absent_key", [
-        ("student", "learning_state", "educator_state"),
-        ("teacher", "educator_state", "learning_state"),
-        ("teaching_assistant", "assistant_state", "educator_state"),
-        ("parent", "guardian_state", "learning_state"),
-    ])
-    def test_layer_composition(self, role, expected_key, absent_key):
-        role_path = self.PROFILES_DIR / f"{role}.yaml"
-        assert role_path.exists(), f"Missing role template: {role_path}"
+    def test_layer_composition(self):
+        assert self.PROFILE_TEMPLATE.exists(), f"Missing role template: {self.PROFILE_TEMPLATE}"
 
-        profile = _assemble_profile(
-            str(self.BASE_PATH), str(self.DOMAIN_EXT), str(role_path),
-        )
+        profile = _assemble_profile(str(self.BASE_PATH), str(self.DOMAIN_EXT), str(self.PROFILE_TEMPLATE))
         # Base fields
         assert "entity_id" in profile
         assert "preferences" in profile
         assert profile["preferences"]["language"] == "en"
         # Domain extension fields
         assert "consent" in profile
-        assert "session_history" in profile
+        assert "organization_context" in profile
         # Role-specific fields
-        assert expected_key in profile, f"Expected '{expected_key}' in {role} profile"
-        assert absent_key not in profile, f"Unexpected '{absent_key}' in {role} profile"
+        assert "entity_state" in profile
+        assert "learning_state" not in profile
+        assert "educator_state" not in profile
 
 
 # ---------------------------------------------------------------------------

@@ -320,49 +320,23 @@ class TestPerModuleLocalOnly:
         interpret_mock.assert_called_once()
 
     def test_all_governance_modules_have_local_only_in_config(self) -> None:
-        """Verify runtime-config.yaml has local_only: true on all governance modules."""
+        """Verify active system runtime remains local-only for governance commands."""
         from lumina.core.yaml_loader import load_yaml
-        from conftest import merge_module_config_sidecars
 
-        cfg = load_yaml(str(REPO_ROOT / "model-packs/business-ops/cfg/runtime-config.yaml"))
-        module_map = cfg.get("runtime", {}).get("module_map", {})
-        merge_module_config_sidecars(module_map)
-
-        governance_modules = [
-            "domain/edu/domain-authority/v1",
-            "domain/edu/teacher/v1",
-            "domain/edu/teaching-assistant/v1",
-            "domain/edu/guardian/v1",
-        ]
-
-        for mod_id in governance_modules:
-            assert mod_id in module_map, f"Missing governance module: {mod_id}"
-            assert module_map[mod_id].get("local_only") is True, (
-                f"Governance module {mod_id} must have local_only: true"
-            )
+        cfg = load_yaml(str(REPO_ROOT / "model-packs/system/cfg/runtime-config.yaml"))
+        assert cfg.get("runtime", {}).get("local_only") is True
 
     def test_student_modules_no_local_only_in_config(self) -> None:
-        """Student/learning modules must NOT have local_only set."""
+        """Business-ops runtime module must not be marked local_only."""
         from lumina.core.yaml_loader import load_yaml
         from conftest import merge_module_config_sidecars
 
         cfg = load_yaml(str(REPO_ROOT / "model-packs/business-ops/cfg/runtime-config.yaml"))
         module_map = cfg.get("runtime", {}).get("module_map", {})
         merge_module_config_sidecars(module_map)
-
-        student_modules = [
-            "domain/edu/general-education/v1",
-            "domain/edu/pre-algebra/v1",
-            "domain/edu/algebra-intro/v1",
-            "domain/edu/algebra-1/v1",
-            "domain/edu/algebra-level-1/v1",
-        ]
-
-        for mod_id in student_modules:
-            if mod_id in module_map:
-                assert not module_map[mod_id].get("local_only"), (
-                    f"Student module {mod_id} must NOT have local_only"
-                )
+        module_id = "domain/bizops/auto-repair/v1"
+        assert module_id in module_map
+        assert not module_map[module_id].get("local_only")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -371,35 +345,35 @@ class TestPerModuleLocalOnly:
 
 @pytest.mark.unit
 class TestGovernanceTechnicalManuals:
-    """Education domain-lib must include governance Technical Manuals."""
+    """Active system domain-lib must include governance interpreter manuals."""
 
     def test_command_interpreter_spec_exists(self) -> None:
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/command-interpreter-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/command-interpreter-spec-v1.md"
         assert path.exists(), "Missing command-interpreter-spec-v1.md"
         text = path.read_text(encoding="utf-8")
         assert "Command Interpreter Specification" in text
-        assert "education" in text.lower()
+        assert "system" in text.lower()
 
     def test_governance_turn_interpretation_spec_exists(self) -> None:
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/governance-turn-interpretation-spec-v1.md"
-        assert path.exists(), "Missing governance-turn-interpretation-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/turn-interpretation-spec-v1.md"
+        assert path.exists(), "Missing turn-interpretation-spec-v1.md"
         text = path.read_text(encoding="utf-8")
-        assert "Governance Turn Interpretation" in text
-        assert "local_only" in text
+        assert "Turn Interpretation Schema" in text
+        assert "admin_command" in text
 
     def test_command_spec_covers_all_operations(self) -> None:
         """Command interpreter spec should reference all key operations."""
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/command-interpreter-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/command-interpreter-spec-v1.md"
         text = path.read_text(encoding="utf-8")
 
         key_operations = [
             "invite_user",
             "list_users",
             "list_modules",
-            "list_escalations",
+            "list_domains",
             "assign_domain_role",
             "revoke_domain_role",
-            "resolve_escalation",
+            "get_domain_physics",
             "update_domain_physics",
         ]
         for op in key_operations:
@@ -407,12 +381,12 @@ class TestGovernanceTechnicalManuals:
 
     def test_governance_spec_contrasts_with_learning(self) -> None:
         """Governance TM should explicitly contrast with learning evidence."""
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/governance-turn-interpretation-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/turn-interpretation-spec-v1.md"
         text = path.read_text(encoding="utf-8")
         # Must mention that governance does NOT produce ZPD/correctness
-        assert "correctness" in text
+        assert "does not track learning state" in text.lower()
         assert "query_type" in text
-        assert "command_dispatch" in text
+        assert "admin_command" in text
 
 
 # ─────────────────────────────────────────────────────────────

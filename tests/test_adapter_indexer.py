@@ -181,30 +181,30 @@ class TestScanToolAdapters:
 
 
 class TestScanRealDomainPacks:
-    """Verify the scanner discovers the 4 known adapters in the real codebase."""
+    """Verify the scanner discovers known adapters in active domain packs."""
 
     @pytest.fixture()
     def repo_root(self) -> Path:
         return Path(__file__).resolve().parents[1]
 
-    def test_education_adapters(self, repo_root: Path):
-        edu = repo_root / "model-packs" / "education"
-        if not edu.is_dir():
-            pytest.skip("Education domain pack not found")
-        result = scan_tool_adapters(edu)
-        assert len(result) >= 3
+    def test_coding_agent_adapters(self, repo_root: Path):
+        pack = repo_root / "model-packs" / "coding-agent"
+        if not pack.is_dir():
+            pytest.skip("coding-agent domain pack not found")
+        result = scan_tool_adapters(pack)
+        assert len(result) >= 4
         ids = set(result.keys())
-        assert "adapter/edu/calculator/v1" in ids
-        assert "adapter/edu/algebra-parser/v1" in ids
-        assert "adapter/edu/substitution-checker/v1" in ids
+        assert "adapter/ca/read-file/v1" in ids
+        assert "adapter/ca/run-tests/v1" in ids
+        assert "adapter/ca/stage-patch/v1" in ids
+        assert "adapter/ca/write-file/v1" in ids
 
-    def test_agriculture_adapter(self, repo_root: Path):
-        agri = repo_root / "model-packs" / "agriculture"
-        if not agri.is_dir():
-            pytest.skip("Agriculture domain pack not found")
-        result = scan_tool_adapters(agri)
-        assert len(result) >= 1
-        assert "adapter/agri/collar-sensor/v1" in set(result.keys())
+    def test_template_adapter_present_in_global_index(self, repo_root: Path):
+        dp_root = repo_root / "model-packs"
+        if not dp_root.is_dir():
+            pytest.skip("model-packs not found")
+        index = build_router_index(dp_root)
+        assert "adapter/tmpl/example-tool/v1" in set(index.adapters.keys())
 
 
 # ===================================================================
@@ -267,7 +267,7 @@ class TestBuildRouterIndex:
         if not dp_root.is_dir():
             pytest.skip("model-packs not found")
         index = build_router_index(dp_root)
-        assert len(index.adapters) >= 4  # 3 edu + 1 agri
+        assert len(index.adapters) >= 5
         assert len(index.runtime_adapter_modules) >= 2
 
     def test_duplicate_id_keeps_first(self, tmp_path: Path):
@@ -322,10 +322,10 @@ class TestScanGroupResourcesIntegration:
         assert "group_libraries" in d
         assert "group_tools" in d
 
-    def test_real_agriculture_group_libraries(self):
+    def test_real_system_group_libraries(self):
         repo_root = Path(__file__).resolve().parents[1]
-        agri = repo_root / "model-packs" / "agriculture"
-        if not agri.is_dir():
-            pytest.skip("Agriculture domain pack not found")
-        libs, _ = scan_group_resources(agri)
-        assert any("environmental_sensors" in k for k in libs)
+        system = repo_root / "model-packs" / "system"
+        if not system.is_dir():
+            pytest.skip("System domain pack not found")
+        libs, _ = scan_group_resources(system)
+        assert any("system_health" in k for k in libs)

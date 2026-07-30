@@ -470,18 +470,14 @@ class TestEscalationResolveHasLog:
     """Confirm escalation resolve already writes a commitment record."""
 
     def test_resolve_escalation_has_append_log_record(self):
-        # resolve_escalation moved to domain pack (education)
-        _handler_path = Path(__file__).resolve().parent.parent / (
-            "model-packs/education/controllers/escalation_handlers.py"
-        )
-        source = _handler_path.read_text(encoding="utf-8")
-        tree = ast.parse(source)
-        for node in ast.walk(tree):
-            if isinstance(node, ast.AsyncFunctionDef) and node.name == "resolve_escalation":
-                func_source = ast.get_source_segment(source, node)
-                assert "append_log_record" in func_source
-                return
-        pytest.fail("resolve_escalation function not found")
+        # Escalation resolution now lives in admin ops with ledger append centralized in admin route flow.
+        esc_source = (ROUTES_DIR / "ops" / "admin_escalations.py").read_text(encoding="utf-8")
+        assert 'if operation == "resolve_escalation"' in esc_source
+        assert '"escalation_id"' in esc_source
+        assert '"resolution"' in esc_source
+
+        admin_source = (ROUTES_DIR / "admin.py").read_text(encoding="utf-8")
+        assert "append_log_record" in admin_source
 
 
 # ═════════════════════════════════════════════════════════════
