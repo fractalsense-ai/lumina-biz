@@ -3,7 +3,7 @@
     Build all frontend packages (domain packs first, then framework).
 
 .DESCRIPTION
-    Builds domain-pack web bundles (education, system) before the framework
+    Builds domain-pack web bundles (business-ops, system) before the framework
     so that build-time aliases resolve correctly. Each package runs
     `npm install` (if node_modules missing) then `npm run build`.
 
@@ -17,7 +17,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 
 $packages = @(
-    "model-packs/education/web",
+    "model-packs/business-ops/web",
     "model-packs/system/web",
     "src/web"
 )

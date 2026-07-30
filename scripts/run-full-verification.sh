@@ -179,7 +179,22 @@ if [ "$SKIP_API_SCENARIOS" = "false" ]; then
         export LUMINA_PORT="$API_PORT"
 
         if [ -z "${LUMINA_RUNTIME_CONFIG_PATH:-}" ]; then
-            DEFAULT_RUNTIME_CONFIG="model-packs/education/runtime-config.yaml"
+            for candidate in \
+                "model-packs/business-ops/cfg/runtime-config.yaml" \
+                "model-packs/system/cfg/runtime-config.yaml" \
+                "model-packs/coding-agent/cfg/runtime-config.yaml"
+            do
+                if [ -f "$candidate" ]; then
+                    DEFAULT_RUNTIME_CONFIG="$candidate"
+                    break
+                fi
+            done
+
+            if [ -z "${DEFAULT_RUNTIME_CONFIG:-}" ]; then
+                echo "ERROR: Unable to pick default runtime config from known candidates" >&2
+                exit 1
+            fi
+
             echo "LUMINA_RUNTIME_CONFIG_PATH not set; defaulting to '$DEFAULT_RUNTIME_CONFIG' for local API startup."
             export LUMINA_RUNTIME_CONFIG_PATH="$DEFAULT_RUNTIME_CONFIG"
         fi
