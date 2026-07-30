@@ -26,6 +26,7 @@ API_BASE_URL="http://127.0.0.1:8000"
 SKIP_ORCHESTRATOR_DEMO=false
 SKIP_FRONTEND=false
 SKIP_API_SCENARIOS=false
+SKIP_BUSINESS_OPS_REPLAY=false
 
 # ── Parse arguments ───────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -35,6 +36,7 @@ while [[ $# -gt 0 ]]; do
         --skip-orchestrator-demo) SKIP_ORCHESTRATOR_DEMO=true; shift;;
         --skip-frontend)          SKIP_FRONTEND=true; shift;;
         --skip-api-scenarios)     SKIP_API_SCENARIOS=true; shift;;
+        --skip-business-ops-replay) SKIP_BUSINESS_OPS_REPLAY=true; shift;;
         *) echo "Unknown argument: $1" >&2; exit 1;;
     esac
 done
@@ -117,6 +119,11 @@ section "Manifest Integrity"
 if [ "$SKIP_ORCHESTRATOR_DEMO" = "false" ]; then
     section "Orchestrator Demo"
     "$PYTHON" "reference-implementations/dsa-orchestrator-demo.py"
+fi
+
+if [ "$SKIP_BUSINESS_OPS_REPLAY" = "false" ]; then
+    section "Business Ops Replay Evidence"
+    "$PYTHON" "scripts/run_business_ops_replay.py" --out "data/staging/business-ops-replay-report.json"
 fi
 
 # ── Front-End Build (optional) ────────────────────────────────────────────────

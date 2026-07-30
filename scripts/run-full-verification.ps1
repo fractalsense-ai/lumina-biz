@@ -3,7 +3,8 @@ param(
     [string]$ApiBaseUrl = "http://127.0.0.1:8000",
     [switch]$SkipOrchestratorDemo,
     [switch]$SkipFrontend,
-    [switch]$SkipApiScenarios
+    [switch]$SkipApiScenarios,
+    [switch]$SkipBusinessOpsReplay
 )
 
 $ErrorActionPreference = "Stop"
@@ -102,6 +103,14 @@ if (-not $SkipOrchestratorDemo) {
     & $PythonExe "model-packs/system/controllers/ppa_demo.py"
     if ($LASTEXITCODE -ne 0) {
         throw "dsa-orchestrator-demo.py failed"
+    }
+}
+
+if (-not $SkipBusinessOpsReplay) {
+    Write-Section "Business Ops Replay Evidence"
+    & $PythonExe "scripts/run_business_ops_replay.py" --out "data/staging/business-ops-replay-report.json"
+    if ($LASTEXITCODE -ne 0) {
+        throw "run_business_ops_replay.py failed"
     }
 }
 
