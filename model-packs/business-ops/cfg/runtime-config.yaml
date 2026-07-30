@@ -1,10 +1,72 @@
 # version: 1.0.0
-# last_updated: 2026-07-19
-# Policy-only Business Ops foundation for Slice 28.
-#
-# This is intentionally not an activatable domain runtime configuration yet.
-# Slice 32 adds the full Business Ops pack, including adapters, profiles,
-# domain physics, modules, and role mappings.
+# last_updated: 2026-07-30
 pack_id: business-ops
 policy_version: 1
 thread_routing_policy_path: model-packs/business-ops/cfg/thread-routing-policy.yaml
+decision_precedent_policy_path: model-packs/business-ops/cfg/decision-precedent-policy.yaml
+
+runtime:
+  global_system_prompt_path: docs/5-standards/global-system-prompt.md
+  domain_system_prompt_path: model-packs/business-ops/prompts/domain-persona-v1.md
+  turn_interpretation_prompt_path: model-packs/business-ops/domain-lib/reference/turn-interpretation-spec-v1.md
+  domain_physics_path: model-packs/business-ops/modules/auto-repair/domain-physics.json
+  subject_profile_path: model-packs/business-ops/profiles/entity.yaml
+  base_profile_path: model-packs/system/cfg/base-entity-profile.yaml
+  domain_profile_extension_path: model-packs/business-ops/cfg/domain-profile-extension.yaml
+
+  profile_templates:
+    default: model-packs/business-ops/profiles/entity.yaml
+
+  slm_weight_overrides:
+    turn_interpretation: low
+
+  module_map:
+    domain/bizops/auto-repair/v1:
+      module_path: model-packs/business-ops/modules/auto-repair
+
+  domain_roles:
+    owner: { tier: admin, label: "Owner" }
+    manager: { tier: operator, label: "Manager" }
+    operator: { tier: user, label: "Operator" }
+    front_desk: { tier: user, label: "Front Desk" }
+    customer_intake: { tier: guest, label: "Customer Intake" }
+
+  access_control:
+    required_role: user
+    min_tier: user
+
+  turn_input_schema:
+    risk_class:
+      type: str
+      default: operational
+      description: "Risk class for the current recommendation path."
+    contains_high_risk_terms:
+      type: bool
+      default: false
+      description: "Whether deterministic pre-interpretation flagged high-risk terms."
+    explicit_approval_language:
+      type: bool
+      default: false
+      description: "Whether user text contains explicit approval wording."
+
+  action_prompt_type_map:
+    recommend_next_step: task_presentation
+    stage_erp_draft_update: request_confirmation
+    escalate: escalate
+
+  deterministic_templates:
+    task_presentation: "Recommended next step prepared for review."
+    request_confirmation: "Please confirm approval before staging ERP draft changes."
+    escalate: "This case requires owner or manager escalation."
+    default: "Proceed with bounded business-ops workflow."
+
+adapters:
+  state_builder:
+    module_path: model-packs/business-ops/controllers/runtime_adapters.py
+    callable: build_initial_state
+  domain_step:
+    module_path: model-packs/business-ops/controllers/runtime_adapters.py
+    callable: domain_step
+  turn_interpreter:
+    module_path: model-packs/business-ops/controllers/runtime_adapters.py
+    callable: interpret_turn_input

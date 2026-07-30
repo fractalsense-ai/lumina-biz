@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_id": "business-ops-auto-repair-e2e-v1",
+  "scope": {
+    "organization_id": "org-auto-1",
+    "site_id": "site-west-1",
+    "actor_id": "operator-17"
+  },
+  "thread_routing": {
+    "decision_id": "tr-decision-001",
+    "new_thread_id": "thread-new-001",
+    "candidates": [
+      {"thread_id": "thread-existing-1", "summary_record_id": "sum-1", "score": 0.91},
+      {"thread_id": "thread-existing-2", "summary_record_id": "sum-2", "score": 0.88}
+    ],
+    "expected": {
+      "decision": "attach_existing",
+      "thread_id": "thread-existing-1",
+      "rationale_code": "ambiguous_attach",
+      "operator_confirmation_required": true
+    }
+  },
+  "decision_precedent": {
+    "record_id": "dp-score-001",
+    "evaluated_utc": "2026-07-30T12:00:00Z",
+    "risk_class": "operational",
+    "candidates": [
+      {"summary_record_id": "sum-1", "thread_id": "thread-existing-1", "similarity": 0.9, "created_utc": "2026-07-29T09:00:00Z"}
+    ],
+    "expected": {
+      "tier": "require_confirmation",
+      "final_score": 0.9
+    }
+  },
+  "connector_resolution": {
+    "request_id": "conn-req-001",
+    "action_class": "create_draft",
+    "capability_namespace": "erp/work-order",
+    "idempotency_key": "idem-001",
+    "correlation_id": "corr-001",
+    "entries": [
+      {
+        "organization_id": "org-auto-1",
+        "site_id": "site-west-1",
+        "connector_instance_id": "conn-erp-1",
+        "capability_namespaces": ["erp/work-order", "erp/customer"],
+        "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+        "enabled": true,
+        "health_status": "healthy",
+        "is_site_primary": true
+      }
+    ],
+    "routes": [
+      {
+        "capability_namespace": "erp/work-order",
+        "connector_instance_id": "conn-erp-1",
+        "supported_action_classes": ["create_draft", "update_draft"],
+        "priority": 10
+      }
+    ],
+    "expected": {
+      "status": "resolved",
+      "source": "capability_route",
+      "reason_code": "ok",
+      "connector_instance_id": "conn-erp-1"
+    }
+  }
+}

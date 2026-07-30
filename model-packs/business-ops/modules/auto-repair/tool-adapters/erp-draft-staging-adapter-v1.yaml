@@ -1,0 +1,13 @@
+# version: 1.0.0
+# last_updated: 2026-07-30
+adapter_id: adapter/business-ops/erp-draft-stage/v1
+description: "Stage ERP work-order and estimate mutations as drafts only."
+capability: erp/work-order
+mode: staged_only
+requires:
+  - correlation_id
+  - idempotency_key
+  - actor_role
+forbidden:
+  - direct_commit
+  - credential_material

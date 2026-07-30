@@ -1,0 +1,25 @@
+# version: 1.0.0
+# last_updated: 2026-07-30
+domain_physics_path: model-packs/business-ops/modules/auto-repair/domain-physics.json
+
+initial_module_state:
+  open_draft_count: 0
+  last_recommendation_tier: null
+  turn_count: 0
+
+default_task_spec:
+  task_id: auto-repair-intake-001
+  operation_category: diagnostics
+  nominal_difficulty: 0.45
+  connector_capability: erp/work-order
+
+domain_step_params:
+  require_manager_approval_for_high_risk: true
+
+turn_input_defaults:
+  risk_class: operational
+  contains_high_risk_terms: false
+  explicit_approval_language: false
+
+ui_overrides:
+  subtitle: "Auto Repair MVP"

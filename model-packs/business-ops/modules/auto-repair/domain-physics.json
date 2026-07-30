@@ -1,0 +1,64 @@
+{
+  "id": "domain/bizops/auto-repair/v1",
+  "version": "0.1.0",
+  "admin": {
+    "name": "Business Ops Authority",
+    "role": "Domain Authority",
+    "pseudonymous_id": "da_business_ops_001"
+  },
+  "meta_authority_id": "root",
+  "description": "Auto repair MVP workflow with bounded recommendation, escalation, and staged ERP draft updates.",
+  "department": "Operations",
+  "lumina_core_version": "1.0.0",
+  "invariants": [
+    {
+      "id": "high_risk_requires_approval",
+      "description": "High-risk operations cannot proceed without owner or manager approval.",
+      "severity": "critical",
+      "check": "contains_high_risk_terms == true and explicit_approval_language == false",
+      "standing_order_on_violation": "escalate_to_manager"
+    },
+    {
+      "id": "mutation_must_be_staged",
+      "description": "Mutations must be staged as drafts and never directly committed by this pack.",
+      "severity": "warning",
+      "check": "action_class == 'mutate'",
+      "standing_order_on_violation": "stage_draft_only"
+    }
+  ],
+  "standing_orders": [
+    {
+      "id": "recommend_next_step",
+      "action": "recommend_next_step",
+      "trigger_condition": "contains_high_risk_terms == false",
+      "max_attempts": 3,
+      "escalation_on_exhaust": false,
+      "description": "Provide a precedent-assisted recommendation."
+    },
+    {
+      "id": "stage_draft_only",
+      "action": "stage_erp_draft_update",
+      "trigger_condition": "explicit_approval_language == true",
+      "max_attempts": 1,
+      "escalation_on_exhaust": false,
+      "description": "Create bounded ERP draft updates only."
+    },
+    {
+      "id": "escalate_to_manager",
+      "action": "escalate",
+      "trigger_condition": "contains_high_risk_terms == true and explicit_approval_language == false",
+      "max_attempts": 1,
+      "escalation_on_exhaust": true,
+      "description": "Escalate high-risk case for owner or manager approval."
+    }
+  ],
+  "escalation_triggers": [
+    {
+      "id": "high_risk_no_approval",
+      "condition": "High-risk recommendation requested without explicit approval context.",
+      "target_role": "admin",
+      "sla_minutes": 15
+    }
+  ],
+  "artifacts": []
+}

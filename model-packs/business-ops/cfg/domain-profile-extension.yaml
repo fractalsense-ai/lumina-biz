@@ -1,0 +1,20 @@
+# version: 1.0.0
+# last_updated: 2026-07-30
+consent:
+  accepted: false
+  consent_timestamp_utc: null
+  consent_version: null
+
+organization_context:
+  organization_id: null
+  site_id: null
+  timezone: "UTC"
+
+memory_policy:
+  institutional_memory_enabled: true
+  retain_raw_transcript: false
+  default_recap_interval_turns: 12
+
+external_refs:
+  erp_system: "erpnext"
+  default_connector_instance_id: null

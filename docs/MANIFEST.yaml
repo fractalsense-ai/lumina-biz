@@ -1517,7 +1517,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: eeb6d1aae718d30278f7d706d7499b27a47eb33d4f4b923e30804ced2afee8fc
+  sha256: c4269ab8d9a5b0d75e79ed854396e5132f4141edda7482092f2677e7bbd63daf
 - path: model-packs/business-ops/cfg/thread-routing-policy.yaml
   type: config
   doc_version: 1.0.0
@@ -2238,3 +2238,65 @@ artifacts:
   status: active
   last_updated: 2026-07-15
   sha256: 31204a3d1a96dd764e98ba48bf15642c73fc6c52e8a84de750917d9f57d150b3
+- path: model-packs/education/docs/3-functions/vocabulary-growth-monitor.md
+  sha256: d227949e5036de99381941c01e2b881fb8b431a4c28dcf2f42cbbe034c4289f4
+- path: model-packs/education/docs/7-concepts/baseline-before-escalation.md
+  sha256: 23a02cee806fda5be2280fe1ce01c1ada8677b1fed0d87fbfdc17786fd977801
+- path: model-packs/education/docs/7-concepts/learning-profile.md
+  sha256: 52eb415769579f60da70978e66dff7535cfe2cea5ac31c2ee719add80c45502d
+- path: model-packs/education/docs/7-concepts/mud-world-builder.md
+  sha256: 8a6cbd1813cd73a149691489edcddb35f38a0bf75ecc6a72c7a249238ff84793
+- path: model-packs/education/docs/7-concepts/student-commons.md
+  sha256: 2767ed0d5128b097ca61d3b30b75c66da92200fdbbda4072fa5d49d16447c2c7
+
+# ── Auto-discovered domain-pack YAMLs ───────────────────────────────────
+
+- path: model-packs/business-ops/cfg/domain-profile-extension.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: 79c99efd00821f0604ca35dc10ba5ff66d220192b63c35bf7c64b4cc57eb2ed8
+
+- path: model-packs/business-ops/cfg/domain-role-map.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: 690835e22d5e9745a355f983b5e4185929367704ea1c0b4fd7aae30f5c970ae1
+
+- path: model-packs/business-ops/modules/auto-repair/domain-physics.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: e19043f39b6ab34bcd67759573602c39c15c77c126eccf6317d2f245e2b5431e
+
+- path: model-packs/business-ops/modules/auto-repair/module-config.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: fc70043e382ff6f78f4e290f0164868eb5044da68690626a3f769bd653d531c6
+
+- path: model-packs/business-ops/modules/auto-repair/tool-adapters/erp-draft-staging-adapter-v1.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: e9fcc6203797d7586d7b334d5fc4f9d3ff0492b18fa8a8757a248436daad922c
+
+- path: model-packs/business-ops/pack.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: 62f2244a5a7a630bad021e5b420b4fd245d1b282a94b58fe1a0a5e37509b9dc5
+
+- path: model-packs/business-ops/profiles/entity.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-07-30
+  sha256: 14d002b81d0d14c1a3bad428ec121b21ce14a98a9c820236eb3225fb516f1d5c
+
