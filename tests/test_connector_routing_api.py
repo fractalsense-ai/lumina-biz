@@ -39,8 +39,8 @@ def _load_api_module():
     return mod
 
 
-def _install_embedder_stub() -> None:
-    """Provide a lightweight embedder module so API import stays hermetic in tests."""
+def _build_embedder_stub() -> types.ModuleType:
+    """Build a lightweight embedder module so API import stays hermetic in tests."""
     fake = types.ModuleType("lumina.retrieval.embedder")
 
     @dataclass(frozen=True)
@@ -81,11 +81,11 @@ def _install_embedder_stub() -> None:
     fake.EMBEDDING_DIM = 384
     fake.DocChunk = _DocChunk
     fake.DocEmbedder = _DocEmbedder
-    sys.modules["lumina.retrieval.embedder"] = fake
+    return fake
 
 
-def _install_vector_store_stub() -> None:
-    """Provide a minimal vector store module to avoid optional numpy imports."""
+def _build_vector_store_stub() -> types.ModuleType:
+    """Build a minimal vector store module to avoid optional numpy imports."""
     fake = types.ModuleType("lumina.retrieval.vector_store")
 
     class _SearchResult:
@@ -114,20 +114,26 @@ def _install_vector_store_stub() -> None:
 
     fake.SearchResult = _SearchResult
     fake.VectorStore = _VectorStore
-    sys.modules["lumina.retrieval.vector_store"] = fake
+    return fake
 
 
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
-    _install_embedder_stub()
-    _install_vector_store_stub()
+    monkeypatch.setitem(sys.modules, "lumina.retrieval.embedder", _build_embedder_stub())
+    monkeypatch.setitem(sys.modules, "lumina.retrieval.vector_store", _build_vector_store_stub())
+    prior_server_module = sys.modules.get("lumina.api.server")
     mod = _load_api_module()
     persistence = _RecordingPersistence()
     mod.PERSISTENCE = persistence
     monkeypatch.setattr(auth, "JWT_SECRET", "test-secret")
-    return TestClient(mod.app), persistence
+    try:
+        yield TestClient(mod.app), persistence
+    finally:
+        sys.modules.pop("lumina.api.server", None)
+        if prior_server_module is not None:
+            sys.modules["lumina.api.server"] = prior_server_module
 
 
 def _token(*, organization_id: str | None = "org-a", site_id: str | None = "site-a") -> str:
@@ -234,3 +240,52 @@ def test_preflight_returns_missing_idempotency_for_mutation(client) -> None:
     assert response.status_code == 200
     assert response.json()["status"] == "error"
     assert response.json()["reason_code"] == "missing_idempotency_key"
+
+
+@pytest.mark.integration
+def test_preflight_normalizes_action_and_health_values(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["action_class"] = "  QUERY  "
+    payload["connector_registry_entries"][0]["health_status"] = "HEALTHY"
+    payload["connector_registry_entries"][0]["supported_action_classes"] = [" QUERY "]
+    payload["capability_routes"][0]["supported_action_classes"] = [" query "]
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "resolved"
+
+
+@pytest.mark.integration
+def test_preflight_rejects_unsupported_health_status(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["connector_registry_entries"][0]["health_status"] = "unknown"
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.integration
+def test_preflight_rejects_unsupported_action_class(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["action_class"] = "delete_forever"
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
