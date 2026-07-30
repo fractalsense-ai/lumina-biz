@@ -34,11 +34,11 @@ def _write_physics(module_dir: Path, data: dict) -> None:
 @pytest.fixture()
 def domain_pack_with_groups(tmp_path: Path) -> Path:
     """Fake domain pack with 2 modules sharing a group library + 1 group tool."""
-    pack = tmp_path / "test-agri"
+    pack = tmp_path / "test-bizops"
 
     # Module 1: declares env_sensors library + irrigation_validator tool
     _write_physics(pack / "modules" / "ops-1", {
-        "domain_id": "agriculture/ops-1",
+        "domain_id": "business-ops/ops-1",
         "group_libraries": [
             {
                 "id": "environmental_sensors",
@@ -60,7 +60,7 @@ def domain_pack_with_groups(tmp_path: Path) -> Path:
 
     # Module 2: also declares env_sensors (same id → should dedup)
     _write_physics(pack / "modules" / "crop-planning", {
-        "domain_id": "agriculture/crop-planning",
+        "domain_id": "business-ops/crop-planning",
         "group_libraries": [
             {
                 "id": "environmental_sensors",
@@ -104,7 +104,7 @@ class TestScanGroupResources:
         entry = libs[key]
         assert isinstance(entry, GroupLibraryEntry)
         assert entry.library_id == "environmental_sensors"
-        assert entry.domain_id == "test-agri"
+        assert entry.domain_id == "test-bizops"
         assert "environmental_sensors.py" in entry.path
         assert entry.description == "Sensor helpers."
         assert "ops-1" in entry.shared_with_modules
@@ -115,7 +115,7 @@ class TestScanGroupResources:
         entry = tools[key]
         assert isinstance(entry, GroupToolEntry)
         assert entry.tool_id == "irrigation_validator"
-        assert entry.domain_id == "test-agri"
+        assert entry.domain_id == "test-bizops"
         assert "validate" in entry.call_types
         assert "dry_run" in entry.call_types
 
@@ -209,7 +209,7 @@ class TestRouterIndexGroupResources:
 
 
 # ===================================================================
-# Test: Real agriculture domain pack group resources
+# Test: Real active domain pack group resources
 # ===================================================================
 
 
@@ -218,18 +218,18 @@ class TestRealGroupResources:
     def repo_root(self) -> Path:
         return Path(__file__).resolve().parents[1]
 
-    def test_agriculture_has_group_library(self, repo_root: Path):
-        agri = repo_root / "model-packs" / "agriculture"
-        if not agri.is_dir():
-            pytest.skip("Agriculture domain pack not found")
-        libs, _ = scan_group_resources(agri)
+    def test_system_has_group_library(self, repo_root: Path):
+        system = repo_root / "model-packs" / "system"
+        if not system.is_dir():
+            pytest.skip("System domain pack not found")
+        libs, _ = scan_group_resources(system)
         assert isinstance(libs, dict)
-        if not libs:
-            pytest.skip("Agriculture pack currently exposes no group_libraries")
+        assert any("system_health" in k for k in libs)
 
-    def test_environmental_sensors_file_exists(self, repo_root: Path):
-        sensors = repo_root / "model-packs" / "agriculture" / "domain-lib" / "environmental_sensors.py"
-        if not sensors.is_file():
-            pytest.skip("environmental_sensors.py not found")
-        content = sensors.read_text(encoding="utf-8")
-        assert "SensorReading" in content or "sensor" in content.lower()
+    def test_system_health_file_exists(self, repo_root: Path):
+        system_health = repo_root / "model-packs" / "system" / "domain-lib" / "system_health.py"
+        if not system_health.is_file():
+            pytest.skip("system_health.py not found")
+        content = system_health.read_text(encoding="utf-8")
+        assert "def" in content
+        assert "system" in content.lower()
