@@ -259,7 +259,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: 30c4a68e228bad7b304c3ceb9c03fb719258659853a34d5b3151e993268e7c5c
+  sha256: 017debeb626848e86d2469fe4364e57618227667f6a664f818f5a20b161d926a
 - path: docs/1-commands/manifest-regenerate.md
   type: doc
   section: 1
@@ -294,7 +294,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: 35933ba8d2990a0e0e26db155f4bc085f8f8bacdc9f21d624799ea856b9e8791
+  sha256: 5d788659104f7478f6543d5eed243d3104bd297791fc8a150f543527f8e15bbd
 - path: docs/2-syscalls/README.md
   type: doc
   section: 2
@@ -357,14 +357,14 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: a6e9be21b12b49d5be6f6e20591f59d53628112d7fa44f240548113d69c2e75d
+  sha256: 35a9ced9ab1cb1a391add9ccb3752b1b0f828b1e4c4d0399b6a26eec13cfc338
 - path: docs/4-formats/tool-adapter-versioning.md
   type: doc
   section: 4
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: e7bad43cda2433825a93da8487aeaa7dada8e9689eed2c50eb2e5b80209afcb6
+  sha256: 8067dac52c3126673b2546eea5f42b89fe5123b2bf48f2b9e34d3951388f91cf
 - path: docs/5-standards/README.md
   type: doc
   section: 5
@@ -399,7 +399,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: b49f9a07695858dbd36a9df50738d489ca66424745caf6c35d769f9fbe480953
+  sha256: 1f5f27446b5592be547a9f2a9c5baab846e375158ab3de1310e0562bd243abfb
 - path: docs/7-concepts/README.md
   type: doc
   section: 7
@@ -448,21 +448,21 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-18
-  sha256: 02dd251cc7bf8b5fe3ed884433a602aefd88b19848d4a1534874faa4bd1fdfa4
+  sha256: 9932b4c2d09acee9cb1be68c2e93d57874c0550b53179b10a03e1c4cd5d3ffa6
 - path: docs/7-concepts/domain-evidence-extension.md
   type: doc
   section: 7
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-15
-  sha256: 4a370f1b868a10f23e66eeb2fff9433a8c128f1f55b54bbac7fb1ff521aa6815
+  sha256: c6e7ebfcc4ab99b25bbabd3688f5b3bb381296a81bc88fc0431cd8f3c5a5f6df
 - path: docs/7-concepts/domain-role-hierarchy.md
   type: doc
   section: 7
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-19
-  sha256: 56ae3a0bd41c0e56df842c8a2450b86fbe6c1c9a073c1b4040b00994fb1aa394
+  sha256: 2afbf5eba50cf438bf6c1361dd007f8bd8a0e16b6c8cbc6277843e8bfa9d874f
 - path: docs/7-concepts/file-generation-staging.md
   type: doc
   section: 7
@@ -504,7 +504,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-03
-  sha256: 584818e0781ccb43fefda0eeb6a58087134e8a1ef8f01fbfe90f7f705e9c30ad
+  sha256: d640ea54c686f073fd6f7f53f74091cf6477701d58d4de27595abac76166676a
 - path: docs/8-admin/logic-scraping.md
   type: doc
   section: 8
@@ -532,14 +532,14 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2025-07-19
-  sha256: 663972f1e23c4b62b03f724f1a974be00ab4918cd680581795c1d19a3ca47b7e
+  sha256: 13c37b941168065ba08a4480d2713827db87c21072dbf29e3e0d3206e2ba8dde
 - path: docs/7-concepts/nlp-semantic-router.md
   type: doc
   section: 7
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-13
-  sha256: 518527eef3fffc80ff58e1f96577382308b93eb5cdfa8f65299ee1f4facfe9cf
+  sha256: de2109d1da02465ce33919e36637a215052b47854b466682fff9b02c96421d75
 - path: docs/7-concepts/novel-synthesis-framework.md
   type: doc
   section: 7
@@ -588,7 +588,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: 3d858d7dff716fcef02c72d6e0837884d37e58cf96b50b9a65e50f825d14cd5f
+  sha256: 14d18e8b4ec0f05da5cb3b844a9b51be7aff7bd98e3a674eb036a961d16f601f
 - path: docs/7-concepts/zero-trust-architecture.md
   type: doc
   section: 7
@@ -609,7 +609,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-06-14
-  sha256: b89ab1e58cabc7b2c68da2c457cda056518406c599027c5f9a3c23bf80673a08
+  sha256: 940e8480795306572b570310d4f6df831ffd753bdea3882ba81555928758b853
 - path: docs/7-concepts/business-system-capability-taxonomy.md
   type: doc
   section: 7
@@ -630,22 +630,21 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-25
-  sha256: b59a9c1dd4f62c7ebd50ed60b3baae9c0dfaff873c82e27d016026756f6cde78
+  sha256: a629ade2c6078d0bfe5edd4b315e7723c68ef444a9570707719137d1ad7ff1d3
 - path: docs/7-concepts/student-commons.md
   type: doc
   section: 7
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-05
-  sha256: a4f37349c19e4de27e4eb91e6a6b4fd3d80d8105912710d492b0313c29f00c07
+  sha256: 3421a874871c3505a61638ffd0bc5312a7ea8163d863fa007aa09646e4a8a167
 - path: docs/7-concepts/learning-profile.md
   type: doc
   section: 7
   doc_version: 1.1.0
   status: moved
   last_updated: 2026-04-16
-  sha256: 904872044c2286bbd90542c0f68f5cc9e65b5fe3fc84424bbc3231f015f97969
-  moved_to: model-packs/education/docs/7-concepts/learning-profile.md
+  sha256: 0797a3d8b79fc7a57649306bbd80d3bb77e677efc789b8b2bef275a8f1640d6e
 - path: docs/7-concepts/telemetry-masking.md
   type: doc
   section: 7
@@ -680,14 +679,14 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-21
-  sha256: 729aca51144bb9c1e04652a10c7324ba8761722cb012ac1f75295e3bd24a98be
+  sha256: 8539bf454317c93c3f0dbba766ba5eea4f9954fab1e3be7e14cebaad24d49f72
 - path: docs/7-concepts/hmvc-heritage.md
   type: doc
   section: 7
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-23
-  sha256: 3a81129b332c9ae550b3564208fa281f0c6fbabd65eafeb7539784035cd6dc47
+  sha256: 81d66b828157a87201f7637b14542875f00cd2d268bcd450b95b80b8affc629a
 - path: docs/7-concepts/ledger-tier-separation.md
   type: doc
   section: 7
@@ -701,7 +700,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-27
-  sha256: 17b07fea792abcb8268819f04329d572b2a38c0f3ac724186bc79a78399447b6
+  sha256: bb7ac61789fb356d1244f7ce0d490d1655358621338d82d39cd16d51acbc9400
 - path: docs/7-concepts/edge-vectorization.md
   type: doc
   section: 7
@@ -715,7 +714,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-27
-  sha256: 83d072c1f31ddb78ad557625911a173394eae7146ed450b95542714c14558a9d
+  sha256: 2d4ea3a1d6e7dd23a49252091a030257de8ecfa1a1a18565f0342a06bb779693
 - path: docs/7-concepts/compressed-state-pattern.md
   type: doc
   section: 7
@@ -764,7 +763,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-19
-  sha256: dc480f0d7ffd5e885d01fe05d242cdd49dec61c5229dc8db8188b18dd888f211
+  sha256: 6bd5e149d0cbebecec0de643bb53ce2413691c01fe9c9c8a16c046907a7b11d9
 - path: docs/8-admin/rbac-administration.md
   type: doc
   section: 8
@@ -803,19 +802,19 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: a954983f4818bcb84c3a2a8150d43efe31f5ab7f5ef0c912274cdbf21e33b575
+  sha256: 83869557dbe79ce9817574cfecfdd02235ce11c5b7af9ba908c0de84c5285123
 - path: docs/7-concepts/dsa-framework.md
   type: spec
   doc_version: 1.2.0
   status: active
   last_updated: 2026-03-08
-  sha256: 1881f8973f2c97de63f049ba0f05a9315ab9a901331dc3d2215ddcee4e5f3fd6
+  sha256: 9e39680c62f514aaf7023297b3409f54e791cc72d5876a396910543cab0a058e
 - path: docs/8-admin/evaluation-harness.md
   type: spec
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: 7407e29c0560e07b8a7a1a44aee718e6916add7b06c15b8a0109892dbbbf0372
+  sha256: 8be326abe4d4790029db1228deead23fb45c29fcd7e3d762aa8372338a140fda
 - path: docs/5-standards/global-system-prompt.md
   type: spec
   doc_version: 1.0.0
@@ -833,7 +832,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: 7fdda66a39100629d14365add5e619b34dc6bdae0cc5620f823890843151165b
+  sha256: 17510586fa86bf9043add5ef746bdbe6e105499cbbb9cbfa6a837363382037d3
 - path: docs/7-concepts/principles.md
   type: spec
   doc_version: 2.0.0
@@ -852,7 +851,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-15
-  sha256: 970b4f3d7df22b7d91537e7f9dd9aa634928278704a7ad89020fff0e9bdc7730
+  sha256: b13f336f83008940b7724ec810f303b8f5613329acd88e9d3c15d2bf96a417c5
 - path: docs/8-admin/reports-spec.md
   type: spec
   doc_version: 1.0.0
@@ -879,7 +878,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-09
-  sha256: 1d1136df5d966461317d4b40ff2ce907eccb059b2866442f76f8b505b4e89635
+  sha256: 94bcee3ef5a1b2b3ef3e86161053db506f05918167849835e12d09af788b4e96
 - path: docs/5-standards/system-log.md
   type: standard
   doc_version: 1.1.0
@@ -891,33 +890,33 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-15
-  sha256: 4a370f1b868a10f23e66eeb2fff9433a8c128f1f55b54bbac7fb1ff521aa6815
+  sha256: c6e7ebfcc4ab99b25bbabd3688f5b3bb381296a81bc88fc0431cd8f3c5a5f6df
 - path: docs/3-functions/domain-state-lib.md
   type: standard
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: 51f329e9da139d9eaed7b4c9e4d30f0f8080f2f82325eca486672fc7cf4637ae
+  sha256: f80c7864c3f252e4c82e5a4c70fd499aed5ade1142704d522b0949d268c3cffd
 - path: docs/3-functions/affect-monitor.md
   type: doc
   section: 3
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-17
-  sha256: b23373f1c20f644dc447da312a23cf7fb1bbbffa991f5a96924d1fa0845444db
+  sha256: 2f2f526bea000fd3ab6b25119206016195bb70126e1ea82e45ffb85b6065bf12
 - path: docs/3-functions/signals.md
   type: doc
   section: 3
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-25
-  sha256: c64e6de3964981b4cdcbc95d36c1bf19950339d700106456083f020b103c6ee3
+  sha256: 2346cbdd319666e7100c15bc51591d7e63754f941d7da0cd7f6d965ddca836bb
 - path: docs/5-standards/lumina-core.md
   type: standard
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: 0d4fd51b878d0fcc3db993f2ff4b08574a71bbdf241c88abbc93c63392038f15
+  sha256: e839c15fe6e4e3d85d27c4b679b95832fe8169bbf30d90b0d691a32d0a22f094
 - path: standards/domain-authority-track-schema-v1.json
   type: schema
   doc_version: 1.0.0
@@ -1445,7 +1444,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: 4e430af13e89bf6d91b31bca0750ad02de243af7d7d2e5e26938383a2c11713e
+  sha256: 910d9095d506182b9ec59eea7c4d5fa9701af251224dbb84426c96876d31c2cf
 - path: standards/retrieval-index-schema-v1.json
   type: schema
   doc_version: 1.0.0

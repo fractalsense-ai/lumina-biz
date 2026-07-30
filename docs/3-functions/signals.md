@@ -54,7 +54,7 @@ from lumina.signals import (
 sits on. Every domain that monitors any scalar over time — assistant
 SVA, agriculture sensors, future lab instruments — routes through this
 package. Domain-specific code (e.g.
-`model-packs/assistant/domain-lib/affect_monitor.py`) is now a thin
+`model-packs/<domain>/domain-lib/<monitor>.py`) is now a thin
 adapter that supplies a signal name and forwards to these functions.
 
 ### Data shapes

@@ -66,4 +66,4 @@ do not set the field are unaffected).
 
 ## Domain examples
 
-- **Education:** ZPD drift window, vocabulary growth baseline — see [`model-packs/education/docs/7-concepts/baseline-before-escalation.md`](../../model-packs/education/docs/7-concepts/baseline-before-escalation.md)
+- **Business Ops:** per-entity baseline windows are configured through module physics and interpreted via the domain adapter pattern; see [`domain-adapter-pattern.md`](domain-adapter-pattern.md) and [`signal-decomposition-framework.md`](signal-decomposition-framework.md)

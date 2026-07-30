@@ -222,7 +222,7 @@ When `receive_escalations: true` is set on a domain role and a student profile's
 
 ## Student Profile Assignment Fields
 
-The education domain student profile (`model-packs/education/schemas/student-profile-schema-v1.json`) includes two fields that connect students to their domain role holders:
+The active domain profile (`model-packs/business-ops/profiles/entity.yaml`) includes assignment fields that connect entities to domain role holders:
 
 | Field | Type | Description |
 |-------|------|-------------|

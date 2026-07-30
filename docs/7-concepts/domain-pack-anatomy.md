@@ -89,15 +89,15 @@ Module-level overrides are declared in the `module_map` entry:
 
 ```yaml
 module_map:
-  domain/edu/general-education/v1:
+    domain/bizops/auto-repair/v1:
     adapters:
       domain_step:
-        module_path: model-packs/education/controllers/runtime_adapters.py
+                module_path: model-packs/business-ops/controllers/runtime_adapters.py
         callable: freeform_domain_step
       turn_interpreter:
-        module_path: model-packs/education/controllers/runtime_adapters.py
+                module_path: model-packs/business-ops/controllers/runtime_adapters.py
         callable: freeform_interpret_turn_input
-    turn_interpretation_prompt_path: model-packs/education/domain-lib/reference/freeform-turn-interpretation-spec-v1.md
+        turn_interpretation_prompt_path: model-packs/business-ops/domain-lib/reference/turn-interpretation-spec-v1.md
 ```
 
 ---
@@ -452,7 +452,7 @@ The standard test fixture for domain-pack operation testing:
 def api_module(monkeypatch):
     monkeypatch.setenv(
         "LUMINA_RUNTIME_CONFIG_PATH",
-        "model-packs/education/cfg/runtime-config.yaml",
+        "model-packs/business-ops/cfg/runtime-config.yaml",
     )
     mod = _load_api_module()
     mod.PERSISTENCE = NullPersistenceAdapter()
@@ -633,7 +633,7 @@ enables automated chunking by `## ` headers for embedding pipelines.
 ### Integrity tracking
 
 Domain-pack doc files are tracked in the root `docs/MANIFEST.yaml` under their full
-relative paths (e.g., `model-packs/education/docs/3-functions/fluency-monitor.md`). The
+relative paths (e.g., `model-packs/<domain>/docs/3-functions/<topic>.md`). The
 standard `manifest_integrity regen` and `check` subcommands cover domain-pack docs alongside
 system docs. New domain-pack doc files are automatically discovered by `manifest_integrity
 discover`.

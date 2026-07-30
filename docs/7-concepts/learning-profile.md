@@ -6,11 +6,10 @@ status: Moved
 
 # Learning Profile
 
-This document has moved to the education domain pack:
-[`model-packs/education/docs/7-concepts/learning-profile.md`](../../model-packs/education/docs/7-concepts/learning-profile.md)
+This document was previously maintained in a legacy education pack that has
+been split out of this repository.
 
 
-For the full monitor specification, see
-[`vocabulary-growth-monitor(3)`](../../model-packs/education/docs/3-functions/vocabulary-growth-monitor.md).
-For the dashboard panel, see the `vocabulary_growth` entry in the education domain's
-`ui_manifest.panels` in `cfg/runtime-config.yaml`.
+For current domain-pack examples in this repository, see
+[`../../model-packs/business-ops/README.md`](../../model-packs/business-ops/README.md)
+and [`domain-pack-anatomy(7)`](domain-pack-anatomy.md).

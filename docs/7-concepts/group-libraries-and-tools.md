@@ -148,10 +148,10 @@ for validation — see [`execution-route-compilation(7)`](execution-route-compil
 
 ---
 
-## D. Agriculture Example — Environmental Sensors
+## D. Domain Example — Environmental Sensors
 
-The agriculture domain provides the reference implementation of a Group Library:
-`model-packs/agriculture/domain-lib/sensors/environmental_sensors.py`.
+An operations domain can provide a reference implementation of a Group Library:
+`model-packs/<domain>/domain-lib/sensors/environmental_sensors.py`.
 
 This module provides:
 
@@ -164,19 +164,19 @@ This module provides:
 | `compute_field_summary()` | Aggregate a batch of readings into a field-level summary dict |
 | `DEFAULT_THRESHOLDS` | Pre-configured thresholds for moisture, temperature, pH, nitrogen |
 
-The module is registered in `operations-level-1/domain-physics.json` under
+The module is registered in a module `domain-physics.json` under
 `group_libraries` with `id: "environmental_sensors"`.  Future modules (crop-planning,
 livestock) can reference the same library by adding it to their own physics declarations.
 
 ```
-model-packs/agriculture/
+model-packs/<domain>/
 ├── domain-lib/
 │   ├── sensors/
 │   │   └── environmental_sensors.py    ← Group Library (shared)
 │   └── reference/
 │       └── turn-interpretation-spec-v1.md  ← Reference spec (TM)
 ├── modules/
-│   ├── operations-level-1/
+│   ├── <module>/
 │   │   └── domain-physics.json     ← declares group_libraries: ["environmental_sensors", "turn_interpretation"]
 │   └── crop-planning/              ← (future) would also declare the same libraries
 └── controllers/
@@ -264,4 +264,4 @@ reference spec changes, all referencing modules know they may need revalidation.
 - [`execution-route-compilation(7)`](execution-route-compilation.md) — route compiler validates group library dependencies at compile time
 - `src/lumina/core/adapter_indexer.py` — `GroupLibraryEntry`, `GroupToolEntry`, `scan_group_resources()`
 - `src/lumina/core/runtime_loader.py` — group resource discovery and context injection
-- `model-packs/agriculture/domain-lib/sensors/environmental_sensors.py` — reference Group Library implementation
+- `model-packs/<domain>/domain-lib/sensors/environmental_sensors.py` — reference Group Library implementation

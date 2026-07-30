@@ -184,11 +184,11 @@ return evidence
 
 The core engine reads the field by name via `turn_data.get("my_signal")`. If the field name is not yet in the engine contract field reference table above, open a PR to add it — that table is the only coupling point between domain packs and the core engine.
 
-### Annotated reference: `problem_solved` in the education domain
+### Annotated reference: `problem_solved` in an active domain
 
 ```python
 # At the end of interpret_turn_input() in
-# model-packs/education/controllers/runtime_adapters.py
+# model-packs/business-ops/controllers/runtime_adapters.py
 
 # A problem is fully solved when correctness is confirmed by substitution
 # and the step-count minimum has been met. This flag is consumed by the
@@ -234,23 +234,24 @@ All engine contract fields must be populated by the domain pack's `interpret_tur
 
 ## Reference: Education Domain Adapter Structure
 
+## Reference: Business Ops Domain Adapter Structure
+
 ```
-model-packs/education/
+model-packs/business-ops/
 ├── cfg/
 │   └── runtime-config.yaml          ← declares defaults, schema, tool policies
 ├── domain-lib/
-│   ├── zpd-monitor-spec-v1.md       ← passive: spec for ZPD state estimator
-│   └── fatigue-estimation-spec-v1.md
+│   └── reference/
+│       └── turn-interpretation-spec-v1.md
 ├── controllers/
-│   ├── nlp_pre_interpreter.py       ← Phase A: answer match, frustration, hint, off-task
-│   ├── zpd_monitor_v0_2.py          ← domain-lib implementation (called by runtime_adapters)
-│   ├── fluency_monitor.py           ← domain-lib implementation (called by runtime_adapters)
-│   ├── problem_generator.py         ← generates next task; sets min_steps
+│   ├── nlp_pre_interpreter.py       ← Phase A: intent/signal extraction
+│   ├── domain_state.py              ← domain-lib state evolution helpers
+│   ├── policy_compiler.py           ← standing-order and route synthesis
 │   └── runtime_adapters.py          ← Phase A + Phase B synthesis; computes problem_solved
-└── modules/algebra-level-1/
+└── modules/auto-repair/
     └── tool-adapters/
-        ├── algebra-parser-adapter-v1.yaml      ← active tool: called by policy
-        └── substitution-checker-adapter-v1.yaml
+        ├── business-ops-knowledge-hub-v1.yaml
+        └── business-ops-journal-v1.yaml
 ```
 
 ---
@@ -315,5 +316,5 @@ If `command_dispatch` is non-null in evidence (populated by `slm_parse_admin_com
 - [`execution-route-compilation(7)`](execution-route-compilation.md) — ahead-of-time route compilation from physics pointers (validates tool and library references)
 - [`nlp-semantic-router(7)`](nlp-semantic-router.md) — Tier 1 domain classification and Tier 2 NLP pre-interpreter
 - [`edge-vectorization(7)`](edge-vectorization.md) — per-domain vector stores built from the same adapter-indexer discovery pass
-- [`model-packs/education/controllers/governance_adapters.py`](../../model-packs/education/controllers/governance_adapters.py) — education governance adapter with domain-specific NLP verb/noun command routing
-- [`model-packs/education/cfg/admin-operations.yaml`](../../model-packs/education/cfg/admin-operations.yaml) — education-tailored admin operations descriptions for SLM intent matching
+- [`../../model-packs/business-ops/controllers/runtime_adapters.py`](../../model-packs/business-ops/controllers/runtime_adapters.py) — active domain runtime adapter reference
+- [`../../model-packs/system/cfg/runtime-config.yaml`](../../model-packs/system/cfg/runtime-config.yaml) — system-domain admin operations and deterministic command mappings
