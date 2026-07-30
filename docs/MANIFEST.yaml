@@ -1427,19 +1427,19 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: dd9b7533b0bfd817a1a595d04e2563b8fee98105cc9b52539d3836dcd12d6932
+  sha256: ad76540152fa20e534078edbdb14c4f023426ef9cc1e355fe64ce723a406e734
 - path: model-packs/system/cfg/system-physics.json
   type: config
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: eb46792d468f3e6f5c1db6e63f4dda82d1562568fe51003b307acdf97f46b99d
+  sha256: 3ce0418a3a654603343d53fae6781821b616b95ede5c78741723486711f84dbf
 - path: model-packs/system/cfg/system-physics.yaml
   type: config
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: 19bb2806e5ce45994ccd62f06c0a0e85442d6c251363387f6c81cdcafe86d2a5
+  sha256: 4bec02de77dc4bc3ca48f67d8f5252d46bd55fee36dd1bca7c0f891eff533d46
 - path: docs/7-concepts/rag-contracts.md
   type: doc
   doc_version: 1.0.0
@@ -1458,26 +1458,6 @@ artifacts:
   status: active
   last_updated: 2026-04-25
   sha256: 6083be99ff3490dabbd474e44194752f7212947c0a50febc4f11c794bf975897
-- path: model-packs/agriculture/docs/1-commands/README.md
-  sha256: 1cef374a333f66fc19e8aaf3d462883fb5ce2bb4460755259a82defb563b7867
-- path: model-packs/agriculture/docs/3-functions/README.md
-  sha256: 367067ad298ab8616240f6c1014c5fba77a67649ada8fe219ad531dfd302fae2
-- path: model-packs/agriculture/docs/7-concepts/README.md
-  sha256: 67da106b4004d49b4666cee8a89052f444e58499e50ccd34d205e0a762debe21
-- path: model-packs/agriculture/docs/README.md
-  sha256: 949ad8dd51d6b01cbdc2eed725abf3f88dfde22a11949874551300cd201051ff
-- path: model-packs/education/docs/1-commands/README.md
-  sha256: 6e4c11b9bd61420137e920605e4de741eceafa7c1075ab1d06921cadc5c14741
-- path: model-packs/education/docs/3-functions/fluency-monitor.md
-  sha256: 8a0c68f61b99ada4df9ba750a09d53d72a8faa3a1449f25edf35475516dbe520
-- path: model-packs/education/docs/3-functions/nlp-pre-interpreter.md
-  sha256: 0b918b859eab98fefeec8ca002ac296a5f38ad5e1e118b99dd60ff4da34d3a3f
-- path: model-packs/education/docs/3-functions/problem-generator.md
-  sha256: 76d759a8b7854f22ff80023362a1aab4e45bc497a99f92eb0d24c9ec004f622e
-- path: model-packs/education/docs/7-concepts/README.md
-  sha256: dfb6afeec9338c06191cfe2a86a514841927fe468f7d768e33679d73b66c78b0
-- path: model-packs/education/docs/README.md
-  sha256: a97386a75fcbcaaf611198b4d909713f6b4890e875173170a4cd1a237934b644
 - path: model-packs/system/docs/1-commands/README.md
   sha256: 81cd2d039c13e494269e77df35ad462b4239634c409a46e18e55ba1763f3c7e5
 - path: model-packs/system/docs/3-functions/README.md
@@ -1536,264 +1516,18 @@ artifacts:
   status: active
   last_updated: 2026-04-19
   sha256: 10d210a3a26c3a36114cfd71ad7ffd005a1e720273370813204f36d85abc6155
-- path: model-packs/education/cfg/runtime-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: 92a78d260c6c829c2a5b29d070d12eebe5881e595074f21b3b1ce478164ad19d
-- path: model-packs/education/cfg/ui-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: 01564f9f756eb9b25bbafd102a0274195615060786458df51792cd7cead66511
-- path: model-packs/education/cfg/domain-profile-extension.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: a88fe8c537caaf03ea715cb9b5d70671f4241acebc6e6074c26065dd9b7343fb
-- path: model-packs/education/cfg/admin-operations.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-05
-  sha256: 6d52c4df378e6215508719ba5e6709606bff24ca11b35df0634fdbd371ef34d1
-- path: model-packs/agriculture/cfg/runtime-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: c6453230cb8566c42efafd26f3d32c18168d1e4ab8ca99daad54f33fea60bcad
-- path: model-packs/education/modules/general-education/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: 42dca232ce580ee9ffba1e62997094a61447dede8ce03e75a910ce7d84f196c2
-- path: model-packs/education/modules/pre-algebra/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: c95506f8fc649dc5bb099a083babae0e4e5b0bf754d92a857b9a373a72e72e66
-- path: model-packs/education/modules/algebra-intro/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: b4ad66389c8cd9d20127a23ab9bb73c3822e0486d413fbeeac20b5574645e740
-- path: model-packs/education/modules/algebra-1/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: c160fae38b438fcbde8dc70675482fd6bd73c9103d43b6d76d8b3d08289022a6
-- path: model-packs/education/modules/algebra-level-1/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: 036b25e6663d9a8c9534054eac88fb6f445a5a27ababa80b6c07c7dc94f44da3
-- path: model-packs/education/modules/domain-authority/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: d9c741968fa2e7e11a85762d91a9f4936298fa981281aee20a069c796bd1d129
-- path: model-packs/education/modules/teacher/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: 0783496913759e39c193172b9792ee6565fbd79104a6ca3d1afcddaa9f69da63
-- path: model-packs/education/modules/teaching-assistant/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: bf510d3a912a78dbc813471a79caecc56e49c1a074aa8cd493afd97df87cfc88
-- path: model-packs/education/modules/guardian/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-19
-  sha256: 72226b04ed39e11b0bb308262d1712783346ffd83fd06670474029f64cf6b66c
-- path: model-packs/education/modules/teaching-assistant/tool-adapters/student-view-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: aaacc9d331fdfe5356a71109ded5fba6c3faf7fe70ffa03261f26a27214ba409
-- path: model-packs/education/modules/teaching-assistant/tool-adapters/hint-delivery-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 08175e774593f944ebec5044bbf90181ece5a30e98314de2aebc4058c2cce0a6
-- path: model-packs/education/modules/teacher/tool-adapters/student-roster-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 48b2c79e6a95560dacc9976716c69f2576db74395dad84e0bc4935c095e49a4f
-- path: model-packs/education/modules/teacher/tool-adapters/module-assignment-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: d9ea7396c0f6fd6c80e80aa8be4aa2920c1de7f6658fe47cf9083549b564f344
-- path: model-packs/education/modules/teacher/tool-adapters/escalation-handler-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 7e7e5b9f6c0539ded1f3a2026f14fcbc5ad44acd7086e366c91925c5cfc61fe3
-- path: model-packs/education/modules/domain-authority/tool-adapters/role-assignment-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 1ca5107881a9c8fdc9be301febdcaa71b4dde6cbdd3c64c9cd2aa02f245efb39
-- path: model-packs/education/modules/domain-authority/tool-adapters/progress-overview-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 9851152f3d3f559de1776f17e7f033b854369efc8c550c3fa8b662dcf90053f0
-- path: model-packs/education/modules/domain-authority/tool-adapters/physics-staging-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 7341dce57d70dd97d76e15ee42c318dce022856549a18e11ef82a239d4c3b412
-- path: model-packs/education/modules/domain-authority/tool-adapters/ingestion-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: e7591ff64d00d2692b5aa126ab1f43a2daaa8b5c8870673ca204280142550ab8
-- path: model-packs/education/modules/algebra-level-1/tool-adapters/substitution-checker-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 87d68943e784b2f332a1da0acb26a4096080b446f8689a18355a8b0fe72f7067
-- path: model-packs/education/modules/algebra-level-1/tool-adapters/calculator-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 89465b88fcaae10bf5f1f6e56196856512a7e237f80a07c3fbc3efa86d25cc71
-- path: model-packs/education/modules/algebra-level-1/tool-adapters/algebra-parser-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 68e86c56c5a39f005c3ce1ab772533039d6bc04dcfce8f0f40adc260d9efa9b0
-- path: model-packs/agriculture/modules/operations-level-1/tool-adapters/collar-sensor-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: e7f439a7868534a60c8b530c95339ba5da991433f8ca1c686395b8ddcfa47f32
-- path: model-packs/education/modules/guardian/tool-adapters/child-progress-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 962791b7b3c92dd8bb0501b1750b708c8b58baec03fba7eca059f64a44a6b627
-- path: model-packs/education/profiles/domain_authority.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: c068429eb7bc61ad974e6f84902613de2345b3124e05f17bee28fe2fee0c95c6
-- path: model-packs/education/profiles/teacher.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 2462712c0d6e585ec02ac734112a1c6f6e698005aa92c84057ddbda80c42d93d
-- path: model-packs/education/profiles/teaching_assistant.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 741e6fc8b20f0a890931ab02da85cdfc8bd023cf455afb10e0e5409286dfd1bf
-- path: model-packs/education/profiles/student.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: bf5221bd158a55782383befc63e073dc7d6976762b9faaa1f50c790246f7a8a5
-- path: model-packs/education/profiles/parent.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 50bb19ac0fe4b70c31872436fd19df6e8fe0e6030717f3d3c415e0d5547a5408
 - path: model-packs/system/modules/system-core/operator-profile.yaml
   type: config
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-04
   sha256: c4a25dd1cfd373df9511dda605985c5fa61b35ed410876142067ade7f1abc1c2
-- path: model-packs/education/modules/pre-algebra/student-profile-template.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 8915ab569a769f5c10d270eb76105bb1d6c464758aed5f5b41a3ea3d54d91a90
-- path: model-packs/education/modules/algebra-intro/student-profile-template.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 08f0e571881a65806f99e0051bb8edf4358ee0a675e833617a34a6d31d03c468
-- path: model-packs/education/modules/algebra-1/student-profile-template.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: b7db8a8dde6e844616b603fd99b53f12a699864154ee63c0fced2d081a0801e0
-- path: model-packs/education/modules/algebra-level-1/student-profile-template.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: b64cc1e7a3ef39e1f51d802e25630101a13f3a67b8b1cc72f59b4acf32c3bc54
-- path: model-packs/education/modules/algebra-level-1/example-student-alice.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 0a3db4b974abf92457344439b41d65e2600c6d38ee3428e62fcfde630ec7cb94
-- path: model-packs/agriculture/modules/operations-level-1/example-subject.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: fa8dabdc13a9180070be4a14e8ed12b10e43a32ac0ba8960cda509a14f7200ca
 - path: model-packs/system/pack.yaml
   type: config
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-04
   sha256: ee09fc22086f5344d53d73790ee5e5e35e034fb221d858502e37617a6ff16cf7
-- path: model-packs/education/pack.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 484c21c09b4119bba8b5a6e494434d25cac13927eeebaa15e6454a31a5e819ed
-- path: model-packs/agriculture/pack.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: e5f113aabff326ec8afc3fce92c19d4de8045fd54846dc0232b2e4bad981cfdf
 - path: model-packs/template/pack.yaml
   type: config
   doc_version: 0.1.0
@@ -1842,156 +1576,6 @@ artifacts:
   status: active
   last_updated: 2026-04-17
   sha256: 87c066083db03b97e049263c8d2e301e0a3ff6e66247aaaea4701c7ec0e05453
-- path: model-packs/education/world-sim/mud-world-templates.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: c5905ba3e8ed15a3e56ff7944b2744be89415287cb3b3bc0869bc2620568cc4b
-- path: model-packs/assistant/pack.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: ebdaa0672e71ad369a13b8f5f84fe75528090ea204d6a3648abff4a35ee3a441
-- path: model-packs/assistant/cfg/runtime-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: d65a7a3b29dcbc5c748e315f15eb5d2fb0e6c95502c4edd5ebf2effa3604c2d8
-- path: model-packs/assistant/cfg/admin-operations.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: f8be44a6829e9fd7332b802cfd14a1b7da2d5b11a6a0e95f37c465524a415561
-- path: model-packs/assistant/cfg/ui-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 0e3793b8c654836d3846a097ac40efaa9b417722b3c5188d4add4961dd519d89
-- path: model-packs/assistant/cfg/domain-profile-extension.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: be6796d3612f3a2f9033eed1ed44ac26f31e82c6cbcc8d54e7eb0fbb940c9185
-- path: model-packs/assistant/profiles/entity.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 5a1255d9eca7f081ea7c9727ec2cb323113b562eb221e7b37914b1b55f12cba6
-- path: model-packs/assistant/domain-lib/affect_monitor.py
-  type: code
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-16
-  sha256: faedb6d346f4b24ff03769cffc99677896c80bd8271681e7564f43b77061046a
-- path: model-packs/assistant/domain-lib/persona_engine.py
-  type: code
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-15
-  sha256: 72d6902a21c835d51fb0fe0c38ae4d5a62f20aa65b19620e57f9a168e36db8ae
-- path: model-packs/assistant/domain-lib/reference/persona-craft-spec-v1.md
-  type: doc
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-15
-  sha256: f1f8647777740d82468b56b3942f03a02da26a36d3fa1af3376746ff78a9f334
-- path: model-packs/assistant/modules/conversation/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: d45885fe54f5c58cdacd18f77113158709bcf924642933fef1bc068efc31c557
-- path: model-packs/assistant/modules/weather/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 6ec7554c07f7891558d2380193c33c08166d01908617b776bee7e7b2ee72ffda
-- path: model-packs/assistant/modules/weather/tool-adapters/weather-api-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 23270ec8912774367cfea630129a6230e950bee525a2e7aeaf3e783dd1bbc439
-- path: model-packs/assistant/modules/calendar/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 1550924323b344f283c4ec00bbadebdf005c41685071b3df44ac4b390c70970c
-- path: model-packs/assistant/modules/calendar/tool-adapters/calendar-api-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: a7ffa35770ee7ddb80cefb588a7939980dd138b9dc3f0a8a967219e74dd887ee
-- path: model-packs/assistant/modules/search/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 4eb8edfe3bae98ba11b7d64ad75304e6dc6b5d35fd64c2b96e1d110db6c3500a
-- path: model-packs/assistant/modules/search/tool-adapters/search-api-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 1ab5f16a124cac5b15c0eeed3f2015e39128ed1037b066d2e6a4ff3ffeddc568
-- path: model-packs/assistant/modules/creative-writing/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 9f695e122aeb63203fe1831d329efb4294679397eb806b9f683c8edbe4031c7e
-- path: model-packs/assistant/modules/planning/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 64639a1fd59796ea65bec2c870c6cc48e3457bf65cc4a741ce893645b53a34e2
-- path: model-packs/assistant/modules/trip/domain-physics.json
-  type: config
-  doc_version: 0.1.0
-  status: active
-  last_updated: 2026-04-23
-  sha256: fd4c5d491fbffca5aeded77153b259a67c06183648250c2d35594e0ca0099242
-- path: model-packs/assistant/modules/trip/module-config.yaml
-  type: config
-  doc_version: 0.1.0
-  status: active
-  last_updated: 2026-04-23
-  sha256: 387887c052a60fcb46af586c9ebab70a0eb1db9ae24aa2b1a4a81a63833166d9
-- path: model-packs/assistant/modules/planning/tool-adapters/planning-tools-adapter-v1.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: 09e5081f0e282a7ae50ea514efe071772d4db3aa05babcf7b28e9ae432b28c9d
-- path: model-packs/assistant/modules/domain-authority/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-01
-  sha256: bf210fcdfe3c64463f0f1ca6734539080761f429f4885099350e14afb6debdc8
-- path: model-packs/assistant/modules/persona-craft/module-config.yaml
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-15
-  sha256: 0304668c07564b0c9b649dac9cd010b1dfe33012195f1cf7146dbcc75a7cde49
-- path: model-packs/assistant/modules/persona-craft/domain-physics.json
-  type: config
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-15
-  sha256: 03af717ed3daaabbf019fc59d769b9ee23735fec10ee8893650f2eeddc1e0046
 - path: model-packs/coding-agent/pack.yaml
   type: config
   doc_version: 0.1.0
@@ -2094,24 +1678,6 @@ artifacts:
   status: active
   last_updated: 2026-04-04
   sha256: 4278590b0b60c8f37c24c87064c474c0ce450bd471b568490588496505e50082
-- path: model-packs/education/controllers/journal_nlp_pre_interpreter.py
-  type: source
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 2b456565564cd8f1d6381e24226a1924190ead1a5c1afd9bf333c80ef689bc80
-- path: model-packs/education/controllers/journal_adapters.py
-  type: source
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-07-16
-  sha256: a52d085cd8ff36b30ad5facfd9c503f50b1ac969aa702ab4dd6cf80840da3826
-- path: model-packs/education/controllers/ops/safe_person.py
-  type: source
-  doc_version: 1.0.0
-  status: active
-  last_updated: 2026-04-04
-  sha256: 0f18fe4672cb9646887db724995c84c0d347d5091a5e0afc0461911caafcdf16
 - path: standards/relational-baseline-schema-v1.json
   type: standard
   doc_version: 1.0.0
@@ -2238,19 +1804,6 @@ artifacts:
   status: active
   last_updated: 2026-07-15
   sha256: 31204a3d1a96dd764e98ba48bf15642c73fc6c52e8a84de750917d9f57d150b3
-- path: model-packs/education/docs/3-functions/vocabulary-growth-monitor.md
-  sha256: d227949e5036de99381941c01e2b881fb8b431a4c28dcf2f42cbbe034c4289f4
-- path: model-packs/education/docs/7-concepts/baseline-before-escalation.md
-  sha256: 23a02cee806fda5be2280fe1ce01c1ada8677b1fed0d87fbfdc17786fd977801
-- path: model-packs/education/docs/7-concepts/learning-profile.md
-  sha256: 52eb415769579f60da70978e66dff7535cfe2cea5ac31c2ee719add80c45502d
-- path: model-packs/education/docs/7-concepts/mud-world-builder.md
-  sha256: 8a6cbd1813cd73a149691489edcddb35f38a0bf75ecc6a72c7a249238ff84793
-- path: model-packs/education/docs/7-concepts/student-commons.md
-  sha256: 2767ed0d5128b097ca61d3b30b75c66da92200fdbbda4072fa5d49d16447c2c7
-
-# ── Auto-discovered domain-pack YAMLs ───────────────────────────────────
-
 - path: model-packs/business-ops/cfg/domain-profile-extension.yaml
   type: config
   doc_version: 1.0.0

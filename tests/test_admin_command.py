@@ -38,7 +38,7 @@ def _load_api_module():
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     # Reset DOMAIN_REGISTRY to a clean single-domain instance so that
@@ -46,7 +46,7 @@ def api_module(monkeypatch: pytest.MonkeyPatch):
     # registry don't pollute the "_default" domain expected here.
     mod.DOMAIN_REGISTRY = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/education/cfg/runtime-config.yaml",
+        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
         load_runtime_context_fn=load_runtime_context,
     )
     mod.PERSISTENCE = NullPersistenceAdapter()

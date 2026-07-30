@@ -2,7 +2,7 @@
 
 These tests exercise the role-based default domain resolution logic
 introduced to route system-level operators to the system domain instead
-of the global default_domain (education), and the unauthenticated_domain
+of the global default_domain (business-ops), and the unauthenticated_domain
 feature that separates anonymous landing from the authenticated fallback.
 """
 
@@ -34,9 +34,9 @@ def registry() -> DomainRegistry:
 
 @pytest.mark.unit
 def test_unauthenticated_user_returns_global_default(registry: DomainRegistry) -> None:
-    """None user (unauthenticated) -> unauthenticated_domain (education per real config)."""
+    """None user (unauthenticated) -> unauthenticated_domain (business-ops per real config)."""
     result = registry.resolve_default_for_user(None)
-    assert result == "education"
+    assert result == "business-ops"
 
 
 @pytest.mark.unit
@@ -55,45 +55,45 @@ def test_it_support_role_returns_system(registry: DomainRegistry) -> None:
 
 @pytest.mark.unit
 def test_qa_role_returns_global_default(registry: DomainRegistry) -> None:
-    """operator role is not in role_defaults -> falls through to global default (education)."""
+    """operator role is not in role_defaults -> falls through to global default (business-ops)."""
     user = {"sub": "qa_001", "role": "operator", "governed_modules": []}
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit
 def test_auditor_role_returns_global_default(registry: DomainRegistry) -> None:
-    """half_operator role is not in role_defaults -> falls through to global default (education)."""
+    """half_operator role is not in role_defaults -> falls through to global default (business-ops)."""
     user = {"sub": "aud_001", "role": "half_operator", "governed_modules": []}
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit
 def test_user_role_returns_global_default(registry: DomainRegistry) -> None:
-    """user role falls through to global default (education)."""
+    """user role falls through to global default (business-ops)."""
     user = {"sub": "usr_001", "role": "user", "governed_modules": []}
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit
-def test_domain_authority_with_edu_module_returns_education(registry: DomainRegistry) -> None:
-    """admin with a domain/edu/... module -> education domain."""
+def test_domain_authority_with_biz_module_returns_business_ops(registry: DomainRegistry) -> None:
+    """admin with a domain/biz/... module -> business-ops domain."""
     user = {
         "sub": "da_001",
         "role": "admin",
-        "governed_modules": ["domain/edu/algebra-level-1/v1"],
+        "governed_modules": ["domain/biz/auto-repair/v1"],
     }
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit
-def test_domain_authority_with_agri_module_returns_agriculture(registry: DomainRegistry) -> None:
-    """admin with a domain/agri/... module -> agriculture domain."""
+def test_domain_authority_with_ca_module_returns_coding_agent(registry: DomainRegistry) -> None:
+    """admin with a domain/ca/... module -> coding-agent domain."""
     user = {
-        "sub": "da_agri_001",
+        "sub": "da_ca_001",
         "role": "admin",
-        "governed_modules": ["domain/agri/operations-level-1/v1"],
+        "governed_modules": ["domain/ca/review-assistant/v1"],
     }
-    assert registry.resolve_default_for_user(user) == "agriculture"
+    assert registry.resolve_default_for_user(user) == "coding-agent"
 
 
 @pytest.mark.unit
@@ -102,7 +102,7 @@ def test_domain_authority_empty_governed_modules_returns_global_default(
 ) -> None:
     """admin with empty governed_modules cannot infer prefix -> global default."""
     user = {"sub": "da_002", "role": "admin", "governed_modules": []}
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit
@@ -115,7 +115,7 @@ def test_domain_authority_unknown_prefix_returns_global_default(
         "role": "admin",
         "governed_modules": ["domain/zzz/unknown-module/v1"],
     }
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit
@@ -125,11 +125,11 @@ def test_domain_authority_uses_first_governed_module_only(registry: DomainRegist
         "sub": "da_004",
         "role": "admin",
         "governed_modules": [
-            "domain/edu/algebra-level-1/v1",
-            "domain/agri/operations-level-1/v1",
+            "domain/biz/auto-repair/v1",
+            "domain/ca/review-assistant/v1",
         ],
     }
-    assert registry.resolve_default_for_user(user) == "education"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 # -- Single-domain mode: resolve_default_for_user() still works -----------
@@ -141,7 +141,7 @@ def test_single_domain_mode_always_returns_default(tmp_path: Path) -> None:
     # Point at a real runtime config so the registry initialises without error
     reg = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/education/cfg/runtime-config.yaml",
+        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
     )
     for role in ("root", "super_admin", "operator", "half_operator", "user"):
         result = reg.resolve_default_for_user({"sub": "u", "role": role, "governed_modules": []})
@@ -159,13 +159,13 @@ def test_unauthenticated_domain_used_for_none_user(tmp_path: Path) -> None:
 
     # Reuse real runtime configs so the path-existence check passes
     reg_data = {
-        "unauthenticated_domain": "education",
-        "default_domain": "education",
+        "unauthenticated_domain": "business-ops",
+        "default_domain": "business-ops",
         "role_defaults": {"root": "system", "super_admin": "system"},
         "domains": {
-            "education": {
-                "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml",
-                "label": "Education",
+            "business-ops": {
+                "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
+                "label": "Business Ops",
             },
             "system": {
                 "runtime_config_path": "model-packs/system/cfg/runtime-config.yaml",
@@ -182,7 +182,7 @@ def test_unauthenticated_domain_used_for_none_user(tmp_path: Path) -> None:
     # Override _repo_root so relative path resolves correctly from tmp_path
     reg._repo_root = _REPO_ROOT
 
-    assert reg.resolve_default_for_user(None) == "education"
+    assert reg.resolve_default_for_user(None) == "business-ops"
 
 
 @pytest.mark.unit
@@ -191,16 +191,16 @@ def test_unauthenticated_domain_separate_from_default(tmp_path: Path) -> None:
     import yaml
 
     reg_data = {
-        "unauthenticated_domain": "agriculture",
-        "default_domain": "education",
+        "unauthenticated_domain": "coding-agent",
+        "default_domain": "business-ops",
         "domains": {
-            "education": {
-                "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml",
-                "label": "Education",
+            "business-ops": {
+                "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
+                "label": "Business Ops",
             },
-            "agriculture": {
-                "runtime_config_path": "model-packs/agriculture/cfg/runtime-config.yaml",
-                "label": "Agriculture",
+            "coding-agent": {
+                "runtime_config_path": "model-packs/coding-agent/cfg/runtime-config.yaml",
+                "label": "Coding Agent",
             },
             "system": {
                 "runtime_config_path": "model-packs/system/cfg/runtime-config.yaml",
@@ -213,9 +213,9 @@ def test_unauthenticated_domain_separate_from_default(tmp_path: Path) -> None:
     reg = DomainRegistry(repo_root=_REPO_ROOT, registry_path=str(reg_file))
 
     # Anonymous -> unauthenticated_domain
-    assert reg.resolve_default_for_user(None) == "agriculture"
+    assert reg.resolve_default_for_user(None) == "coding-agent"
     # Authenticated user with no role_default -> default_domain
-    assert reg.resolve_default_for_user({"sub": "u", "role": "user", "governed_modules": []}) == "education"
+    assert reg.resolve_default_for_user({"sub": "u", "role": "user", "governed_modules": []}) == "business-ops"
 
 
 @pytest.mark.unit
@@ -224,11 +224,11 @@ def test_unauthenticated_domain_absent_falls_back_to_default(tmp_path: Path) -> 
     import yaml
 
     reg_data = {
-        "default_domain": "education",
+        "default_domain": "business-ops",
         "domains": {
-            "education": {
-                "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml",
-                "label": "Education",
+            "business-ops": {
+                "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
+                "label": "Business Ops",
             },
         },
     }
@@ -236,7 +236,7 @@ def test_unauthenticated_domain_absent_falls_back_to_default(tmp_path: Path) -> 
     reg_file.write_text(yaml.safe_dump(reg_data), encoding="utf-8")
     reg = DomainRegistry(repo_root=_REPO_ROOT, registry_path=str(reg_file))
 
-    assert reg.resolve_default_for_user(None) == "education"
+    assert reg.resolve_default_for_user(None) == "business-ops"
 
 
 @pytest.mark.unit
@@ -246,11 +246,11 @@ def test_unauthenticated_domain_invalid_raises(tmp_path: Path) -> None:
 
     reg_data = {
         "unauthenticated_domain": "nonexistent",
-        "default_domain": "education",
+        "default_domain": "business-ops",
         "domains": {
-            "education": {
-                "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml",
-                "label": "Education",
+            "business-ops": {
+                "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
+                "label": "Business Ops",
             },
         },
     }
@@ -261,9 +261,9 @@ def test_unauthenticated_domain_invalid_raises(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-def test_real_registry_unauthenticated_routes_to_education(registry: DomainRegistry) -> None:
-    """Integration: real model-packs/system/cfg/domain-registry.yaml unauthenticated_domain resolves to education."""
-    assert registry.resolve_default_for_user(None) == "education"
+def test_real_registry_unauthenticated_routes_to_business_ops(registry: DomainRegistry) -> None:
+    """Integration: real model-packs/system/cfg/domain-registry.yaml unauthenticated_domain resolves to business-ops."""
+    assert registry.resolve_default_for_user(None) == "business-ops"
 
 
 @pytest.mark.unit

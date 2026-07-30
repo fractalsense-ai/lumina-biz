@@ -324,7 +324,7 @@ class TestPerModuleLocalOnly:
         from lumina.core.yaml_loader import load_yaml
         from conftest import merge_module_config_sidecars
 
-        cfg = load_yaml(str(REPO_ROOT / "model-packs/education/cfg/runtime-config.yaml"))
+        cfg = load_yaml(str(REPO_ROOT / "model-packs/business-ops/cfg/runtime-config.yaml"))
         module_map = cfg.get("runtime", {}).get("module_map", {})
         merge_module_config_sidecars(module_map)
 
@@ -346,7 +346,7 @@ class TestPerModuleLocalOnly:
         from lumina.core.yaml_loader import load_yaml
         from conftest import merge_module_config_sidecars
 
-        cfg = load_yaml(str(REPO_ROOT / "model-packs/education/cfg/runtime-config.yaml"))
+        cfg = load_yaml(str(REPO_ROOT / "model-packs/business-ops/cfg/runtime-config.yaml"))
         module_map = cfg.get("runtime", {}).get("module_map", {})
         merge_module_config_sidecars(module_map)
 

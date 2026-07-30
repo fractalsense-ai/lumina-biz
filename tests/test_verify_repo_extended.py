@@ -43,7 +43,7 @@ def test_load_yaml_valid_dict(tmp_path: Path) -> None:
 
 
 def _make_runtime_config(tmp_path: Path, extra_fields: dict | None = None) -> None:
-    """Create a model-packs/education/runtime-config.yaml with required fields."""
+    """Create a model-packs/business-ops/cfg/runtime-config.yaml with required fields."""
     edu_dir = tmp_path / "model-packs" / "education"
     edu_dir.mkdir(parents=True, exist_ok=True)
 

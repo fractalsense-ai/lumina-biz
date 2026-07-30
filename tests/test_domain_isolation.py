@@ -228,8 +228,8 @@ def _edu_registry():
         ],
     }.get(d, [])
     reg.list_domains.return_value = [
-        {"domain_id": "education", "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml"},
-        {"domain_id": "agriculture", "runtime_config_path": "model-packs/agriculture/cfg/runtime-config.yaml"},
+        {"domain_id": "education", "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml"},
+        {"domain_id": "agriculture", "runtime_config_path": "model-packs/coding-agent/cfg/runtime-config.yaml"},
     ]
     return reg
 

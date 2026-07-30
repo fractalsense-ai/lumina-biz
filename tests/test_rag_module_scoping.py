@@ -97,7 +97,7 @@ class TestRagModuleScoping:
     def test_domain_level_docs_always_pass_through(self):
         """Chunks NOT under /modules/ are domain-level and always included."""
         hits = [
-            _FakeHit("model-packs/education/cfg/runtime-config.yaml"),
+            _FakeHit("model-packs/business-ops/cfg/runtime-config.yaml"),
             _FakeHit("model-packs/education/docs/7-concepts/student-commons.md"),
         ]
         td = self._call_enrich(hits, module_key="pre-algebra")

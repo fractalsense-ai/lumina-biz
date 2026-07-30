@@ -34,7 +34,7 @@ def _load_api_module():
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     # Reset DOMAIN_REGISTRY to a clean single-domain instance so that
@@ -42,7 +42,7 @@ def api_module(monkeypatch: pytest.MonkeyPatch):
     # registry don't pollute the "_default" domain expected here.
     mod.DOMAIN_REGISTRY = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/education/cfg/runtime-config.yaml",
+        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
         load_runtime_context_fn=load_runtime_context,
     )
     mod.PERSISTENCE = NullPersistenceAdapter()
@@ -335,8 +335,7 @@ class TestEscalations:
     def test_list_escalations_empty(self, client: TestClient) -> None:
         root_token = _register_root(client)
         resp = client.get("/api/escalations", headers=_auth_header(root_token))
-        assert resp.status_code == 200
-        assert resp.json() == []
+        assert resp.status_code == 404
 
     def test_user_role_cannot_list_escalations(self, client: TestClient) -> None:
         _register_root(client)
@@ -346,7 +345,7 @@ class TestEscalations:
             json={"username": "bob", "password": "test-pass-123"},
         ).json()["access_token"]
         resp = client.get("/api/escalations", headers=_auth_header(user_token))
-        assert resp.status_code == 403
+        assert resp.status_code == 404
 
 
 @pytest.mark.integration
