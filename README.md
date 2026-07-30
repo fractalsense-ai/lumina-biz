@@ -141,8 +141,8 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
 # Set the runtime config
-export LUMINA_RUNTIME_CONFIG_PATH="model-packs/education/cfg/runtime-config.yaml"
-# Windows: $env:LUMINA_RUNTIME_CONFIG_PATH="model-packs/education/cfg/runtime-config.yaml"
+export LUMINA_RUNTIME_CONFIG_PATH="model-packs/business-ops/cfg/runtime-config.yaml"
+# Windows: $env:LUMINA_RUNTIME_CONFIG_PATH="model-packs/business-ops/cfg/runtime-config.yaml"
 
 # Start the server
 python -m lumina.api.server

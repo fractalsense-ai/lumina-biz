@@ -158,16 +158,16 @@ adapters:
     post_vocabulary_metric:
       path: /api/user/{user_id}/vocabulary-metric
       method: POST
-      module_path: model-packs/education/controllers/api_handlers.py
+            module_path: model-packs/<domain>/controllers/api_handlers.py
       callable: post_vocabulary_metric
       roles: []
       request_body:
         vocabulary_complexity_score: {type: float, ge: 0.0, le: 1.0, required: true}
-    dashboard_vocabulary_growth:
-      path: /api/dashboard/education/vocabulary-growth
+        dashboard_domain_metrics:
+            path: /api/dashboard/<domain>/metrics
       method: GET
-      module_path: model-packs/education/controllers/api_handlers.py
-      callable: dashboard_vocabulary_growth
+            module_path: model-packs/<domain>/controllers/api_handlers.py
+            callable: dashboard_domain_metrics
       roles: [root, admin, teacher]
 ```
 

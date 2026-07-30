@@ -104,7 +104,7 @@ cp .env.example .env
 PowerShell example:
 
 ```powershell
-$env:LUMINA_RUNTIME_CONFIG_PATH = "model-packs/education/runtime-config.yaml"
+$env:LUMINA_RUNTIME_CONFIG_PATH = "model-packs/business-ops/cfg/runtime-config.yaml"
 $env:LUMINA_LLM_PROVIDER = "openai"
 $env:OPENAI_API_KEY = "<your-local-key>"
 $env:LUMINA_JWT_SECRET = "<32-byte-or-longer-random-secret>"
@@ -113,7 +113,7 @@ $env:LUMINA_JWT_SECRET = "<32-byte-or-longer-random-secret>"
 POSIX example:
 
 ```bash
-export LUMINA_RUNTIME_CONFIG_PATH="model-packs/education/runtime-config.yaml"
+export LUMINA_RUNTIME_CONFIG_PATH="model-packs/business-ops/cfg/runtime-config.yaml"
 export LUMINA_LLM_PROVIDER="openai"
 export OPENAI_API_KEY="<your-local-key>"
 export LUMINA_JWT_SECRET="<32-byte-or-longer-random-secret>"
@@ -168,14 +168,17 @@ instead of a single `LUMINA_RUNTIME_CONFIG_PATH`.
    `runtime-config.yaml`:
 
    ```yaml
-   default_domain: education
+    default_domain: business-ops
    domains:
-     education:
-       runtime_config_path: model-packs/education/runtime-config.yaml
-       label: Education — Algebra Level 1
-     agriculture:
-       runtime_config_path: model-packs/agriculture/runtime-config.yaml
-       label: Agriculture — Operations
+       business-ops:
+          runtime_config_path: model-packs/business-ops/cfg/runtime-config.yaml
+          label: Business Ops — Auto Repair
+       system:
+          runtime_config_path: model-packs/system/cfg/runtime-config.yaml
+          label: System — Lumina Infrastructure
+       coding-agent:
+          runtime_config_path: model-packs/coding-agent/cfg/runtime-config.yaml
+          label: Coding Agent — Bounded Artifact Factory
    ```
 
 2. Set the environment variable:
@@ -190,14 +193,14 @@ instead of a single `LUMINA_RUNTIME_CONFIG_PATH`.
 4. Clients select a domain per chat request via the `domain_id` field:
 
    ```json
-   {"message": "solve 2x + 3 = 11", "domain_id": "education"}
+   {"message": "create a brake inspection estimate", "domain_id": "business-ops"}
    ```
 
 5. Sessions are **immutably bound** to the domain chosen on their first turn.
    Attempting to switch `domain_id` mid-session returns an error.
 
 6. Use `GET /api/domains` to list available domains and
-   `GET /api/domain-info?domain_id=education` for per-domain UI manifests.
+   `GET /api/domain-info?domain_id=business-ops` for per-domain UI manifests.
 
 Schema: `standards/domain-registry-schema-v1.json`
 

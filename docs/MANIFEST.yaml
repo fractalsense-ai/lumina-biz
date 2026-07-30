@@ -252,7 +252,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: 8274f834918ca73f4a04e8fd4b98f9a13ff47f2cbb45fc96e57304c6198091bd
+  sha256: 753d431e9b314129b34b22e40d1613dac4f9d16e8ba1707d8e4c6882df8ce1db
 - path: docs/1-commands/list-modules.md
   type: doc
   section: 1
@@ -420,7 +420,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-18
-  sha256: ab1568fb019bdb12c4f908b52946524058fd8df987d0c583a024bedad19db679
+  sha256: ab4a7c0410dd54808ae3f889d089fe3c528989b9e1b25c7a3c025382d51500a6
 - path: docs/7-concepts/context-is-not-conversation.md
   type: doc
   section: 7
@@ -462,7 +462,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-19
-  sha256: 71b3bb09ed09cdbcaa90b875b5cb16248f045513cee602cafe0bce1993fe98c3
+  sha256: 56ae3a0bd41c0e56df842c8a2450b86fbe6c1c9a073c1b4040b00994fb1aa394
 - path: docs/7-concepts/file-generation-staging.md
   type: doc
   section: 7
@@ -778,7 +778,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-15
-  sha256: 85aeea68dacbe5ae9f4aa4e6e1d6c468ca61d9173caa9b266c7a4cb42eaddfec
+  sha256: 3b1fbd2708f2090133a4ce767c30cd2d6399d60c9841b5945bbce1495c247240
 - path: docs/8-admin/system-domain-operations.md
   type: doc
   section: 8

@@ -255,13 +255,13 @@ role_defaults:
   super_admin: system
 ```
 
-All other system roles (`operator`, `half_operator`, `user`), as well as unauthenticated users, fall through to the global `default_domain` (currently `education`), masking system internals from domain-level users by default.
+All other system roles (`operator`, `half_operator`, `user`), as well as unauthenticated users, fall through to the global `default_domain` (currently `business-ops`), masking system internals from domain-level users by default.
 
 ### admin governed_modules inference
 
 `admin` users do not appear in `role_defaults` because they are domain-affiliated, not system operators.  Instead, when NLP routing finds no confident match, their default domain is **inferred from their `governed_modules` JWT claim**:
 
-The system extracts the module-prefix segment from the first module path (`domain/<prefix>/…`) and looks it up in the `module_prefix` reverse map in the registry.  A teacher with `governed_modules: ["domain/edu/algebra-level-1/v1"]` defaults to `education`; an agriculture domain authority with `governed_modules: ["domain/agri/operations-level-1/v1"]` defaults to `agriculture`.
+The system extracts the module-prefix segment from the first module path (`domain/<prefix>/…`) and looks it up in the `module_prefix` reverse map in the registry.  A domain admin with `governed_modules: ["domain/biz/auto-repair/v1"]` defaults to `business-ops`; a coding-agent admin with `governed_modules: ["domain/ca/review-assistant/v1"]` defaults to `coding-agent`.
 
 If `governed_modules` is empty or the prefix is unrecognised, the global `default_domain` is used.
 
