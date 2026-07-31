@@ -41,13 +41,13 @@ def build_clarification_response(
     if "schema validation failed" in error_msg.lower():
         raw_role = params.get("new_role", params.get("role", ""))
         if raw_role:
-            from lumina.api.routes.admin import _get_domain_role_aliases
+            from lumina.auth.auth import VALID_ROLES
 
-            if raw_role in _get_domain_role_aliases():
+            if raw_role not in VALID_ROLES:
                 hints.append(
-                    f"'{raw_role}' is a domain role, not a system role. "
-                    f"The system role should be 'user'. "
-                    f"You can then assign the domain role '{raw_role}' separately."
+                    f"'{raw_role}' is a domain role, not a canonical framework role. "
+                    f"Use one of: root, super_admin, admin, operator, half_operator, user, guest. "
+                    f"Assign domain roles separately after user creation."
                 )
 
     if "governed_modules" in error_msg.lower() or not params.get("governed_modules"):

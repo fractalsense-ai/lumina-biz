@@ -49,6 +49,7 @@ def test_clarification_for_invalid_role() -> None:
     )
     assert result["type"] == "clarification"
     hints_text = " ".join(result["hints"]).lower()
+    assert "canonical framework role" in hints_text
     assert "available domains" in hints_text
     # In some test environments DOMAIN_REGISTRY may be present but return no domains.
     if "(" in hints_text:

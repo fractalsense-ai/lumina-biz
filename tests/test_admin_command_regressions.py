@@ -2,8 +2,7 @@
 
 Covers:
 - Empty governed_modules no longer triggers IndexError
-- Domain-role aliases (student, teacher) normalised to system role "user"
-- Domain-prefix stripping (education_user → user)
+- Invalid non-canonical role tokens are preserved for schema rejection
 - governed_modules "all" expansion via DomainRegistry
 - String governed_modules coerced to list
 """
@@ -112,8 +111,8 @@ def test_empty_governed_modules_no_index_error(client: TestClient, api_module) -
 
 
 @pytest.mark.integration
-def test_domain_role_student_normalised_to_user(api_module) -> None:
-    """SLM returning new_role='student' should normalise to 'user' with intended_domain_role."""
+def test_domain_role_student_preserved_for_schema_rejection(api_module) -> None:
+    """SLM returning new_role='student' remains unchanged for strict validation."""
     from lumina.api.routes.admin import _normalize_slm_command
 
     cmd = {
@@ -122,13 +121,13 @@ def test_domain_role_student_normalised_to_user(api_module) -> None:
         "params": {"user_id": "bob", "new_role": "student"},
     }
     result = _normalize_slm_command(cmd)
-    assert result["params"]["new_role"] == "user"
-    assert result["params"]["intended_domain_role"] == "student"
+    assert result["params"]["new_role"] == "student"
+    assert "intended_domain_role" not in result["params"]
 
 
 @pytest.mark.integration
-def test_domain_role_teacher_normalised_to_user(api_module) -> None:
-    """SLM returning new_role='teacher' should normalise to 'user' with intended_domain_role."""
+def test_domain_role_teacher_preserved_for_schema_rejection(api_module) -> None:
+    """SLM returning new_role='teacher' remains unchanged for strict validation."""
     from lumina.api.routes.admin import _normalize_slm_command
 
     cmd = {
@@ -137,23 +136,23 @@ def test_domain_role_teacher_normalised_to_user(api_module) -> None:
         "params": {"user_id": "carol", "new_role": "teacher"},
     }
     result = _normalize_slm_command(cmd)
-    assert result["params"]["new_role"] == "user"
-    assert result["params"]["intended_domain_role"] == "teacher"
+    assert result["params"]["new_role"] == "teacher"
+    assert "intended_domain_role" not in result["params"]
 
 
 @pytest.mark.integration
-def test_domain_prefix_stripped(api_module) -> None:
-    """SLM returning 'education_user' should strip the domain prefix → 'user'."""
+def test_noncanonical_prefixed_role_preserved(api_module) -> None:
+    """SLM returning 'business_ops_user' remains unchanged for strict validation."""
     from lumina.api.routes.admin import _normalize_slm_command
 
     cmd = {
         "operation": "update_user_role",
         "target": "dave",
-        "params": {"user_id": "dave", "new_role": "education_user"},
+        "params": {"user_id": "dave", "new_role": "business_ops_user"},
     }
     result = _normalize_slm_command(cmd)
-    assert result["params"]["new_role"] == "user"
-    assert result["params"]["intended_domain_role"] == "education_user"
+    assert result["params"]["new_role"] == "business_ops_user"
+    assert "intended_domain_role" not in result["params"]
 
 
 @pytest.mark.integration
@@ -167,7 +166,7 @@ def test_governed_modules_all_expansion(api_module, monkeypatch: pytest.MonkeyPa
     from lumina.api.routes.admin import _normalize_slm_command
 
     mock_registry = MagicMock()
-    mock_registry.resolve_domain_id.return_value = "education"
+    mock_registry.resolve_domain_id.return_value = "business-ops"
     mock_registry._prefix_to_domain = {}
     mock_registry.list_modules_for_domain.return_value = [
         {"module_id": "algebra-1", "domain_physics_path": "..."},
@@ -177,7 +176,7 @@ def test_governed_modules_all_expansion(api_module, monkeypatch: pytest.MonkeyPa
 
     cmd = {
         "operation": "invite_user",
-        "target": "education",
+        "target": "business-ops",
         "params": {
             "username": "eve",
             "role": "admin",
@@ -237,8 +236,8 @@ def md_client(multi_domain_module):
 
 @pytest.mark.integration
 def test_invite_domain_id_resolved_from_module_path(md_client: TestClient, multi_domain_module) -> None:
-    """When domain_id is a module path like 'domain/edu/domain-authority/v1',
-    it should be resolved to the registry domain_id 'education'."""
+    """When domain_id is a module path like 'domain/bizops/domain-authority/v1',
+    it should be resolved to the registry domain_id 'business-ops'."""
     # First register to consume bootstrap slot (gets promoted to root)
     root_resp = md_client.post(
         "/api/auth/register",
@@ -252,7 +251,7 @@ def test_invite_domain_id_resolved_from_module_path(md_client: TestClient, multi
         json={
             "operation": "invite_user",
             "params": {"username": "NewStudent", "role": "user", "intended_domain_role": "student"},
-            "domain_id": "domain/edu/domain-authority/v1",
+            "domain_id": "domain/bizops/domain-authority/v1",
         },
         headers={"Authorization": f"Bearer {root_token}"},
     )
@@ -260,4 +259,5 @@ def test_invite_domain_id_resolved_from_module_path(md_client: TestClient, multi
     body = resp.json()
     staged = body["staged_command"]
     # domain_id must be resolved to the registry domain ID, not the raw module path
-    assert staged["params"]["domain_id"] == "education"
+    assert staged["params"]["domain_id"] == "business-ops"
+
