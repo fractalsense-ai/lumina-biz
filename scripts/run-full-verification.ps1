@@ -162,7 +162,19 @@ if (-not $SkipApiScenarios) {
             $env:LUMINA_PORT = "$apiPort"
 
             if ([string]::IsNullOrWhiteSpace($env:LUMINA_RUNTIME_CONFIG_PATH)) {
-                $defaultRuntimeConfig = "model-packs/education/cfg/runtime-config.yaml"
+                $runtimeCandidates = @(
+                    "model-packs/business-ops/cfg/runtime-config.yaml",
+                    "model-packs/system/cfg/runtime-config.yaml",
+                    "model-packs/coding-agent/cfg/runtime-config.yaml"
+                )
+                $defaultRuntimeConfig = $runtimeCandidates | Where-Object {
+                    Test-Path (Join-Path $repoRoot $_)
+                } | Select-Object -First 1
+
+                if ([string]::IsNullOrWhiteSpace($defaultRuntimeConfig)) {
+                    throw "Unable to pick default runtime config: none of the known runtime config candidates exist"
+                }
+
                 Write-Host "LUMINA_RUNTIME_CONFIG_PATH not set; defaulting to '$defaultRuntimeConfig' for local API startup."
                 $env:LUMINA_RUNTIME_CONFIG_PATH = $defaultRuntimeConfig
             }

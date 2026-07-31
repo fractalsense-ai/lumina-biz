@@ -95,7 +95,7 @@ Validate the JSON against the schema before committing:
 
 ```bash
 python reference-implementations/yaml-to-json-converter.py \
-  model-packs/education/modules/algebra-level-1/domain-physics.json \
+  model-packs/business-ops/modules/auto-repair/domain-physics.json \
   --schema standards/domain-physics-schema-v1.json
 ```
 
@@ -107,7 +107,7 @@ Before the domain pack is used operationally, commit its hash to the System Logs
 
 ```bash
 python reference-implementations/system-log-validator.py \
-  --commit model-packs/education/modules/algebra-level-1/domain-physics.json \
+  --commit model-packs/business-ops/modules/auto-repair/domain-physics.json \
   --actor-id <pseudonymous-id> \
   --ledger path/to/ledger.jsonl
 ```
@@ -121,8 +121,8 @@ Every version must have a CHANGELOG entry. Format:
 ```markdown
 ## v0.2.0 — 2026-03-02
 ### Added
-- ZPD configuration with drift thresholds (education domain example)
-- `zpd_drift_minor` and `zpd_drift_major` warning invariants (education domain example)
+- Domain-specific drift configuration with bounded thresholds (example)
+- Warning invariants for subsystem drift handling (example)
 ### Changed
 - `show_work_minimum` max_attempts increased from 2 to 3
 ```
@@ -270,5 +270,5 @@ For the full access control specification, see [`rbac-spec-v1.md`](rbac-spec-v1.
 
 - [`../standards/domain-physics-schema-v1.json`](../standards/domain-physics-schema-v1.json)
 - [`../model-packs/README.md`](../model-packs/README.md)
-- [`../model-packs/education/modules/algebra-level-1/`](../model-packs/education/modules/algebra-level-1/) — worked example
+- [`../model-packs/business-ops/modules/auto-repair/`](../model-packs/business-ops/modules/auto-repair/) — worked example
 - [`../reference-implementations/yaml-to-json-converter.py`](../reference-implementations/yaml-to-json-converter.py)

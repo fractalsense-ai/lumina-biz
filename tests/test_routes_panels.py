@@ -34,12 +34,12 @@ def _load_api_module():
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     mod.DOMAIN_REGISTRY = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/education/cfg/runtime-config.yaml",
+        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
         load_runtime_context_fn=load_runtime_context,
     )
     mod.PERSISTENCE = NullPersistenceAdapter()
@@ -78,7 +78,7 @@ def _auth_header(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
 
 
-def _fake_layout_with_panels(panels: list[dict[str, Any]], domain_id: str = "education"):
+def _fake_layout_with_panels(panels: list[dict[str, Any]], domain_id: str = "business-ops"):
     """Return a mock for _resolve_caller_layout returning the given panels."""
     layout = {"sidebar_panels": panels, "capabilities": []}
 
@@ -300,7 +300,7 @@ class TestUpdatePanelData:
 @pytest.fixture
 def multi_domain_module(monkeypatch: pytest.MonkeyPatch):
     """Fixture using multi-domain registry so list_domains() works for DA tests."""
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     mod.PERSISTENCE = NullPersistenceAdapter()
@@ -336,17 +336,18 @@ def _register_da(client: TestClient, username: str = "da_user") -> dict:
 
 def _fake_users_with_staff():
     """Return a list_users substitute with teachers, TAs, DAs, and students."""
+    module_id = "domain/bizops/auto-repair/v1"
     return [
         {"user_id": "t1", "username": "teacher1", "display_name": "Teacher One",
-         "role": "user", "domain_roles": {"domain/edu/algebra-1/v1": "teacher"}},
+         "role": "user", "domain_roles": {module_id: "teacher"}},
         {"user_id": "ta1", "username": "ta1", "display_name": "TA One",
-         "role": "user", "domain_roles": {"domain/edu/pre-algebra/v1": "teaching_assistant"}},
+         "role": "user", "domain_roles": {module_id: "teaching_assistant"}},
         {"user_id": "da_sys", "username": "da_sys", "display_name": "DA System",
          "role": "admin", "governed_modules": [], "domain_roles": {}},
         {"user_id": "s1", "username": "student1", "display_name": "Student One",
-         "role": "user", "domain_roles": {"domain/edu/algebra-1/v1": "student"}},
+         "role": "user", "domain_roles": {module_id: "student"}},
         {"user_id": "s2", "username": "student2", "display_name": "Student Two",
-         "role": "user", "domain_roles": {"domain/edu/pre-algebra/v1": "student"}},
+         "role": "user", "domain_roles": {module_id: "student"}},
     ]
 
 
@@ -420,7 +421,7 @@ class TestDAPanelData:
         assert "module_count" not in body
 
     def test_module_directory_da_nonempty(self, md_client: TestClient) -> None:
-        """Unrestricted DA sees modules from the education domain."""
+        """Unrestricted DA sees modules from the default active domain."""
         _register_root(md_client)
         da = _register_da(md_client, username="da_mods")
         panels = [{"id": "mod_dir", "data_source": "module_directory"}]
@@ -435,9 +436,9 @@ class TestDAPanelData:
         assert resp.status_code == 200
         body = resp.json()
         assert len(body["modules"]) > 0
-        # All modules should belong to the education domain
+        # All modules should belong to the active default domain
         for m in body["modules"]:
-            assert m["domain_id"] == "education"
+            assert m["domain_id"] == "business-ops"
 
     def test_staff_directory_da_includes_all_roles(self, md_client: TestClient) -> None:
         """Staff directory returns teachers, TAs, and domain authorities."""

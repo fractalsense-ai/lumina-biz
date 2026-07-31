@@ -158,15 +158,12 @@ If `world_sim_override` is absent, the module inherits the domain-wide `world_si
 
 ## Domain Extensions
 
-- **Education — MUD Dynamic World Builder:** An advanced dynamic persona that generates 8 narrative constants (zone, protagonist, antagonist, guide NPC, macguffin, variable skin, obstacle theme, failure state) locked for the entire session. See [`model-packs/education/docs/7-concepts/mud-world-builder.md`](../../model-packs/education/docs/7-concepts/mud-world-builder.md)
+- **Dynamic World Builder pattern:** An advanced dynamic persona that generates stable narrative constants (zone, protagonist, antagonist, guide NPC, macguffin, variable skin, obstacle theme, failure state) locked for the entire session.
 
 ---
 
 ## References
 
 - [`domain-adapter-pattern.md`](domain-adapter-pattern.md) — engine contract fields, three-layer distinction (tool-adapters / domain-lib / runtime-adapter)
-- [`model-packs/education/world-sim/world-sim-spec-v1.md`](../../model-packs/education/world-sim/world-sim-spec-v1.md) — education reference implementation: persona parameters
-- [`model-packs/education/world-sim/magic-circle-consent-v1.md`](../../model-packs/education/world-sim/magic-circle-consent-v1.md) — education reference implementation: consent activation gate
-- [`model-packs/education/world-sim/artifact-and-mastery-spec-v1.md`](../../model-packs/education/world-sim/artifact-and-mastery-spec-v1.md) — education reference implementation: reward surface
-- [`model-packs/education/world-sim/mud-world-builder-spec-v1.md`](../../model-packs/education/world-sim/mud-world-builder-spec-v1.md) — MUD World Builder: advanced dynamic persona (education domain)
+- Domain-pack `world-sim/` files — spec, consent, and mastery documents for active persona-enabled domains
 - [`../../specs/principles-v1.md`](../../specs/principles-v1.md) — Principle 8 (consent boundary), enforced by magic circle

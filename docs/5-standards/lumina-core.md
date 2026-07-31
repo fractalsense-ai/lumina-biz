@@ -35,7 +35,7 @@ Optional but recommended:
 - `example-entity-*.yaml` — example profiles for testing
 - `docs/` — domain-scoped man-page documentation tree (see §1.0a)
 
-> **Subject profile schema note:** Each domain pack defines its own subject profile schema in its `schemas/` directory (e.g., [`model-packs/education/schemas/student-profile-schema-v1.json`](../model-packs/education/schemas/student-profile-schema-v1.json) for education). The entity profile template is named according to the domain's own conventions (e.g., `student-profile-template.yaml` for education, `operator-profile-template.yaml` for agriculture) and must validate against that domain-specific schema.
+> **Subject profile schema note:** Each domain pack defines its own subject profile schema and profile templates according to that pack's conventions. In this repository, the active example profile template is [`model-packs/business-ops/profiles/entity.yaml`](../model-packs/business-ops/profiles/entity.yaml).
 
 ### 1.0 Domain Structure Contract
 
@@ -64,7 +64,7 @@ A conformant `domain-physics.json` must declare:
 - `standing_orders`: list of at least one standing order
 - `escalation_triggers`: at least one trigger referencing a standing order
 - `artifacts`: list of recognized mastery artifacts (may be empty for v0 packs)
-- `subsystem_configs`: optional map of domain-specific subsystem parameter blocks, keyed by subsystem ID (e.g. `zpd_monitor` for education, `soil_health_monitor` for agriculture). Each value is a free-form object understood only by that subsystem. Omit for domains with no configurable subsystems.
+- `subsystem_configs`: optional map of domain-specific subsystem parameter blocks, keyed by subsystem ID (e.g. `risk_monitor` or `capacity_monitor`). Each value is a free-form object understood only by that subsystem. Omit for domains with no configurable subsystems.
 - `requires_consent`: consent requirement flag (required for human-facing domains that must enforce the consent boundary principle — Principle 8; omit for machine-facing domains)
 
 ### 1.2 Invariant Severity Levels
@@ -185,7 +185,7 @@ A domain's subject state schema must conform to the following structural require
 - All fields must be populated by deterministic domain-lib logic (see [`domain-state-lib-contract-v1.md`](domain-state-lib-contract-v1.md))
 - Schema changes that add required fields or alter field semantics require a version bump
 
-> **Education domain example:** The education domain's compressed learner state schema is at [`../model-packs/education/schemas/compressed-state-schema-v1.json`](../model-packs/education/schemas/compressed-state-schema-v1.json). It includes affect (SVA), per-skill mastery, challenge, uncertainty, and operating-band thresholds — all concepts specific to educational assessment.
+> **Domain example:** Domain packs may define compressed state fields specific to their operational context (for example risk class, operator acknowledgements, or review cadence), while preserving deterministic and schema-validated structures.
 
 See [`domain-state-lib-contract-v1.md`](domain-state-lib-contract-v1.md) for the domain-lib contract that populates the state.
 

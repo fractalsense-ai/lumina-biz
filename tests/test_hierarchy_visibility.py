@@ -52,7 +52,7 @@ def _mock_cfg(users: list[dict[str, Any]] | None = None) -> MagicMock:
     cfg.DOMAIN_REGISTRY._repo_root = str(_REPO_ROOT)
     cfg.DOMAIN_REGISTRY._domains = {
         "education": {
-            "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml",
+            "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
         },
     }
 

@@ -14,8 +14,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@domain/system/*": ["../../model-packs/system/web/*"],
-      "@domain/education/*": ["../../model-packs/education/web/*"]
+      "@domain/system/*": ["../../model-packs/system/web/*"]
     }
   },
   "include": ["app.tsx", "components", "lib", "src", "vite-env.d.ts"]

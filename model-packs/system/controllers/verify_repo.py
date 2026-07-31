@@ -53,17 +53,38 @@ def parse_latest_changelog_version(changelog_path: Path) -> str:
 
 
 def check_runtime_config_paths(errors: list[str]) -> None:
-    runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "cfg" / "runtime-config.yaml"
+    registry_path = REPO_ROOT / "model-packs" / "system" / "cfg" / "domain-registry.yaml"
+    if not registry_path.exists():
+        errors.append("domain-registry.yaml missing at model-packs/system/cfg/domain-registry.yaml")
+        return
+
+    registry_cfg = load_yaml(registry_path)
+    default_domain = registry_cfg.get("default_domain")
+    domains = registry_cfg.get("domains")
+    if not isinstance(default_domain, str) or not default_domain.strip():
+        errors.append("domain-registry.yaml: default_domain missing or invalid")
+        return
+    if not isinstance(domains, dict):
+        errors.append("domain-registry.yaml: domains mapping missing or invalid")
+        return
+
+    domain_cfg = domains.get(default_domain)
+    if not isinstance(domain_cfg, dict):
+        errors.append(f"domain-registry.yaml: domains.{default_domain} missing or invalid")
+        return
+
+    runtime_rel = domain_cfg.get("runtime_config_path")
+    if not isinstance(runtime_rel, str) or not runtime_rel.strip():
+        errors.append(f"domain-registry.yaml: domains.{default_domain}.runtime_config_path missing or invalid")
+        return
+
+    runtime_cfg_path = REPO_ROOT / runtime_rel
     if not runtime_cfg_path.exists():
-        legacy_runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "runtime-config.yaml"
-        if legacy_runtime_cfg_path.exists():
-            runtime_cfg_path = legacy_runtime_cfg_path
-        else:
-            errors.append(
-                "runtime-config.yaml missing at model-packs/education/cfg/runtime-config.yaml "
-                "and model-packs/education/runtime-config.yaml"
-            )
-            return
+        errors.append(
+            "runtime-config.yaml missing at path declared by default domain "
+            f"'{default_domain}': {runtime_rel}"
+        )
+        return
 
     cfg = load_yaml(runtime_cfg_path)
 
@@ -119,6 +140,9 @@ def check_algebra_version_alignment(errors: list[str]) -> None:
     changelog_path = REPO_ROOT / "model-packs" / "education" / "modules" / "algebra-level-1" / "CHANGELOG.md"
     examples_path = REPO_ROOT / "examples" / "README.md"
     domain_packs_readme_path = REPO_ROOT / "model-packs" / "README.md"
+
+    if not json_path.exists() or not changelog_path.exists():
+        return
 
     json_version = ""
     try:

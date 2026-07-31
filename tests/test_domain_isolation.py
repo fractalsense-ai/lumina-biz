@@ -8,14 +8,13 @@ Validates that:
 - list_escalations enforces can_govern_domain boundary.
 - _normalize_slm_command infers domain_id for list_users/list_escalations/
   list_modules from instruction text.
-- Education NLP fallback injects domain_id: "education" automatically.
+- System fallback parser returns deterministic list operations safely.
 """
 
 from __future__ import annotations
 
 import asyncio
 import importlib.util
-import sys
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -24,31 +23,33 @@ import pytest
 
 from lumina.system_log.admin_operations import can_govern_domain
 
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
-_EDU_CONTROLLERS = REPO_ROOT / "model-packs" / "education" / "controllers"
-if str(_EDU_CONTROLLERS) not in sys.path:
-    sys.path.insert(0, str(_EDU_CONTROLLERS))
+_PRIMARY_DOMAIN = "business-ops"
+_SECONDARY_DOMAIN = "coding-agent"
+_PRIMARY_MODULE = "domain/bizops/auto-repair/v1"
+_SECONDARY_MODULE = "domain/ca/coding-agent-core/v1"
 
 
-def _load_governance_adapters():
-    spec = importlib.util.spec_from_file_location(
-        "edu_governance_adapters_test",
-        str(_EDU_CONTROLLERS / "governance_adapters.py"),
-    )
+def _load_system_runtime_adapters():
+    path = REPO_ROOT / "model-packs" / "system" / "controllers" / "runtime_adapters.py"
+    spec = importlib.util.spec_from_file_location("system_runtime_adapters_test", str(path))
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Could not load system runtime adapters")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
 
 
-# ── can_govern_domain with registry ──────────────────────────────────────────
+# -- can_govern_domain with registry ------------------------------------------
 
 
-def _mock_registry(domain_id: str = "education", module_ids: list[str] | None = None):
+def _mock_registry(domain_id: str = _PRIMARY_DOMAIN, module_ids: list[str] | None = None):
     """Build a minimal mock registry for can_govern_domain tests."""
     reg = MagicMock()
     reg.resolve_domain_id.return_value = domain_id
     reg.list_modules_for_domain.return_value = [
-        {"module_id": mid} for mid in (module_ids or ["domain/edu/algebra-level-1/v1"])
+        {"module_id": mid} for mid in (module_ids or [_PRIMARY_MODULE])
     ]
     return reg
 
@@ -56,9 +57,9 @@ def _mock_registry(domain_id: str = "education", module_ids: list[str] | None = 
 @pytest.mark.unit
 def test_can_govern_domain_direct_match_still_works() -> None:
     """Backward compat: direct domain names in governed_modules still match."""
-    user = {"role": "admin", "governed_modules": ["education"]}
-    assert can_govern_domain(user, "education") is True
-    assert can_govern_domain(user, "agriculture") is False
+    user = {"role": "admin", "governed_modules": [_PRIMARY_DOMAIN]}
+    assert can_govern_domain(user, _PRIMARY_DOMAIN) is True
+    assert can_govern_domain(user, _SECONDARY_DOMAIN) is False
 
 
 @pytest.mark.unit
@@ -68,7 +69,7 @@ def test_can_govern_domain_root_bypass() -> None:
 
 @pytest.mark.unit
 def test_can_govern_domain_non_da_rejected() -> None:
-    assert can_govern_domain({"role": "user"}, "education") is False
+    assert can_govern_domain({"role": "user"}, _PRIMARY_DOMAIN) is False
 
 
 @pytest.mark.unit
@@ -76,26 +77,24 @@ def test_can_govern_domain_module_id_with_registry() -> None:
     """When governed_modules has module IDs, registry resolves the domain."""
     user = {
         "role": "admin",
-        "governed_modules": ["domain/edu/algebra-level-1/v1"],
+        "governed_modules": [_PRIMARY_MODULE],
     }
-    reg = _mock_registry("education", ["domain/edu/algebra-level-1/v1"])
-    assert can_govern_domain(user, "education", registry=reg) is True
-    reg.resolve_domain_id.assert_called_with("education")
+    reg = _mock_registry(_PRIMARY_DOMAIN, [_PRIMARY_MODULE])
+    assert can_govern_domain(user, _PRIMARY_DOMAIN, registry=reg) is True
+    reg.resolve_domain_id.assert_called_with(_PRIMARY_DOMAIN)
 
 
 @pytest.mark.unit
 def test_can_govern_domain_module_id_wrong_domain() -> None:
-    """DA governing education modules cannot access agriculture."""
+    """DA governing primary modules cannot access secondary domain."""
     user = {
         "role": "admin",
-        "governed_modules": ["domain/edu/algebra-level-1/v1"],
+        "governed_modules": [_PRIMARY_MODULE],
     }
     reg = MagicMock()
-    reg.resolve_domain_id.return_value = "agriculture"
-    reg.list_modules_for_domain.return_value = [
-        {"module_id": "domain/agri/operations-level-1/v1"},
-    ]
-    assert can_govern_domain(user, "agriculture", registry=reg) is False
+    reg.resolve_domain_id.return_value = _SECONDARY_DOMAIN
+    reg.list_modules_for_domain.return_value = [{"module_id": _SECONDARY_MODULE}]
+    assert can_govern_domain(user, _SECONDARY_DOMAIN, registry=reg) is False
 
 
 @pytest.mark.unit
@@ -103,10 +102,9 @@ def test_can_govern_domain_without_registry_module_id_fails() -> None:
     """Without registry, module IDs don't match domain names."""
     user = {
         "role": "admin",
-        "governed_modules": ["domain/edu/algebra-level-1/v1"],
+        "governed_modules": [_PRIMARY_MODULE],
     }
-    # No registry — "education" not literally in governed_modules
-    assert can_govern_domain(user, "education") is False
+    assert can_govern_domain(user, _PRIMARY_DOMAIN) is False
 
 
 @pytest.mark.unit
@@ -115,10 +113,10 @@ def test_can_govern_domain_via_domain_roles_direct() -> None:
     user = {
         "role": "admin",
         "governed_modules": [],
-        "domain_roles": {"education": "admin"},
+        "domain_roles": {_PRIMARY_DOMAIN: "admin"},
     }
-    assert can_govern_domain(user, "education") is True
-    assert can_govern_domain(user, "agriculture") is False
+    assert can_govern_domain(user, _PRIMARY_DOMAIN) is True
+    assert can_govern_domain(user, _SECONDARY_DOMAIN) is False
 
 
 @pytest.mark.unit
@@ -127,55 +125,47 @@ def test_can_govern_domain_via_domain_roles_with_registry() -> None:
     user = {
         "role": "admin",
         "governed_modules": [],
-        "domain_roles": {"domain/edu/algebra-level-1/v1": "teacher"},
+        "domain_roles": {_PRIMARY_MODULE: "teacher"},
     }
-    reg = _mock_registry("education", ["domain/edu/algebra-level-1/v1"])
-    assert can_govern_domain(user, "education", registry=reg) is True
+    reg = _mock_registry(_PRIMARY_DOMAIN, [_PRIMARY_MODULE])
+    assert can_govern_domain(user, _PRIMARY_DOMAIN, registry=reg) is True
 
 
 @pytest.mark.unit
 def test_can_govern_domain_empty_governed_and_roles() -> None:
-    """DA with neither governed_modules nor domain_roles has unrestricted access.
-
-    This matches the invite_user design where governed_modules=None means
-    "all modules".  The None is stored as [] in persistence/JWT, so a DA
-    promoted without explicit scope should still be able to govern any domain.
-    """
+    """DA with no explicit scope remains unrestricted by design."""
     user = {
         "role": "admin",
         "governed_modules": [],
         "domain_roles": {},
     }
-    reg = _mock_registry("education", ["domain/edu/algebra-level-1/v1"])
-    assert can_govern_domain(user, "education", registry=reg) is True
+    reg = _mock_registry(_PRIMARY_DOMAIN, [_PRIMARY_MODULE])
+    assert can_govern_domain(user, _PRIMARY_DOMAIN, registry=reg) is True
 
 
 @pytest.mark.unit
 def test_can_govern_domain_unrestricted_da_no_registry() -> None:
-    """Unrestricted DA (empty governed + empty domain_roles) passes even without registry."""
     user = {"role": "admin", "governed_modules": [], "domain_roles": {}}
     assert can_govern_domain(user, "anything") is True
 
 
 @pytest.mark.unit
 def test_can_govern_domain_unrestricted_da_missing_keys() -> None:
-    """DA with no governed_modules/domain_roles keys at all passes (unrestricted)."""
     user = {"role": "admin"}
-    assert can_govern_domain(user, "education") is True
+    assert can_govern_domain(user, _PRIMARY_DOMAIN) is True
 
 
 @pytest.mark.unit
 def test_can_govern_domain_scoped_da_wrong_domain() -> None:
-    """DA with specific governed_modules cannot access other domains."""
     user = {
         "role": "admin",
-        "governed_modules": ["agriculture"],
+        "governed_modules": [_SECONDARY_DOMAIN],
         "domain_roles": {},
     }
-    assert can_govern_domain(user, "education") is False
+    assert can_govern_domain(user, _PRIMARY_DOMAIN) is False
 
 
-# ── list_users domain filtering ──────────────────────────────────────────────
+# -- list_users domain filtering ----------------------------------------------
 
 
 def _setup_admin_config(monkeypatch, users, registry=None):
@@ -197,39 +187,42 @@ def _setup_admin_config(monkeypatch, users, registry=None):
 
 def _teardown_admin_config(original_persistence, original_registry):
     from lumina.api import config as _cfg
+
     _cfg.PERSISTENCE = original_persistence
     _cfg.DOMAIN_REGISTRY = original_registry
 
 
-def _edu_registry():
-    """Mock registry that knows education domain has algebra module."""
-    _domain_map = {
-        "education": "education",
-        "edu": "education",
-        "agriculture": "agriculture",
-        "agri": "agriculture",
-    }
+def _active_registry():
+    """Mock registry for business-ops and coding-agent domains."""
 
     def _resolve(d):
-        if d in _domain_map:
-            return _domain_map[d]
+        aliases = {
+            "business-ops": "business-ops",
+            "biz": "business-ops",
+            "coding-agent": "coding-agent",
+            "ca": "coding-agent",
+        }
+        if d in aliases:
+            return aliases[d]
         from lumina.core.domain_registry import DomainNotFoundError
+
         raise DomainNotFoundError(d)
 
     reg = MagicMock()
     reg.resolve_domain_id.side_effect = _resolve
     reg.list_modules_for_domain.side_effect = lambda d: {
-        "education": [
-            {"module_id": "domain/edu/algebra-level-1/v1"},
-            {"module_id": "domain/edu/pre-algebra/v1"},
-        ],
-        "agriculture": [
-            {"module_id": "domain/agri/operations-level-1/v1"},
-        ],
+        "business-ops": [{"module_id": _PRIMARY_MODULE}],
+        "coding-agent": [{"module_id": _SECONDARY_MODULE}],
     }.get(d, [])
     reg.list_domains.return_value = [
-        {"domain_id": "education", "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml"},
-        {"domain_id": "agriculture", "runtime_config_path": "model-packs/agriculture/cfg/runtime-config.yaml"},
+        {
+            "domain_id": "business-ops",
+            "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
+        },
+        {
+            "domain_id": "coding-agent",
+            "runtime_config_path": "model-packs/coding-agent/cfg/runtime-config.yaml",
+        },
     ]
     return reg
 
@@ -240,21 +233,20 @@ def test_list_users_domain_id_filter(monkeypatch) -> None:
     from lumina.api.routes.admin import _execute_admin_operation
 
     users = [
-        {"user_id": "u1", "username": "alice", "role": "user",
-         "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-        {"user_id": "u2", "username": "bob", "role": "user",
-         "governed_modules": ["domain/agri/operations-level-1/v1"]},
-        {"user_id": "u3", "username": "carol", "role": "user",
-         "domain_roles": {"domain/edu/algebra-level-1/v1": "student"}},
+        {"user_id": "u1", "username": "alice", "role": "user", "governed_modules": [_PRIMARY_MODULE]},
+        {"user_id": "u2", "username": "bob", "role": "user", "governed_modules": [_SECONDARY_MODULE]},
+        {"user_id": "u3", "username": "carol", "role": "user", "domain_roles": {_PRIMARY_MODULE: "student"}},
     ]
-    reg = _edu_registry()
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, users, registry=reg)
     try:
-        result = asyncio.run(_execute_admin_operation(
-            {"sub": "root", "role": "root"},
-            {"operation": "list_users", "target": "", "params": {"domain_id": "education"}},
-            "list users in education",
-        ))
+        result = asyncio.run(
+            _execute_admin_operation(
+                {"sub": "root", "role": "root"},
+                {"operation": "list_users", "target": "", "params": {"domain_id": _PRIMARY_DOMAIN}},
+                "list users in business-ops",
+            )
+        )
     finally:
         _teardown_admin_config(orig_p, orig_r)
 
@@ -269,20 +261,19 @@ def test_list_users_module_id_filter(monkeypatch) -> None:
     from lumina.api.routes.admin import _execute_admin_operation
 
     users = [
-        {"user_id": "u1", "username": "alice", "role": "user",
-         "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-        {"user_id": "u2", "username": "bob", "role": "user",
-         "governed_modules": ["domain/edu/pre-algebra/v1"]},
+        {"user_id": "u1", "username": "alice", "role": "user", "governed_modules": [_PRIMARY_MODULE]},
+        {"user_id": "u2", "username": "bob", "role": "user", "governed_modules": [_SECONDARY_MODULE]},
     ]
-    reg = _edu_registry()
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, users, registry=reg)
     try:
-        result = asyncio.run(_execute_admin_operation(
-            {"sub": "root", "role": "root"},
-            {"operation": "list_users", "target": "",
-             "params": {"module_id": "domain/edu/algebra-level-1/v1"}},
-            "list users in algebra module",
-        ))
+        result = asyncio.run(
+            _execute_admin_operation(
+                {"sub": "root", "role": "root"},
+                {"operation": "list_users", "target": "", "params": {"module_id": _PRIMARY_MODULE}},
+                "list users in primary module",
+            )
+        )
     finally:
         _teardown_admin_config(orig_p, orig_r)
 
@@ -296,22 +287,20 @@ def test_list_users_domain_role_filter(monkeypatch) -> None:
     from lumina.api.routes.admin import _execute_admin_operation
 
     users = [
-        {"user_id": "u1", "username": "alice", "role": "user",
-         "domain_roles": {"domain/edu/algebra-level-1/v1": "student"}},
-        {"user_id": "u2", "username": "bob", "role": "user",
-         "domain_roles": {"domain/edu/algebra-level-1/v1": "teacher"}},
-        {"user_id": "u3", "username": "carol", "role": "user",
-         "domain_roles": {}},
+        {"user_id": "u1", "username": "alice", "role": "user", "domain_roles": {_PRIMARY_MODULE: "student"}},
+        {"user_id": "u2", "username": "bob", "role": "user", "domain_roles": {_PRIMARY_MODULE: "teacher"}},
+        {"user_id": "u3", "username": "carol", "role": "user", "domain_roles": {}},
     ]
-    reg = _edu_registry()
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, users, registry=reg)
     try:
-        result = asyncio.run(_execute_admin_operation(
-            {"sub": "root", "role": "root"},
-            {"operation": "list_users", "target": "",
-             "params": {"domain_role": "student"}},
-            "list students",
-        ))
+        result = asyncio.run(
+            _execute_admin_operation(
+                {"sub": "root", "role": "root"},
+                {"operation": "list_users", "target": "", "params": {"domain_role": "student"}},
+                "list students",
+            )
+        )
     finally:
         _teardown_admin_config(orig_p, orig_r)
 
@@ -321,25 +310,22 @@ def test_list_users_domain_role_filter(monkeypatch) -> None:
 
 @pytest.mark.unit
 def test_da_list_users_cross_domain_rejected(monkeypatch) -> None:
-    """DA governing education cannot list users in agriculture."""
-    from lumina.api.routes.admin import _execute_admin_operation
+    """DA governing business-ops cannot list users in coding-agent."""
     from fastapi import HTTPException
+    from lumina.api.routes.admin import _execute_admin_operation
 
-    users = [
-        {"user_id": "u1", "username": "alice", "role": "user",
-         "governed_modules": ["domain/agri/operations-level-1/v1"]},
-    ]
-    reg = _edu_registry()
+    users = [{"user_id": "u1", "username": "alice", "role": "user", "governed_modules": [_SECONDARY_MODULE]}]
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, users, registry=reg)
     try:
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(_execute_admin_operation(
-                {"sub": "da-edu", "role": "admin",
-                 "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-                {"operation": "list_users", "target": "",
-                 "params": {"domain_id": "agriculture"}},
-                "list users in agriculture",
-            ))
+            asyncio.run(
+                _execute_admin_operation(
+                    {"sub": "da-biz", "role": "admin", "governed_modules": [_PRIMARY_MODULE]},
+                    {"operation": "list_users", "target": "", "params": {"domain_id": _SECONDARY_DOMAIN}},
+                    "list users in coding-agent",
+                )
+            )
         assert exc_info.value.status_code == 403
     finally:
         _teardown_admin_config(orig_p, orig_r)
@@ -347,142 +333,127 @@ def test_da_list_users_cross_domain_rejected(monkeypatch) -> None:
 
 @pytest.mark.unit
 def test_da_list_users_own_domain_allowed(monkeypatch) -> None:
-    """DA governing education can list users in education."""
+    """DA governing business-ops can list users in business-ops."""
     from lumina.api.routes.admin import _execute_admin_operation
 
     users = [
-        {"user_id": "u1", "username": "alice", "role": "user",
-         "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-        {"user_id": "u2", "username": "bob", "role": "user",
-         "governed_modules": ["domain/agri/operations-level-1/v1"]},
+        {"user_id": "u1", "username": "alice", "role": "user", "governed_modules": [_PRIMARY_MODULE]},
+        {"user_id": "u2", "username": "bob", "role": "user", "governed_modules": [_SECONDARY_MODULE]},
     ]
-    reg = _edu_registry()
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, users, registry=reg)
     try:
-        result = asyncio.run(_execute_admin_operation(
-            {"sub": "da-edu", "role": "admin",
-             "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-            {"operation": "list_users", "target": "",
-             "params": {"domain_id": "education"}},
-            "list users in education",
-        ))
+        result = asyncio.run(
+            _execute_admin_operation(
+                {"sub": "da-biz", "role": "admin", "governed_modules": [_PRIMARY_MODULE]},
+                {"operation": "list_users", "target": "", "params": {"domain_id": _PRIMARY_DOMAIN}},
+                "list users in business-ops",
+            )
+        )
     finally:
         _teardown_admin_config(orig_p, orig_r)
 
-    # DA scoping: should only see users in their governed modules
     assert result["count"] == 1
     assert result["users"][0]["user_id"] == "u1"
 
 
 @pytest.mark.unit
 def test_da_list_users_module_cross_domain_rejected(monkeypatch) -> None:
-    """DA governing education cannot filter by agriculture module."""
-    from lumina.api.routes.admin import _execute_admin_operation
+    """DA governing business-ops cannot filter by coding-agent module."""
     from fastapi import HTTPException
+    from lumina.api.routes.admin import _execute_admin_operation
 
-    reg = _edu_registry()
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, [], registry=reg)
     try:
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(_execute_admin_operation(
-                {"sub": "da-edu", "role": "admin",
-                 "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-                {"operation": "list_users", "target": "",
-                 "params": {"module_id": "domain/agri/operations-level-1/v1"}},
-                "list users in agri module",
-            ))
+            asyncio.run(
+                _execute_admin_operation(
+                    {"sub": "da-biz", "role": "admin", "governed_modules": [_PRIMARY_MODULE]},
+                    {"operation": "list_users", "target": "", "params": {"module_id": _SECONDARY_MODULE}},
+                    "list users in coding-agent module",
+                )
+            )
         assert exc_info.value.status_code == 403
     finally:
         _teardown_admin_config(orig_p, orig_r)
 
 
-# ── list_escalations domain boundary ────────────────────────────────────────
+# -- list_escalations domain boundary ----------------------------------------
 
 
 @pytest.mark.unit
 def test_da_list_escalations_cross_domain_rejected(monkeypatch) -> None:
-    """DA governing education cannot query agriculture escalations."""
-    from lumina.api.routes.admin import _execute_admin_operation
+    """DA governing business-ops cannot query coding-agent escalations."""
     from fastapi import HTTPException
+    from lumina.api.routes.admin import _execute_admin_operation
 
-    reg = _edu_registry()
+    reg = _active_registry()
     orig_p, orig_r = _setup_admin_config(monkeypatch, [], registry=reg)
     try:
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(_execute_admin_operation(
-                {"sub": "da-edu", "role": "admin",
-                 "governed_modules": ["domain/edu/algebra-level-1/v1"]},
-                {"operation": "list_escalations", "target": "",
-                 "params": {"domain_id": "agriculture"}},
-                "list escalations in agriculture",
-            ))
+            asyncio.run(
+                _execute_admin_operation(
+                    {"sub": "da-biz", "role": "admin", "governed_modules": [_PRIMARY_MODULE]},
+                    {"operation": "list_escalations", "target": "", "params": {"domain_id": _SECONDARY_DOMAIN}},
+                    "list escalations in coding-agent",
+                )
+            )
         assert exc_info.value.status_code == 403
     finally:
         _teardown_admin_config(orig_p, orig_r)
 
 
-# ── _normalize_slm_command domain inference ──────────────────────────────────
+# -- _normalize_slm_command domain inference ---------------------------------
 
 
 @pytest.mark.unit
-def test_normalize_infers_domain_for_list_users(monkeypatch) -> None:
+def test_normalize_infers_domain_for_list_users() -> None:
     """_normalize_slm_command infers domain_id for list_users from instruction."""
-    from lumina.api.routes.admin import _normalize_slm_command
     from lumina.api import config as _cfg
+    from lumina.api.routes.admin import _normalize_slm_command
 
-    reg = _edu_registry()
+    reg = _active_registry()
     original = _cfg.DOMAIN_REGISTRY
     _cfg.DOMAIN_REGISTRY = reg
     try:
-        cmd = {
-            "operation": "list_users",
-            "target": "",
-            "params": {},
-        }
-        result = _normalize_slm_command(cmd, "list users in education domain")
-        assert result["params"]["domain_id"] == "education"
+        cmd = {"operation": "list_users", "target": "", "params": {}}
+        result = _normalize_slm_command(cmd, "list users in business-ops domain")
+        assert result["params"]["domain_id"] == _PRIMARY_DOMAIN
     finally:
         _cfg.DOMAIN_REGISTRY = original
 
 
 @pytest.mark.unit
-def test_normalize_infers_domain_for_list_escalations(monkeypatch) -> None:
+def test_normalize_infers_domain_for_list_escalations() -> None:
     """_normalize_slm_command infers domain_id for list_escalations."""
-    from lumina.api.routes.admin import _normalize_slm_command
     from lumina.api import config as _cfg
+    from lumina.api.routes.admin import _normalize_slm_command
 
-    reg = _edu_registry()
+    reg = _active_registry()
     original = _cfg.DOMAIN_REGISTRY
     _cfg.DOMAIN_REGISTRY = reg
     try:
-        cmd = {
-            "operation": "list_escalations",
-            "target": "",
-            "params": {},
-        }
-        result = _normalize_slm_command(cmd, "show escalations for education")
-        assert result["params"]["domain_id"] == "education"
+        cmd = {"operation": "list_escalations", "target": "", "params": {}}
+        result = _normalize_slm_command(cmd, "show escalations for business-ops")
+        assert result["params"]["domain_id"] == _PRIMARY_DOMAIN
     finally:
         _cfg.DOMAIN_REGISTRY = original
 
 
 @pytest.mark.unit
-def test_normalize_infers_domain_for_list_modules(monkeypatch) -> None:
+def test_normalize_infers_domain_for_list_modules() -> None:
     """_normalize_slm_command infers domain_id for list_modules."""
-    from lumina.api.routes.admin import _normalize_slm_command
     from lumina.api import config as _cfg
+    from lumina.api.routes.admin import _normalize_slm_command
 
-    reg = _edu_registry()
+    reg = _active_registry()
     original = _cfg.DOMAIN_REGISTRY
     _cfg.DOMAIN_REGISTRY = reg
     try:
-        cmd = {
-            "operation": "list_modules",
-            "target": "",
-            "params": {},
-        }
-        result = _normalize_slm_command(cmd, "list modules in education")
-        assert result["params"]["domain_id"] == "education"
+        cmd = {"operation": "list_modules", "target": "", "params": {}}
+        result = _normalize_slm_command(cmd, "list modules in business-ops")
+        assert result["params"]["domain_id"] == _PRIMARY_DOMAIN
     finally:
         _cfg.DOMAIN_REGISTRY = original
 
@@ -490,50 +461,49 @@ def test_normalize_infers_domain_for_list_modules(monkeypatch) -> None:
 @pytest.mark.unit
 def test_normalize_does_not_override_existing_domain_id() -> None:
     """If domain_id is already set, _normalize_slm_command keeps it."""
-    from lumina.api.routes.admin import _normalize_slm_command
     from lumina.api import config as _cfg
+    from lumina.api.routes.admin import _normalize_slm_command
 
-    reg = _edu_registry()
+    reg = _active_registry()
     original = _cfg.DOMAIN_REGISTRY
     _cfg.DOMAIN_REGISTRY = reg
     try:
         cmd = {
             "operation": "list_users",
             "target": "",
-            "params": {"domain_id": "agriculture"},
+            "params": {"domain_id": _SECONDARY_DOMAIN},
         }
-        result = _normalize_slm_command(cmd, "list users in education domain")
-        assert result["params"]["domain_id"] == "agriculture"
+        result = _normalize_slm_command(cmd, "list users in business-ops domain")
+        assert result["params"]["domain_id"] == _SECONDARY_DOMAIN
     finally:
         _cfg.DOMAIN_REGISTRY = original
 
 
-# ── Education NLP domain injection ───────────────────────────────────────────
+# -- System fallback parser checks -------------------------------------------
 
 
 @pytest.mark.unit
-def test_education_fallback_injects_domain_for_list_users() -> None:
-    """Education _deterministic_command_fallback injects domain_id: education."""
-    mod = _load_governance_adapters()
-    result = mod._deterministic_command_fallback("list users", {"query_type": "admin_command"})
+def test_system_fallback_returns_list_users_without_forced_domain() -> None:
+    mod = _load_system_runtime_adapters()
+    result = mod._deterministic_command_fallback("list users", {"intent_type": "read"})
     assert result is not None
     assert result["operation"] == "list_users"
-    assert result["params"]["domain_id"] == "education"
+    assert result["params"] == {}
 
 
 @pytest.mark.unit
-def test_education_fallback_injects_domain_for_list_escalations() -> None:
-    mod = _load_governance_adapters()
-    result = mod._deterministic_command_fallback("list escalations", {"query_type": "admin_command"})
+def test_system_fallback_returns_list_escalations_without_forced_domain() -> None:
+    mod = _load_system_runtime_adapters()
+    result = mod._deterministic_command_fallback("list escalations", {"intent_type": "read"})
     assert result is not None
     assert result["operation"] == "list_escalations"
-    assert result["params"]["domain_id"] == "education"
+    assert result["params"] == {}
 
 
 @pytest.mark.unit
-def test_education_fallback_injects_domain_for_list_modules() -> None:
-    mod = _load_governance_adapters()
-    result = mod._deterministic_command_fallback("show modules", {"query_type": "admin_command"})
+def test_system_fallback_returns_list_modules_op() -> None:
+    mod = _load_system_runtime_adapters()
+    result = mod._deterministic_command_fallback("show modules", {"intent_type": "read"})
     assert result is not None
     assert result["operation"] == "list_modules"
-    assert result["params"]["domain_id"] == "education"
+    assert isinstance(result["params"], dict)

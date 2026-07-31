@@ -41,6 +41,16 @@ def _write_runtime_cfg(edu_dir: Path, content: str) -> None:
     edu_dir.mkdir(parents=True, exist_ok=True)
     (edu_dir / "runtime-config.yaml").write_text(content, encoding="utf-8")
 
+    registry = edu_dir.parents[1] / "model-packs" / "system" / "cfg" / "domain-registry.yaml"
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text(
+        "default_domain: education\n"
+        "domains:\n"
+        "  education:\n"
+        "    runtime_config_path: model-packs/education/runtime-config.yaml\n",
+        encoding="utf-8",
+    )
+
 
 def _make_full_runtime_config(tmp_path: Path) -> None:
     """Create a complete valid runtime-config.yaml plus all target files."""

@@ -13,7 +13,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 PACKAGES=(
-    "model-packs/education/web"
+    "model-packs/business-ops/web"
     "model-packs/system/web"
     "src/web"
 )

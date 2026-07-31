@@ -20,13 +20,13 @@ Usage:
 
     # Commit a domain pack hash
     python reference-implementations/system-log-validator.py \\
-        --commit model-packs/education/modules/algebra-level-1/domain-physics.json \\
+        --commit model-packs/business-ops/modules/auto-repair/domain-physics.json \\
         --actor-id <pseudonymous-id> \\
         --ledger path/to/ledger.jsonl
 
     # Rollback a domain pack
     python reference-implementations/system-log-validator.py \\
-        --rollback model-packs/education/modules/algebra-level-1/domain-physics.json \\
+        --rollback model-packs/business-ops/modules/auto-repair/domain-physics.json \\
         --actor-id <pseudonymous-id> \\
         --reason "Defective invariant in v2.1.0" \\
         --ledger path/to/ledger.jsonl

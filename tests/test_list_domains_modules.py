@@ -18,6 +18,7 @@ from lumina.persistence.adapter import NullPersistenceAdapter
 from lumina.core.domain_registry import DomainRegistry
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
+_PRIMARY_DOMAIN = "business-ops"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -36,7 +37,7 @@ def _load_api_module():
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     mod.PERSISTENCE = NullPersistenceAdapter()
@@ -108,8 +109,8 @@ def test_list_modules_hitl_exempt(client: TestClient, api_module) -> None:
     token = _register_root(client)
     parsed = {
         "operation": "list_modules",
-        "target": "education",
-        "params": {"domain_id": "education"},
+        "target": _PRIMARY_DOMAIN,
+        "params": {"domain_id": _PRIMARY_DOMAIN},
     }
     with (
         patch.object(api_module, "slm_available", return_value=True),
@@ -117,14 +118,14 @@ def test_list_modules_hitl_exempt(client: TestClient, api_module) -> None:
     ):
         resp = client.post(
             "/api/admin/command",
-            json={"instruction": "list modules for education"},
+            json={"instruction": "list modules for business ops"},
             headers=_auth_header(token),
         )
     assert resp.status_code == 200
     body = resp.json()
     assert body["staged_id"] is None
     assert body["hitl_exempt"] is True
-    assert body["result"]["domain_id"] == "education"
+    assert body["result"]["domain_id"] == _PRIMARY_DOMAIN
     assert isinstance(body["result"]["modules"], list)
 
 
@@ -161,20 +162,20 @@ def test_list_modules_da_with_domain_roles(client: TestClient, api_module) -> No
         user_id="da-edu-001",
         role="admin",
         governed_modules=[],
-        domain_roles={"education": "admin"},
+        domain_roles={_PRIMARY_DOMAIN: "admin"},
     )
     resp = client.post(
         "/api/domain/command",
         json={
             "operation": "list_modules",
-            "params": {"domain_id": "education"},
+            "params": {"domain_id": _PRIMARY_DOMAIN},
         },
         headers=_auth_header(token),
     )
     assert resp.status_code == 200
     body = resp.json()
     assert body["hitl_exempt"] is True
-    assert body["result"]["domain_id"] == "education"
+    assert body["result"]["domain_id"] == _PRIMARY_DOMAIN
     assert isinstance(body["result"]["modules"], list)
 
 
@@ -184,9 +185,9 @@ def test_list_modules_da_with_governed_modules(client: TestClient, api_module) -
     from lumina.auth.auth import create_scoped_jwt
     from lumina.api import config as _cfg
 
-    # Get a real module ID from the education domain
-    modules = _cfg.DOMAIN_REGISTRY.list_modules_for_domain("education")
-    assert modules, "education domain should have at least one module"
+    # Get a real module ID from the primary domain
+    modules = _cfg.DOMAIN_REGISTRY.list_modules_for_domain(_PRIMARY_DOMAIN)
+    assert modules, "primary domain should have at least one module"
     first_mod = modules[0]["module_id"]
 
     token = create_scoped_jwt(
@@ -198,32 +199,32 @@ def test_list_modules_da_with_governed_modules(client: TestClient, api_module) -
         "/api/domain/command",
         json={
             "operation": "list_modules",
-            "params": {"domain_id": "education"},
+            "params": {"domain_id": _PRIMARY_DOMAIN},
         },
         headers=_auth_header(token),
     )
     assert resp.status_code == 200
     body = resp.json()
     assert body["hitl_exempt"] is True
-    assert body["result"]["domain_id"] == "education"
+    assert body["result"]["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
 def test_list_modules_da_wrong_domain_403(client: TestClient, api_module) -> None:
-    """DA for education cannot list_modules for agriculture."""
+    """DA for business-ops cannot list_modules for coding-agent."""
     from lumina.auth.auth import create_scoped_jwt
 
     token = create_scoped_jwt(
         user_id="da-edu-003",
         role="admin",
         governed_modules=[],
-        domain_roles={"education": "admin"},
+        domain_roles={_PRIMARY_DOMAIN: "admin"},
     )
     resp = client.post(
         "/api/domain/command",
         json={
             "operation": "list_modules",
-            "params": {"domain_id": "agriculture"},
+            "params": {"domain_id": "coding-agent"},
         },
         headers=_auth_header(token),
     )

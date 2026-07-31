@@ -1,7 +1,7 @@
 """Admin endpoints: audit log, manifest, HITL admin command staging.
 
 Escalation REST endpoints and session-unlock have been extracted to the
-education domain pack (model-packs/education/controllers/) and are
+domain-pack controller modules and are
 mounted dynamically at startup via api_routes in runtime-config.yaml.
 """
 
@@ -132,7 +132,7 @@ def _has_domain_capability(user_data: dict[str, Any], module_id: str, capability
     return False
 
 
-# ── Escalation REST endpoints — moved to model-packs/education/controllers/escalation_handlers.py
+# ── Escalation REST endpoints — moved to domain-pack escalation handlers
 # Mounted dynamically at startup via api_routes in runtime-config.yaml.
 
 

@@ -43,7 +43,7 @@ def test_load_yaml_valid_dict(tmp_path: Path) -> None:
 
 
 def _make_runtime_config(tmp_path: Path, extra_fields: dict | None = None) -> None:
-    """Create a model-packs/education/runtime-config.yaml with required fields."""
+    """Create a model-packs/business-ops/cfg/runtime-config.yaml with required fields."""
     edu_dir = tmp_path / "model-packs" / "education"
     edu_dir.mkdir(parents=True, exist_ok=True)
 
@@ -85,6 +85,16 @@ def _make_runtime_config(tmp_path: Path, extra_fields: dict | None = None) -> No
         )
     (edu_dir / "runtime-config.yaml").write_text(content, encoding="utf-8")
 
+    registry = tmp_path / "model-packs" / "system" / "cfg" / "domain-registry.yaml"
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text(
+        "default_domain: education\n"
+        "domains:\n"
+        "  education:\n"
+        "    runtime_config_path: model-packs/education/runtime-config.yaml\n",
+        encoding="utf-8",
+    )
+
 
 @pytest.mark.unit
 def test_check_runtime_config_paths_all_ok(tmp_path: Path) -> None:
@@ -100,6 +110,15 @@ def test_check_runtime_config_paths_missing_runtime_key(tmp_path: Path) -> None:
     edu_dir = tmp_path / "model-packs" / "education"
     edu_dir.mkdir(parents=True, exist_ok=True)
     (edu_dir / "runtime-config.yaml").write_text("other: value\n", encoding="utf-8")
+    registry = tmp_path / "model-packs" / "system" / "cfg" / "domain-registry.yaml"
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text(
+        "default_domain: education\n"
+        "domains:\n"
+        "  education:\n"
+        "    runtime_config_path: model-packs/education/runtime-config.yaml\n",
+        encoding="utf-8",
+    )
 
     errors: list[str] = []
     with _patch_root(tmp_path):
@@ -117,6 +136,15 @@ def test_check_runtime_config_paths_missing_target_file(tmp_path: Path) -> None:
         "  turn_interpretation_prompt_path: specs/missing-turn.md\n"
         "  domain_physics_path: model-packs/education/missing-physics.json\n"
         "  subject_profile_path: model-packs/education/profiles/missing.yaml\n",
+        encoding="utf-8",
+    )
+    registry = tmp_path / "model-packs" / "system" / "cfg" / "domain-registry.yaml"
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text(
+        "default_domain: education\n"
+        "domains:\n"
+        "  education:\n"
+        "    runtime_config_path: model-packs/education/runtime-config.yaml\n",
         encoding="utf-8",
     )
     errors: list[str] = []

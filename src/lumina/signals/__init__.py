@@ -13,9 +13,8 @@ Domains declare their signals in ``domain-physics.json`` under a top-level
 runs the math, and consumers (`journal_adapters`, future tooling) read
 back ``learning_state.signal_baselines`` + ``learning_state.spectral_advisories``.
 
-The historical SVA implementation in
-``model-packs/assistant/domain-lib/affect_monitor.py`` is now a thin
-adapter over this package.
+Historical pack-specific affect monitors are now thin adapters over this
+package.
 
 Public API:
 

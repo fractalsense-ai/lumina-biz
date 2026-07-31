@@ -1,9 +1,8 @@
 """lumina.signals.baseline — EWMA baseline + envelope + heartbeat-shape math.
 
-Generalises the per-axis math previously hardcoded in
-``model-packs/assistant/domain-lib/affect_monitor.py`` to operate on
-any named scalar signal. Bands of bounds (range clamps) are driven by
-the caller via ``clamp`` arguments — the framework is range-agnostic.
+Generalises historical per-axis affect-monitor math to operate on any
+named scalar signal. Bands of bounds (range clamps) are driven by the
+caller via ``clamp`` arguments — the framework is range-agnostic.
 
 Every public function is pure: no I/O, no profile mutation, no globals.
 The daemon and the assistant adapter both wrap these to update the

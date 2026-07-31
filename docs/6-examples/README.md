@@ -21,5 +21,5 @@ Worked examples, traces, and reference scenarios.
 | [examples index](../../examples/README.md) | Full examples directory listing |
 
 See also the domain pack worked examples:
-- [Education — Algebra Level 1](../../model-packs/education/modules/algebra-level-1/) — complete domain pack
-- [Agriculture — Operations Level 1](../../model-packs/agriculture/modules/operations-level-1/) — domain-swap proof
+- [Business Ops — Auto Repair](../../model-packs/business-ops/modules/auto-repair/) — active domain pack
+- [Domain-pack anatomy](../7-concepts/domain-pack-anatomy.md) — domain-swap design pattern

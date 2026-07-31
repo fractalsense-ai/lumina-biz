@@ -6,6 +6,6 @@ status: Moved
 
 # Student Commons
 
-This document has moved to the education domain pack:
-[`model-packs/education/docs/7-concepts/student-commons.md`](../../model-packs/education/docs/7-concepts/student-commons.md)
+This document was moved to a domain-pack-local concept page in prior versions.
+Use the active domain pack's concepts directory for domain-specific actor commons guidance.
 

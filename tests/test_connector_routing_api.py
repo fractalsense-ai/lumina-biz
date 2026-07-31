@@ -119,7 +119,7 @@ def _build_vector_store_stub() -> types.ModuleType:
 
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     monkeypatch.setitem(sys.modules, "lumina.retrieval.embedder", _build_embedder_stub())
     monkeypatch.setitem(sys.modules, "lumina.retrieval.vector_store", _build_vector_store_stub())

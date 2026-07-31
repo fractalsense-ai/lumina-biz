@@ -8,7 +8,7 @@ import {
 import { registerPlugin, _resetForTesting } from '@/plugins/PluginRegistry'
 import type { DomainPlugin } from '@/plugins/types'
 
-// Education plugin commands (mirroring model-packs/education/web/plugin.ts)
+// Education plugin commands (test-local plugin fixture)
 const educationPlugin: DomainPlugin = {
   id: 'education-test',
   register(reg) {

@@ -500,7 +500,7 @@ glossary:
       - admin
       - domain_registry
     example_in_context: >-
-      The model-packs/education/ folder is the education domain_pack;
+      The model-packs/business-ops/ folder is an active business domain_pack;
       it contains the full physics, tools, and runtime config for the
       tutoring domain.
 

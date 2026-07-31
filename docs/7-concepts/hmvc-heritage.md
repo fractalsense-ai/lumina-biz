@@ -152,7 +152,7 @@ prose changes.
 Additionally, each domain pack declares a `ui` section in its `runtime-config.yaml`.
 This section is the **declarative View binding** for the frontend:
 
-- `plugin_bundle` — path to the domain's built ES module (e.g. `model-packs/education/web/dist/plugin.js`)
+- `plugin_bundle` — path to the domain's built ES module (e.g. `model-packs/<domain>/web/dist/plugin.js`)
 - `slash_commands` — array of domain-contributed slash commands
 - `dashboard_tabs` — array of tab definitions (id, label, endpoint, roles, type)
 
