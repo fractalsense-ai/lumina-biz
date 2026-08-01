@@ -308,14 +308,14 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-06-15
-  sha256: ba6aa6e22ed8c0240890adcc3940094598c4d1158645a83b91888a21dd3d174a
+  sha256: 9af6bee777b4c88fdace607f70d713070c691926ca5c567471872843fbb3a9c0
 - path: docs/2-syscalls/lumina-api-server.md
   type: doc
   section: 2
   doc_version: 1.4.0
   status: active
   last_updated: 2026-06-15
-  sha256: af29dc66b87edceaa135e6b7da69091387ac79ef7db4bd33b7385706011fc741
+  sha256: 9613ca9dcca631d25a2f4163c5d59831bc94f1a7ec84234a48beb4afd6b08c89
 - path: docs/3-functions/README.md
   type: doc
   section: 3
@@ -420,7 +420,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-18
-  sha256: 5d5922db58ecd70dff81e169f369aa65f8e2594189656d8398c970b8e64e1d31
+  sha256: ab4a7c0410dd54808ae3f889d089fe3c528989b9e1b25c7a3c025382d51500a6
 - path: docs/7-concepts/context-is-not-conversation.md
   type: doc
   section: 7
@@ -483,7 +483,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: 1d58e3115c66b567a510ee702fa8421dc35dd1b22ee7f1dc7a3e7a87e561e6bd
+  sha256: 3db62dfe1fcce5e5c1716da4a0cc3586679a09066e8746331d26277bb107568e
 - path: docs/7-concepts/ingestion-pipeline.md
   type: doc
   section: 7
@@ -518,7 +518,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-11
-  sha256: 69cdbb42b7fc7d2c2db63d9a00f4d5f4a093261b59979bd8f5d7874e1ec4f417
+  sha256: ca69fe01e3e9571c561f9631f074f83358ca4c6f290b1a8f0f6f10798d99b101
 - path: docs/8-admin/daemon-batch-processing.md
   type: doc
   section: 8
@@ -686,7 +686,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-23
-  sha256: e30c5fd64a8cc0006ff12615938671042a565561d158a592e4a5ade194beaf77
+  sha256: 81d66b828157a87201f7637b14542875f00cd2d268bcd450b95b80b8affc629a
 - path: docs/7-concepts/ledger-tier-separation.md
   type: doc
   section: 7
@@ -802,7 +802,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: 42ace2f93383e0edc5204009d6375aa86ca9cde42a34a352c5ed3256ec888f6c
+  sha256: 83869557dbe79ce9817574cfecfdd02235ce11c5b7af9ba908c0de84c5285123
 - path: docs/7-concepts/dsa-framework.md
   type: spec
   doc_version: 1.2.0
@@ -851,7 +851,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-15
-  sha256: b13f336f83008940b7724ec810f303b8f5613329acd88e9d3c15d2bf96a417c5
+  sha256: 7ccf358c3d3bb0721558df336a2d34707ce87feafc6dfea6a666576e26973673
 - path: docs/8-admin/reports-spec.md
   type: spec
   doc_version: 1.0.0
@@ -1432,13 +1432,13 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: f4b3b9d3d397139a57eede98f35fd2b2c3e21b8e91a744aeaf498e6940a194b6
+  sha256: 3ce0418a3a654603343d53fae6781821b616b95ede5c78741723486711f84dbf
 - path: model-packs/system/cfg/system-physics.yaml
   type: config
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: cd43ca1075a932f57aab71fce9a89ed991b0dc335d51183bfd016381451e1a77
+  sha256: 4bec02de77dc4bc3ca48f67d8f5252d46bd55fee36dd1bca7c0f891eff533d46
 - path: docs/7-concepts/rag-contracts.md
   type: doc
   doc_version: 1.0.0
