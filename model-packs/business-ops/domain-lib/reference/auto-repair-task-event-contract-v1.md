@@ -50,3 +50,6 @@ This contract defines the portable vertical packet and event envelopes for Slice
 - missing_precedent_penalty: number (default 1.0)
 - high_risk_classes: list[string]
 - confirmation_risk_classes: list[string]
+- manager_review_sla_minutes: integer (default 15)
+- cto_review_sla_minutes: integer (default 30)
+- irreversible_actions_require_human_approval: boolean (default true)
