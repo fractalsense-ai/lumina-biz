@@ -167,6 +167,33 @@ class ConnectorRoutingPreflightResponse(BaseModel):
     evaluated_utc: str
 
 
+class ConnectorExecutionActorScopeRequest(BaseModel):
+    organization_id: str = Field(min_length=1)
+    site_id: str = Field(min_length=1)
+    actor_id: str = Field(min_length=1)
+
+
+class ConnectorExecutionFixtureRequest(BaseModel):
+    request_id: str = Field(min_length=1)
+    action_class: str = Field(min_length=1)
+    capability_namespace: str = Field(min_length=1)
+    payload: dict[str, Any] = Field(default_factory=dict)
+    actor_scope: ConnectorExecutionActorScopeRequest
+    session_id: str | None = None
+
+
+class ConnectorExecutionFixtureResponse(BaseModel):
+    request_id: str
+    result_id: str
+    action_class: str
+    capability_namespace: str
+    status: str
+    occurred_utc: str
+    result_data: dict[str, Any] | None = None
+    errors: list[dict[str, Any]] | None = None
+    metadata: dict[str, Any] | None = None
+
+
 # ── Holodeck Sandbox ─────────────────────────────────────────
 
 class HolodeckSimulateRequest(BaseModel):
