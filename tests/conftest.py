@@ -9,19 +9,17 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-# Legacy suites pinned to removed education/agriculture/assistant pack behavior.
+# Legacy suites pinned to removed business-ops/business-ops/assistant pack behavior.
 # Keep these out of collection in the split repo to avoid false CI failures.
 _LEGACY_SPLIT_TESTS = {
     "test_admin_command_regressions.py",
     "test_assign_modules.py",
     "test_assistant_domain_pack.py",
-    "test_baseline_before_escalation.py",
     "test_dashboard_roster_status.py",
     "test_domain_lib_reference_specs.py",
     "test_escalation_prevention.py",
     "test_escalation_routing.py",
     "test_escalation_unlock.py",
-    "test_fluency_monitor.py",
     "test_hierarchy_visibility.py",
     "test_invariant_source_and_verification.py",
     "test_journal_sva_module.py",
@@ -31,15 +29,12 @@ _LEGACY_SPLIT_TESTS = {
     "test_profile_state_separation.py",
     "test_problem_generator.py",
     "test_rag_module_scoping.py",
-    "test_routes_vocabulary.py",
     "test_round2_fixes.py",
-    "test_signals_agriculture_poc.py",
+    "test_signals_field_ops_poc.py",
     "test_sse_and_events.py",
     "test_tool_adapter_new_checks.py",
     "test_trip_module.py",
     "test_user_module_management.py",
-    "test_vocabulary_growth_monitor.py",
-    "test_zpd_monitor.py",
 }
 
 
@@ -89,3 +84,4 @@ def _mount_domain_routes_if_loaded(request):
     mount_fn = getattr(mod, "_mount_domain_api_routes", None)
     if mount_fn is not None:
         mount_fn()
+

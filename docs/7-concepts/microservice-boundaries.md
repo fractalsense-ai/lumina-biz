@@ -222,18 +222,15 @@ service is mounted on the **gateway** (the former `server.py`) so a single
 
 ---
 
-### Daemon Batch & Vocabulary
+### Daemon Batch
 
 Daemon batch processing operations (trigger, status, report, proposals, resolve) are
 dispatched through `POST /api/admin/command` with the appropriate `operation` field.
-See the admin command reference for details. `routes/vocabulary.py` is mounted on the
-gateway for metric submission and a growth dashboard.
+See the admin command reference for details.
 
 | Method | Path | Auth Track | Notes |
 |--------|------|------------|-------|
 | POST | `/api/admin/command` | user (root/da) | Daemon ops via `operation` field |
-| POST | `/api/user/{user_id}/vocabulary-metric` | user | Submit vocab metric |
-| GET | `/api/dashboard/education/vocabulary-growth` | user (root/da/operator/half_operator) | Growth dashboard |
 
 ---
 
@@ -323,3 +320,4 @@ Steps 2a–2c are independent and can be done in parallel.
 
 - [parallel-authority-tracks.md](parallel-authority-tracks.md) — Three-track JWT model
 - [api-server-architecture.md](api-server-architecture.md) — Current monolith architecture
+

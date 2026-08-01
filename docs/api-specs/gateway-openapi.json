@@ -3409,87 +3409,6 @@
         }
       }
     },
-    "/api/user/{user_id}/vocabulary-metric": {
-      "post": {
-        "summary": "Post Vocabulary Metric",
-        "operationId": "post_vocabulary_metric_api_user__user_id__vocabulary_metric_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "User Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VocabularyMetricPayload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Post Vocabulary Metric Api User  User Id  Vocabulary Metric Post"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/dashboard/education/vocabulary-growth": {
-      "get": {
-        "summary": "Dashboard Vocabulary Growth",
-        "operationId": "dashboard_vocabulary_growth_api_dashboard_education_vocabulary_growth_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "type": "object",
-                  "title": "Response Dashboard Vocabulary Growth Api Dashboard Education Vocabulary Growth Get"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    }
   },
   "components": {
     "schemas": {
@@ -4808,3 +4727,4 @@
     }
   }
 }
+

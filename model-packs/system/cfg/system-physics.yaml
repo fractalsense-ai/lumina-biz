@@ -52,7 +52,7 @@ universal_base_identity: >
 #
 # Canonical identity block. Prevents the CI from hallucinating platform
 # names drawn from domain-level immersion themes (e.g. "Helios" is a
-# narrative overlay in the education domain, not the system name).
+# narrative overlay in the business-ops domain, not the system name).
 
 system_identity:
   system_name: "Project Lumina"
@@ -266,8 +266,8 @@ ci_output_contract:
 #
 #   3. Deterministic Tool Verification (Ground Truth Override)
 #      Domain-scoped verification tools OVERWRITE evidence fields with
-#      ground truth.  Education: algebra parser.  System: policy boundary
-#      verifier + disclosure scanner.  Agriculture: collar sensor.
+#      ground truth.  Business Ops: algebra parser.  System: policy boundary
+#      verifier + disclosure scanner.  Business Ops: collar sensor.
 #      This is the critical gate: the SLM/LLM cannot bypass deterministic
 #      verification by producing different evidence.
 #
@@ -300,9 +300,9 @@ deterministic_gating_contract:
       - validate_command_schema
       - verify_policy_boundaries
       - verify_no_disclosure
-    education:
+    business-ops:
       - algebra_parser
-    agriculture:
+    business-ops:
       - collar_sensor
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -408,7 +408,7 @@ glossary:
       - domain_pack
       - admin
     example_in_context: >-
-      The education domain_physics defines the scaffolding_only invariant;
+      The business-ops domain_physics defines the scaffolding_only invariant;
       if violated the standing order apply_zpdcorrection fires.
 
   - term: prompt_contract
@@ -483,7 +483,7 @@ glossary:
       - system_logs
       - domain_physics
     example_in_context: >-
-      The policy_commitment_gate halts server startup if the education
+      The policy_commitment_gate halts server startup if the business-ops
       domain-physics.json hash is absent from the system log.
 
   - term: domain_pack
@@ -517,7 +517,7 @@ glossary:
       - domain_pack
       - domain_physics
     example_in_context: >-
-      The admin for the education pack may update the ZPD
+      The admin for the business-ops pack may update the ZPD
       thresholds in domain-physics.json; the change must be committed to
       the System Logs before it takes effect.
 
@@ -627,8 +627,8 @@ glossary:
   - term: domain_lib
     definition: >-
       Domain-owned passive state estimators called by the runtime adapter
-      each turn to update mutable entity state (e.g., ZPD position, fluency
-      level, fatigue signal).  The core engine never calls domain-lib
+      each turn to update mutable entity state (e.g., risk posture, stability
+      score, fatigue signal).  The core engine never calls domain-lib
       components directly.
     aliases:
       - domain lib
@@ -638,9 +638,8 @@ glossary:
       - orchestrator
       - tool_adapter
     example_in_context: >-
-      The education domain_lib exposes fluency_monitor and zpd_estimator;
-      both are called by the education runtime adapter before each
-      orchestrator turn.
+      A domain pack can expose several estimators; they are called by the
+      pack runtime adapter before each orchestrator turn.
 
   - term: novel_synthesis
     definition: >-
@@ -870,5 +869,6 @@ slm_config:
   local_endpoint: "http://localhost:11434"
   admin_command_translation: true
   timeout_seconds: 60
+
 
 
