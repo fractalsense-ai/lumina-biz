@@ -262,3 +262,50 @@ def test_execute_fixture_normalizes_upstream_failure_codes(client) -> None:
     assert errors[0]["code"] == "UPSTREAM_UNAVAILABLE"
     assert errors[0]["retryable"] is True
     assert errors[0]["provider_error_code"] == "ERP-503"
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "capability_namespace,organization_id,site_id,expected_code,expected_retryable,expected_provider_code",
+    [
+        ("inventory", "org-rate-limited", "site-rate-limited", "RATE_LIMITED", True, "ERP-429"),
+        ("scheduling", "org-validation", "site-validation", "VALIDATION_FAILED", False, "ERP-400"),
+        ("service/work-order", "org-auth", "site-auth", "AUTH_FAILED", False, "ERP-401"),
+    ],
+)
+def test_execute_fixture_normalizes_additional_endpoint_failures(
+    client,
+    capability_namespace: str,
+    organization_id: str,
+    site_id: str,
+    expected_code: str,
+    expected_retryable: bool,
+    expected_provider_code: str,
+) -> None:
+    test_client, _ = client
+    payload = {
+        "request_id": f"req-{expected_code.lower()}",
+        "action_class": "query",
+        "capability_namespace": capability_namespace,
+        "payload": {"filters": {}},
+        "actor_scope": {
+            "organization_id": organization_id,
+            "site_id": site_id,
+            "actor_id": "actor-a",
+        },
+    }
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token(organization_id=organization_id, site_id=site_id)}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "failed"
+    errors = body.get("errors")
+    assert isinstance(errors, list)
+    assert errors[0]["code"] == expected_code
+    assert errors[0]["retryable"] is expected_retryable
+    assert errors[0]["provider_error_code"] == expected_provider_code
