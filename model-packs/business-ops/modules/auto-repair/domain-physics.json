@@ -60,30 +60,35 @@
       "sla_minutes": 15
     }
   ],
-  "artifacts": [
-    {
-      "id": "service_intake_packet",
-      "type": "contract_reference",
-      "path": "model-packs/business-ops/domain-lib/reference/auto-repair-task-event-contract-v1.md",
-      "section": "service_intake_packet"
-    },
-    {
-      "id": "estimate_context_packet",
-      "type": "contract_reference",
-      "path": "model-packs/business-ops/domain-lib/reference/auto-repair-task-event-contract-v1.md",
-      "section": "estimate_context_packet"
-    },
-    {
-      "id": "customer_communication_draft_packet",
-      "type": "contract_reference",
-      "path": "model-packs/business-ops/domain-lib/reference/auto-repair-task-event-contract-v1.md",
-      "section": "customer_communication_draft_packet"
-    },
-    {
-      "id": "provider_portability_checklist",
-      "type": "contract_reference",
-      "path": "model-packs/business-ops/domain-lib/reference/auto-repair-provider-portability-checklist-v1.md",
-      "section": "checklist"
+  "artifacts": [],
+  "subsystem_configs": {
+    "contract_references": {
+      "references": [
+        {
+          "id": "service_intake_packet",
+          "type": "contract_reference",
+          "path": "model-packs/business-ops/domain-lib/reference/auto-repair-task-event-contract-v1.md",
+          "section": "service_intake_packet"
+        },
+        {
+          "id": "estimate_context_packet",
+          "type": "contract_reference",
+          "path": "model-packs/business-ops/domain-lib/reference/auto-repair-task-event-contract-v1.md",
+          "section": "estimate_context_packet"
+        },
+        {
+          "id": "customer_communication_draft_packet",
+          "type": "contract_reference",
+          "path": "model-packs/business-ops/domain-lib/reference/auto-repair-task-event-contract-v1.md",
+          "section": "customer_communication_draft_packet"
+        },
+        {
+          "id": "provider_portability_checklist",
+          "type": "contract_reference",
+          "path": "model-packs/business-ops/domain-lib/reference/auto-repair-provider-portability-checklist-v1.md",
+          "section": "checklist"
+        }
+      ]
     }
-  ]
+  }
 }

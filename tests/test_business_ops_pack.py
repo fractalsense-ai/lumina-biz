@@ -101,6 +101,23 @@ class TestBusinessOpsPackStructure:
         for key in ("id", "version", "admin", "meta_authority_id", "invariants", "standing_orders", "escalation_triggers", "artifacts"):
             assert key in physics
         assert physics["id"] == "domain/bizops/auto-repair/v1"
+        assert physics["artifacts"] == []
+
+    def test_auto_repair_contract_references_live_in_subsystem_configs(self):
+        physics = json.loads((PACK / "modules" / "auto-repair" / "domain-physics.json").read_text(encoding="utf-8"))
+        refs = (((physics.get("subsystem_configs") or {}).get("contract_references") or {}).get("references") or [])
+
+        assert len(refs) == 4
+        by_id = {entry["id"]: entry for entry in refs}
+        assert set(by_id.keys()) == {
+            "service_intake_packet",
+            "estimate_context_packet",
+            "customer_communication_draft_packet",
+            "provider_portability_checklist",
+        }
+        assert by_id["service_intake_packet"]["path"].endswith("auto-repair-task-event-contract-v1.md")
+        assert by_id["provider_portability_checklist"]["path"].endswith("auto-repair-provider-portability-checklist-v1.md")
+        assert all(entry["type"] == "contract_reference" for entry in refs)
 
     def test_auto_repair_module_config_exposes_auditable_thresholds(self):
         module_cfg = _load_yaml(PACK / "modules" / "auto-repair" / "module-config.yaml")
