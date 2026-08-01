@@ -377,7 +377,7 @@ def verify_jwt(token: str) -> dict[str, Any]:
         raise TokenInvalidError("Payload is not a JSON object")
 
     exp = payload.get("exp")
-    if isinstance(exp, (int, float)) and time.time() > exp:
+    if isinstance(exp, (int, float)) and time.time() >= exp:
         raise TokenExpiredError("Token has expired")
 
     if payload.get("iss") != JWT_ISSUER:

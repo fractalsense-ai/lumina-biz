@@ -309,3 +309,59 @@ def test_execute_fixture_normalizes_additional_endpoint_failures(
     assert errors[0]["code"] == expected_code
     assert errors[0]["retryable"] is expected_retryable
     assert errors[0]["provider_error_code"] == expected_provider_code
+
+
+@pytest.mark.integration
+def test_execute_fixture_returns_canonical_error_for_unsupported_mapping(client) -> None:
+    test_client, _ = client
+    payload = {
+        "request_id": "req-unsupported-mapping",
+        "action_class": "create_draft",
+        "capability_namespace": "inventory",
+        "payload": {"record": {"item_code": "SKU-9"}},
+        "actor_scope": {
+            "organization_id": "org-a",
+            "site_id": "site-a",
+            "actor_id": "actor-a",
+        },
+    }
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "failed"
+    errors = body.get("errors")
+    assert isinstance(errors, list)
+    assert errors[0]["code"] == "UNSUPPORTED_MAPPING"
+    assert errors[0]["retryable"] is False
+    assert errors[0]["severity"] == "warning"
+    assert errors[0]["action_class"] == "create_draft"
+    assert errors[0]["capability_namespace"] == "inventory"
+
+
+@pytest.mark.integration
+def test_execute_fixture_requires_actor_scope_payload(client) -> None:
+    test_client, _ = client
+    payload = {
+        "request_id": "req-no-actor-scope",
+        "action_class": "query",
+        "capability_namespace": "inventory",
+        "payload": {"filters": {}},
+        "session_id": "session-exec-missing-scope",
+    }
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    detail = response.json().get("detail")
+    assert isinstance(detail, list)
+    assert any("actor_scope" in str(item.get("loc", [])) for item in detail if isinstance(item, dict))
