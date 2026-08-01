@@ -83,7 +83,7 @@ def test_fixture_execution_result_conforms_to_operation_result_schema() -> None:
             "request_id": "req-1001",
             "action_class": "query",
             "capability_namespace": "service/work-order",
-            "payload": {"name": ["like", "WO-%"]},
+            "payload": {"filters": {"name": ["like", "WO-%"]}},
             "actor_scope": {
                 "organization_id": "org-a",
                 "site_id": "site-a",

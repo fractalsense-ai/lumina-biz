@@ -127,3 +127,63 @@ def test_execute_rejects_cross_tenant_scope_mismatch() -> None:
     errors = result.get("errors")
     assert isinstance(errors, list)
     assert errors[0]["code"] == "SCOPE_MISMATCH"
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "status_code,expected_code",
+    [
+        (400, "VALIDATION_FAILED"),
+        (401, "AUTH_FAILED"),
+        (429, "RATE_LIMITED"),
+        (503, "UPSTREAM_UNAVAILABLE"),
+    ],
+)
+def test_execute_normalizes_provider_failure_codes(status_code: int, expected_code: str) -> None:
+    runner = DeterministicFixtureRunner(
+        [
+            FixtureScenario(
+                scenario_id=f"err-{status_code}",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "inventory",
+                    "organization_id": "org-a",
+                    "site_id": "site-a",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": status_code,
+                            "provider_error_code": f"E{status_code}",
+                            "provider_message": "Provider failed",
+                            "message": "Fixture provider failure",
+                            "details": {"path": "/api/resource"},
+                        }
+                    ],
+                },
+            )
+        ]
+    )
+
+    result = execute_with_fixtures(
+        {
+            "request_id": f"req-{status_code}",
+            "action_class": "query",
+            "capability_namespace": "inventory",
+            "payload": {"filters": {"item_code": ["=", "SKU-1"]}},
+            "actor_scope": {
+                "organization_id": "org-a",
+                "site_id": "site-a",
+                "actor_id": "u-3",
+            },
+        },
+        runner,
+        expected_scope={"organization_id": "org-a", "site_id": "site-a"},
+    )
+
+    assert result["status"] == "failed"
+    errors = result.get("errors")
+    assert isinstance(errors, list)
+    assert errors[0]["code"] == expected_code
+    assert errors[0]["provider_error_code"] == f"E{status_code}"

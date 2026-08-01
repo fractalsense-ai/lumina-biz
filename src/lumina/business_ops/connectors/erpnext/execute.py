@@ -154,12 +154,27 @@ def execute_with_fixtures(
             for error in source_errors:
                 if not isinstance(error, dict):
                     continue
+                raw_status = error.get("status_code")
+                status_code: int | None = None
+                if isinstance(raw_status, int):
+                    status_code = raw_status
                 normalized_errors.append(
                     normalize_erpnext_error(
-                        status_code=None,
+                        status_code=status_code,
                         message=str(error.get("message") or "ERPNext fixture execution failed"),
                         action_class=action_class,
                         capability_namespace=capability_namespace,
+                        provider_error_code=(
+                            str(error.get("provider_error_code"))
+                            if error.get("provider_error_code") is not None
+                            else None
+                        ),
+                        provider_message=(
+                            str(error.get("provider_message"))
+                            if error.get("provider_message") is not None
+                            else None
+                        ),
+                        details=(error.get("details") if isinstance(error.get("details"), dict) else None),
                     )
                 )
         if not normalized_errors:

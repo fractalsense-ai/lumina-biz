@@ -20,6 +20,9 @@ def test_manifest_declares_provider_and_capabilities() -> None:
     caps = {c["namespace"]: tuple(c["supported_actions"]) for c in manifest["capabilities"]}  # type: ignore[index]
     assert "service/work-order" in caps
     assert "inventory" in caps
+    assert "warehouse/storage" in caps
+    assert "logistics/dispatch" in caps
+    assert "scheduling" in caps
 
 
 @pytest.mark.unit
@@ -28,11 +31,28 @@ def test_mapping_query_work_order() -> None:
         {
             "action_class": "query",
             "capability_namespace": "service/work-order",
-            "payload": {"name": ["like", "WO-%"]},
+            "payload": {"filters": {"name": ["like", "WO-%"]}, "limit": 25},
         }
     )
     assert payload["doctype"] == "Work Order"
     assert payload["operation"] == "get_list"
+    assert payload["limit"] == 25
+
+
+@pytest.mark.unit
+def test_mapping_update_draft_requires_record_envelope() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "update_draft",
+            "capability_namespace": "service/work-order",
+            "payload": {
+                "record_id": "WO-0001",
+                "record": {"status": "Open"},
+            },
+        }
+    )
+    assert payload["operation"] == "update"
+    assert payload["name"] == "WO-0001"
 
 
 @pytest.mark.unit
@@ -48,13 +68,29 @@ def test_mapping_unsupported_pair_raises() -> None:
 
 
 @pytest.mark.unit
+def test_mapping_rejects_unexpected_query_payload_keys() -> None:
+    with pytest.raises(ValueError):
+        map_operation_to_erpnext(
+            {
+                "action_class": "query",
+                "capability_namespace": "inventory",
+                "payload": {"vertical_specific": "tow-truck"},
+            }
+        )
+
+
+@pytest.mark.unit
 def test_error_normalization_for_rate_limit() -> None:
     err = normalize_erpnext_error(
         status_code=429,
         message="Too many requests",
         action_class="query",
         capability_namespace="inventory",
+        provider_error_code="RATE_LIMIT",
+        provider_message="Burst threshold exceeded",
+        details={"retry_after_seconds": 5},
     )
     assert err["code"] == "RATE_LIMITED"
     assert err["retryable"] is True
     assert err["action_class"] == "query"
+    assert err["provider_error_code"] == "RATE_LIMIT"

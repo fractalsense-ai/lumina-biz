@@ -9,6 +9,9 @@ def normalize_erpnext_error(
     message: str,
     action_class: str | None = None,
     capability_namespace: str | None = None,
+    provider_error_code: str | None = None,
+    provider_message: str | None = None,
+    details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Normalize provider failures to canonical connector_error fields."""
     code = "UPSTREAM_ERROR"
@@ -46,4 +49,10 @@ def normalize_erpnext_error(
         payload["action_class"] = action_class
     if capability_namespace:
         payload["capability_namespace"] = capability_namespace
+    if provider_error_code:
+        payload["provider_error_code"] = provider_error_code
+    if provider_message:
+        payload["provider_message"] = provider_message
+    if details:
+        payload["details"] = dict(details)
     return payload
