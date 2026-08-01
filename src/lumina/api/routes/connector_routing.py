@@ -78,6 +78,24 @@ def _fixture_runner() -> DeterministicFixtureRunner:
                     },
                 },
             ),
+            FixtureScenario(
+                scenario_id="erpnext-dispatch-upstream-failure",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "logistics/dispatch",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 503,
+                            "provider_error_code": "ERP-503",
+                            "provider_message": "ERPNext temporarily unavailable",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
         ]
     )
 

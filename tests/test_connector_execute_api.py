@@ -218,3 +218,47 @@ def test_execute_fixture_rejects_actor_mismatch(client) -> None:
     )
 
     assert response.status_code == 403
+
+
+@pytest.mark.integration
+def test_execute_fixture_returns_failed_result_on_fixture_miss(client) -> None:
+    test_client, _ = client
+    payload = _payload()
+    payload["request_id"] = "req-fixture-miss"
+    payload["capability_namespace"] = "warehouse/storage"
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "failed"
+    errors = body.get("errors")
+    assert isinstance(errors, list)
+    assert errors[0]["code"] == "UPSTREAM_ERROR"
+
+
+@pytest.mark.integration
+def test_execute_fixture_normalizes_upstream_failure_codes(client) -> None:
+    test_client, _ = client
+    payload = _payload()
+    payload["request_id"] = "req-provider-failure"
+    payload["capability_namespace"] = "logistics/dispatch"
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "failed"
+    errors = body.get("errors")
+    assert isinstance(errors, list)
+    assert errors[0]["code"] == "UPSTREAM_UNAVAILABLE"
+    assert errors[0]["retryable"] is True
+    assert errors[0]["provider_error_code"] == "ERP-503"
