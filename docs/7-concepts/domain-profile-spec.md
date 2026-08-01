@@ -24,7 +24,7 @@ A Domain Profile:
 2. **Defines what the system may do** — standing orders bound the orchestrator's automated responses
 3. **Defines when to escalate** — escalation triggers specify when human intervention is needed
 4. **Defines what mastery means** — artifacts specify achievable outcomes
-5. **Sets subsystem parameters** — `subsystem_configs` provides domain-specific configuration for subsystems such as an education drift monitor or a soil-health monitor
+5. **Sets subsystem parameters** — `subsystem_configs` provides domain-specific configuration for subsystems such as an business-ops drift monitor or a soil-health monitor
 
 A Domain Profile does not define conversation scripts, specific problem sets, or lesson plans. Those are content, not structure. The profile governs the structure.
 
@@ -80,13 +80,11 @@ artifacts:
       - solve_one_variable
 
 subsystem_configs:
-  zpd_monitor:
-    min_challenge: 0.3
-    max_challenge: 0.7
-    drift_window_turns: 10
-    minor_drift_threshold: 0.3
-    major_drift_threshold: 0.5
-    persistence_required: 3
+  risk_threshold_monitor:
+    warning_threshold: 0.6
+    critical_threshold: 0.8
+    evaluation_window_turns: 10
+    persistence_required: 2
 ```
 
 ### Step 2: Validate
@@ -164,12 +162,12 @@ model-packs/{org}/{subject-level}/
 Some invariants are evaluated by a domain-specific subsystem rather than by the orchestrator's built-in `check` expression evaluator. Set `handled_by` to the subsystem ID to delegate evaluation:
 
 ```yaml
-- id: zpd_drift_minor
-  description: "Challenge level drifted outside band in >= 30% of recent window turns"
+- id: risk_threshold_minor
+  description: "Risk indicator exceeded warning threshold within evaluation window"
   severity: warning
-  check: "outside_pct >= 0.3"   # optional — informational documentation
-  handled_by: zpd_monitor        # orchestrator skips its own check; subsystem decides
-  standing_order_on_violation: zpd_scaffold
+  check: "risk_score >= 0.6"    # optional — informational documentation
+  handled_by: risk_threshold_monitor  # orchestrator skips its own check; subsystem decides
+  standing_order_on_violation: escalate_review
 ```
 
 When `handled_by` is present:
@@ -177,30 +175,28 @@ When `handled_by` is present:
 - The named subsystem is responsible for detecting the condition and returning a decision.
 - The `check` field is optional but recommended as human-readable documentation.
 
-This mechanism is **domain-agnostic**: the orchestrator never needs to know invariant IDs by name. An agriculture domain can define `soil_moisture_drift_minor` with `handled_by: soil_health_monitor` using the same pattern, and the engine will delegate it correctly without any engine-level changes.
+This mechanism is **domain-agnostic**: the orchestrator never needs to know invariant IDs by name. An business-ops domain can define `soil_moisture_drift_minor` with `handled_by: soil_health_monitor` using the same pattern, and the engine will delegate it correctly without any engine-level changes.
 
 ---
 
 ## Subsystem Configuration Guidelines
 
-Domain-specific subsystems (such as the ZPD monitor in education domains, or a soil-health monitor in agriculture domains) declare their parameters under `subsystem_configs`, keyed by subsystem ID. This keeps domain-specific vocabulary out of the universal schema.
+Domain-specific subsystems (such as a risk-threshold monitor or a health monitor) declare their parameters under `subsystem_configs`, keyed by subsystem ID. This keeps domain-specific vocabulary out of the universal schema.
 
-**Education example — ZPD monitor configuration:**
+**Business Ops example — risk monitor configuration:**
 
-The `subsystem_configs.zpd_monitor` block should be set based on the Domain Authority's domain-specific judgment:
+The `subsystem_configs.risk_threshold_monitor` block should be set based on the Domain Authority's domain-specific judgment:
 
-- **Too narrow**: frequent drift, too many interventions
-- **Too wide**: drift goes undetected, the subject may struggle or disengage
+- **Too strict**: too many false positives and unnecessary escalations
+- **Too loose**: material risk changes are missed
 
 Typical starting values:
-- `min_challenge: 0.25` (25th percentile of current mastery)
-- `max_challenge: 0.75` (75th percentile — stretch but achievable)
-- `drift_window_turns: 10`
-- `minor_drift_threshold: 0.3` (3 of 10 turns outside ZPD → minor)
-- `major_drift_threshold: 0.5` (5 of 10 turns outside ZPD → major)
-- `persistence_required: 3`
+- `warning_threshold: 0.6`
+- `critical_threshold: 0.8`
+- `evaluation_window_turns: 10`
+- `persistence_required: 2`
 
-Other domains should define their own subsystem config blocks under `subsystem_configs` using keys and parameter names appropriate to their domain (e.g. `subsystem_configs.soil_health_monitor`).
+Other domains should define their own subsystem config blocks under `subsystem_configs` using keys and parameter names appropriate to their domain.
 
 ---
 
@@ -272,3 +268,4 @@ For the full access control specification, see [`rbac-spec-v1.md`](rbac-spec-v1.
 - [`../model-packs/README.md`](../model-packs/README.md)
 - [`../model-packs/business-ops/modules/auto-repair/`](../model-packs/business-ops/modules/auto-repair/) — worked example
 - [`../reference-implementations/yaml-to-json-converter.py`](../reference-implementations/yaml-to-json-converter.py)
+

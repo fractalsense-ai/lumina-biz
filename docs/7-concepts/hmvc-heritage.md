@@ -38,7 +38,7 @@ routes to it. This is exactly how Lumina works.
 
 | HMVC Concept | Lumina Equivalent | Location | Notes |
 |---|---|---|---|
-| **Module** (self-contained app) | **Domain Pack** | `model-packs/{domain}/` | Each pack is a bounded cognitive subsystem — education, agriculture, system admin |
+| **Module** (self-contained app) | **Domain Pack** | `model-packs/{domain}/` | Each pack is a bounded cognitive subsystem — business-ops, business-ops, system admin |
 | **Model** (data, rules, state) | **Physics + Schemas + Evidence** | `modules/{mod}/domain-physics.*`, `schemas/`, `evidence-schema.json` | Invariants, standing orders, entity state schemas, evidence vocabulary |
 | **Controller** (input→logic→output) | **Controllers directory** | `controllers/runtime_adapters.py`, `nlp_pre_interpreter.py`, `tool_adapters.py` | Runtime adapter (synthesis), NLP pre-interpreter (information gate), tool adapters (active verifiers) |
 | **View** (presentation layer) | **Prompts + World-Sim Persona** | `prompts/`, `world-sim/` | Domain system override, turn interpretation prompt, narrative framing |
@@ -66,7 +66,7 @@ A domain pack declares everything needed to bring a subject area into the engine
 The engine loads a pack at session start by reading its `cfg/runtime-config.yaml` manifest,
 wiring up its controllers, and routing all subsequent turns through the pack's processing
 pipeline. The engine does not know what "correctness" means in algebra, what "moisture
-levels" mean in agriculture, or what "privilege escalation" means in system admin. It reads
+levels" mean in business-ops, or what "privilege escalation" means in system admin. It reads
 two contract fields and moves on.
 
 This is the self-containment contract, and it is the HMVC module isolation principle enforced
@@ -95,11 +95,10 @@ The controllers directory contains three distinct responsibilities:
 | `nlp_pre_interpreter.py` | **Input filter / front controller** | Information gate — deterministic extraction of domain-meaningful signals before any LLM inference; produces `_nlp_anchors` |
 | `tool_adapters.py` | **Action controller** | Active verifier dispatch — wraps tool-adapter YAML specs as callable Python functions for the orchestrator |
 
-Additional controller files are domain-specific:
-
-- `problem_generator.py` (education) — task generation controller
-- `fluency_monitor.py` (education) — fluency estimation invoked by the runtime adapter
-- `zpd_monitor_v0_2.py` (education) — ZPD state estimation reference implementation
+Additional controller files are domain-specific and optional. Some packs add
+specialized orchestration helpers (for example, policy compilers or
+domain-specific decision evaluators), while others keep all behavior inside
+`runtime_adapters.py`.
 
 These files were historically named `systools/` (system tools). The rename to `controllers/`
 surfaces the HMVC heritage: these are the pack's controllers, not generic system utilities.
@@ -179,7 +178,7 @@ domain's plugin bundle and calls its `register(api)` function.  The plugin uses:
 - `api.addChatHooks()` — contribute chat lifecycle hooks
 
 This achieves full HMVC View isolation: each domain can define its own telemetry and
-monitoring views (e.g., education: ZPD distribution; system: pack integrity; agriculture:
+monitoring views (e.g., business-ops: ZPD distribution; system: pack integrity; business-ops:
 
 ---
 
@@ -266,3 +265,4 @@ file at the root of any domain pack directory.
 | [`nlp-semantic-router(7)`](nlp-semantic-router.md) | Two-tier NLP routing — framework-level domain classification before per-pack pre-interpretation |
 | [`world-sim-persona-pattern(7)`](world-sim-persona-pattern.md) | View-layer narrative framing pattern |
 | [`domain-profile-spec-v1`](../../specs/domain-profile-spec-v1.md) | Domain profile authoring specification |
+
