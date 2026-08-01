@@ -56,6 +56,7 @@ class TestBusinessOpsPackStructure:
             "controllers/nlp_pre_interpreter.py",
             "domain-lib/reference/turn-interpretation-spec-v1.md",
             "domain-lib/reference/auto-repair-task-event-contract-v1.md",
+            "domain-lib/reference/auto-repair-provider-portability-checklist-v1.md",
             "domain-lib/reference/single-box-deployment-topology-v1.md",
             "modules/auto-repair/module-config.yaml",
             "modules/auto-repair/domain-physics.yaml",
@@ -100,6 +101,35 @@ class TestBusinessOpsPackStructure:
         for key in ("id", "version", "admin", "meta_authority_id", "invariants", "standing_orders", "escalation_triggers", "artifacts"):
             assert key in physics
         assert physics["id"] == "domain/bizops/auto-repair/v1"
+
+    def test_auto_repair_module_config_exposes_auditable_thresholds(self):
+        module_cfg = _load_yaml(PACK / "modules" / "auto-repair" / "module-config.yaml")
+        confidence = module_cfg["confidence_profile_defaults"]
+        escalation = module_cfg["escalation_profile_defaults"]
+        allowlist = module_cfg["connector_allowlist_defaults"]
+
+        assert 0 < float(confidence["confirmation_threshold"]) < float(confidence["suggest_threshold"]) <= 1
+        assert int(confidence["stale_after_days"]) > 0
+        assert float(confidence["stale_penalty"]) >= 0
+        assert float(confidence["missing_precedent_penalty"]) >= 0
+
+        assert int(escalation["manager_review_sla_minutes"]) > 0
+        assert int(escalation["cto_review_sla_minutes"]) >= int(escalation["manager_review_sla_minutes"])
+        assert isinstance(escalation["irreversible_actions_require_human_approval"], bool)
+
+        assert "service/work-order" in allowlist["capabilities"]
+        assert "query" in allowlist["action_classes"]
+        assert "request_commit" in allowlist["action_classes"]
+
+    def test_auto_repair_contract_docs_define_vertical_packets(self):
+        contract_text = (PACK / "domain-lib" / "reference" / "auto-repair-task-event-contract-v1.md").read_text(encoding="utf-8")
+        portability_text = (PACK / "domain-lib" / "reference" / "auto-repair-provider-portability-checklist-v1.md").read_text(encoding="utf-8")
+
+        assert "service_intake_packet" in contract_text
+        assert "estimate_context_packet" in contract_text
+        assert "customer_communication_draft_packet" in contract_text
+        assert "confidence_and_escalation_profile_defaults" in contract_text
+        assert "## checklist" in portability_text
 
 
 @pytest.mark.unit
