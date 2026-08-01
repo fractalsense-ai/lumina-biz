@@ -155,11 +155,11 @@ Each route is declared in the domain's `cfg/runtime-config.yaml` under
 ```yaml
 adapters:
   api_routes:
-    post_vocabulary_metric:
-      path: /api/user/{user_id}/vocabulary-metric
+        post_domain_metric:
+            path: /api/user/{user_id}/domain-metric
       method: POST
             module_path: model-packs/<domain>/controllers/api_handlers.py
-      callable: post_vocabulary_metric
+            callable: post_domain_metric
       roles: []
       request_body:
         vocabulary_complexity_score: {type: float, ge: 0.0, le: 1.0, required: true}
@@ -189,7 +189,7 @@ adapters:
 Domain handlers receive keyword-injected dependencies and return plain dicts:
 
 ```python
-async def post_vocabulary_metric(
+async def post_domain_metric(
     *,
     user_id: str,
     body: dict[str, Any],

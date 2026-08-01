@@ -146,7 +146,7 @@ Process a conversational turn through the D.S.A. pipeline.
 2. **NLP pre-analysis** — `nlp_preprocess()` runs deterministic extraction (<1 ms) and appends `_nlp_anchors` to the LLM context hint; provides answer-match confidence, frustration markers, hint requests, and off-task ratio without blocking the LLM.
 3. **SLM physics interpretation** — the SLM Physics Interpreter role compresses the session's domain context into a token-efficient summary that is prepended to the LLM prompt; skipped transparently when the SLM is unavailable.
 4. **LLM turn interpreter** — receives the full message plus NLP anchor hints and SLM-compressed physics context; produces structured evidence fields.
-5. **Domain adapter dispatch** — education domain algebra-parser override applies post-LLM for `solution_value`, `step_count`, and `equivalence_preserved`; agriculture and other adapters receive the same interface with no NLP kwargs injected.
+5. **Domain adapter dispatch** — business-ops domain algebra-parser override applies post-LLM for `solution_value`, `step_count`, and `equivalence_preserved`; business-ops and other adapters receive the same interface with no NLP kwargs injected.
 6. **Weight-routed response dispatch** — `classify_task_weight()` assigns LOW or HIGH weight to the resolved action; LOW-weight prompt types (definitions, confirmations) are served by the SLM, HIGH-weight types (explanations, scaffolding) go to the primary LLM.
 
 **Notes:** `domain_id` selects which domain context to use. When omitted, the default domain is used. Each session maintains an isolated `DomainContext` per domain; a single session may span multiple domains up to `LUMINA_MAX_CONTEXTS_PER_SESSION`.
@@ -572,13 +572,6 @@ through `POST /api/admin/command` with the appropriate `operation` field:
 | GET | `/api/panels/{panel_id}` | Resolve panel data from role layout |
 | PATCH | `/api/panels/{panel_id}` | Update panel (self_preferences only) |
 
-### Vocabulary
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/user/{user_id}/vocabulary-metric` | Submit vocabulary metric |
-| GET | `/api/dashboard/education/vocabulary-growth` | Vocabulary growth dashboard |
-
 ### Holodeck
 
 | Method | Path | Description |
@@ -625,3 +618,4 @@ Server-Sent Events stream of real-time log-bus events. Query parameter: `token` 
 ## SEE ALSO
 
 [dsa-framework](../../specs/dsa-framework-v1.md) (D.S.A. structural schema underlying PPA), [rbac-spec](../../specs/rbac-spec-v1.md), [auth(3)](../3-functions/auth.md), [api-server-architecture](../7-concepts/api-server-architecture.md)
+

@@ -48,7 +48,7 @@ GLOSSARY_DISJOINT = [
 INVARIANTS_EDUCATION = [
     {"id": "equiv_preserved", "severity": "critical", "check": "lhs == rhs", "standing_order_on_violation": "request_correction"},
     {"id": "method_recognized", "severity": "warning", "check": "method_recognized", "standing_order_on_violation": "request_justification", "signal_type": "NOVEL_PATTERN"},
-    {"id": "show_work", "severity": "warning", "check": "step_count >= 3", "handled_by": "zpd_monitor"},
+    {"id": "show_work", "severity": "warning", "check": "step_count >= 3", "handled_by": "risk_threshold_monitor"},
 ]
 
 INVARIANTS_AGRICULTURE = [
@@ -96,37 +96,37 @@ class TestOptInFiltering:
         assert get_opt_in_config({}) is None
 
     def test_enabled_returns_config(self):
-        cfg = {"enabled": True, "peer_domains": ["agriculture"]}
+        cfg = {"enabled": True, "peer_domains": ["business-ops"]}
         physics = {"cross_domain_synthesis": cfg}
         result = get_opt_in_config(physics)
         assert result is not None
-        assert result["peer_domains"] == ["agriculture"]
+        assert result["peer_domains"] == ["business-ops"]
 
     def test_mutual_opt_in(self):
-        physics_a = _make_physics(enabled=True, peer_domains=["agriculture"])
-        physics_b = _make_physics(enabled=True, peer_domains=["education"])
-        assert is_mutual_peer("education", physics_a, "agriculture", physics_b)
+        physics_a = _make_physics(enabled=True, peer_domains=["business-ops"])
+        physics_b = _make_physics(enabled=True, peer_domains=["business-ops"])
+        assert is_mutual_peer("business-ops", physics_a, "business-ops", physics_b)
 
     def test_one_sided_opt_in_denied(self):
-        physics_a = _make_physics(enabled=True, peer_domains=["agriculture"])
+        physics_a = _make_physics(enabled=True, peer_domains=["business-ops"])
         physics_b = _make_physics(enabled=True, peer_domains=[])
-        assert not is_mutual_peer("education", physics_a, "agriculture", physics_b)
+        assert not is_mutual_peer("business-ops", physics_a, "business-ops", physics_b)
 
     def test_one_disabled_denied(self):
-        physics_a = _make_physics(enabled=True, peer_domains=["agriculture"])
+        physics_a = _make_physics(enabled=True, peer_domains=["business-ops"])
         physics_b = _make_physics(enabled=False)
-        assert not is_mutual_peer("education", physics_a, "agriculture", physics_b)
+        assert not is_mutual_peer("business-ops", physics_a, "business-ops", physics_b)
 
     def test_filter_mutual_pairs(self):
         domains = [
-            _make_domain("education", _make_physics(True, ["agriculture"])),
-            _make_domain("agriculture", _make_physics(True, ["education"])),
+            _make_domain("business-ops", _make_physics(True, ["business-ops"])),
+            _make_domain("business-ops", _make_physics(True, ["business-ops"])),
             _make_domain("healthcare", _make_physics(False)),
         ]
         pairs = filter_mutual_pairs(domains)
         assert len(pairs) == 1
         ids = {pairs[0][0]["domain_id"], pairs[0][1]["domain_id"]}
-        assert ids == {"education", "agriculture"}
+        assert ids == {"business-ops", "business-ops"}
 
 
 # ── Glossary comparison tests ───────────────────────────────────
@@ -212,63 +212,63 @@ class TestDualApproval:
     def test_dual_approval_both_approve(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="education+agriculture",
+            domain_id="business-ops+business-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["education", "agriculture"],
+            required_approvers=["business-ops", "business-ops"],
         )
-        prop.resolve_approval("education", "approved")
-        assert prop.status == "pending"  # still waiting for agriculture
+        prop.resolve_approval("business-ops", "approved")
+        assert prop.status == "pending"  # still waiting for business-ops
 
-        prop.resolve_approval("agriculture", "approved")
+        prop.resolve_approval("business-ops", "approved")
         assert prop.status == "approved"
 
     def test_partial_approval_stays_pending(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="education+agriculture",
+            domain_id="business-ops+business-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["education", "agriculture"],
+            required_approvers=["business-ops", "business-ops"],
         )
-        prop.resolve_approval("education", "approved")
+        prop.resolve_approval("business-ops", "approved")
         assert prop.status == "pending"
 
     def test_any_rejection_rejects(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="education+agriculture",
+            domain_id="business-ops+business-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["education", "agriculture"],
+            required_approvers=["business-ops", "business-ops"],
         )
-        prop.resolve_approval("education", "approved")
-        prop.resolve_approval("agriculture", "rejected")
+        prop.resolve_approval("business-ops", "approved")
+        prop.resolve_approval("business-ops", "rejected")
         assert prop.status == "rejected"
 
     def test_rejection_first_rejects_immediately(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="education+agriculture",
+            domain_id="business-ops+business-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["education", "agriculture"],
+            required_approvers=["business-ops", "business-ops"],
         )
-        prop.resolve_approval("agriculture", "rejected")
+        prop.resolve_approval("business-ops", "rejected")
         assert prop.status == "rejected"
 
     def test_invalid_decision_raises(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            required_approvers=["education"],
+            required_approvers=["business-ops"],
         )
         with pytest.raises(ValueError, match="decision must be"):
-            prop.resolve_approval("education", "maybe")
+            prop.resolve_approval("business-ops", "maybe")
 
     def test_to_dict_includes_approvals_when_present(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            required_approvers=["education", "agriculture"],
+            required_approvers=["business-ops", "business-ops"],
         )
         d = prop.to_dict()
         assert "required_approvers" in d
@@ -283,7 +283,7 @@ class TestDualApproval:
     def test_legacy_single_approval_still_works(self):
         """Proposals without required_approvers use the legacy path."""
         prop = Proposal(task="glossary_expansion", summary="Test")
-        prop.resolve_approval("education", "approved")
+        prop.resolve_approval("business-ops", "approved")
         assert prop.status == "approved"
 
 
@@ -304,8 +304,8 @@ class TestCrossDomainTaskRegistration:
 class TestCrossDomainSynthesisTask:
     def test_no_opt_in_domains_produces_no_proposals(self):
         domains = [
-            _make_domain("education", _make_physics(False)),
-            _make_domain("agriculture", _make_physics(False)),
+            _make_domain("business-ops", _make_physics(False)),
+            _make_domain("business-ops", _make_physics(False)),
         ]
         result = cross_domain_synthesis_task(domains=domains)
         assert result.success
@@ -314,14 +314,14 @@ class TestCrossDomainSynthesisTask:
     def test_mutual_opt_in_with_similar_physics_produces_proposals(self):
         domains = [
             _make_domain(
-                "education",
-                _make_physics(True, ["agriculture"],
+                "business-ops",
+                _make_physics(True, ["business-ops"],
                               glossary=GLOSSARY_EDUCATION,
                               invariants=INVARIANTS_EDUCATION),
             ),
             _make_domain(
-                "agriculture",
-                _make_physics(True, ["education"],
+                "business-ops",
+                _make_physics(True, ["business-ops"],
                               glossary=GLOSSARY_AGRICULTURE,
                               invariants=INVARIANTS_AGRICULTURE),
             ),
@@ -336,9 +336,9 @@ class TestCrossDomainSynthesisTask:
 
     def test_one_sided_opt_in_produces_no_proposals(self):
         domains = [
-            _make_domain("education", _make_physics(True, ["agriculture"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           glossary=GLOSSARY_EDUCATION, invariants=INVARIANTS_EDUCATION)),
-            _make_domain("agriculture", _make_physics(True, [],
+            _make_domain("business-ops", _make_physics(True, [],
                           glossary=GLOSSARY_AGRICULTURE, invariants=INVARIANTS_AGRICULTURE)),
         ]
         result = cross_domain_synthesis_task(domains=domains)
@@ -347,9 +347,9 @@ class TestCrossDomainSynthesisTask:
 
     def test_metadata_includes_pair_counts(self):
         domains = [
-            _make_domain("education", _make_physics(True, ["agriculture"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           glossary=GLOSSARY_EDUCATION, invariants=INVARIANTS_EDUCATION)),
-            _make_domain("agriculture", _make_physics(True, ["education"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           glossary=GLOSSARY_AGRICULTURE, invariants=INVARIANTS_AGRICULTURE)),
         ]
         result = cross_domain_synthesis_task(domains=domains)
@@ -369,15 +369,15 @@ class TestFindSynthesisCandidates:
         assert find_synthesis_candidates([]) == []
 
     def test_single_domain_returns_empty(self):
-        domains = [_make_domain("education", _make_physics(True, []))]
+        domains = [_make_domain("business-ops", _make_physics(True, []))]
         assert find_synthesis_candidates(domains) == []
 
     def test_glossary_only_candidate(self):
         """Pair with glossary overlap but no invariants should be a candidate."""
         domains = [
-            _make_domain("education", _make_physics(True, ["agriculture"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           glossary=GLOSSARY_EDUCATION)),
-            _make_domain("agriculture", _make_physics(True, ["education"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           glossary=GLOSSARY_AGRICULTURE)),
         ]
         results = find_synthesis_candidates(domains)
@@ -388,11 +388,12 @@ class TestFindSynthesisCandidates:
     def test_invariant_only_candidate(self):
         """Pair with no glossary but matching invariant structures should be a candidate."""
         domains = [
-            _make_domain("education", _make_physics(True, ["agriculture"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           invariants=INVARIANTS_EDUCATION)),
-            _make_domain("agriculture", _make_physics(True, ["education"],
+            _make_domain("business-ops", _make_physics(True, ["business-ops"],
                           invariants=INVARIANTS_AGRICULTURE)),
         ]
         results = find_synthesis_candidates(domains)
         assert len(results) == 1
         assert results[0]["is_candidate"]
+
