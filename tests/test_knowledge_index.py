@@ -187,11 +187,11 @@ class TestKnowledgeIndexBuild:
         agri_ctx = _make_domain_context(glossary=[
             {"term": "crop", "aliases": ["harvest"], "related_terms": []},
         ])
-        idx.build({"business-ops": edu_ctx, "business-ops": agri_ctx})
+        idx.build({"business-ops": edu_ctx, "field-ops": agri_ctx})
 
         assert idx.lookup_term("equation") == "business-ops"
-        assert idx.lookup_term("crop") == "business-ops"
-        assert idx.lookup_term("harvest") == "business-ops"
+        assert idx.lookup_term("crop") == "field-ops"
+        assert idx.lookup_term("harvest") == "field-ops"
 
     @pytest.mark.unit
     def test_build_empty_context(self):
@@ -379,7 +379,7 @@ class TestKnowledgeGraphRebuildTask:
             "business-ops": _make_domain_context(glossary=[
                 {"term": "equation", "aliases": [], "related_terms": []},
             ]),
-            "business-ops": _make_domain_context(glossary=[
+            "field-ops": _make_domain_context(glossary=[
                 {"term": "crop", "aliases": [], "related_terms": []},
             ]),
         }
@@ -394,5 +394,5 @@ class TestKnowledgeGraphRebuildTask:
 
         gt = json.loads((tmp_path / "glossary_table.json").read_text())
         assert gt["equation"] == "business-ops"
-        assert gt["crop"] == "business-ops"
+        assert gt["crop"] == "field-ops"
 

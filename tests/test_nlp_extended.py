@@ -159,6 +159,6 @@ def test_classify_domain_accessible_domains_empty_returns_none(
     monkeypatch.setattr(nlp_mod, "_nlp_instance", None)
 
     domain_map = {"business-ops": {"label": "Business Ops", "keywords": ["math"]}}
-    result = classify_domain("math problem", domain_map, accessible_domains=["business-ops"])
+    result = classify_domain("math problem", domain_map, accessible_domains=["field-ops"])
     assert result is None
 
