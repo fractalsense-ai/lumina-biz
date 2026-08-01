@@ -26,6 +26,9 @@ class DeterministicFixtureRunner:
         site_id = str(scope.get("site_id") or "").strip()
         actor_id = str(scope.get("actor_id") or "").strip()
 
+        best_match: FixtureScenario | None = None
+        best_specificity = -1
+
         for scenario in self._scenarios:
             if scenario.request_match.get("action_class") != action_class:
                 continue
@@ -37,7 +40,14 @@ class DeterministicFixtureRunner:
                 continue
             if scenario.request_match.get("actor_id") and scenario.request_match.get("actor_id") != actor_id:
                 continue
-            return dict(scenario.result_payload)
+
+            specificity = len(scenario.request_match)
+            if specificity > best_specificity:
+                best_match = scenario
+                best_specificity = specificity
+
+        if best_match is not None:
+            return dict(best_match.result_payload)
 
         return {
             "status": "failed",

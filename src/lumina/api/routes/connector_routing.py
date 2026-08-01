@@ -96,6 +96,66 @@ def _fixture_runner() -> DeterministicFixtureRunner:
                     ],
                 },
             ),
+            FixtureScenario(
+                scenario_id="erpnext-inventory-rate-limit",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "inventory",
+                    "organization_id": "org-rate-limited",
+                    "site_id": "site-rate-limited",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 429,
+                            "provider_error_code": "ERP-429",
+                            "provider_message": "Too many requests",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-scheduling-validation-failure",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "scheduling",
+                    "organization_id": "org-validation",
+                    "site_id": "site-validation",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 400,
+                            "provider_error_code": "ERP-400",
+                            "provider_message": "Bad request",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-work-order-auth-failure",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "service/work-order",
+                    "organization_id": "org-auth",
+                    "site_id": "site-auth",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 401,
+                            "provider_error_code": "ERP-401",
+                            "provider_message": "Unauthorized",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
         ]
     )
 
