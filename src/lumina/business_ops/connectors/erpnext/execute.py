@@ -23,9 +23,40 @@ def _canonical_status(value: str) -> str:
     return "failed"
 
 
+def _extract_actor_scope(request: dict[str, object]) -> tuple[str, str, str] | None:
+    scope = request.get("actor_scope")
+    if not isinstance(scope, dict):
+        return None
+    organization_id = str(scope.get("organization_id") or "").strip()
+    site_id = str(scope.get("site_id") or "").strip()
+    actor_id = str(scope.get("actor_id") or "").strip()
+    if not organization_id or not site_id or not actor_id:
+        return None
+    return organization_id, site_id, actor_id
+
+
+def _scope_error(
+    *,
+    code: str,
+    message: str,
+    action_class: str,
+    capability_namespace: str,
+) -> dict[str, object]:
+    return {
+        "code": code,
+        "message": message,
+        "severity": "critical",
+        "retryable": False,
+        "action_class": action_class,
+        "capability_namespace": capability_namespace,
+    }
+
+
 def execute_with_fixtures(
     request: dict[str, object],
     fixture_runner: DeterministicFixtureRunner,
+    *,
+    expected_scope: dict[str, str] | None = None,
 ) -> dict[str, object]:
     """Execute a canonical request through deterministic fixture mode only."""
     request_id = str(request.get("request_id") or "").strip()
@@ -39,6 +70,51 @@ def execute_with_fixtures(
         "capability_namespace": capability_namespace,
         "status": "failed",
         "occurred_utc": _utc_now(),
+    }
+
+    actor_scope = _extract_actor_scope(request)
+    if actor_scope is None:
+        result["errors"] = [
+            _scope_error(
+                code="MISSING_ACTOR_SCOPE",
+                message="Request must include actor_scope.organization_id, actor_scope.site_id, and actor_scope.actor_id",
+                action_class=action_class,
+                capability_namespace=capability_namespace,
+            )
+        ]
+        return result
+
+    organization_id, site_id, actor_id = actor_scope
+    if expected_scope is not None:
+        expected_org = str(expected_scope.get("organization_id") or "").strip()
+        expected_site = str(expected_scope.get("site_id") or "").strip()
+        if expected_org and organization_id != expected_org:
+            result["errors"] = [
+                _scope_error(
+                    code="SCOPE_MISMATCH",
+                    message="organization_id is outside active tenant scope",
+                    action_class=action_class,
+                    capability_namespace=capability_namespace,
+                )
+            ]
+            return result
+        if expected_site and site_id != expected_site:
+            result["errors"] = [
+                _scope_error(
+                    code="SCOPE_MISMATCH",
+                    message="site_id is outside active tenant scope",
+                    action_class=action_class,
+                    capability_namespace=capability_namespace,
+                )
+            ]
+            return result
+
+    result["metadata"] = {
+        "actor_scope": {
+            "organization_id": organization_id,
+            "site_id": site_id,
+            "actor_id": actor_id,
+        }
     }
 
     try:
@@ -60,6 +136,11 @@ def execute_with_fixtures(
         "action_class": action_class,
         "capability_namespace": capability_namespace,
         "erpnext_payload": mapped,
+        "actor_scope": {
+            "organization_id": organization_id,
+            "site_id": site_id,
+            "actor_id": actor_id,
+        },
     }
     fixture_result = fixture_runner.run(fixture_request)
 

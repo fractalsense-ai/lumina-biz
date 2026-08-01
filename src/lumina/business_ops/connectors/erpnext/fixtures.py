@@ -21,11 +21,21 @@ class DeterministicFixtureRunner:
     def run(self, request: dict[str, object]) -> dict[str, object]:
         action_class = str(request.get("action_class") or "").strip()
         capability_namespace = str(request.get("capability_namespace") or "").strip()
+        scope = request.get("actor_scope") if isinstance(request.get("actor_scope"), dict) else {}
+        organization_id = str(scope.get("organization_id") or "").strip()
+        site_id = str(scope.get("site_id") or "").strip()
+        actor_id = str(scope.get("actor_id") or "").strip()
 
         for scenario in self._scenarios:
             if scenario.request_match.get("action_class") != action_class:
                 continue
             if scenario.request_match.get("capability_namespace") != capability_namespace:
+                continue
+            if scenario.request_match.get("organization_id") and scenario.request_match.get("organization_id") != organization_id:
+                continue
+            if scenario.request_match.get("site_id") and scenario.request_match.get("site_id") != site_id:
+                continue
+            if scenario.request_match.get("actor_id") and scenario.request_match.get("actor_id") != actor_id:
                 continue
             return dict(scenario.result_payload)
 

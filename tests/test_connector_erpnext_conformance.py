@@ -84,6 +84,11 @@ def test_fixture_execution_result_conforms_to_operation_result_schema() -> None:
             "action_class": "query",
             "capability_namespace": "service/work-order",
             "payload": {"name": ["like", "WO-%"]},
+            "actor_scope": {
+                "organization_id": "org-a",
+                "site_id": "site-a",
+                "actor_id": "u-1001",
+            },
         },
         runner,
     )
@@ -101,6 +106,11 @@ def test_unsupported_mapping_returns_failed_result_with_schema_valid_error() -> 
             "action_class": "request_cancel",
             "capability_namespace": "inventory",
             "payload": {},
+            "actor_scope": {
+                "organization_id": "org-a",
+                "site_id": "site-a",
+                "actor_id": "u-1002",
+            },
         },
         runner,
     )
