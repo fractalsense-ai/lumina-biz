@@ -1829,14 +1829,14 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-30
-  sha256: e19043f39b6ab34bcd67759573602c39c15c77c126eccf6317d2f245e2b5431e
+  sha256: e268ae755d427eb3d904dba54b93029838636190c8f2941ed0002602ddb3629e
 
 - path: model-packs/business-ops/modules/auto-repair/module-config.yaml
   type: config
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-30
-  sha256: fc70043e382ff6f78f4e290f0164868eb5044da68690626a3f769bd653d531c6
+  sha256: b56a6d1a9d03b7a69ac5f325d2efe3b255cb59feb7f945b16935924f814400a2
 
 - path: model-packs/business-ops/modules/auto-repair/tool-adapters/erp-draft-staging-adapter-v1.yaml
   type: config
