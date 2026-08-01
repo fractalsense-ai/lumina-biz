@@ -7,8 +7,15 @@ from starlette.concurrency import run_in_threadpool
 from lumina.api import config as _cfg
 from lumina.api.dependencies import get_active_operating_context, get_authenticated_user
 from lumina.api.models import (
+    ConnectorExecutionFixtureRequest,
+    ConnectorExecutionFixtureResponse,
     ConnectorRoutingPreflightRequest,
     ConnectorRoutingPreflightResponse,
+)
+from lumina.business_ops.connectors.erpnext import (
+    DeterministicFixtureRunner,
+    FixtureScenario,
+    execute_with_fixtures,
 )
 from lumina.connector_routing.router import (
     CapabilityRoute,
@@ -30,6 +37,127 @@ _ALLOWED_ACTION_CLASSES = frozenset({
     "sync_event",
 })
 _ALLOWED_HEALTH_STATUSES = frozenset({"healthy", "degraded", "unhealthy"})
+
+
+def _fixture_runner() -> DeterministicFixtureRunner:
+    return DeterministicFixtureRunner(
+        [
+            FixtureScenario(
+                scenario_id="erpnext-work-order-query",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "service/work-order",
+                },
+                result_payload={
+                    "status": "succeeded",
+                    "data": {
+                        "records": [
+                            {
+                                "name": "WO-0001",
+                                "status": "Open",
+                            }
+                        ]
+                    },
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-inventory-query",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "inventory",
+                },
+                result_payload={
+                    "status": "succeeded",
+                    "data": {
+                        "records": [
+                            {
+                                "item_code": "SKU-1000",
+                                "item_name": "Brake Pad",
+                            }
+                        ]
+                    },
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-dispatch-upstream-failure",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "logistics/dispatch",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 503,
+                            "provider_error_code": "ERP-503",
+                            "provider_message": "ERPNext temporarily unavailable",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-inventory-rate-limit",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "inventory",
+                    "organization_id": "org-rate-limited",
+                    "site_id": "site-rate-limited",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 429,
+                            "provider_error_code": "ERP-429",
+                            "provider_message": "Too many requests",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-scheduling-validation-failure",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "scheduling",
+                    "organization_id": "org-validation",
+                    "site_id": "site-validation",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 400,
+                            "provider_error_code": "ERP-400",
+                            "provider_message": "Bad request",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
+            FixtureScenario(
+                scenario_id="erpnext-work-order-auth-failure",
+                request_match={
+                    "action_class": "query",
+                    "capability_namespace": "service/work-order",
+                    "organization_id": "org-auth",
+                    "site_id": "site-auth",
+                },
+                result_payload={
+                    "status": "failed",
+                    "errors": [
+                        {
+                            "status_code": 401,
+                            "provider_error_code": "ERP-401",
+                            "provider_message": "Unauthorized",
+                            "message": "Fixture provider failure",
+                        }
+                    ],
+                },
+            ),
+        ]
+    )
 
 
 def _normalize_required(value: str, *, field_name: str) -> str:
@@ -202,3 +330,64 @@ async def preflight(
         _cfg.PERSISTENCE.get_system_ledger_path(routing_session_id),
     )
     return _response_from_record(record)
+
+
+@router.post(
+    "/api/connectors/erpnext/execute-fixture",
+    response_model=ConnectorExecutionFixtureResponse,
+)
+@requires_log_commit
+async def execute_fixture(
+    req: ConnectorExecutionFixtureRequest,
+    user: dict[str, object] = Depends(get_authenticated_user),
+    context: dict[str, str | None] = Depends(get_active_operating_context),
+) -> ConnectorExecutionFixtureResponse:
+    """Execute canonical operation requests via deterministic ERPNext fixtures.
+
+    This endpoint is fixture-only and enforces strict active org/site boundaries.
+    """
+    organization_id = str(context["organization_id"])
+    site_id = str(context["site_id"])
+
+    if req.actor_scope.organization_id != organization_id:
+        raise HTTPException(status_code=403, detail="actor_scope.organization_id is outside active context")
+    if req.actor_scope.site_id != site_id:
+        raise HTTPException(status_code=403, detail="actor_scope.site_id is outside active context")
+    if req.actor_scope.actor_id != str(user.get("sub") or ""):
+        raise HTTPException(status_code=403, detail="actor_scope.actor_id must match authenticated actor")
+
+    request_payload = {
+        "request_id": req.request_id,
+        "action_class": _normalize_action_class(req.action_class, field_name="action_class"),
+        "capability_namespace": _normalize_required(req.capability_namespace, field_name="capability_namespace"),
+        "payload": req.payload,
+        "actor_scope": {
+            "organization_id": req.actor_scope.organization_id,
+            "site_id": req.actor_scope.site_id,
+            "actor_id": req.actor_scope.actor_id,
+        },
+    }
+
+    result = await run_in_threadpool(
+        execute_with_fixtures,
+        request_payload,
+        _fixture_runner(),
+        expected_scope={"organization_id": organization_id, "site_id": site_id},
+    )
+
+    execution_session_id = req.session_id or "connector-execution"
+    trace_event = build_trace_event(
+        session_id=execution_session_id,
+        actor_id=str(user["sub"]),
+        event_type="other",
+        decision="connector_fixture_executed",
+        evidence_summary={"connector_operation_result": result},
+    )
+    await run_in_threadpool(
+        _cfg.PERSISTENCE.append_log_record,
+        execution_session_id,
+        trace_event,
+        _cfg.PERSISTENCE.get_system_ledger_path(execution_session_id),
+    )
+
+    return ConnectorExecutionFixtureResponse(**result)
