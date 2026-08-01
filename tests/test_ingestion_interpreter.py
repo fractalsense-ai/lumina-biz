@@ -12,8 +12,8 @@ from lumina.ingestion.interpreter import generate_interpretations
 
 def _domain_physics() -> dict:
     return {
-        "id": "education",
-        "description": "Test education domain",
+        "id": "business-ops",
+        "description": "Test business-ops domain",
         "invariants": [
             {"id": "inv-safe"},
             {"id": "inv-progress"},
@@ -54,8 +54,8 @@ def test_generate_interpretations_uses_imported_call_slm_when_not_injected(monke
     payload = json.loads(captured["user"])
     assert "structured document interpreter" in captured["system"]
     assert payload["document_text"] == "Raw lesson text"
-    assert payload["domain_id"] == "education"
-    assert payload["domain_description"] == "Test education domain"
+    assert payload["domain_id"] == "business-ops"
+    assert payload["domain_description"] == "Test business-ops domain"
     assert payload["existing_invariants"] == ["inv-safe", "inv-progress"]
     assert payload["existing_standing_orders"] == ["so-escalate"]
     assert payload["glossary_terms"] == ["variable", "equation"]
@@ -143,3 +143,4 @@ def test_generate_interpretations_fallback_truncates_preserved_raw_text():
     preserved = result[0]["yaml_content"]
     assert "x" * 4000 in preserved
     assert "TAIL" not in preserved
+

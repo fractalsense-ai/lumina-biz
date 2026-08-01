@@ -424,7 +424,7 @@ class TestUpdateUserDomainRoles:
         user = _register_user(client, "bob")
         resp = client.patch(
             f"/api/auth/users/{user['user_id']}",
-            json={"domain_roles": {"education": "supervisor"}},
+            json={"domain_roles": {"business-ops": "supervisor"}},
             headers=_auth_header(root_token),
         )
         assert resp.status_code == 200
@@ -434,30 +434,30 @@ class TestUpdateUserDomainRoles:
         user = _register_user(client, "carol")
         client.patch(
             f"/api/auth/users/{user['user_id']}",
-            json={"domain_roles": {"education": "employee"}},
+            json={"domain_roles": {"business-ops": "employee"}},
             headers=_auth_header(root_token),
         )
         stored = api_module.PERSISTENCE.get_user(user["user_id"])
         assert stored is not None
-        assert stored.get("domain_roles", {}).get("education") == "employee"
+        assert stored.get("domain_roles", {}).get("business-ops") == "employee"
 
     def test_domain_roles_merge_on_second_update(self, client: TestClient, api_module) -> None:
         root_token = _register_root(client)
         user = _register_user(client, "dave")
         client.patch(
             f"/api/auth/users/{user['user_id']}",
-            json={"domain_roles": {"education": "supervisor"}},
+            json={"domain_roles": {"business-ops": "supervisor"}},
             headers=_auth_header(root_token),
         )
         client.patch(
             f"/api/auth/users/{user['user_id']}",
-            json={"domain_roles": {"agriculture": "employee"}},
+            json={"domain_roles": {"business-ops": "employee"}},
             headers=_auth_header(root_token),
         )
         stored = api_module.PERSISTENCE.get_user(user["user_id"])
         assert stored is not None
-        assert stored["domain_roles"].get("education") == "supervisor"
-        assert stored["domain_roles"].get("agriculture") == "employee"
+        assert stored["domain_roles"].get("business-ops") == "supervisor"
+        assert stored["domain_roles"].get("business-ops") == "employee"
 
     def test_domain_roles_in_jwt_after_login(self, client: TestClient) -> None:
         from lumina.auth.auth import verify_jwt
@@ -466,7 +466,7 @@ class TestUpdateUserDomainRoles:
         user = _register_user(client, "eve")
         client.patch(
             f"/api/auth/users/{user['user_id']}",
-            json={"domain_roles": {"education": "supervisor"}},
+            json={"domain_roles": {"business-ops": "supervisor"}},
             headers=_auth_header(root_token),
         )
         login_resp = client.post(
@@ -477,7 +477,7 @@ class TestUpdateUserDomainRoles:
         token = login_resp.json()["access_token"]
         claims = verify_jwt(token)
         assert claims is not None
-        assert claims.get("domain_roles", {}).get("education") == "supervisor"
+        assert claims.get("domain_roles", {}).get("business-ops") == "supervisor"
 
 
 # ─────────────────────────────────────────────────────────────
@@ -540,3 +540,4 @@ class TestStagedCommandsList:
         assert body["staged_commands"] == []
         assert "limit" in body
         assert "offset" in body
+

@@ -52,7 +52,7 @@ from lumina.signals import (
 `lumina.signals` is the framework module that the
 [signal-decomposition-framework(7)](../7-concepts/signal-decomposition-framework.md)
 sits on. Every domain that monitors any scalar over time — assistant
-SVA, agriculture sensors, future lab instruments — routes through this
+SVA, business-ops sensors, future lab instruments — routes through this
 package. Domain-specific code (e.g.
 `model-packs/<domain>/domain-lib/<monitor>.py`) is now a thin
 adapter that supplies a signal name and forwards to these functions.
@@ -207,3 +207,4 @@ the daemon→advisory boundary:
 - [daemon-tasks(1)](../1-commands/daemon-tasks.md) — `rhythm_fft_analysis` consumer
 - [domain-physics-schema-v1](../../standards/domain-physics-schema-v1.json)
 - [spectral-advisory-schema-v1](../../standards/spectral-advisory-schema-v1.json)
+

@@ -102,7 +102,7 @@ class TestConceptNode:
             node_id="glossary:edu:variable",
             label="variable",
             kind="glossary_term",
-            domain_id="education",
+            domain_id="business-ops",
             detail={"definition": "A symbol"},
         )
         d = node.to_dict()
@@ -137,26 +137,26 @@ class TestKnowledgeIndexBuild:
     def test_build_glossary_routing(self):
         idx = KnowledgeIndex()
         ctx = _make_domain_context(glossary=SAMPLE_GLOSSARY)
-        summary = idx.build({"education": ctx})
+        summary = idx.build({"business-ops": ctx})
 
         assert summary["glossary_terms"] > 0
-        assert idx.lookup_term("variable") == "education"
-        assert idx.lookup_term("var") == "education"
-        assert idx.lookup_term("coeff") == "education"
+        assert idx.lookup_term("variable") == "business-ops"
+        assert idx.lookup_term("var") == "business-ops"
+        assert idx.lookup_term("coeff") == "business-ops"
         assert idx.lookup_term("nonexistent") is None
 
     @pytest.mark.unit
     def test_build_modules_and_artifacts(self):
         idx = KnowledgeIndex()
         ctx = _make_domain_context(modules=SAMPLE_MODULES)
-        summary = idx.build({"education": ctx})
+        summary = idx.build({"business-ops": ctx})
 
         assert summary["concept_nodes"] >= 2  # modules
-        node = idx.get_node("module:education:quadratics")
+        node = idx.get_node("module:business-ops:quadratics")
         assert node is not None
         assert node.kind == "module"
 
-        art = idx.get_node("artifact:education:solve_linear")
+        art = idx.get_node("artifact:business-ops:solve_linear")
         assert art is not None
         assert art.kind == "artifact"
 
@@ -167,13 +167,13 @@ class TestKnowledgeIndexBuild:
             invariants=SAMPLE_INVARIANTS,
             standing_orders=SAMPLE_STANDING_ORDERS,
         )
-        summary = idx.build({"education": ctx})
+        summary = idx.build({"business-ops": ctx})
 
-        inv = idx.get_node("invariant:education:equivalence_preserved")
+        inv = idx.get_node("invariant:business-ops:equivalence_preserved")
         assert inv is not None
         assert inv.detail["severity"] == "critical"
 
-        so = idx.get_node("standing_order:education:request_more_steps")
+        so = idx.get_node("standing_order:business-ops:request_more_steps")
         assert so is not None
 
         assert summary["concept_edges"] >= 1  # governs edge
@@ -187,11 +187,11 @@ class TestKnowledgeIndexBuild:
         agri_ctx = _make_domain_context(glossary=[
             {"term": "crop", "aliases": ["harvest"], "related_terms": []},
         ])
-        idx.build({"education": edu_ctx, "agriculture": agri_ctx})
+        idx.build({"business-ops": edu_ctx, "business-ops": agri_ctx})
 
-        assert idx.lookup_term("equation") == "education"
-        assert idx.lookup_term("crop") == "agriculture"
-        assert idx.lookup_term("harvest") == "agriculture"
+        assert idx.lookup_term("equation") == "business-ops"
+        assert idx.lookup_term("crop") == "business-ops"
+        assert idx.lookup_term("harvest") == "business-ops"
 
     @pytest.mark.unit
     def test_build_empty_context(self):
@@ -203,16 +203,16 @@ class TestKnowledgeIndexBuild:
     @pytest.mark.unit
     def test_rebuild_replaces_old_data(self):
         idx = KnowledgeIndex()
-        idx.build({"education": _make_domain_context(glossary=[
+        idx.build({"business-ops": _make_domain_context(glossary=[
             {"term": "old_term", "aliases": [], "related_terms": []},
         ])})
-        assert idx.lookup_term("old_term") == "education"
+        assert idx.lookup_term("old_term") == "business-ops"
 
-        idx.build({"education": _make_domain_context(glossary=[
+        idx.build({"business-ops": _make_domain_context(glossary=[
             {"term": "new_term", "aliases": [], "related_terms": []},
         ])})
         assert idx.lookup_term("old_term") is None
-        assert idx.lookup_term("new_term") == "education"
+        assert idx.lookup_term("new_term") == "business-ops"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -224,8 +224,8 @@ class TestGetRelated:
     @pytest.mark.unit
     def test_related_terms_depth_1(self):
         idx = KnowledgeIndex()
-        idx.build({"education": _make_domain_context(glossary=SAMPLE_GLOSSARY)})
-        related = idx.get_related("glossary:education:variable", depth=1)
+        idx.build({"business-ops": _make_domain_context(glossary=SAMPLE_GLOSSARY)})
+        related = idx.get_related("glossary:business-ops:variable", depth=1)
         labels = {n.label for n in related}
         # "variable" has related_terms: coefficient, constant
         assert "coefficient" in labels or len(related) > 0
@@ -233,10 +233,10 @@ class TestGetRelated:
     @pytest.mark.unit
     def test_prerequisite_traversal(self):
         idx = KnowledgeIndex()
-        idx.build({"education": _make_domain_context(modules=SAMPLE_MODULES)})
-        related = idx.get_related("module:education:quadratics", depth=1)
+        idx.build({"business-ops": _make_domain_context(modules=SAMPLE_MODULES)})
+        related = idx.get_related("module:business-ops:quadratics", depth=1)
         ids = {n.node_id for n in related}
-        assert "module:education:linear-equations" in ids
+        assert "module:business-ops:linear-equations" in ids
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -254,7 +254,7 @@ class TestPersistence:
             invariants=SAMPLE_INVARIANTS,
             standing_orders=SAMPLE_STANDING_ORDERS,
         )
-        idx.build({"education": ctx})
+        idx.build({"business-ops": ctx})
         idx.save(tmp_path)
 
         assert (tmp_path / "glossary_table.json").exists()
@@ -262,8 +262,8 @@ class TestPersistence:
 
         idx2 = KnowledgeIndex()
         assert idx2.load(tmp_path) is True
-        assert idx2.lookup_term("variable") == "education"
-        assert idx2.get_node("module:education:quadratics") is not None
+        assert idx2.lookup_term("variable") == "business-ops"
+        assert idx2.get_node("module:business-ops:quadratics") is not None
         assert idx2.stats["glossary_terms"] == idx.stats["glossary_terms"]
 
     @pytest.mark.unit
@@ -301,7 +301,7 @@ class TestNlpGlossaryRouting:
 
         idx = KnowledgeIndex()
         idx.build({
-            "education": _make_domain_context(glossary=[
+            "business-ops": _make_domain_context(glossary=[
                 {"term": "variable", "aliases": ["var", "unknown"], "related_terms": []},
                 {"term": "coefficient", "aliases": ["coeff"], "related_terms": []},
             ]),
@@ -311,8 +311,8 @@ class TestNlpGlossaryRouting:
         try:
             set_knowledge_index(idx)
             domain_map = {
-                "education": {"label": "Education", "description": "Math", "keywords": []},
-                "agriculture": {"label": "Agriculture", "description": "Farming", "keywords": []},
+                "business-ops": {"label": "Business Ops", "description": "Math", "keywords": []},
+                "business-ops": {"label": "Business Ops", "description": "Farming", "keywords": []},
             }
             # Message with enough glossary hits for confidence >= 0.6
             result = classify_domain(
@@ -320,7 +320,7 @@ class TestNlpGlossaryRouting:
                 domain_map,
             )
             assert result is not None
-            assert result["domain_id"] == "education"
+            assert result["domain_id"] == "business-ops"
             assert result["method"] == "glossary"
         finally:
             nlp_mod._knowledge_index = old_idx
@@ -335,8 +335,8 @@ class TestNlpGlossaryRouting:
         try:
             nlp_mod._knowledge_index = None
             domain_map = {
-                "education": {
-                    "label": "Education",
+                "business-ops": {
+                    "label": "Business Ops",
                     "description": "Math tutoring",
                     "keywords": ["algebra", "equation"],
                 },
@@ -376,15 +376,15 @@ class TestKnowledgeGraphRebuildTask:
         from lumina.daemon.tasks import knowledge_graph_rebuild
 
         all_contexts = {
-            "education": _make_domain_context(glossary=[
+            "business-ops": _make_domain_context(glossary=[
                 {"term": "equation", "aliases": [], "related_terms": []},
             ]),
-            "agriculture": _make_domain_context(glossary=[
+            "business-ops": _make_domain_context(glossary=[
                 {"term": "crop", "aliases": [], "related_terms": []},
             ]),
         }
         result = knowledge_graph_rebuild(
-            domain_id="education",
+            domain_id="business-ops",
             domain_physics={},
             all_domain_contexts=all_contexts,
             index_dir=tmp_path,
@@ -393,5 +393,6 @@ class TestKnowledgeGraphRebuildTask:
         assert result.metadata["domains_indexed"] == 2
 
         gt = json.loads((tmp_path / "glossary_table.json").read_text())
-        assert gt["equation"] == "education"
-        assert gt["crop"] == "agriculture"
+        assert gt["equation"] == "business-ops"
+        assert gt["crop"] == "business-ops"
+

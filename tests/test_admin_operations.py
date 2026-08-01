@@ -107,11 +107,11 @@ def test_build_commitment_record_minimal() -> None:
         actor_id="actor-001",
         actor_role="admin",
         commitment_type="model_pack_activation",
-        subject_id="education/algebra-v1",
+        subject_id="business-ops/algebra-v1",
         summary="Activated algebra module",
     )
     assert rec["record_type"] == "CommitmentRecord"
-    assert rec["subject_id"] == "education/algebra-v1"
+    assert rec["subject_id"] == "business-ops/algebra-v1"
     assert rec["prev_record_hash"] == "genesis"
     assert "subject_version" not in rec
     assert "subject_hash" not in rec
@@ -128,7 +128,7 @@ def test_build_commitment_record_all_optional_fields() -> None:
         actor_id="actor-001",
         actor_role="admin",
         commitment_type="model_pack_rollback",
-        subject_id="education/algebra-v1",
+        subject_id="business-ops/algebra-v1",
         summary="Rolled back due to defect",
         subject_version="2.1.0",
         subject_hash="deadbeef" * 8,
@@ -187,22 +187,22 @@ def test_can_govern_domain_root_bypasses_check() -> None:
 
 @pytest.mark.unit
 def test_can_govern_domain_authority_match() -> None:
-    user = {"role": "admin", "governed_modules": ["education", "agriculture"]}
-    assert can_govern_domain(user, "education") is True
+    user = {"role": "admin", "governed_modules": ["business-ops", "business-ops"]}
+    assert can_govern_domain(user, "business-ops") is True
     assert can_govern_domain(user, "other") is False
 
 
 @pytest.mark.unit
 def test_can_govern_domain_non_authority_role() -> None:
-    assert can_govern_domain({"role": "user"}, "education") is False
+    assert can_govern_domain({"role": "user"}, "business-ops") is False
 
 
 @pytest.mark.unit
 def test_can_govern_domain_unrestricted_da() -> None:
     """DA with empty governed_modules and no domain_roles has unrestricted access."""
     user = {"role": "admin", "governed_modules": [], "domain_roles": {}}
-    assert can_govern_domain(user, "education") is True
-    assert can_govern_domain(user, "agriculture") is True
+    assert can_govern_domain(user, "business-ops") is True
+    assert can_govern_domain(user, "business-ops") is True
 
 
 @pytest.mark.unit
@@ -240,17 +240,17 @@ def test_build_domain_role_assignment_minimal() -> None:
         actor_id="admin-001",
         actor_role="administration",
         target_user_id="user-abc",
-        module_id="education",
+        module_id="business-ops",
         domain_role="supervisor",
     )
     assert rec["record_type"] == "CommitmentRecord"
     assert rec["commitment_type"] == "domain_role_assignment"
     assert rec["subject_id"] == "user-abc"
-    assert "education" in rec["summary"]
+    assert "business-ops" in rec["summary"]
     assert "supervisor" in rec["summary"]
     meta = rec["metadata"]
     assert meta["target_user_id"] == "user-abc"
-    assert meta["module_id"] == "education"
+    assert meta["module_id"] == "business-ops"
     assert meta["domain_role"] == "supervisor"
     assert rec["prev_record_hash"] == "genesis"
     assert "record_id" in rec
@@ -263,7 +263,7 @@ def test_build_domain_role_assignment_custom_prev_hash() -> None:
         actor_id="admin-001",
         actor_role="administration",
         target_user_id="user-abc",
-        module_id="education",
+        module_id="business-ops",
         domain_role="employee",
         prev_record_hash="deadbeef12345",
     )
@@ -279,17 +279,17 @@ def test_build_domain_role_revocation_minimal() -> None:
         actor_id="admin-001",
         actor_role="administration",
         target_user_id="user-abc",
-        module_id="education",
+        module_id="business-ops",
         prev_role="supervisor",
     )
     assert rec["record_type"] == "CommitmentRecord"
     assert rec["commitment_type"] == "domain_role_revocation"
     assert rec["subject_id"] == "user-abc"
     assert "supervisor" in rec["summary"]
-    assert "education" in rec["summary"]
+    assert "business-ops" in rec["summary"]
     meta = rec["metadata"]
     assert meta["target_user_id"] == "user-abc"
-    assert meta["module_id"] == "education"
+    assert meta["module_id"] == "business-ops"
     assert meta["prev_role"] == "supervisor"
     assert rec["prev_record_hash"] == "genesis"
 
@@ -300,8 +300,9 @@ def test_build_domain_role_revocation_custom_prev_hash() -> None:
         actor_id="admin-001",
         actor_role="administration",
         target_user_id="user-abc",
-        module_id="education",
+        module_id="business-ops",
         prev_role="employee",
         prev_record_hash="abc999xyz",
     )
     assert rec["prev_record_hash"] == "abc999xyz"
+

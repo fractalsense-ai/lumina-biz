@@ -41,7 +41,7 @@ trigger_standing_order_id: zpd_intervene_or_escalate
 trigger_invariant_id: null
 
 # ── Domain Context ──────────────────────────────────────────
-model_pack_id: "domain/edu/algebra-level-1/v1"
+model_pack_id: "domain/bizops/algebra-level-1/v1"
 model_pack_version: "0.2.0"
 
 # ── Evidence Summary ────────────────────────────────────────
@@ -91,3 +91,4 @@ metadata:
   session_duration_minutes: 22
   probe_issued_at_turn: 14
   probe_result: "no_improvement"
+

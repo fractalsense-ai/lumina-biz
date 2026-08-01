@@ -220,7 +220,7 @@ class StagingService:
         ----------
         target_overrides:
             Dict of placeholder substitutions for the template's
-            ``target_pattern`` (e.g. ``{"domain_short": "education"}``).
+            ``target_pattern`` (e.g. ``{"domain_short": "bizops"}``).
 
         Returns
         -------
@@ -351,7 +351,7 @@ def _extract_domain_short(payload: dict[str, Any]) -> str:
     for key in ("domain_id", "domain_short"):
         val = payload.get(key, "")
         if isinstance(val, str) and val:
-            # domain/edu/algebra-level-1/v1 → edu
+            # domain/bizops/auto-repair/v1 → bizops
             parts = val.split("/")
             if len(parts) >= 2:
                 return parts[1]

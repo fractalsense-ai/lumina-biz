@@ -1,9 +1,9 @@
 ---
 title: "Slice 31 Execution Plan - Connector Registry and Capability Routing"
 slice: 31
-status: planned
-version: 0.1.0
-last_updated: 2026-07-26
+status: delivered
+version: 1.0.0
+last_updated: 2026-07-31
 source_overview: docs/roadmap/slices/31-business-ops-pack-bootstrap.md
 ---
 
@@ -23,6 +23,21 @@ organization/site scope without granting execution authority.
   outcomes return structured errors.
 - No credential material appears in registry, routing policy, or resolution
   artifacts.
+
+## Completion Evidence (2026-07-31)
+
+- Contracts delivered under `standards/`:
+  - `connector-registry-entry-schema-v1.json`
+  - `capability-route-policy-schema-v1.json`
+  - `connector-resolution-result-schema-v1.json`
+- Deterministic routing engine delivered in `src/lumina/connector_routing/router.py`.
+- Scoped preflight API delivered in `src/lumina/api/routes/connector_routing.py`.
+- Validation command run:
+  - `pytest tests/test_connector_routing.py tests/test_connector_routing_contracts.py tests/test_connector_routing_api.py -q`
+  - Result: `21 passed`.
+- Integrity command run:
+  - `python -m scripts._compute_hashes`
+  - Result: hash manifest emitted for tracked framework artifacts.
 
 ## Work Plan
 
@@ -133,14 +148,14 @@ Slice 31: Connector registry and deterministic capability routing
 
 ### Test Checklist
 
-- [ ] Contract validation tests for all Slice 31 schemas.
-- [ ] Deterministic precedence tests for override, capability, site, org,
+- [x] Contract validation tests for all Slice 31 schemas.
+- [x] Deterministic precedence tests for override, capability, site, org,
       and no-route paths.
-- [ ] Negative tests for ambiguous routes and missing idempotency key.
-- [ ] Capability and health-gate tests including unhealthy and stale-health
+- [x] Negative tests for ambiguous routes and missing idempotency key.
+- [x] Capability and health-gate tests including unhealthy and stale-health
       paths.
-- [ ] API auth/scope tests for cross-organization and cross-site denial.
-- [ ] Manifest integrity and full regression suites remain green.
+- [x] API auth/scope tests for cross-organization and cross-site denial.
+- [x] Manifest integrity and full regression suites remain green.
 
 ### Out of Scope Confirmations
 
@@ -155,3 +170,5 @@ Slice 31: Connector registry and deterministic capability routing
 3. Add capability/health gating and structured failure mapping.
 4. Add scoped API preflight and routing decision evidence.
 5. Run full validation matrix and update roadmap status when complete.
+
+Status update: This execution plan is complete and delivered as of 2026-07-31.

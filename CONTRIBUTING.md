@@ -16,7 +16,7 @@ Before contributing, you must understand the firewall between the core engine an
 
 The core orchestrator (`lumina-api-server.py`, `dsa-orchestrator.py`) is **100% domain-agnostic**.
 
-* **Zero Domain Logic:** You may not hardcode rules, prompts, or assumptions about specific subjects (e.g., education, medical, agriculture) into the core engine.
+* **Zero Domain Logic:** You may not hardcode rules, prompts, or assumptions about specific subjects (e.g., business-ops, medical, business-ops) into the core engine.
 * **Contract Enforcement:** The engine's only job is to assemble the dynamic prompt contract, execute it, verify the tool/invariant outputs, and log the state change to the System Logs.
 
 ### 2. Model-Packs (`model-packs/`)
@@ -117,3 +117,4 @@ Before you push, ask yourself:
 * *Did I bypass the Domain Authority's explicit rules?*
 
 If the answer to any of these is yes, revise your code. We build for accountability.
+

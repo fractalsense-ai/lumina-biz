@@ -137,7 +137,7 @@ These tests verify that no conversation content is written to any persistent sto
 
 ### Category 5: Domain Lib Correctness
 
-> **Note:** This category defines universal domain-lib test patterns. Concrete domain cases (education, agriculture, clinical, etc.) belong in each domain pack's evaluation docs.
+> **Note:** This category defines universal domain-lib test patterns. Concrete domain cases (business-ops, business-ops, clinical, etc.) belong in each domain pack's evaluation docs.
 
 **TC-SENS-001: Minor drift detection**
 - Trigger: Inject drift signals that exceed `minor_drift_threshold` inside the configured drift window
@@ -159,7 +159,7 @@ These tests verify that no conversation content is written to any persistent sto
 - Assert: Domain lib's instability estimator returns `True`
 - Pass criterion: Correct flag
 
-Education example signals:
+Business Ops example signals:
 - `consecutive_incorrect: 3`, `hint_count: 3`, `frustration_marker_count: 2`
 
 Domain-specific worked examples:
@@ -206,3 +206,4 @@ Conformance must be re-verified after:
 - Any change to the turn-interpretation or tool-adapter pipeline
 - Any change to the entity profile update logic
 - Any material module `domain-physics` policy update (version/hash change)
+

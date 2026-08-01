@@ -39,9 +39,9 @@ def retrieve_grounding(
          1-hop related concepts to enrich the reference set.
 
     When *module_key* is provided, only references whose ``artifact_id``
-    contains the module domain path (e.g. ``general-education``) or that
-    belong to system-level entries are included.  This prevents algebra-specific
-    RAG context from bleeding into Student Commons and vice-versa.
+    contains the module domain path (e.g. ``auto-repair``) or that
+    belong to system-level entries are included. This prevents module-specific
+    RAG context from bleeding across unrelated workstreams.
 
     Returns a (possibly empty) list of reference dicts suitable for the
     ``references`` field in the prompt contract.
@@ -53,8 +53,8 @@ def retrieve_grounding(
     refs: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
 
-    # Derive a short module slug for filtering (e.g. "general-education" from
-    # "domain/edu/general-education/v1").
+    # Derive a short module slug for filtering (e.g. "auto-repair" from
+    # "domain/bizops/auto-repair/v1").
     _module_slug: str | None = None
     if module_key:
         _parts = module_key.replace("\\", "/").split("/")

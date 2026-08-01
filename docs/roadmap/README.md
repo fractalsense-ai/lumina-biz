@@ -1,13 +1,13 @@
 ---
-version: 1.2.1
-last_updated: 2026-07-26
+version: 1.2.2
+last_updated: 2026-07-31
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.1
+**Version:** 1.2.2
 **Status:** Active
-**Last updated:** 2026-07-26
+**Last updated:** 2026-07-31
 
 ---
 
@@ -56,7 +56,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [28](slices/28-semantic-thread-routing-and-forking.md) | Semantic Thread Routing and Context Forking | Delivered |
 | [29](slices/29-decision-precedent-confidence-and-escalation.md) | Decision Precedent, Confidence, and Escalation | Planned |
 | [30](slices/30-erpnext-adapter-foundation-and-fixtures.md) | Canonical Business-System Contracts and Capability Taxonomy | Delivered |
-| [31](slices/31-business-ops-pack-bootstrap.md) | Connector Registry and Capability Routing | Planned |
+| [31](slices/31-business-ops-pack-bootstrap.md) | Connector Registry and Capability Routing | Delivered |
 | [32](slices/32-auto-repair-mvp-and-single-box-deployment.md) | Business Ops Pack Bootstrap | Planned |
 | [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Planned |
 | [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Planned |
@@ -84,7 +84,7 @@ base framework consists of exactly three model packs:
 - **Coding Agent Model Pack** — bounded artifact factory
 - **Template Model Pack** — reusable approved framework template shapes
 
-Domain packs currently in the repository (education, agriculture, assistant)
+Domain packs currently in the repository (business-ops, business-ops, assistant)
 are provisional scaffolding used while validating the framework shape. They
 will be extracted, moved, or removed in later PRs.
 
@@ -109,3 +109,4 @@ Each slice document uses the following structure:
 ## Ledger/Governance Impact
 ## Follow-Up Slices
 ```
+

@@ -212,7 +212,7 @@ class TestListCommandsOperation:
         assert names == sorted(names), "Commands should be alphabetically sorted"
 
 
-# ── Education-only operations that must NOT appear in system domain ──
+# ── Business Ops-only operations that must NOT appear in system domain ──
 _EDUCATION_ONLY_OPS = frozenset({
     "assign_student",
     "remove_student",
@@ -230,8 +230,8 @@ class TestListCommandsDomainScoping:
     """list_commands respects domain_id and excludes cross-domain ops."""
 
     @pytest.mark.integration
-    def test_system_domain_excludes_education_ops(self, multi_client: TestClient, multi_api_module) -> None:
-        """When domain_id='system', removed education ops must not appear."""
+    def test_system_domain_excludes_domain_specific_ops(self, multi_client: TestClient, multi_api_module) -> None:
+        """When domain_id='system', removed business-ops ops must not appear."""
         token = _register_root(multi_client)
         with patch("lumina.core.slm.slm_available", return_value=True), \
              patch("lumina.core.slm.slm_parse_admin_command") as mock_parse:
@@ -247,10 +247,10 @@ class TestListCommandsDomainScoping:
         assert resp.status_code == 200
         names = {c["name"] for c in resp.json()["result"]["commands"]}
         leaked = names & _EDUCATION_ONLY_OPS
-        assert not leaked, f"Education ops leaked into system domain: {leaked}"
+        assert not leaked, f"Business Ops ops leaked into system domain: {leaked}"
 
     @pytest.mark.integration
-    def test_education_domain_includes_education_ops(self, multi_client: TestClient, multi_api_module) -> None:
+    def test_primary_domain_includes_domain_specific_ops(self, multi_client: TestClient, multi_api_module) -> None:
         """When domain_id='business-ops', command listing still succeeds and excludes removed ops."""
         token = _register_root(multi_client)
         with patch("lumina.core.slm.slm_available", return_value=True), \
@@ -267,7 +267,7 @@ class TestListCommandsDomainScoping:
         assert resp.status_code == 200
         names = {c["name"] for c in resp.json()["result"]["commands"]}
         leaked = names & _EDUCATION_ONLY_OPS
-        assert not leaked, f"Removed education ops should not be present: {leaked}"
+        assert not leaked, f"Removed business-ops ops should not be present: {leaked}"
         assert "list_domains" in names
 
     @pytest.mark.integration
@@ -289,7 +289,7 @@ class TestListCommandsDomainScoping:
         assert resp.status_code == 200
         names = {c["name"] for c in resp.json()["result"]["commands"]}
         leaked = names & _EDUCATION_ONLY_OPS
-        assert not leaked, f"Education ops leaked when domain_id set via body: {leaked}"
+        assert not leaked, f"Business Ops ops leaked when domain_id set via body: {leaked}"
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -380,7 +380,7 @@ class TestDepartmentTag:
         assert data["department"] == "Operations"
 
     @pytest.mark.unit
-    def test_agriculture_department(self) -> None:
+    def test_system_identity_department_anchor(self) -> None:
         path = _REPO_ROOT / "model-packs" / "system" / "cfg" / "system-physics.json"
         data = json.loads(path.read_text(encoding="utf-8"))
         assert data["system_identity"]["system_name"] == "Project Lumina"
@@ -524,3 +524,4 @@ class TestRoleAwareDomainInfo:
         assert resp.status_code == 200
         body = resp.json()
         assert body["domain_id"] == _PRIMARY_DOMAIN_ID
+

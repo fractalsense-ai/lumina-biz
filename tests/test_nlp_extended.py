@@ -90,8 +90,8 @@ def test_classify_domain_spacy_similarity_path(monkeypatch: pytest.MonkeyPatch) 
 
     # Use keywords that won't match the input text — forces Pass 2
     domain_map = {
-        "education": {
-            "label": "Education",
+        "business-ops": {
+            "label": "Business Ops",
             "description": "Learning and mathematics",
             "keywords": ["trigonometry", "calculus", "integration"],  # won't match "hello"
         }
@@ -99,7 +99,7 @@ def test_classify_domain_spacy_similarity_path(monkeypatch: pytest.MonkeyPatch) 
     result = classify_domain("hello world", domain_map)
     assert result is not None
     assert result["method"] == "similarity"
-    assert result["domain_id"] == "education"
+    assert result["domain_id"] == "business-ops"
     assert result["confidence"] >= 0.6
 
 
@@ -117,8 +117,8 @@ def test_classify_domain_spacy_similarity_below_threshold(monkeypatch: pytest.Mo
     monkeypatch.setattr(nlp_mod, "_spacy_available", True)
 
     domain_map = {
-        "education": {
-            "label": "Education",
+        "business-ops": {
+            "label": "Business Ops",
             "description": "Learning",
             "keywords": ["trigonometry"],  # won't match
         }
@@ -137,8 +137,8 @@ def test_classify_domain_no_vectors_skips_similarity(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(nlp_mod, "_spacy_available", True)
 
     domain_map = {
-        "education": {
-            "label": "Education",
+        "business-ops": {
+            "label": "Business Ops",
             "description": "Learning",
             "keywords": ["trigonometry"],
         }
@@ -158,6 +158,7 @@ def test_classify_domain_accessible_domains_empty_returns_none(
     monkeypatch.setattr(nlp_mod, "_spacy_available", False)
     monkeypatch.setattr(nlp_mod, "_nlp_instance", None)
 
-    domain_map = {"education": {"label": "Education", "keywords": ["math"]}}
-    result = classify_domain("math problem", domain_map, accessible_domains=["agriculture"])
+    domain_map = {"business-ops": {"label": "Business Ops", "keywords": ["math"]}}
+    result = classify_domain("math problem", domain_map, accessible_domains=["business-ops"])
     assert result is None
+

@@ -166,7 +166,7 @@ curl -X POST /api/auth/invite \
   -d '{
     "username": "dr-chen",
     "role": "admin",
-    "governed_modules": ["domain/edu/algebra-level-1/v1"],
+    "governed_modules": ["domain/bizops/algebra-level-1/v1"],
     "email": "dr.chen@example.com"
   }'
 # Response includes: setup_url, setup_token, email_sent
@@ -194,7 +194,7 @@ Domain roles allow each domain to define its own access tiers beneath the Domain
 
 ### Defining Domain Roles
 
-Domain roles are declared in the `domain_roles` block of a domain-physics document. The Domain Authority authors these as part of the domain pack. Example for education:
+Domain roles are declared in the `domain_roles` block of a domain-physics document. The Domain Authority authors these as part of the domain pack. Example for business-ops:
 
 ```yaml
 domain_roles:
@@ -234,7 +234,7 @@ When a user has domain roles, their JWT carries a `domain_roles` claim:
   "sub": "user_ta_001",
   "role": "user",
   "domain_roles": {
-    "domain/edu/algebra-level-1/v1": "teaching_assistant"
+    "domain/bizops/algebra-level-1/v1": "teaching_assistant"
   }
 }
 ```
@@ -277,7 +277,7 @@ inventory without HITL staging:
 | Operation       | Command                      | RBAC                                |
 |----------------|------------------------------|-------------------------------------|
 | `list_domains`  | "list domains"               | root, admin, super_admin  |
-| `list_modules`  | "list modules for education" | root, admin*, super_admin |
+| `list_modules`  | "list modules for business-ops" | root, admin*, super_admin |
 
 \* Domain Authority sees only modules for domains they govern.
 
@@ -321,3 +321,4 @@ domain role.
 - [list-domains(1)](../1-commands/list-domains.md) — List registered domains
 - [list-modules(1)](../1-commands/list-modules.md) — List modules for a domain
 - [graceful-degradation](../7-concepts/graceful-degradation.md) — Clarification flow for SLM failures
+

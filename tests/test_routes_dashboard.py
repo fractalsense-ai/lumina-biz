@@ -149,12 +149,12 @@ class TestDashboardTelemetry:
     def test_telemetry_with_domain_filter(self, client: TestClient) -> None:
         root_token = _register_root(client)
         resp = client.get(
-            "/api/dashboard/telemetry?domain_id=education",
+            "/api/dashboard/telemetry?domain_id=business-ops",
             headers=_auth_header(root_token),
         )
         assert resp.status_code == 200
         body = resp.json()
-        assert body["domain_filter"] == "education"
+        assert body["domain_filter"] == "business-ops"
 
     def test_regular_user_forbidden(self, client: TestClient) -> None:
         _register_root(client)
@@ -184,3 +184,4 @@ class TestDashboardTelemetry:
         assert "total" in esc
         assert "pending" in esc
         assert "resolved" in esc
+

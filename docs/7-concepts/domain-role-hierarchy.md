@@ -21,7 +21,7 @@ last_updated: 2026-03-20
 
 Domain Role Hierarchy is an extension to Lumina's RBAC system that allows each domain to define its own role tiers beneath the Domain Authority ceiling. While the 7 system-level roles (`root`, `admin`, `super_admin`, `operator`, `half_operator`, `user`, `guest`) provide coarse-grained access control across the entire system, domain roles provide fine-grained access control *within* a specific domain.
 
-**Problem:** In an education deployment, a department head (Domain Authority), teachers, teaching assistants, and students all need different levels of access to the same domain module. The system-level `user` role treats them all identically. An enterprise deployment has the same challenge with managers, team leads, and employees.
+**Problem:** In an business-ops deployment, a department head (Domain Authority), teachers, teaching assistants, and students all need different levels of access to the same domain module. The system-level `user` role treats them all identically. An enterprise deployment has the same challenge with managers, team leads, and employees.
 
 **Solution:** Each domain-physics document can declare an optional `domain_roles` block that defines a hierarchy of roles scoped to that domain. These roles integrate with the existing JWT and permission resolution system as an additive overlay.
 
@@ -128,8 +128,8 @@ Domain roles are carried in the JWT as a `domain_roles` claim mapping module IDs
   "role": "user",
   "governed_modules": [],
   "domain_roles": {
-    "domain/edu/algebra-level-1/v1": "teaching_assistant",
-    "domain/edu/geometry-level-1/v1": "student"
+    "domain/bizops/algebra-level-1/v1": "teaching_assistant",
+    "domain/bizops/geometry-level-1/v1": "student"
   }
 }
 ```
@@ -158,7 +158,7 @@ Domain roles are purely additive. They can grant access that the system role alo
 
 ## Domain Examples
 
-### Education
+### Business Ops
 
 | Domain Role | Level | System Mapping | Access | Description |
 |-------------|-------|----------------|--------|-------------|
@@ -167,7 +167,7 @@ Domain roles are purely additive. They can grant access that the system role alo
 | `teaching_assistant` | 2 | `user` | rx | Support staff, can view student progress and issue hints |
 | `student` | 3 | `user` | x | Learner, execute sessions only |
 
-### Agriculture
+### Business Ops
 
 | Domain Role | Level | System Mapping | Access | Description |
 |-------------|-------|----------------|--------|-------------|
@@ -310,3 +310,4 @@ See [`standards/group-definition-schema-v1.json`](../../standards/group-definiti
 - [`docs/7-concepts/zero-trust-architecture.md`](zero-trust-architecture.md) — Zero-trust architecture
 - [`src/lumina/api/routes/admin.py`](../../src/lumina/api/routes/admin.py) — domain-scoped `list_users` filtering and `invite_user` DA access enforcement
 - [`model-packs/system/modules/system-core/domain-physics.json`](../../model-packs/system/modules/system-core/domain-physics.json) — canonical `min_role_policy` and role hierarchy configuration
+

@@ -43,7 +43,7 @@ class TestBuildResult:
             prompt_contract={"prompt_type": "task_presentation"},
             escalated=False,
             tool_results=None,
-            resolved_domain_id="education",
+            resolved_domain_id="business-ops",
             structured_content=None,
             session_id="sess-1",
             session_containers={},
@@ -55,7 +55,7 @@ class TestBuildResult:
         assert r["action"] == "task_presentation"
         assert r["prompt_type"] == "task_presentation"
         assert r["escalated"] is False
-        assert r["domain_id"] == "education"
+        assert r["domain_id"] == "business-ops"
         assert "transcript_seal" not in r
         assert "structured_content" not in r
 
@@ -439,7 +439,7 @@ class TestNormalizeSLMCommand:
     @pytest.mark.unit
     def test_list_users_no_domain_registry_passthrough(self) -> None:
         """list_users with no DOMAIN_REGISTRY leaves params unchanged."""
-        cmd = {"operation": "list_users", "target": "education", "params": {}}
+        cmd = {"operation": "list_users", "target": "business-ops", "params": {}}
         out = _normalize_slm_command(cmd)
         assert out["params"] == {}
 
@@ -541,3 +541,4 @@ class TestBuildClarificationResponse:
         with patch("lumina.api.config.DOMAIN_REGISTRY", None):
             result = build_clarification_response("field X missing", cmd, user=None)
         assert result["error"] == "field X missing"
+

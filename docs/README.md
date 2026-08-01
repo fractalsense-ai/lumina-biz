@@ -44,7 +44,7 @@ for the engine/model-pack/module vocabulary.
 
 ---
 
-Model-pack-specific documentation (education prompts, agriculture adapters, etc.) stays in [`../model-packs/`](../model-packs/).
+Model-pack-specific documentation (business-ops prompts, business-ops adapters, etc.) stays in [`../model-packs/`](../model-packs/).
 
 ---
 
@@ -57,3 +57,4 @@ for the full rules.
 The machine-readable artifact index is at [MANIFEST.yaml](MANIFEST.yaml). AI agents and
 automated tooling should read the manifest first to discover current artifact versions,
 verify integrity, and follow `superseded_by` pointers before reading any artifact.
+

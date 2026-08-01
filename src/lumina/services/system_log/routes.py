@@ -40,7 +40,7 @@ async def query_log_records(
             governed = user_data.get("governed_modules") or []
             if governed and domain_id:
                 # Module-level IDs (contain "/") must be in governed list;
-                # domain-level keys (e.g. "education") are accepted as broader scope.
+                # domain-level keys (e.g. "business-ops") are accepted as broader scope.
                 if "/" in domain_id and domain_id not in governed:
                     raise HTTPException(status_code=403, detail="Domain not in governed scope")
         else:

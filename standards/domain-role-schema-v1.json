@@ -4,7 +4,7 @@
   "schema_version": "1.0.0",
   "last_updated": "2026-03-20",
   "title": "Domain Role Definition Schema V1",
-  "description": "JSON Schema for domain-scoped role definitions within a domain-physics document. Domain roles define a hierarchy beneath the Domain Authority ceiling, allowing each domain to create its own access tiers (e.g., teacher/teaching-assistant/student in education, site-manager/field-operator/observer in agriculture).",
+  "description": "JSON Schema for domain-scoped role definitions within a domain-physics document. Domain roles define a hierarchy beneath the Domain Authority ceiling, allowing each domain to create its own access tiers (e.g., teacher/teaching-assistant/student in business-ops, site-manager/field-operator/observer in business-ops).",
   "type": "object",
   "required": [
     "role_id",
@@ -72,3 +72,4 @@
     }
   }
 }
+

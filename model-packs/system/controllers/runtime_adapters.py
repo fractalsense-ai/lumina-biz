@@ -344,7 +344,7 @@ def interpret_turn_input(
         evidence["command_dispatch"] = None
 
     # ── Override SLM fields with deterministic verification output ─────
-    # Same pattern as education domain's algebra parser override: call
+    # Same pattern as business-ops domain's algebra parser override: call
     # deterministic tools and OVERWRITE evidence fields with ground truth
     # so the invariant checker evaluates provably correct values.
     _tool_fns = tool_fns or {}
@@ -411,3 +411,4 @@ def interpret_turn_input(
             evidence["json_in_output"] = False
 
     return evidence
+

@@ -160,7 +160,7 @@ def test_validate_log_chain_all_sessions():
 @pytest.mark.unit
 def test_update_user_domain_roles_not_found_returns_none():
     adapter = NullPersistenceAdapter()
-    result = adapter.update_user_domain_roles("ghost-id", {"education": "supervisor"})
+    result = adapter.update_user_domain_roles("ghost-id", {"business-ops": "supervisor"})
     assert result is None
 
 
@@ -168,9 +168,9 @@ def test_update_user_domain_roles_not_found_returns_none():
 def test_update_user_domain_roles_sets_new_entry():
     adapter = NullPersistenceAdapter()
     adapter.create_user("u10", "grace", "hash", "user")
-    result = adapter.update_user_domain_roles("u10", {"education": "supervisor"})
+    result = adapter.update_user_domain_roles("u10", {"business-ops": "supervisor"})
     assert result is not None
-    assert result["domain_roles"] == {"education": "supervisor"}
+    assert result["domain_roles"] == {"business-ops": "supervisor"}
     assert "password_hash" not in result
 
 
@@ -178,17 +178,18 @@ def test_update_user_domain_roles_sets_new_entry():
 def test_update_user_domain_roles_merges_with_existing():
     adapter = NullPersistenceAdapter()
     adapter.create_user("u11", "henry", "hash", "user")
-    adapter.update_user_domain_roles("u11", {"education": "supervisor"})
-    result = adapter.update_user_domain_roles("u11", {"agriculture": "employee"})
+    adapter.update_user_domain_roles("u11", {"business-ops": "supervisor"})
+    result = adapter.update_user_domain_roles("u11", {"business-ops": "employee"})
     assert result is not None
-    assert result["domain_roles"] == {"education": "supervisor", "agriculture": "employee"}
+    assert result["domain_roles"] == {"business-ops": "supervisor", "business-ops": "employee"}
 
 
 @pytest.mark.unit
 def test_update_user_domain_roles_overwrites_same_module():
     adapter = NullPersistenceAdapter()
     adapter.create_user("u12", "iris", "hash", "user")
-    adapter.update_user_domain_roles("u12", {"education": "supervisor"})
-    result = adapter.update_user_domain_roles("u12", {"education": "employee"})
+    adapter.update_user_domain_roles("u12", {"business-ops": "supervisor"})
+    result = adapter.update_user_domain_roles("u12", {"business-ops": "employee"})
     assert result is not None
-    assert result["domain_roles"]["education"] == "employee"
+    assert result["domain_roles"]["business-ops"] == "employee"
+

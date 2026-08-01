@@ -43,9 +43,9 @@ Subject/Target
   Examples: Learner / Patient / Farm Environment
 ```
 
-**Education instantiation:** Administration → Department Head → Teacher → Student  
+**Business Ops instantiation:** Administration → Department Head → Teacher → Student  
 **Medical instantiation:** Hospital Admin → Department Head → Lead Physician → Patient  
-**Agriculture instantiation:** Corporate Policy → Site Manager → Operator → Environment
+**Business Ops instantiation:** Corporate Policy → Site Manager → Operator → Environment
 
 Each level:
 1. **Authors its own Domain Physics** — YAML ruleset defining invariants, standing orders, and escalation triggers within its scope

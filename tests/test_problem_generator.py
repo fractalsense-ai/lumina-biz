@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-# Ensure the education domain-pack reference-implementations are importable.
-_EDU_REF = Path(__file__).resolve().parent.parent / "model-packs" / "education" / "controllers"
+# Ensure the business-ops domain-pack reference-implementations are importable.
+_EDU_REF = Path(__file__).resolve().parent.parent / "model-packs" / "business-ops" / "controllers"
 if str(_EDU_REF) not in sys.path:
     sys.path.insert(0, str(_EDU_REF))
 
@@ -197,3 +197,4 @@ class TestGenerateProblemCallConvention:
         """Passing the raw tier list (old buggy path) must raise AttributeError."""
         with pytest.raises(AttributeError):
             generate_problem(0.5, TIERS)  # type: ignore[arg-type]
+

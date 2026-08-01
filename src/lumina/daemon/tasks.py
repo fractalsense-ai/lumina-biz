@@ -1068,7 +1068,7 @@ def _iter_actor_profiles(
 # also writes a small advisory entry to the actor's profile so the journal
 # session-start surface can render a soft banner. Advisory rendering and
 # upsert/prune logic lives in :mod:`lumina.signals` so non-SVA domains
-# (agriculture sensors, etc.) get the same machinery for free.
+# (manufacturing telemetry, etc.) get the same machinery for free.
 
 
 @register_task("rhythm_fft_analysis")

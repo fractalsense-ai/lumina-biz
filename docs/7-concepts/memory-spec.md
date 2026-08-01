@@ -42,7 +42,7 @@ Entity memory is the entity profile. It persists between sessions and is updated
 ### What Is Stored
 
 ```yaml
-# Stored in entity-profile (the education domain names this "student-profile"
+# Stored in entity-profile (the business-ops domain names this "student-profile"
 # as a domain convention; other domains use names appropriate to their context)
 entity_state:
   affect:                     # affect state from last session end
@@ -142,3 +142,4 @@ Retrieved content is always cited by artifact ID and version. See [`../retrieval
 ## Index Structure
 
 The retrieval index schema for memory queries is defined in [`../retrieval/retrieval-index-schema-v1.json`](../retrieval/retrieval-index-schema-v1.json).
+

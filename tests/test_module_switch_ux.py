@@ -24,9 +24,9 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 from lumina.api.session import _default_current_task
 
 
-# ── Load education handlers via importlib ─────────────────────
+# ── Load business-ops handlers via importlib ─────────────────────
 
-_HELPERS_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "ops" / "_helpers.py"
+_HELPERS_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "ops" / "_helpers.py"
 _helpers_spec = importlib.util.spec_from_file_location("edu_helpers_msu", str(_HELPERS_PATH))
 _helpers_mod = importlib.util.module_from_spec(_helpers_spec)  # type: ignore[arg-type]
 sys.modules["edu_helpers_msu"] = _helpers_mod
@@ -39,7 +39,7 @@ _ops_pkg.__package__ = _OPS_PKG
 sys.modules[_OPS_PKG] = _ops_pkg
 sys.modules[f"{_OPS_PKG}._helpers"] = _helpers_mod
 
-_MODULES_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "ops" / "modules.py"
+_MODULES_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "ops" / "modules.py"
 _modules_spec = importlib.util.spec_from_file_location(
     f"{_OPS_PKG}.modules", str(_MODULES_PATH),
 )
@@ -60,15 +60,15 @@ _PRE_ALGEBRA_TIERS = [
 ]
 
 _MODULE_MAP = {
-    "domain/edu/general-education/v1": {
+    "domain/bizops/general-business-ops/v1": {
         "domain_physics_path": "dp/ge.json",
         "ui_overrides": {"subtitle": "Student Commons"},
     },
-    "domain/edu/pre-algebra/v1": {
+    "domain/bizops/pre-algebra/v1": {
         "domain_physics_path": "dp/pa.json",
         "ui_overrides": {"subtitle": "Pre-Algebra"},
     },
-    "domain/edu/algebra-intro/v1": {
+    "domain/bizops/algebra-intro/v1": {
         "domain_physics_path": "dp/ai.json",
         "ui_overrides": {"subtitle": "Algebra — Introduction"},
     },
@@ -94,16 +94,16 @@ def _make_ctx() -> MagicMock:
     ctx.HTTPException = _FakeHTTPException
     ctx.domain_registry.list_modules_for_domain.return_value = _SAMPLE_MODULES
     ctx.domain_registry.get_runtime_context.return_value = {"module_map": _MODULE_MAP}
-    ctx.domain_registry.resolve_default_for_user.return_value = "education"
+    ctx.domain_registry.resolve_default_for_user.return_value = "business-ops"
 
     ctx.persistence.get_user = MagicMock(
         return_value={"user_id": "student1", "governed_modules": [
-            "domain/edu/general-education/v1",
-            "domain/edu/pre-algebra/v1",
+            "domain/bizops/general-business-ops/v1",
+            "domain/bizops/pre-algebra/v1",
         ]},
     )
     ctx.persistence.load_subject_profile = MagicMock(return_value={
-        "modules": {"domain/edu/pre-algebra/v1": {}, "domain/edu/general-education/v1": {}},
+        "modules": {"domain/bizops/pre-algebra/v1": {}, "domain/bizops/general-business-ops/v1": {}},
     })
     ctx.persistence.save_subject_profile = MagicMock()
     ctx.persistence.append_log_record = MagicMock()
@@ -121,7 +121,7 @@ def _student_user(sub: str = "student1") -> dict[str, Any]:
     return {
         "sub": sub,
         "role": "user",
-        "domain_roles": {"domain/edu/pre-algebra/v1": "student"},
+        "domain_roles": {"domain/bizops/pre-algebra/v1": "student"},
     }
 
 
@@ -191,7 +191,7 @@ class TestDefaultCurrentProblemModuleDomain:
             captured_configs.append(subsystem_configs)
             return {"problem_id": "p2", "expression": "x + 1 = 5"}
 
-        # Original runtime has general-education domain (no tiers)
+        # Original runtime has general-business-ops domain (no tiers)
         runtime = {
             "domain": {"subsystem_configs": {}},
         }
@@ -235,7 +235,7 @@ class TestSwitchModuleUiOverrides:
         )
 
         assert result["status"] == "switched"
-        assert result["module_id"] == "domain/edu/pre-algebra/v1"
+        assert result["module_id"] == "domain/bizops/pre-algebra/v1"
         assert "ui_overrides" in result
         assert result["ui_overrides"]["subtitle"] == "Pre-Algebra"
 
@@ -246,7 +246,7 @@ class TestSwitchModuleUiOverrides:
         result = asyncio.run(
             switch_active_module_handler(
                 "switch_active_module",
-                {"module_id": "general-education"},
+                {"module_id": "general-business-ops"},
                 student, ctx,
             )
         )
@@ -274,11 +274,11 @@ class TestSwitchModuleUiOverrides:
         ctx = _make_ctx()
         ctx.persistence.get_user = MagicMock(
             return_value={"user_id": "student1", "governed_modules": [
-                "domain/edu/algebra-intro/v1",
+                "domain/bizops/algebra-intro/v1",
             ]},
         )
         ctx.persistence.load_subject_profile = MagicMock(return_value={
-            "modules": {"domain/edu/algebra-intro/v1": {}},
+            "modules": {"domain/bizops/algebra-intro/v1": {}},
         })
         student = _student_user()
 
@@ -316,7 +316,7 @@ class TestSwitchModuleRebuildsDomainContext:
             )
         )
 
-        ctx.rebuild_domain_context.assert_called_once_with("student1", "education")
+        ctx.rebuild_domain_context.assert_called_once_with("student1", "business-ops")
 
     def test_rebuild_not_called_when_absent(self) -> None:
         """If ctx has no rebuild_domain_context (older framework),
@@ -354,3 +354,4 @@ class TestSwitchModuleRebuildsDomainContext:
 
         assert result["status"] == "switched"
         ctx.rebuild_domain_context.assert_called_once()
+

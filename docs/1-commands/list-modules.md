@@ -19,13 +19,13 @@ last_updated: 2026-03-20
 
 ```
 POST /api/admin/command
-{ "instruction": "list modules for education" }
+{ "instruction": "list modules for business-ops" }
 ```
 
 Or via the system domain chat interface:
 
 ```
-> list modules for education
+> list modules for business-ops
 ```
 
 ## DESCRIPTION
@@ -45,7 +45,7 @@ or approval.
 
 | Parameter    | Required | Description                              |
 |-------------|----------|------------------------------------------|
-| `domain_id` | Yes      | Domain identifier (e.g. `education`)     |
+| `domain_id` | Yes      | Domain identifier (e.g. `business-ops`)     |
 
 ## RBAC
 
@@ -84,3 +84,4 @@ A `admin` can only list modules for domains they govern.
 ## SEE ALSO
 
 list-domains(1), domain-registry-schema-v1(4), rbac-spec-v1(5)
+

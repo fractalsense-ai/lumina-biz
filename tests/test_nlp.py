@@ -134,13 +134,13 @@ def test_tokenize_no_spacy(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 _DOMAIN_MAP = {
-    "education": {
-        "label": "Education",
+    "business-ops": {
+        "label": "Business Ops",
         "description": "Algebra, math problems, learning",
         "keywords": ["algebra", "equation", "math", "solve", "variable"],
     },
-    "agriculture": {
-        "label": "Agriculture",
+    "business-ops": {
+        "label": "Business Ops",
         "description": "Farming, crop management, irrigation",
         "keywords": ["crop", "irrigation", "harvest", "soil", "fertilizer"],
     },
@@ -161,29 +161,29 @@ def test_classify_domain_returns_none_for_empty_map() -> None:
 def test_classify_domain_keyword_match() -> None:
     result = classify_domain("I'm solving an algebra equation", _DOMAIN_MAP)
     assert result is not None
-    assert result["domain_id"] == "education"
+    assert result["domain_id"] == "business-ops"
     assert result["method"] == "keyword"
     assert 0.0 <= result["confidence"] <= 1.0
 
 
 @pytest.mark.unit
-def test_classify_domain_keyword_match_agriculture() -> None:
+def test_classify_domain_keyword_match_field_ops() -> None:
     result = classify_domain("The crop irrigation needs fertilizer this harvest season", _DOMAIN_MAP)
     assert result is not None
-    assert result["domain_id"] == "agriculture"
+    assert result["domain_id"] == "business-ops"
     assert result["method"] == "keyword"
 
 
 @pytest.mark.unit
 def test_classify_domain_respects_accessible_domains() -> None:
-    # Only agriculture is accessible
+    # Only business-ops is accessible
     result = classify_domain(
         "algebra math solve equation variable",
         _DOMAIN_MAP,
-        accessible_domains=["agriculture"],
+        accessible_domains=["business-ops"],
     )
-    # education keywords won't be considered
-    assert result is None or result["domain_id"] == "agriculture"
+    # business-ops keywords won't be considered
+    assert result is None or result["domain_id"] == "business-ops"
 
 
 @pytest.mark.unit
@@ -202,8 +202,8 @@ def test_classify_domain_no_keyword_match_falls_through() -> None:
 def test_classify_domain_description_fallback() -> None:
     # Use a map with no keywords to force description fallback
     domain_map_no_kw = {
-        "education": {
-            "label": "Education Learning",
+        "business-ops": {
+            "label": "Business Ops Learning",
             "description": "algebra learning math solving equations",
             "keywords": [],
         },
@@ -211,7 +211,7 @@ def test_classify_domain_description_fallback() -> None:
     result = classify_domain("algebra solving equations learning", domain_map_no_kw)
     # Either finds via description or returns None — both are valid.
     # What matters: no exception is raised.
-    assert result is None or result["domain_id"] == "education"
+    assert result is None or result["domain_id"] == "business-ops"
 
 
 @pytest.mark.unit
@@ -237,7 +237,7 @@ def test_classify_domain_confidence_scaled_up() -> None:
     # 3 of 5 keywords: 3/5 * 2 = 1.2 → capped at 1.0
     domain_map = {
         "edu": {
-            "label": "Education",
+            "label": "Business Ops",
             "description": "math topics",
             "keywords": ["algebra", "equation", "solve", "variable", "constant"],
         }
@@ -264,7 +264,7 @@ def test_search_domain_accepts_typed_retrieval_filter(monkeypatch: pytest.Monkey
 
     class _Registry:
         def get(self, domain_id):
-            assert domain_id == "education"
+            assert domain_id == "business-ops"
             return _Store()
 
     class _Embedder:
@@ -276,10 +276,11 @@ def test_search_domain_accepts_typed_retrieval_filter(monkeypatch: pytest.Monkey
 
     assert nlp_mod.search_domain(
         "maintenance decision",
-        "education",
+        "business-ops",
         retrieval_filter=RetrievalFilter(
             organization_id="org-a",
             site_id="site-1",
             institutional_only=True,
         ),
     ) == ["hit"]
+

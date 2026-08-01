@@ -179,7 +179,7 @@ def test_escalation_detail_returns_record(client: TestClient, api_module) -> Non
     fake_record = {
         "record_id": "esc-test-001",
         "trigger": "frustration_repeated",
-        "model_pack_id": "education/pre-algebra",
+        "model_pack_id": "business-ops/pre-algebra",
         "session_id": "s1",
         "status": "pending",
         "timestamp_utc": "2025-01-01T00:00:00Z",
@@ -200,3 +200,4 @@ def test_escalation_detail_rbac_regular_user_denied(client: TestClient, api_modu
     user_token = _register_user(client, username="student2", role="user")
     resp = client.get("/api/escalations/esc-test-001", headers=_auth_header(user_token))
     assert resp.status_code == 403
+

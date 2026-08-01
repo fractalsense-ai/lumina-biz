@@ -31,7 +31,7 @@ def _mock_cfg(users: list[dict[str, Any]] | None = None) -> MagicMock:
     cfg.PERSISTENCE.list_users.return_value = users or []
     cfg.PERSISTENCE.get_log_ledger_path.return_value = "/tmp/ledger.json"
     cfg.PERSISTENCE.append_log_record.return_value = None
-    cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "education"
+    cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "business-ops"
 
     # Include both governance modules and a subject module (algebra-1)
     # so that "student" role_id can be resolved via domain-physics.json.
@@ -40,18 +40,18 @@ def _mock_cfg(users: list[dict[str, Any]] | None = None) -> MagicMock:
         "domain-authority", "teacher", "teaching-assistant", "guardian", "algebra-1",
     ]
     for mod_name in module_names:
-        dp_path = f"model-packs/education/modules/{mod_name}/domain-physics.json"
+        dp_path = f"model-packs/business-ops/modules/{mod_name}/domain-physics.json"
         full = _REPO_ROOT / dp_path
         if full.exists():
             edu_modules.append({
                 "module_id": mod_name,
-                "domain_id": "education",
+                "domain_id": "business-ops",
                 "domain_physics_path": dp_path,
             })
     cfg.DOMAIN_REGISTRY.list_modules_for_domain.return_value = edu_modules
     cfg.DOMAIN_REGISTRY._repo_root = str(_REPO_ROOT)
     cfg.DOMAIN_REGISTRY._domains = {
-        "education": {
+        "business-ops": {
             "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
         },
     }
@@ -90,7 +90,7 @@ _STUDENT2 = _make_user("student2", domain_roles={"algebra-1": "student"})
 _ROOT = _make_user("root1", role="root")
 _ALL_USERS = [_DA, _TEACHER, _TA, _STUDENT, _STUDENT2, _ROOT]
 
-# Users with education domain presence (root has no domain_roles/governed_modules)
+# Users with business-ops domain presence (root has no domain_roles/governed_modules)
 _DOMAIN_USERS = [_DA, _TEACHER, _TA, _STUDENT, _STUDENT2]
 
 
@@ -116,7 +116,7 @@ def _exec_list_users(
     parsed = {
         "operation": "list_users",
         "target": "",
-        "params": params if params is not None else {"domain_id": "education"},
+        "params": params if params is not None else {"domain_id": "business-ops"},
     }
     return asyncio.run(_execute_admin_operation(user_data, parsed, "list users"))
 
@@ -127,7 +127,7 @@ def _exec_list_users(
 
 @pytest.mark.unit
 class TestHierarchyVisibility:
-    """Hierarchy-level filtering for list_users in education domain."""
+    """Hierarchy-level filtering for list_users in business-ops domain."""
 
     def test_student_sees_teacher_and_ta_only(self) -> None:
         cfg = _mock_cfg(_ALL_USERS)
@@ -195,7 +195,7 @@ class TestHierarchyVisibility:
         assert result["count"] >= 4  # at least teacher, TA, student1, student2
 
     def test_root_sees_all_domain_users(self) -> None:
-        """Root sees all users with education domain presence (root user record
+        """Root sees all users with business-ops domain presence (root user record
         itself has no domain_roles, so it's excluded by the domain filter)."""
         cfg = _mock_cfg(_ALL_USERS)
         caller = _caller("root1", "root")
@@ -224,3 +224,4 @@ class TestHierarchyVisibility:
             result = _exec_list_users(caller, params={"role": ""})
         # No domain_id → hierarchy filter doesn't activate → sees all users
         assert result["count"] == len(_ALL_USERS)
+

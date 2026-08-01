@@ -51,7 +51,7 @@ def _resolve_role_layout(
             if domain_id_prefix and domain_id_prefix in key:
                 effective_role = val
                 break
-            # Bare domain ID match (e.g. "education")
+            # Bare domain ID match (e.g. "business-ops")
             parts = domain_id_prefix.split("/")
             if len(parts) >= 2 and key == parts[1]:
                 effective_role = val
