@@ -1829,7 +1829,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-30
-  sha256: e268ae755d427eb3d904dba54b93029838636190c8f2941ed0002602ddb3629e
+  sha256: fca93b3a72dd76888d640a1bdee88222e8656d75cd869b05150d66e12a24030a
 
 - path: model-packs/business-ops/modules/auto-repair/module-config.yaml
   type: config
