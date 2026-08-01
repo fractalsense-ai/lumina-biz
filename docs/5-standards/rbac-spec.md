@@ -22,15 +22,15 @@ Every domain-pack module declares a `permissions` block that gates read, write, 
 Lumina's governance follows the same model as IRC: the **server** (framework) owns the tier ladder; each **channel** (domain pack) owns its own governance declaration. This means:
 
 - The framework defines a fixed, generic tier ladder (`root → super_admin → admin → operator → half_operator → user → guest`). Tier names are **not** organisational job titles.
-- Each domain pack declares its own role aliases in its `runtime-config.yaml` `domain_roles` block. For example, the education pack maps `teacher → admin`, `student → user`.
-- No domain pack role name leaks into another pack or into the framework. A `teacher` in the education pack has no meaning in the agriculture pack.
+- The framework owns canonical tiers and permission evaluation. Domain packs declare domain roles, scoped capabilities, and module access policy for local operations.
+- No domain role name leaks into another pack or into the framework. A role defined in one pack is meaningful only within that pack's scope.
 - Access control on each module is declared via `min_tier:` — a single tier threshold that implicitly allows all tiers at that level and above (more privileged). This is analogous to IRC's channel mode `+m` where the threshold is voiced-or-above.
 
 ---
 
 ## Roles
 
-Lumina defines seven canonical framework tiers. Each tier has a fixed position in the hierarchy. Tier names are generic — domain packs map their own vocabulary onto these tiers.
+Lumina defines seven canonical framework tiers. Each tier has a fixed position in the hierarchy. Tier names are generic and are the source of truth for baseline RBAC checks.
 
 | Tier | ID | Level | JWT Track | Description |
 |------|----|-------|-----------|-------------|
@@ -62,20 +62,34 @@ Tiers do **not** inherit permissions from each other. Each tier has its own defa
 - A user with the `admin` tier inherits read access to modules governed by their Meta Authority chain (upward visibility for context).
 - A user may hold exactly one framework tier at any time. Tier changes require a System Log `CommitmentRecord`.
 
-### Domain Role Aliases
+### Domain Role Declarations
 
-Each domain pack maps its local vocabulary to framework tiers in its `runtime-config.yaml`:
+Each domain pack declares domain roles and capability boundaries in its `runtime-config.yaml` and module physics:
 
 ```yaml
 # model-packs/business-ops/cfg/runtime-config.yaml (excerpt)
 domain_roles:
-  teacher:    admin
-  ta:         half_operator
-  student:    user
-  observer:   guest
+  roles:
+    - role_id: service_manager
+      maps_to_tier: admin
+      default_access: rwx
+      may_assign_domain_roles: true
+      scoped_capabilities:
+        approve_estimates: true
+        assign_work_orders: true
+    - role_id: technician
+      maps_to_tier: operator
+      default_access: rx
+      scoped_capabilities:
+        run_diagnostics: true
+    - role_id: service_writer
+      maps_to_tier: user
+      default_access: x
+      scoped_capabilities:
+        create_intake_notes: true
 ```
 
-The mapping is **one-way**: the pack's `teacher` becomes an `admin` for permission resolution purposes. The word `teacher` never appears in the framework or in any other pack.
+The required governance expression is explicit: declare who can do what in each module via `min_tier`, `permissions.mode`, `permissions.group`, and optional `permissions.acl` / `domain_roles` capability flags.
 
 ---
 
@@ -246,8 +260,8 @@ All authenticated requests carry a JWT in the `Authorization: Bearer <token>` he
   "sub": "<pseudonymous_id>",
   "role": "admin",
   "governed_modules": [
-    "domain/edu/algebra-level-1/v1",
-    "domain/edu/geometry-level-1/v1"
+    "domain/bizops/algebra-level-1/v1",
+    "domain/bizops/geometry-level-1/v1"
   ],
   "iat": 1741500000,
   "exp": 1741503600,
@@ -286,18 +300,18 @@ An `admin`-tier user is scoped to specific modules via the `governed_modules` cl
 - **Read** — on governed modules plus modules governed by their Meta Authority chain (upward context visibility)
 - **Execute** — on governed modules
 
-An admin with `governed_modules: ["domain/edu/algebra-level-1/v1"]` cannot access `domain/edu/biology-level-1/v1` unless that module's ACL explicitly grants access.
+An admin with `governed_modules: ["domain/bizops/algebra-level-1/v1"]` cannot access `domain/bizops/biology-level-1/v1` unless that module's ACL explicitly grants access.
 
 ### Module Isolation Example
 
 ```
-domain/edu/algebra-level-1/v1
+domain/bizops/algebra-level-1/v1
   permissions:
     mode: "750"
     owner: da_algebra_lead_001
     group: admin
 
-domain/edu/biology-level-1/v1
+domain/bizops/biology-level-1/v1
   permissions:
     mode: "750"
     owner: da_biology_lead_001
@@ -343,7 +357,7 @@ When a user's role is changed (e.g., promoted from `user` to `admin`), a `Commit
   "metadata": {
     "previous_role": "user",
     "new_role": "admin",
-    "governed_modules": ["domain/edu/algebra-level-1/v1"]
+    "governed_modules": ["domain/bizops/algebra-level-1/v1"]
   }
 }
 ```
@@ -364,16 +378,16 @@ When a user's role is changed (e.g., promoted from `user` to `admin`), a `Commit
 
 ## Mapping to Governance Hierarchy
 
-The framework tiers map to the existing four-level governance hierarchy. Domain roles (defined in each domain's `domain_roles` block in `runtime-config.yaml`) provide domain-vocabulary labels that map onto these tiers:
+The framework tiers map to the existing four-level governance hierarchy. Domain roles provide local vocabulary and capability flags within that tier model:
 
 | Governance Level | Governance Title | Framework Tier | Domain Role Examples | Notes |
 |-----------------|-----------------|----------------|---------------------|-------|
-| 1 — Macro | School Board / Admin | `root` | — | Institution-wide system administration |
+| 1 — Macro | Executive Governance | `root` | — | Institution-wide system administration |
 | 1b — Platform | Platform Operations | `super_admin` | — | Cross-domain technical operations and user management |
-| 2 — Meso | Department Head | `admin` (Meta Authority scope) | — | Governs multiple modules and subordinate authorities |
-| 3 — Micro | Teacher / Site Manager | `admin` (module scope) | `teacher`, `site_manager` | Governs specific modules; declared per pack |
-| 3b — Support | Teaching Assistant / Field Operator | `half_operator` | `ta`, `field_operator` | Support staff with elevated visibility |
-| 4 — Subject | Student / Observer | `user` | `student`, `observer` | Session participant |
+| 2 — Meso | Domain Owner | `admin` (Meta Authority scope) | — | Governs multiple modules and subordinate authorities |
+| 3 — Micro | Module Authority | `admin` (module scope) | `service_manager`, `site_manager` | Governs specific modules; declared per pack |
+| 3b — Support | Operations Support | `half_operator` | `dispatcher`, `field_operator` | Support staff with elevated visibility |
+| 4 — Subject | Operational User | `user` | `service_writer`, `observer` | Session participant |
 | 4b — Visitor | Guest / Prospective | `guest` | `guest` | Read-only visitor |
 
 ---
@@ -443,8 +457,8 @@ The JWT payload gains an optional `domain_roles` claim:
   "role": "user",
   "governed_modules": [],
   "domain_roles": {
-    "domain/edu/algebra-level-1/v1": "teaching_assistant",
-    "domain/edu/geometry-level-1/v1": "student"
+    "domain/bizops/algebra-level-1/v1": "teaching_assistant",
+    "domain/bizops/diagnostics-bay/v1": "service_writer"
   },
   "iat": 1741500000,
   "exp": 1741503600,
@@ -471,7 +485,7 @@ ACL entries in the `permissions.acl` array can now reference domain roles via a 
 acl:
   - role: operator       # tier entry (existing)
     access: rx
-  - domain_role: teacher  # domain role entry (new)
+  - domain_role: service_manager  # domain role entry (new)
     access: rwx
 ```
 
@@ -486,3 +500,4 @@ Each ACL entry must have exactly one of `role` or `domain_role`, never both.
 - [`framework-tier-defaults.yaml`](../standards/framework-tier-defaults.yaml) — canonical framework tier definitions
 - [`domain-role-schema-v1.json`](../standards/domain-role-schema-v1.json) — JSON schema for domain-scoped role definitions
 - [`lumina-core-v1.md`](../standards/lumina-core-v1.md) — core conformance requirements
+

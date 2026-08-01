@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-07-30
+last_updated: 2026-08-01
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -483,7 +483,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: 1d58e3115c66b567a510ee702fa8421dc35dd1b22ee7f1dc7a3e7a87e561e6bd
+  sha256: 3db62dfe1fcce5e5c1716da4a0cc3586679a09066e8746331d26277bb107568e
 - path: docs/7-concepts/ingestion-pipeline.md
   type: doc
   section: 7
@@ -851,7 +851,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-15
-  sha256: b13f336f83008940b7724ec810f303b8f5613329acd88e9d3c15d2bf96a417c5
+  sha256: 7ccf358c3d3bb0721558df336a2d34707ce87feafc6dfea6a666576e26973673
 - path: docs/8-admin/reports-spec.md
   type: spec
   doc_version: 1.0.0
