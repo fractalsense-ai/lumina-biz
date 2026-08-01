@@ -179,8 +179,8 @@ lumina-os/
 ├── src/lumina/           ← core engine (API, orchestrator, middleware, persistence, system log)
 ├── src/web/              ← Vite + React reference UI
 ├── model-packs/         ← self-contained modeled systems + behavior
-│   ├── education/        ← algebra, world-sim, MUD builder
-│   ├── agriculture/      ← sensor ops, group library reference implementation
+│   ├── business-ops/        ← algebra, world-sim, MUD builder
+│   ├── business-ops/      ← sensor ops, group library reference implementation
 │   └── system/           ← SLM-only routing, no external LLM
 ├── specs/                ← formal specifications (DSA, principles, RBAC)
 ├── standards/            ← JSON schemas and conformance standards
@@ -234,3 +234,4 @@ The engine provides structural accountability (D.S.A. contracts, System Log trac
 ---
 
 *Last updated: 2026-04-16*
+

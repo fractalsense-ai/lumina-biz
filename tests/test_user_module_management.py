@@ -27,7 +27,7 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # ── Load adapters via importlib ───────────────────────────────
-_GOV_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "governance_adapters.py"
+_GOV_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "governance_adapters.py"
 _gov_spec = importlib.util.spec_from_file_location("gov_adapters_umm", str(_GOV_PATH))
 _gov_mod = importlib.util.module_from_spec(_gov_spec)  # type: ignore[arg-type]
 sys.modules["gov_adapters_umm"] = _gov_mod
@@ -57,11 +57,11 @@ def _mock_cfg() -> MagicMock:
     cfg.PERSISTENCE.save_subject_profile.return_value = None
     cfg.PERSISTENCE.get_user_by_username.return_value = None
     cfg.PERSISTENCE.update_user_governed_modules.return_value = {"governed_modules": []}
-    cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "education"
+    cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "business-ops"
     cfg.DOMAIN_REGISTRY.list_modules_for_domain.return_value = [
-        {"module_id": "edu-core", "domain_id": "education"},
+        {"module_id": "edu-core", "domain_id": "business-ops"},
     ]
-    cfg.DOMAIN_REGISTRY.list_domains.return_value = [{"domain_id": "education", "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml"}]
+    cfg.DOMAIN_REGISTRY.list_domains.return_value = [{"domain_id": "business-ops", "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml"}]
     return cfg
 
 
@@ -106,7 +106,7 @@ def _exec(user_data, parsed, instruction="test"):
 
 
 # ─────────────────────────────────────────────────────────────
-# Phase 1: SLM promotion — education adapter
+# Phase 1: SLM promotion — business-ops adapter
 # ─────────────────────────────────────────────────────────────
 
 @pytest.mark.unit
@@ -134,13 +134,13 @@ class TestStudentModulePromotion:
         assert ev["query_type"] == "admin_command"
 
     def test_system_assign_student_no_promote(self) -> None:
-        """System adapter must NOT promote education-specific patterns."""
+        """System adapter must NOT promote business-ops-specific patterns."""
         ev = {"query_type": "general"}
         _sys_maybe_promote(ev, "assign student alice to teacher bob")
         assert ev["query_type"] == "general"
 
     def test_system_remove_module_no_promote(self) -> None:
-        """System adapter must NOT promote education-specific patterns."""
+        """System adapter must NOT promote business-ops-specific patterns."""
         ev = {"query_type": "general"}
         _sys_maybe_promote(ev, "remove module bio-101 from student1")
         assert ev["query_type"] == "general"
@@ -152,7 +152,7 @@ class TestStudentModulePromotion:
 
 
 # ─────────────────────────────────────────────────────────────
-# Phase 2: Deterministic fallback — education adapter
+# Phase 2: Deterministic fallback — business-ops adapter
 # ─────────────────────────────────────────────────────────────
 
 @pytest.mark.unit
@@ -412,3 +412,4 @@ class TestRemoveModuleHandler:
                     {"operation": "remove_module", "target": "s1", "params": {"user_id": "s1", "module_id": "other-domain-mod"}},
                 )
             assert "403" in str(exc_info.value.status_code) or "authorised" in str(exc_info.value.detail).lower()
+

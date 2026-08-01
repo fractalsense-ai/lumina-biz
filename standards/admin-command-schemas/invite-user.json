@@ -55,7 +55,7 @@
         },
         "domain_id": {
           "type": "string",
-          "description": "Target domain identifier (e.g. education, agriculture). Used to auto-resolve governed_modules and pre-assign domain roles."
+          "description": "Target domain identifier (e.g. business-ops, business-ops). Used to auto-resolve governed_modules and pre-assign domain roles."
         },
         "email": {
           "type": "string",
@@ -65,3 +65,4 @@
     }
   }
 }
+

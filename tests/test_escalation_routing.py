@@ -5,7 +5,7 @@ Covers:
 - list_escalations: DA sees all governed escalations regardless of target
 - resolve_escalation: teacher cannot resolve another teacher's escalation
 - resolve_escalation: teacher can resolve unassigned escalations
-- education_escalation_context: returns assigned_teacher_id and assigned_room_id
+- escalation context hook: returns assigned_teacher_id and assigned_room_id
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import pytest
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # ── Load escalation_handlers via importlib ────────────────────
-_ESC_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "escalation_handlers.py"
+_ESC_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "escalation_handlers.py"
 _esc_spec = importlib.util.spec_from_file_location("edu_esc_handlers", str(_ESC_PATH))
 _esc_mod = importlib.util.module_from_spec(_esc_spec)  # type: ignore[arg-type]
 sys.modules["edu_esc_handlers"] = _esc_mod
@@ -33,19 +33,26 @@ _esc_spec.loader.exec_module(_esc_mod)  # type: ignore[union-attr]
 list_escalations = _esc_mod.list_escalations
 resolve_escalation = _esc_mod.resolve_escalation
 
-# ── Load education_escalation_context ─────────────────────────
-_CTX_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "education_escalation_context.py"
+# ── Load escalation context hook ─────────────────────────────
+_CTX_PATH = next(
+    p
+    for p in (_REPO_ROOT / "model-packs" / "business-ops" / "controllers").glob("*_escalation_context.py")
+)
 _ctx_spec = importlib.util.spec_from_file_location("edu_esc_ctx", str(_CTX_PATH))
 _ctx_mod = importlib.util.module_from_spec(_ctx_spec)  # type: ignore[arg-type]
 sys.modules["edu_esc_ctx"] = _ctx_mod
 _ctx_spec.loader.exec_module(_ctx_mod)  # type: ignore[union-attr]
 
-education_escalation_context = _ctx_mod.education_escalation_context
+escalation_context_fn = next(
+    getattr(_ctx_mod, name)
+    for name in dir(_ctx_mod)
+    if name.endswith("_escalation_context") and callable(getattr(_ctx_mod, name))
+)
 
 
 # ── Test helpers ──────────────────────────────────────────────
 
-_MODULE_ID = "domain/edu/algebra-level-1/v1"
+_MODULE_ID = "domain/bizops/algebra-level-1/v1"
 
 
 def _make_physics_file(role_id: str = "teacher", receive_escalations: bool = True) -> str:
@@ -71,7 +78,7 @@ def _make_physics_file(role_id: str = "teacher", receive_escalations: bool = Tru
 def _mock_registry(physics_path: str) -> MagicMock:
     reg = MagicMock()
     reg.list_domains.return_value = [
-        {"domain_id": "education"},
+        {"domain_id": "business-ops"},
     ]
     reg.list_modules_for_domain.return_value = [
         {
@@ -220,7 +227,7 @@ class TestListEscalationsDAScope:
         assert len(result) == 3
 
     def test_da_filtered_by_governed_modules(self) -> None:
-        other_module = "domain/edu/other/v1"
+        other_module = "domain/bizops/other/v1"
         esc = [
             _esc_record("e1", target_id="teacher1", model_pack_id=_MODULE_ID),
             _esc_record("e2", target_id="teacher1", model_pack_id=other_module),
@@ -315,13 +322,13 @@ class TestResolveEscalationTeacherScope:
 
 
 # ═════════════════════════════════════════════════════════════
-# Phase 3: education_escalation_context enrichment
+# Phase 3: escalation context enrichment
 # ═════════════════════════════════════════════════════════════
 
 
 @pytest.mark.unit
 class TestEscalationContextEnrichment:
-    """education_escalation_context returns routing fields from profile."""
+    """Escalation context hook returns routing fields from profile."""
 
     def test_returns_assigned_teacher_id(self) -> None:
         writer = MagicMock()
@@ -333,7 +340,7 @@ class TestEscalationContextEnrichment:
         orch = MagicMock()
         orch._writer = writer
 
-        ctx = education_escalation_context(orchestrator=orch, domain_id="education")
+        ctx = escalation_context_fn(orchestrator=orch, domain_id="business-ops")
         assert ctx["actor_pseudonym"] == "student1"
         assert ctx["assigned_teacher_id"] == "teacher1"
         assert ctx["assigned_room_id"] == "room-42"
@@ -344,15 +351,16 @@ class TestEscalationContextEnrichment:
         orch = MagicMock()
         orch._writer = writer
 
-        ctx = education_escalation_context(orchestrator=orch, domain_id="education")
+        ctx = escalation_context_fn(orchestrator=orch, domain_id="business-ops")
         assert ctx["assigned_teacher_id"] == ""
         assert ctx["assigned_room_id"] == ""
 
     def test_returns_defaults_without_writer(self) -> None:
         orch = MagicMock(spec=[])  # no _writer attribute
 
-        ctx = education_escalation_context(orchestrator=orch, domain_id="education")
+        ctx = escalation_context_fn(orchestrator=orch, domain_id="business-ops")
         assert ctx["actor_pseudonym"] == ""
         assert ctx["assigned_teacher_id"] == ""
         assert ctx["assigned_room_id"] == ""
-        assert ctx["domain_id"] == "education"
+        assert ctx["domain_id"] == "business-ops"
+

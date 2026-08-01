@@ -101,7 +101,7 @@ class TestRhythmFFTDaemonTask:
     def test_no_profiles_returns_clean_skip(self):
         task = get_task("rhythm_fft_analysis")
         persistence = _MockPersistence({}, [])
-        result = task("education", {}, persistence=persistence)
+        result = task("business-ops", {}, persistence=persistence)
         assert result.success
         assert result.proposals == []
         assert result.metadata.get("no_profiles") is True
@@ -109,9 +109,9 @@ class TestRhythmFFTDaemonTask:
     def test_chronic_downward_drift_emits_proposal(self):
         task = get_task("rhythm_fft_analysis")
 
-        # One actor in the education domain with a mature spectral history
+        # One actor in the business-ops domain with a mature spectral history
         actor = "student_alpha"
-        domain_key = "education"
+        domain_key = "business-ops"
         profile = {
             "subject_id": actor,
             "learning_state": {
@@ -152,7 +152,7 @@ class TestRhythmFFTDaemonTask:
             },
         }
 
-        result = task("education", physics, persistence=persistence)
+        result = task("business-ops", physics, persistence=persistence)
 
         assert result.success, f"task failed: {result.error}"
         assert result.metadata["profiles_analyzed"] == 1
@@ -173,7 +173,7 @@ class TestRhythmFFTDaemonTask:
     def test_history_is_persisted_back_to_profile(self):
         task = get_task("rhythm_fft_analysis")
         actor = "student_beta"
-        domain_key = "education"
+        domain_key = "business-ops"
         profile = {
             "subject_id": actor,
             "learning_state": {"signal_baselines": {}},
@@ -189,7 +189,7 @@ class TestRhythmFFTDaemonTask:
             records.append(_make_trace(actor, ts, v))
 
         persistence = _MockPersistence(profiles, records)
-        result = task("education", {}, persistence=persistence)
+        result = task("business-ops", {}, persistence=persistence)
 
         assert result.success
         # Inspect the saved profile for spectral_history under valence axis
@@ -251,15 +251,15 @@ class TestSpectralAdvisoryPersistence:
     def test_proposal_writes_spectral_advisory(self):
         task = get_task("rhythm_fft_analysis")
         actor = "student_g51"
-        profiles = {actor: {"education": _drift_profile(actor)}}
+        profiles = {actor: {"business-ops": _drift_profile(actor)}}
         persistence = _MockPersistence(profiles, _drift_records(actor))
 
-        result = task("education", _PHYSICS_DRIFT, persistence=persistence)
+        result = task("business-ops", _PHYSICS_DRIFT, persistence=persistence)
         assert result.success
         chronic = [p for p in result.proposals if p.proposal_type == "chronic_spectral_drift"]
         assert chronic
 
-        saved = persistence.load_profile(actor, "education")
+        saved = persistence.load_profile(actor, "business-ops")
         advisories = saved["learning_state"].get("spectral_advisories")
         assert isinstance(advisories, list) and advisories, (
             "expected at least one advisory written alongside the Proposal"
@@ -275,11 +275,11 @@ class TestSpectralAdvisoryPersistence:
     def test_advisory_ttl_is_24_hours(self):
         task = get_task("rhythm_fft_analysis")
         actor = "student_g51_ttl"
-        profiles = {actor: {"education": _drift_profile(actor)}}
+        profiles = {actor: {"business-ops": _drift_profile(actor)}}
         persistence = _MockPersistence(profiles, _drift_records(actor))
 
-        task("education", _PHYSICS_DRIFT, persistence=persistence)
-        adv = persistence.load_profile(actor, "education")[
+        task("business-ops", _PHYSICS_DRIFT, persistence=persistence)
+        adv = persistence.load_profile(actor, "business-ops")[
             "learning_state"]["spectral_advisories"][0]
 
         created = datetime.fromisoformat(adv["created_utc"])
@@ -293,18 +293,18 @@ class TestSpectralAdvisoryPersistence:
         rather than accumulate advisories."""
         task = get_task("rhythm_fft_analysis")
         actor = "student_g51_replace"
-        profiles = {actor: {"education": _drift_profile(actor)}}
+        profiles = {actor: {"business-ops": _drift_profile(actor)}}
         persistence = _MockPersistence(profiles, _drift_records(actor))
 
-        task("education", _PHYSICS_DRIFT, persistence=persistence)
-        first = persistence.load_profile(actor, "education")[
+        task("business-ops", _PHYSICS_DRIFT, persistence=persistence)
+        first = persistence.load_profile(actor, "business-ops")[
             "learning_state"]["spectral_advisories"]
         assert len(first) >= 1
         first_id = first[0]["advisory_id"]
 
         # Run again — same drift fixtures, same (axis, band) finding.
-        task("education", _PHYSICS_DRIFT, persistence=persistence)
-        second = persistence.load_profile(actor, "education")[
+        task("business-ops", _PHYSICS_DRIFT, persistence=persistence)
+        second = persistence.load_profile(actor, "business-ops")[
             "learning_state"]["spectral_advisories"]
 
         same_band = [
@@ -317,4 +317,5 @@ class TestSpectralAdvisoryPersistence:
         )
         # Replacement => new advisory_id.
         assert same_band[0]["advisory_id"] != first_id
+
 

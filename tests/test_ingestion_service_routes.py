@@ -177,11 +177,11 @@ class TestIngestExtract:
     @pytest.mark.unit
     def test_returns_interpretations_on_success(self) -> None:
         svc = MagicMock()
-        svc.get_record.return_value = {"ingestion_id": "doc-1", "domain_id": "education"}
+        svc.get_record.return_value = {"ingestion_id": "doc-1", "domain_id": "business-ops"}
         svc.extract_interpretations.return_value = [{"id": "i1"}, {"id": "i2"}]
 
         fake_registry = MagicMock()
-        fake_registry.resolve_domain_id.return_value = "education"
+        fake_registry.resolve_domain_id.return_value = "business-ops"
         fake_registry.get_runtime_context.return_value = {"domain_physics_path": "/fake/path"}
 
         with (
@@ -211,7 +211,7 @@ class TestIngestReview:
 
     def _fake_svc(self, record: dict | None = None) -> MagicMock:
         svc = MagicMock()
-        svc.get_record.return_value = record or {"ingestion_id": "doc-1", "domain_id": "education"}
+        svc.get_record.return_value = record or {"ingestion_id": "doc-1", "domain_id": "business-ops"}
         svc.review_interpretation.return_value = {"status": "approved"}
         return svc
 
@@ -288,7 +288,7 @@ class TestIngestCommit:
 
     def _fake_svc(self, record: dict | None = None, commit_result: dict | None = None) -> MagicMock:
         svc = MagicMock()
-        svc.get_record.return_value = record or {"ingestion_id": "doc-1", "domain_id": "education"}
+        svc.get_record.return_value = record or {"ingestion_id": "doc-1", "domain_id": "business-ops"}
 
         def _commit(ingestion_id, actor_id):
             notify_log_commit()  # satisfy @requires_log_commit guard
@@ -319,7 +319,7 @@ class TestIngestCommit:
     @pytest.mark.unit
     def test_admin_not_governing_raises_403(self) -> None:
         svc = MagicMock()
-        svc.get_record.return_value = {"ingestion_id": "doc-1", "domain_id": "education"}
+        svc.get_record.return_value = {"ingestion_id": "doc-1", "domain_id": "business-ops"}
         with (
             _patch_ingest_auth(_user("admin")),
             patch("lumina.services.ingestion.routes._get_ingest_service", return_value=svc),
@@ -351,8 +351,8 @@ class TestListIngestions:
     @pytest.mark.unit
     def test_root_returns_all_records(self) -> None:
         records = [
-            {"ingestion_id": "a", "domain_id": "education"},
-            {"ingestion_id": "b", "domain_id": "agriculture"},
+            {"ingestion_id": "a", "domain_id": "business-ops"},
+            {"ingestion_id": "b", "domain_id": "business-ops"},
         ]
         svc = MagicMock()
         svc.list_records.return_value = records
@@ -366,18 +366,18 @@ class TestListIngestions:
     @pytest.mark.unit
     def test_admin_filtered_to_governed_domains(self) -> None:
         records = [
-            {"ingestion_id": "a", "domain_id": "education"},
-            {"ingestion_id": "b", "domain_id": "agriculture"},
+            {"ingestion_id": "a", "domain_id": "business-ops"},
+            {"ingestion_id": "b", "domain_id": "business-ops"},
         ]
         svc = MagicMock()
         svc.list_records.return_value = records
         with (
-            _patch_ingest_auth(_user("admin", governed=["education"])),
+            _patch_ingest_auth(_user("admin", governed=["business-ops"])),
             patch("lumina.services.ingestion.routes._get_ingest_service", return_value=svc),
         ):
             result = _run(list_ingestions(credentials=_fake_creds()))
         assert len(result) == 1
-        assert result[0]["domain_id"] == "education"
+        assert result[0]["domain_id"] == "business-ops"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -557,3 +557,4 @@ class TestCreateStagedFile:
                 )
             )
         assert result["staged_id"] == "stg-new"
+

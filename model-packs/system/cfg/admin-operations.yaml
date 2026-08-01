@@ -37,7 +37,7 @@ operations:
     params:
       user_id: "string — target user identifier"
       new_role: "string — one of: root, admin, super_admin, operator, half_operator, user"
-      governed_modules: "array of strings — domain module IDs required when new_role is admin (e.g. ['domain/edu/algebra-level-1/v1']). Omit for other roles."
+      governed_modules: "array of strings — domain module IDs required when new_role is admin (e.g. ['domain/bizops/algebra-level-1/v1']). Omit for other roles."
 
   - name: deactivate_user
     description: "Deactivate a user account (revokes all access)."
@@ -48,7 +48,7 @@ operations:
     description: "Grant a user access to a domain module by assigning a domain role."
     params:
       user_id: "string — target user identifier"
-      module_id: "string — domain module identifier (e.g. education/algebra-level-1)"
+      module_id: "string — domain module identifier (e.g. business-ops/algebra-level-1)"
       domain_role: "string — domain role to assign"
 
   - name: revoke_domain_role
@@ -132,7 +132,7 @@ operations:
       username: "string — the new user's display name"
       role: "string — system role: root, admin, super_admin, operator, half_operator, user, guest"
       intended_domain_role: "string — domain-specific role name such as student, teacher, field_operator (optional, advisory field preserved for downstream domain-role assignment)"
-      domain_id: "string — target domain identifier (e.g. education, agriculture). Used to auto-resolve governed_modules and pre-assign domain roles. Set when the user mentions a domain."
+      domain_id: "string — target domain identifier (e.g. business-ops, business-ops). Used to auto-resolve governed_modules and pre-assign domain roles. Set when the user mentions a domain."
       email: "string — email address (optional)"
       governed_modules: "array of strings — domain module IDs, required when role is admin. Omit for other roles."
 
@@ -184,3 +184,4 @@ operations:
       domain_id: "string — target domain identifier"
       module_id: "string — module to request assignment to"
       reason: "string — brief reason for the assignment request (optional)"
+

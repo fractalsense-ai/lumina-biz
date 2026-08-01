@@ -86,7 +86,7 @@ pip install -e ".[providers]"
 # With SQLite persistence backend
 pip install -e ".[sqlite]"
 
-# With symbolic math engine (education domain algebra tools)
+# With symbolic math engine (business-ops domain algebra tools)
 pip install -e ".[math]"
 
 # With semantic retrieval (MiniLM embeddings for RAG grounding)
@@ -109,7 +109,7 @@ uv pip install -e ".[nlp,providers,sqlite,math,retrieval,passwords]"
 | `nlp` | `spacy>=3.7.0` | Glossary-term detection in turn data — **create your venv with `py -3.13` or `py -3.12`** (spaCy is not yet compatible with Python 3.14+) |
 | `providers` | `openai`, `anthropic` | Live LLM mode |
 | `sqlite` | `sqlalchemy[asyncio]`, `aiosqlite` | SQLite persistence backend |
-| `math` | `sympy>=1.12` | Education domain algebra tool adapters (symbolic verification, equation parsing) |
+| `math` | `sympy>=1.12` | Business Ops domain algebra tool adapters (symbolic verification, equation parsing) |
 | `retrieval` | `sentence-transformers>=3.0.0`, `numpy>=1.26.0` | MiniLM semantic embeddings for RAG grounding and domain-pack doc retrieval (HuggingFace provider). Not needed when using the default Ollama embedding provider — see Embedding setup below |
 | `passwords` | `bcrypt>=4.0.0`, `argon2-cffi>=23.1.0` | Production-grade password hashing (Argon2id/bcrypt); falls back to SHA-256 without these |
 | `dev` | `pytest`, `pytest-cov`, `jsonschema`, plus `sqlite` and `passwords` extras | Running the test suite |
@@ -588,3 +588,4 @@ Intended for CI and pre-merge local validation.
     -PythonExe "C:\Python312\python.exe" `
     -ApiBaseUrl "http://127.0.0.1:9000"
 ```
+

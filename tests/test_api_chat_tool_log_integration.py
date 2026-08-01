@@ -159,7 +159,7 @@ def test_chat_glossary_lookup_returns_definition(client: TestClient, api_module)
 
     def _load_with_domain(path: str) -> dict:
         data = _original_load(path)
-        data["domain_id"] = "domain/edu/pre-algebra/v1"
+        data["domain_id"] = "domain/bizops/pre-algebra/v1"
         return data
 
     api_module.PERSISTENCE.load_subject_profile = _load_with_domain
@@ -201,3 +201,4 @@ def test_chat_glossary_no_match_falls_through(client: TestClient) -> None:
     body = resp.json()
     # Should NOT be definition_lookup — unknown term falls through to normal flow
     assert body["prompt_type"] != "definition_lookup"
+

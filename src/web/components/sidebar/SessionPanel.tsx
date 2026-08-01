@@ -99,7 +99,7 @@ export function SessionPanel({
                     {s.turnCount} turn{s.turnCount !== 1 ? 's' : ''} · {timeAgo(s.updatedAt)}
                   </p>
                 </div>
-                {s.moduleId && s.moduleId !== 'domain/edu/general-education/v1' ? (
+                {s.moduleId && s.moduleId !== 'domain/bizops/auto-repair/v1' ? (
                   <span
                     role="img"
                     aria-label={learningModuleLockLabel}

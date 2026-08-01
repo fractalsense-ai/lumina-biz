@@ -17,7 +17,7 @@ This document defines how Project Lumina detects, verifies, and records novel sy
 
 ## A. What Is Novel Synthesis?
 
-A **novel synthesis** occurs when the LLM produces a response that the domain's evidence extractors cannot classify using existing rules. In an algebra domain this might be an unrecognized solution method; in an agriculture domain it might be a novel pest-management correlation.
+A **novel synthesis** occurs when the LLM produces a response that the domain's evidence extractors cannot classify using existing rules. In an algebra domain this might be an unrecognized solution method; in an business-ops domain it might be a novel pest-management correlation.
 
 The core problem: LLMs generate enormous volumes of output. Most of it matches known patterns and can be handled deterministically. The rare signal — a genuinely new and useful connection — is buried in noise. Without a structured framework, innovations go unrecorded and the system cannot distinguish between a model that parrots known answers and one that generates genuine insight.
 
@@ -184,7 +184,7 @@ Novel synthesis metadata enables three forms of model intelligence:
 By aggregating `novel_synthesis_signal` events grouped by `model_id` x `model_pack_id`, the system builds a performance matrix:
 
 ```
-                    Education    Agriculture    Lab-Science
+                    Business Ops    Business Ops    Lab-Science
 claude-sonnet-4       ██████       ███            █████████
 gpt-5                 ████         ████████       ██████
 gemini-2-ultra        ████████     █████          ████
@@ -374,3 +374,4 @@ LLM dispatch
 - [`trace-event-schema`](../../ledger/trace-event-schema.json) — TraceEvent schema with `novel_synthesis_flagged` event type and `model_id`/`model_version` metadata keys
 - [`commitment-record-schema`](../../ledger/commitment-record-schema.json) — CommitmentRecord with `novel_synthesis_verified` / `novel_synthesis_rejected` types
 - [`escalation-record-schema`](../../ledger/escalation-record-schema.json) — EscalationRecord with `novel_synthesis_review` trigger type
+

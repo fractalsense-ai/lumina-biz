@@ -48,7 +48,7 @@ Scoped tokens include a `token_scope` claim:
 {
   "sub": "da-algebra-001",
   "role": "admin",
-  "governed_modules": ["domain/edu/algebra-level-1/v1"],
+  "governed_modules": ["domain/bizops/algebra-level-1/v1"],
   "iat": 1718438400,
   "exp": 1718442000,
   "iss": "lumina-domain",
@@ -153,3 +153,4 @@ When `verify_scoped_jwt()` receives a token:
 - `src/lumina/api/routes/admin_auth.py` — Admin login/refresh/me endpoints
 - `src/lumina/api/routes/auth.py` — Existing user auth endpoints (unchanged)
 - `src/lumina/api/middleware.py` — Legacy middleware (unchanged, backward compat)
+

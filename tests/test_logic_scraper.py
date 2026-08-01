@@ -293,11 +293,11 @@ class TestLogicScraper:
             domain_physics=physics,
             config={"max_iterations": 3},
         )
-        result = scraper.scrape("test", domain_id="education")
+        result = scraper.scrape("test", domain_id="business-ops")
         # Each unique flagged item should have a proposal
         assert len(result.proposals) == result.trace_verification["unique_count"]
         for p in result.proposals:
-            assert p.domain_id == "education"
+            assert p.domain_id == "business-ops"
             assert p.proposal_type == "novel_synthesis_candidate"
 
     def test_no_signal_invariants_no_flags(self):
@@ -376,3 +376,4 @@ class TestLogicScrapeResultSerialisation:
         d = result.to_dict()
         assert len(d["proposals"]) == 1
         assert d["proposals"][0]["task"] == "logic_scraping"
+

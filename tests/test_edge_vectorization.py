@@ -72,8 +72,8 @@ def fake_repo(tmp_path: Path) -> Path:
 
     # Domain pack: edu
     _write_md(repo / "model-packs" / "edu" / "docs" / "overview.md", """\
-        # Education Overview
-        This domain handles educational content.
+        # Business Ops Overview
+        This domain handles procedural operations content.
     """)
     (repo / "model-packs" / "edu" / "cfg").mkdir(parents=True, exist_ok=True)
 
@@ -86,7 +86,7 @@ def fake_repo(tmp_path: Path) -> Path:
     _write_physics(
         repo / "model-packs" / "agri" / "modules" / "ops-1" / "domain-physics.json",
         {
-            "domain_id": "agriculture/ops-1",
+            "domain_id": "business-ops/ops-1",
             "group_libraries": [
                 {
                     "id": "environmental_sensors",
@@ -279,3 +279,4 @@ class TestRebuildGroupLibraryDependents:
             assert key in summary
         assert summary["mode"] == "group_library_cascade"
         assert summary["library_id"] == "environmental_sensors"
+

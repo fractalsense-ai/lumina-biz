@@ -396,7 +396,7 @@ class TestRealSchemaValidation:
 
     def test_module_status_valid(self, real_schemas: int):
         approved, violations = validate_command(
-            "module_status", {"domain_id": "education"}
+            "module_status", {"domain_id": "business-ops"}
         )
         assert approved is True, violations
 
@@ -412,7 +412,7 @@ class TestRealSchemaValidation:
 
     def test_commit_domain_physics_valid(self, real_schemas: int):
         approved, violations = validate_command(
-            "commit_domain_physics", {"domain_id": "agriculture"}
+            "commit_domain_physics", {"domain_id": "business-ops"}
         )
         assert approved is True, violations
 
@@ -489,3 +489,4 @@ class TestValidateObjectHelper:
         violations: list[str] = []
         _validate_object({"inner": {}}, schema, "root", violations)
         assert any("x" in v and "required" in v for v in violations)
+

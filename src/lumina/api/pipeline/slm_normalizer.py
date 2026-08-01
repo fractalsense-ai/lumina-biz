@@ -94,11 +94,15 @@ def _normalize_slm_command(parsed_command: dict[str, Any], original_instruction:
             if not params.get("username") and target:
                 params["username"] = target
 
-        # ── new_role / role normalisation: "Domain Authority" → "admin" ──
+        # ── new_role / role normalisation: normalize spacing/case only ──
         role_key = "new_role" if operation == "update_user_role" else "role"
         raw_role = params.get(role_key, "")
         if raw_role and not re.fullmatch(r"[a-z_]+", raw_role):
             params[role_key] = re.sub(r"[\s-]+", "_", raw_role.strip()).lower()
+        normalized_input_role = params.get(role_key, "")
+        invalid_role_requested = bool(
+            normalized_input_role and normalized_input_role not in VALID_ROLES
+        )
 
         cmd["params"] = params
 
@@ -131,6 +135,12 @@ def _normalize_slm_command(parsed_command: dict[str, Any], original_instruction:
             except Exception:
                 log.debug("Domain SLM normalizer failed", exc_info=True)
         params = cmd.get("params") or {}
+
+        # Strict ingestion policy: keep invalid framework role tokens intact
+        # so schema validation can reject them instead of auto-coercing.
+        if invalid_role_requested:
+            params[role_key] = normalized_input_role
+            params.pop("intended_domain_role", None)
 
         if operation == "invite_user":
             # ── Infer domain_id from target or instruction context ──
@@ -170,7 +180,7 @@ def _normalize_slm_command(parsed_command: dict[str, Any], original_instruction:
             _domain_hint = cmd.get("target", "") or params.get("domain_id", "")
             try:
                 if _domain_hint and _cfg.DOMAIN_REGISTRY is not None:
-                    # Resolve prefixes (e.g. "edu" → "education") before lookup
+                    # Resolve prefixes (e.g. "biz" → "business-ops") before lookup
                     _domain_hint = _cfg.DOMAIN_REGISTRY._prefix_to_domain.get(_domain_hint, _domain_hint)
                     _resolved_domain = _cfg.DOMAIN_REGISTRY.resolve_domain_id(_domain_hint)
                     _mod_list = _cfg.DOMAIN_REGISTRY.list_modules_for_domain(_resolved_domain)
@@ -181,7 +191,7 @@ def _normalize_slm_command(parsed_command: dict[str, Any], original_instruction:
                 # will catch it downstream
                 pass
 
-        # ── Expand wildcard patterns: "domain/edu/*" → actual module IDs ──
+        # ── Expand wildcard patterns: "domain/biz/*" → actual module IDs ──
         gm_list = params.get("governed_modules")
         if isinstance(gm_list, list) and _cfg.DOMAIN_REGISTRY is not None:
             expanded: list[str] = []
@@ -193,7 +203,7 @@ def _normalize_slm_command(parsed_command: dict[str, Any], original_instruction:
                     if not _hint:
                         _hint = _parts[-2] if len(_parts) > 1 else ""
                     try:
-                        # Resolve prefixes (e.g. "edu" → "education") before lookup
+                        # Resolve prefixes (e.g. "biz" → "business-ops") before lookup
                         _hint = _cfg.DOMAIN_REGISTRY._prefix_to_domain.get(_hint, _hint)
                         _resolved = _cfg.DOMAIN_REGISTRY.resolve_domain_id(_hint)
                         _mods = _cfg.DOMAIN_REGISTRY.list_modules_for_domain(_resolved)

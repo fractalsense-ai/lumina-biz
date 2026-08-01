@@ -121,8 +121,8 @@ responsible:
 
 | Domain | Deterministic tool |
 |--------|--------------------|
-| `education/*` | `adapter/edu/algebra-checker/v1` |
-| `agriculture/operations-level-1` | `adapter/agri/collar-sensor/v1` |
+| `business-ops/*` | `adapter/edu/algebra-checker/v1` |
+| `business-ops/operations-level-1` | `adapter/agri/collar-sensor/v1` |
 | `system/*` | system admin command schema validator |
 
 A deterministic tool returns a binary pass/fail verdict and a structured
@@ -203,3 +203,4 @@ intent. This is the same TM/SOP separation that governs all domain pack componen
 - [`src/lumina/api/structured_content.py`](../../src/lumina/api/structured_content.py) — `build_command_list_card()` — groups commands by HITL-exempt status into Immediate / Staged sections
 - [`src/lumina/api/processing.py`](../../src/lumina/api/processing.py) — `list_commands` → `command_list` card wiring in the turn-processing pipeline
 - [`standards/action-card-schema-v1.json`](../../standards/action-card-schema-v1.json) — action card schema including `command_list` card type
+

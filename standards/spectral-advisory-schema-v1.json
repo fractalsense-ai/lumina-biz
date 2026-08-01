@@ -4,7 +4,7 @@
   "schema_version": "1.0.0",
   "last_updated": "2026-04-25",
   "title": "SpectralAdvisory",
-  "description": "Schema for a single spectral advisory entry persisted on an actor profile under learning_state.spectral_advisories. Produced by the rhythm_fft_analysis daemon task in lumina.signals.advisories.upsert_spectral_advisory and consumed by per-domain advisory consumers (education journal_adapters, future agriculture/equipment dashboards). The entry is keyed for dedup purposes by the (signal, band) tuple; a new finding for the same key replaces any existing entry.",
+  "description": "Schema for a single spectral advisory entry persisted on an actor profile under learning_state.spectral_advisories. Produced by the rhythm_fft_analysis daemon task in lumina.signals.advisories.upsert_spectral_advisory and consumed by per-domain advisory consumers (business-ops journal_adapters, future business-ops/equipment dashboards). The entry is keyed for dedup purposes by the (signal, band) tuple; a new finding for the same key replaces any existing entry.",
   "type": "object",
   "required": [
     "advisory_id",
@@ -58,3 +58,4 @@
     }
   }
 }
+

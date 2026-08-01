@@ -55,7 +55,7 @@ class ScopedPersistenceAdapter:
     inner:
         The underlying ``PersistenceAdapter`` (filesystem or sqlite).
     domain_id:
-        The domain this adapter is scoped to (e.g. ``"education"``).
+        The domain this adapter is scoped to (e.g. ``"business-ops"``).
     module_id:
         Optional module ID for module-tier scoping.
     """
@@ -162,8 +162,8 @@ class ScopedPersistenceAdapter:
         """Return True if the identifier belongs to this domain.
 
         Accepts:
-        - The domain_id itself (``"education"``)
-        - Hierarchical IDs prefixed with the domain_id (``"education/algebra-v1"``)
+        - The domain_id itself (``"business-ops"``)
+        - Hierarchical IDs prefixed with the domain_id (``"business-ops/auto-repair-v1"``)
         - Simple names without ``/`` (implicitly belong to the current domain)
 
         Rejects hierarchical IDs that start with a *different* domain prefix.

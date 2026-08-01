@@ -23,7 +23,7 @@ is the domain's law rather than its executor.
 
 A domain pack is the **D pillar** of the D.S.A. Framework (Domain, State, Actor). It is a
 self-contained unit of domain knowledge, behavioural constraints, and processing tools that
-brings a specific subject area — education, agriculture, industrial operations, system
+brings a specific subject area — business-ops, business-ops, industrial operations, system
 administration — into the Lumina engine as a bounded authority.
 
 The word *bounded* is deliberate. A domain pack does not integrate loosely with the engine;
@@ -152,20 +152,20 @@ Use these as starting values. Override if your analysis disagrees.
 ### Each domain owns its own gate
 
 The NLP pre-interpreter is intentionally per-domain, not shared. The signals meaningful in
-an algebra education session (answer correctness, frustration markers, hint requests,
+an algebra business-ops session (answer correctness, frustration markers, hint requests,
 off-task ratio) are entirely different from those meaningful in a system administration
 session (mutation vs read intent, target user, target role, compound command detection).
 There is no universal pre-interpreter, and there should not be one.
 
 This design ensures that domain boundary violations are structurally impossible at the NLP
 layer: a student message cannot accidentally activate system administration signal
-extraction, because the pre-interpreter loaded at session start is the education domain's —
+extraction, because the pre-interpreter loaded at session start is the business-ops domain's —
 registered in `cfg/runtime-config.yaml` as the `nlp_pre_interpreter` adapter for that
 session's domain.
 
 For the full two-tier architecture (system-level domain classification → domain NLP
 pre-interpreter), see [`nlp-semantic-router(7)`](nlp-semantic-router.md). For the Phase A
-implementation contract, anchor injection format, and extractor reference for the education
+implementation contract, anchor injection format, and extractor reference for the business-ops
 domain, see [`domain-adapter-pattern(7)`](domain-adapter-pattern.md) §D.
 
 ---
@@ -200,7 +200,7 @@ condition, bounded by explicit parameters. It is a permission with constraints, 
 execution script. The orchestrator evaluates whether the standing order applies to the
 current turn before acting.
 
-**Education domain example:**
+**Business Ops domain example:**
 
 ```yaml
 id: reduce_challenge_on_exhaustion
@@ -302,7 +302,7 @@ At no point does the engine inspect the intermediate stages. Domain-specific fie
 travel through the channel but never cross the domain boundary into engine code.
 
 For the engine contract field reference, types, defaults, and worked examples across
-education and hypothetical scientific domains, see [`domain-adapter-pattern(7)`](domain-adapter-pattern.md) §B.
+business-ops and hypothetical scientific domains, see [`domain-adapter-pattern(7)`](domain-adapter-pattern.md) §B.
 
 ---
 
@@ -311,7 +311,7 @@ education and hypothetical scientific domains, see [`domain-adapter-pattern(7)`]
 The domain pack pattern is universal. What varies between packs is content, not structure.
 The three currently active domain packs illustrate this:
 
-| Dimension | `education` | `system` | `agriculture` |
+| Dimension | `business-ops` | `system` | `business-ops` |
 |---|---|---|---|
 | **Pre-interpreter extractors** | answer_match, frustration_markers, hint_request, off_task_ratio | admin_verb (mutation/read), target_user, target_role, compound_command, glossary_match | soil sensor thresholds, pest signal keywords, moisture anomaly detection |
 | **Physics invariant type** | Pedagogical (max_consecutive_incorrect, zpd_drift_limit, session_fatigue) | Operational security (privilege escalation gates, unauthorised access paths) | Environmental (moisture_low, pest_pressure_critical, yield_at_risk) |
@@ -326,8 +326,8 @@ The system domain's `local_only: true` is a security boundary, not an architectu
 exception — it reflects the domain's threat model (no operator command should leave the
 trust boundary). Every other structural pattern is identical across all three packs.
 
-The absence of a domain library in the system and agriculture packs is not a deficiency;
-those domains have no multi-turn entity state to track at the depth education requires.
+The absence of a domain library in the system and business-ops packs is not a deficiency;
+those domains have no multi-turn entity state to track at the depth business-ops requires.
 Every domain pack includes exactly as much structure as its subject area demands.
 
 ---
@@ -427,7 +427,7 @@ The deterministic parts of the pipeline that **should** be covered by direct-dis
 | **HITL exemption** | Exempt ops execute immediately (`staged_id: null`); non-exempt ops return a `staged_id` | `hitl_exempt: true` in runtime-config → `resp.json()["staged_id"] is None` |
 | **Tier gate enforcement** | Wrong role at wrong endpoint returns 403 | User token at `/api/domain/command` → 403 |
 | **min_role enforcement** | Operation rejects callers below its declared min_role | `min_role: admin` + user token → 403 |
-| **domain_id injection** | `domain_id` from request body propagates into `params` | Send `"domain_id": "education"` in body, verify handler receives it |
+| **domain_id injection** | `domain_id` from request body propagates into `params` | Send `"domain_id": "business-ops"` in body, verify handler receives it |
 | **Parameter normalisation** | `_normalize_slm_command` coerces types correctly | `governed_modules: "single"` → `["single"]` |
 | **Handler return value** | The operation's result dict contains expected fields | `resp.json()["result"]["students"]` is a list |
 
@@ -637,3 +637,4 @@ relative paths (e.g., `model-packs/<domain>/docs/3-functions/<topic>.md`). The
 standard `manifest_integrity regen` and `check` subcommands cover domain-pack docs alongside
 system docs. New domain-pack doc files are automatically discovered by `manifest_integrity
 discover`.
+

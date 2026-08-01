@@ -1,4 +1,4 @@
-"""Tests for the education escalation-unlock feature set (Phase 3).
+"""Tests for the business-ops escalation-unlock feature set (Phase 3).
 
 Covers:
   - Unit tests for ``lumina.core.session_unlock`` PIN OTP functions.
@@ -120,7 +120,7 @@ def _make_esc_record(
     record_id: str = "esc-test-001",
     session_id: str = "session-abc",
     actor_id: str = "student-123",
-    model_pack_id: str = "education",
+    model_pack_id: str = "business-ops",
 ) -> dict[str, Any]:
     return {
         "record_type": "EscalationRecord",
@@ -253,7 +253,7 @@ class TestResolveEscalationWithPin:
         _inject_escalation(api_module, esc)
 
         # Pre-create a container for the session so we can check frozen state
-        container = SessionContainer(active_domain_id="education")
+        container = SessionContainer(active_domain_id="business-ops")
         _session_containers["sess-to-freeze"] = container
 
         client.post(
@@ -350,7 +350,7 @@ class TestSessionUnlockEndpoint:
         esc = _make_esc_record(session_id="sess-unlock-ep")
         _inject_escalation(api_module, esc)
 
-        container = SessionContainer(active_domain_id="education")
+        container = SessionContainer(active_domain_id="business-ops")
         _session_containers["sess-unlock-ep"] = container
 
         resp = client.post(
@@ -569,3 +569,4 @@ class TestFrozenSessionChatFlow:
         assert resp.status_code == 200
         body = resp.json()
         assert body["action"] not in ("session_frozen", "session_unlocked")
+

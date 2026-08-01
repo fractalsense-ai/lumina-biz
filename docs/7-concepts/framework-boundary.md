@@ -26,8 +26,8 @@ The Lumina Framework base layer consists of exactly **three model packs**:
 | Coding Agent Model Pack | Bounded artifact factory |
 | Template Model Pack | Reusable approved template shapes and contracts |
 
-All other model packs currently present in the repository — including education,
-agriculture, and assistant — are **provisional domain/deployment/testing
+All other model packs currently present in the repository — including business-ops,
+business-ops, and assistant — are **provisional domain/deployment/testing
 material**, not base framework infrastructure.
 
 ---
@@ -115,12 +115,12 @@ All other model packs serve a different purpose:
 
 | Category | Examples | Status |
 |----------|----------|--------|
-| Domain packs | education, agriculture, assistant | Provisional — not base framework |
+| Domain packs | business-ops, business-ops, assistant | Provisional — not base framework |
 | Deployment-specific packs | NOC, clinic, field operations | Provisional — not base framework |
 | Experimental/testing packs | Any pack created during framework validation | Provisional — not base framework |
 
 The packs currently present in `model-packs/` beyond the three base packs
-(education, agriculture, assistant) are **temporary scaffolding** used while
+(business-ops, business-ops, assistant) are **temporary scaffolding** used while
 validating the framework shape. They demonstrate that the engine works across
 varied domains, but they are not part of the long-term framework-core
 contract.
@@ -184,3 +184,4 @@ for the Slice 1 planning record.
   state mutation must write a System Log record before returning success
 - [docs/roadmap/slices/01-framework-boundary.md](../roadmap/slices/01-framework-boundary.md)
   — Slice 1 planning document
+

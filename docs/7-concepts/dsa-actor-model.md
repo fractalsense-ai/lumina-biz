@@ -27,8 +27,8 @@ For the full three-pillar contract see
 An Actor is **whatever changes the state of the system relative to a given domain**.
 Actors are context-dependent:
 
-- In an education domain the Actor is a **student**.
-- In an agriculture domain an Actor may be a **pH sensor**, a **farm operator**, or a
+- In an business-ops domain the Actor is a **student**.
+- In an business-ops domain an Actor may be a **pH sensor**, a **farm operator**, or a
   **weather station**.
 - In the system domain the Actor is the **administrator** who manages configuration and
   lifecycle.
@@ -111,7 +111,7 @@ Each domain physics file may declare an `actor_groups` object at the top level:
 
 ### Overlapping Membership
 
-An Actor type may appear in multiple groups. For example, in a larger agriculture
+An Actor type may appear in multiple groups. For example, in a larger business-ops
 deployment a `sensor` Actor might belong to both `barn_monitors` and `silo_monitors`
 if it feeds evidence into both operational contexts. Groups are not exclusive — they
 describe **operational scope**, not ownership.
@@ -182,3 +182,4 @@ When creating a new domain pack:
   assembled into prompt packets
 - [`domain-physics-schema-v1.json`](../../standards/domain-physics-schema-v1.json) —
   JSON Schema defining `actor_types` and `actor_groups`
+

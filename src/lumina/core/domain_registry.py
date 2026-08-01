@@ -261,8 +261,8 @@ class DomainRegistry:
     def resolve_domain_id(self, requested: str | None) -> str:
         """Map a request-level domain_id to a validated registry key.
 
-        Handles exact matches, prefix lookups (e.g. "edu" → "education"),
-        and path-style domain IDs (e.g. "domain/edu" → "education").
+        Handles exact matches, prefix lookups (e.g. "bizops" → "business-ops"),
+        and path-style domain IDs (e.g. "domain/bizops" → "business-ops").
         """
         if requested and requested in self._domains:
             return requested
@@ -274,16 +274,16 @@ class DomainRegistry:
             return None  # type: ignore[return-value]
 
         if requested not in self._domains:
-            # Try prefix lookup (e.g. "edu" → "education")
+            # Try prefix lookup (e.g. "bizops" → "business-ops")
             resolved = self._prefix_to_domain.get(requested)
             if resolved:
                 return resolved
 
-            # Try stripping "domain/" path prefix (e.g. "domain/edu" → "edu")
+            # Try stripping "domain/" path prefix (e.g. "domain/bizops" → "bizops")
             stripped = requested
             if stripped.startswith("domain/"):
                 stripped = stripped[len("domain/"):]
-            # Strip trailing segments (e.g. "domain/edu/algebra" → "edu")
+            # Strip trailing segments (e.g. "domain/bizops/auto-repair" → "bizops")
             stripped = stripped.split("/")[0]
             if stripped != requested:
                 # Check direct match after stripping
@@ -346,8 +346,8 @@ class DomainRegistry:
 
         # Find the full module ID in module_map that contains the default_module name
         for mod_id in module_map:
-            # Match by module name segment, e.g. "general-education" in
-            # "domain/edu/general-education/v1"
+            # Match by module name segment, e.g. "auto-repair" in
+            # "domain/bizops/auto-repair/v1"
             if default_module_name in mod_id:
                 return mod_id
 

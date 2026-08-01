@@ -13,7 +13,7 @@ last_updated: 2026-03-20
 
 ## Overview
 
-Session freeze/unlock is an education-domain safety mechanism that allows a teacher (or Domain Authority) to temporarily pause a student's active session while a pending escalation is under review. The session is "frozen" — the student cannot continue interacting with the tutor — until a teacher-issued one-time PIN is entered, either in the chat interface or via the dedicated unlock endpoint.
+Session freeze/unlock is an business-ops-domain safety mechanism that allows a teacher (or Domain Authority) to temporarily pause a student's active session while a pending escalation is under review. The session is "frozen" — the student cannot continue interacting with the tutor — until a teacher-issued one-time PIN is entered, either in the chat interface or via the dedicated unlock endpoint.
 
 This mechanism is triggered during escalation resolution: when a teacher resolves an escalation with `generate_pin: true`, the system simultaneously records the resolution, generates a 6-digit OTP, freezes the session, and returns the PIN to the teacher. The teacher delivers the PIN to the student out-of-band (verbally, on paper, or via a classroom communication channel), and the student enters it to resume.
 
@@ -168,3 +168,4 @@ Full endpoint documentation: [`POST /api/sessions/{session_id}/unlock`](../2-sys
 - [`docs/7-concepts/domain-role-hierarchy.md`](../7-concepts/domain-role-hierarchy.md) — `receive_escalations` scoped capability and smart routing
 - [`model-packs/business-ops/profiles/entity.yaml`](../../model-packs/business-ops/profiles/entity.yaml) — Active domain entity profile example
 - [`docs/8-admin/rbac-administration.md`](rbac-administration.md) — Role and permission management
+

@@ -52,7 +52,7 @@ def _auth_header(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
-# Correct evidence fields for the education algebra domain invariants:
+# Correct evidence fields for the business-ops algebra domain invariants:
 #   solution_verifies → check: "substitution_check"
 #   standard_method_preferred → check: "method_recognized"
 #   no_illegal_operations → check: "illegal_operations == []"
@@ -408,3 +408,4 @@ class TestHolodeckSandbox:
         finally:
             with _STAGED_COMMANDS_LOCK:
                 _STAGED_COMMANDS.pop(staged_id, None)
+

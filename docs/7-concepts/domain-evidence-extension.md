@@ -31,7 +31,7 @@ The System Logs does not own domain vocabulary. The System Logs defines the **co
 This allows any domain to extend `evidence_summary` freely, while guaranteeing:
 - A discoverable reference to the schema that validates the contents.
 - A stable, cross-domain baseline of universal signals.
-- No education-specific fields in the core ledger specification.
+- No business-ops-specific fields in the core ledger specification.
 
 ---
 
@@ -208,3 +208,4 @@ To extend the System Logs with a new domain's evidence vocabulary:
 - [`standards/domain-evidence-schema-v1.json`](domain-evidence-schema-v1.json) — Meta-schema for evidence declarations
 - [`ledger/trace-event-schema.json`](../ledger/trace-event-schema.json) — TraceEvent JSON Schema
 - [`standards/domain-physics-schema-v1.json`](domain-physics-schema-v1.json) — Domain physics schema
+

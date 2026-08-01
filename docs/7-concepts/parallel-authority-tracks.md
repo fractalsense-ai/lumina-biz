@@ -65,7 +65,7 @@ Tokens from one track are cryptographically invalid on the others.
 {
   "sub": "da-algebra-001",
   "role": "admin",
-  "governed_modules": ["domain/edu/algebra-level-1/v1"],
+  "governed_modules": ["domain/bizops/algebra-level-1/v1"],
   "iss": "lumina-domain",
   "token_scope": "domain",
   "iat": 1744300000,
@@ -82,7 +82,7 @@ Tokens from one track are cryptographically invalid on the others.
   "role": "user",
   "governed_modules": [],
   "domain_roles": {
-    "domain/edu/algebra-level-1/v1": "student"
+    "domain/bizops/algebra-level-1/v1": "student"
   },
   "iss": "lumina-user",
   "token_scope": "user",
@@ -185,3 +185,4 @@ falls back to `LUMINA_JWT_SECRET` for that track. Production deployments should 
 - [domain-role-hierarchy](domain-role-hierarchy.md) — Domain-scoped role hierarchy
 - [domain-authority-roles](../8-admin/domain-authority-roles.md) — DA rights and obligations
 - [auth(3)](../3-functions/auth.md) — JWT authentication module
+

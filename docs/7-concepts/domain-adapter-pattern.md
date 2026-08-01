@@ -23,7 +23,7 @@ This is the hard invariant:
 
 > **Zero domain-specific names may appear in `src/lumina/`.** All domain logic, domain field names, and domain computations live exclusively in the domain pack.
 
-What varies completely between domains is *how* the runtime adapter computes those contract fields. An education adapter might say "the problem is solved when the algebra parser confirms the substitution." A mass-spectrometry lab adapter might say "the task is complete when all 15 verified procedural steps have been logged." The core engine sees only `problem_solved: true` — the reasoning behind it stays in the domain pack.
+What varies completely between domains is *how* the runtime adapter computes those contract fields. An business-ops adapter might say "the problem is solved when the algebra parser confirms the substitution." A mass-spectrometry lab adapter might say "the task is complete when all 15 verified procedural steps have been logged." The core engine sees only `problem_solved: true` — the reasoning behind it stays in the domain pack.
 
 ---
 
@@ -40,7 +40,7 @@ These are the fields the core engine reads by name from `turn_data`. Every domai
 
 These two fields are complementary for multi-step tasks. On each turn the adapter sets `problem_status` to a progress marker. On the final successful turn it also sets `problem_solved = True`, which triggers the engine to retire the current task and present the next one.
 
-**Education example** — single verification step:
+**Business Ops example** — single verification step:
 ```python
 evidence["problem_solved"] = (
     evidence.get("correctness") == "correct"
@@ -100,7 +100,7 @@ The adapter can call into domain-lib components and invoke tool functions direct
 
 Both are declared in the module's `domain-physics.json` under `group_libraries` and `group_tools` arrays, discovered by `adapter_indexer.scan_group_resources()` at startup, and stored in the runtime context. The route compiler validates their references at compile time.
 
-For the complete reference on declaration format, resolution pipeline, and the agriculture reference implementation, see [`group-libraries-and-tools(7)`](group-libraries-and-tools.md).
+For the complete reference on declaration format, resolution pipeline, and the business-ops reference implementation, see [`group-libraries-and-tools(7)`](group-libraries-and-tools.md).
 
 ---
 
@@ -116,7 +116,7 @@ nlp_pre_interpreter_fn: nlp_preprocess   # function in controllers/nlp_pre_inter
 
 And called from the main server via `runtime.get("nlp_pre_interpreter_fn")` before passing control to `interpreter(**kwargs)` in `runtime_adapters.interpret_turn_input`.
 
-### What the education pre-interpreter extracts
+### What the business-ops pre-interpreter extracts
 
 | Extractor | Output fields | Method |
 |---|---|---|
@@ -215,12 +215,12 @@ These are the anti-patterns that violate the domain-agnostic invariant. All thre
 # WRONG — in src/lumina/api/
 problem_solved = (
     correctness == "correct"
-    and turn_data.get("substitution_check") is True   # ← education field
-    and resolved_action not in {"request_more_steps"}  # ← education SO ID
+    and turn_data.get("substitution_check") is True   # ← business-ops field
+    and resolved_action not in {"request_more_steps"}  # ← business-ops SO ID
 )
 ```
 
-`substitution_check` is an education field. `request_more_steps` is an education standing-order ID. Neither should appear in the core engine. The correct fix is to move the computation into the adapter (Phase B) and have the engine read only `turn_data.get("problem_solved")`.
+`substitution_check` is an business-ops field. `request_more_steps` is an business-ops standing-order ID. Neither should appear in the core engine. The correct fix is to move the computation into the adapter (Phase B) and have the engine read only `turn_data.get("problem_solved")`.
 
 ### ❌ Calling domain-lib directly from the orchestrator
 
@@ -232,7 +232,7 @@ All engine contract fields must be populated by the domain pack's `interpret_tur
 
 ---
 
-## Reference: Education Domain Adapter Structure
+## Reference: Business Ops Domain Adapter Structure
 
 ## Reference: Business Ops Domain Adapter Structure
 
@@ -318,3 +318,4 @@ If `command_dispatch` is non-null in evidence (populated by `slm_parse_admin_com
 - [`edge-vectorization(7)`](edge-vectorization.md) — per-domain vector stores built from the same adapter-indexer discovery pass
 - [`../../model-packs/business-ops/controllers/runtime_adapters.py`](../../model-packs/business-ops/controllers/runtime_adapters.py) — active domain runtime adapter reference
 - [`../../model-packs/system/cfg/runtime-config.yaml`](../../model-packs/system/cfg/runtime-config.yaml) — system-domain admin operations and deterministic command mappings
+
