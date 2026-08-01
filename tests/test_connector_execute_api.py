@@ -365,3 +365,25 @@ def test_execute_fixture_requires_actor_scope_payload(client) -> None:
     detail = response.json().get("detail")
     assert isinstance(detail, list)
     assert any("actor_scope" in str(item.get("loc", [])) for item in detail if isinstance(item, dict))
+
+
+@pytest.mark.integration
+def test_execute_fixture_rejects_invalid_capability_namespace(client) -> None:
+    test_client, _ = client
+    payload = _payload()
+    payload["capability_namespace"] = "custom/non-canonical"
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    detail = response.json().get("detail")
+    assert isinstance(detail, list)
+    assert any(
+        "capability_namespace" in str(item.get("loc", []))
+        for item in detail
+        if isinstance(item, dict)
+    )
