@@ -173,6 +173,78 @@ class TestBusinessOpsAdapters:
         assert decision["action"] == "stage_erp_draft_update"
         assert state["open_draft_count"] == 1
 
+    def test_domain_step_emits_canonical_query_for_service_intake_packet(self):
+        state, decision = self.mod.domain_step(
+            {},
+            {},
+            {"workflow_packet_type": "service_intake_packet", "confidence_score": 0.92},
+            {
+                "connector_allowlist_defaults": {
+                    "capabilities": ["service/work-order"],
+                    "action_classes": ["query", "update_draft", "request_commit"],
+                }
+            },
+        )
+
+        assert decision["action"] == "recommend_next_step"
+        assert decision["capability_namespace"] == "service/work-order"
+        assert decision["action_class"] == "query"
+        assert decision["workflow_packet_type"] == "service_intake_packet"
+        assert state["workflow_packet_type"] == "estimate_context_packet"
+
+    def test_domain_step_requires_approval_before_customer_draft_stage(self):
+        state, decision = self.mod.domain_step(
+            {"workflow_packet_type": "customer_communication_draft_packet"},
+            {},
+            {"explicit_approval_language": False},
+            {
+                "connector_allowlist_defaults": {
+                    "capabilities": ["service/work-order"],
+                    "action_classes": ["query", "update_draft", "request_commit"],
+                }
+            },
+        )
+
+        assert decision["action"] == "recommend_next_step"
+        assert decision["action_class"] == "query"
+        assert decision["tier"] == "major"
+        assert state["open_draft_count"] == 0
+
+    def test_domain_step_customer_draft_with_approval_uses_update_draft(self):
+        state, decision = self.mod.domain_step(
+            {"workflow_packet_type": "customer_communication_draft_packet"},
+            {},
+            {"explicit_approval_language": True},
+            {
+                "connector_allowlist_defaults": {
+                    "capabilities": ["service/work-order"],
+                    "action_classes": ["query", "update_draft", "request_commit"],
+                }
+            },
+        )
+
+        assert decision["action"] == "stage_erp_draft_update"
+        assert decision["action_class"] == "update_draft"
+        assert state["open_draft_count"] == 1
+
+    def test_domain_step_escalates_on_allowlist_violation(self):
+        state, decision = self.mod.domain_step(
+            {},
+            {},
+            {"workflow_packet_type": "service_intake_packet"},
+            {
+                "connector_allowlist_defaults": {
+                    "capabilities": ["inventory"],
+                    "action_classes": ["update_draft"],
+                }
+            },
+        )
+
+        assert decision["action"] == "escalate"
+        assert decision["capability_namespace"] is None
+        assert decision["action_class"] is None
+        assert state["workflow_packet_type"] == "service_intake_packet"
+
 
 @pytest.mark.unit
 class TestBusinessOpsRolePermissions:

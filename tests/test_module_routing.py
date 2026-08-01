@@ -126,6 +126,19 @@ class TestModuleArtifacts:
         assert "stage_draft_only" in so_ids
         assert "escalate_to_manager" in so_ids
 
+    def test_module_sidecar_exposes_connector_allowlist_defaults(self, module_map):
+        entry = module_map[_ACTIVE_MODULE_ID]
+        allowlist = entry.get("connector_allowlist_defaults") or {}
+        assert "service/work-order" in (allowlist.get("capabilities") or [])
+        assert "query" in (allowlist.get("action_classes") or [])
+        assert "update_draft" in (allowlist.get("action_classes") or [])
+
+    def test_module_sidecar_exposes_confidence_profile_defaults(self, module_map):
+        entry = module_map[_ACTIVE_MODULE_ID]
+        profile = entry.get("confidence_profile_defaults") or {}
+        assert float(profile.get("suggest_threshold", 0)) >= 0.0
+        assert float(profile.get("confirmation_threshold", 0)) >= 0.0
+
 
 # ---------------------------------------------------------------------------
 # Module routing logic
