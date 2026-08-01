@@ -12,9 +12,46 @@ default_task_spec:
   operation_category: diagnostics
   nominal_difficulty: 0.45
   connector_capability: erp/work-order
+  workflow_contract_version: "1.0.0"
 
 domain_step_params:
   require_manager_approval_for_high_risk: true
+  recommend_threshold: 0.88
+  require_confirmation_threshold: 0.70
+  stale_precedent_penalty: 0.18
+  missing_precedent_penalty: 1.0
+
+confidence_profile_defaults:
+  candidate_limit: 5
+  suggest_threshold: 0.88
+  confirmation_threshold: 0.70
+  stale_after_days: 90
+  stale_penalty: 0.18
+  missing_precedent_penalty: 1.0
+  high_risk_classes:
+    - financial
+    - safety
+    - legal
+  confirmation_risk_classes:
+    - operational
+
+escalation_profile_defaults:
+  manager_review_sla_minutes: 15
+  cto_review_sla_minutes: 30
+  irreversible_actions_require_human_approval: true
+
+connector_allowlist_defaults:
+  capabilities:
+    - service/work-order
+    - inventory
+    - warehouse/storage
+    - logistics/dispatch
+    - scheduling
+  action_classes:
+    - query
+    - create_draft
+    - update_draft
+    - request_commit
 
 turn_input_defaults:
   risk_class: operational
