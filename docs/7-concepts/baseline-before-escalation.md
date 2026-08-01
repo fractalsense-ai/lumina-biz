@@ -21,9 +21,9 @@ metric-driven escalation without affecting safety/invariant escalation.
 ## Description
 
 Many Lumina subsystems track *deltas* — change relative to an
-established baseline.  Examples include the ZPD drift window (education),
-the SVA vocabulary growth monitor (education), and future analog
-subsystems in agriculture (soil sensor drift) or other domains.
+established baseline.  Examples include the ZPD drift window (business-ops),
+the SVA vocabulary growth monitor (business-ops), and future analog
+subsystems in business-ops (soil sensor drift) or other domains.
 
 Deltas computed before the baseline stabilises are meaningless noise.
 If an escalation fires during this calibration period it wastes human
@@ -67,3 +67,4 @@ do not set the field are unaffected).
 ## Domain examples
 
 - **Business Ops:** per-entity baseline windows are configured through module physics and interpreted via the domain adapter pattern; see [`domain-adapter-pattern.md`](domain-adapter-pattern.md) and [`signal-decomposition-framework.md`](signal-decomposition-framework.md)
+

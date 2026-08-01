@@ -16,13 +16,14 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-_EDU_CONTROLLERS = _REPO_ROOT / "model-packs" / "education" / "controllers"
+_EDU_CONTROLLERS = _REPO_ROOT / "model-packs" / "business-ops" / "controllers"
 
 
 def _load_post_turn():
+    post_turn_file = next(_EDU_CONTROLLERS.glob("*_post_turn.py"))
     spec = importlib.util.spec_from_file_location(
         "edu_post_turn_rag_test",
-        str(_EDU_CONTROLLERS / "education_post_turn.py"),
+        str(post_turn_file),
     )
     mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
     spec.loader.exec_module(mod)  # type: ignore[union-attr]
@@ -30,7 +31,11 @@ def _load_post_turn():
 
 
 _pt_mod = _load_post_turn()
-_education_post_turn = _pt_mod.education_post_turn
+_post_turn_fn = next(
+    getattr(_pt_mod, name)
+    for name in dir(_pt_mod)
+    if name.endswith("_post_turn") and callable(getattr(_pt_mod, name))
+)
 
 
 # ── RAG module-scoping tests ─────────────────────────────────
@@ -63,7 +68,7 @@ class TestRagModuleScoping:
                 input_text="solve for x",
                 domain_physics={},
                 glossary=[],
-                resolved_domain_id="education",
+                resolved_domain_id="business-ops",
                 actor_elapsed=None,
                 deterministic_response=True,
                 module_key=module_key,
@@ -75,8 +80,8 @@ class TestRagModuleScoping:
     def test_without_module_key_all_hits_returned(self):
         """When module_key is None, no filtering should be applied."""
         hits = [
-            _FakeHit("model-packs/education/modules/algebra-level-1/domain-physics.json"),
-            _FakeHit("model-packs/education/modules/pre-algebra/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/algebra-level-1/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/pre-algebra/domain-physics.json"),
         ]
         td = self._call_enrich(hits, module_key=None)
         assert len(td.get("_rag_context", [])) == 2
@@ -84,21 +89,21 @@ class TestRagModuleScoping:
     def test_sibling_module_chunks_filtered(self):
         """Chunks from /modules/<other>/ must not appear in results."""
         hits = [
-            _FakeHit("model-packs/education/modules/algebra-level-1/domain-physics.json"),
-            _FakeHit("model-packs/education/modules/pre-algebra/domain-physics.json"),
-            _FakeHit("model-packs/education/docs/README.md"),
+            _FakeHit("model-packs/business-ops/modules/algebra-level-1/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/pre-algebra/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/docs/README.md"),
         ]
         td = self._call_enrich(hits, module_key="pre-algebra")
         sources = [r["source"] for r in td["_rag_context"]]
-        assert "model-packs/education/modules/algebra-level-1/domain-physics.json" not in sources
-        assert "model-packs/education/modules/pre-algebra/domain-physics.json" in sources
-        assert "model-packs/education/docs/README.md" in sources
+        assert "model-packs/business-ops/modules/algebra-level-1/domain-physics.json" not in sources
+        assert "model-packs/business-ops/modules/pre-algebra/domain-physics.json" in sources
+        assert "model-packs/business-ops/docs/README.md" in sources
 
     def test_domain_level_docs_always_pass_through(self):
         """Chunks NOT under /modules/ are domain-level and always included."""
         hits = [
             _FakeHit("model-packs/business-ops/cfg/runtime-config.yaml"),
-            _FakeHit("model-packs/education/docs/7-concepts/student-commons.md"),
+            _FakeHit("model-packs/business-ops/docs/7-concepts/student-commons.md"),
         ]
         td = self._call_enrich(hits, module_key="pre-algebra")
         assert len(td["_rag_context"]) == 2
@@ -106,13 +111,13 @@ class TestRagModuleScoping:
     def test_only_active_module_chunks_survive(self):
         """All chunks from sibling modules are removed; active module kept."""
         hits = [
-            _FakeHit("model-packs/education/modules/algebra-1/domain-physics.json"),
-            _FakeHit("model-packs/education/modules/algebra-intro/domain-physics.json"),
-            _FakeHit("model-packs/education/modules/pre-algebra/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/algebra-1/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/algebra-intro/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/pre-algebra/domain-physics.json"),
         ]
         td = self._call_enrich(hits, module_key="pre-algebra")
         sources = [r["source"] for r in td["_rag_context"]]
-        assert sources == ["model-packs/education/modules/pre-algebra/domain-physics.json"]
+        assert sources == ["model-packs/business-ops/modules/pre-algebra/domain-physics.json"]
 
     def test_processing_passes_module_key(self):
         """processing.py must pass session module_key to enrich_turn_data."""
@@ -133,7 +138,7 @@ class TestRagModuleScoping:
 
 
 class TestStandingOrderCounterResetOnTaskTransition:
-    """education_post_turn must clear standing-order counters on new task."""
+    """Domain post-turn hook must clear standing-order counters on new task."""
 
     def _make_orch(self, attempts: dict | None = None):
         orch = MagicMock()
@@ -158,7 +163,7 @@ class TestStandingOrderCounterResetOnTaskTransition:
         gen_fn = MagicMock(return_value={"task_id": "new-task", "equation": "x+1=3"})
         runtime = {"tool_fns": {"generate_problem": gen_fn}}
 
-        result = _education_post_turn(
+        result = _post_turn_fn(
             turn_data={"problem_solved": True},
             prompt_contract={"prompt_type": "continue"},
             resolved_action="continue",
@@ -177,7 +182,7 @@ class TestStandingOrderCounterResetOnTaskTransition:
         # Override fluency to NOT advance
         orch.last_domain_lib_decision = {"fluency": {"advanced": False}}
 
-        result = _education_post_turn(
+        result = _post_turn_fn(
             turn_data={},
             prompt_contract={"prompt_type": "continue"},
             resolved_action="continue",
@@ -194,7 +199,8 @@ class TestStandingOrderCounterResetOnTaskTransition:
         """Verify set_standing_order_attempts({}) appears after new_task_presented."""
         import inspect
 
-        src = inspect.getsource(_education_post_turn)
+        src = inspect.getsource(_post_turn_fn)
         assert "set_standing_order_attempts" in src, (
-            "education_post_turn must call set_standing_order_attempts"
+            "post-turn hook must call set_standing_order_attempts"
         )
+

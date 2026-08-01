@@ -59,7 +59,7 @@ domain automatically.  This is controlled by `role_defaults` in
 `DomainRegistry.resolve_default_for_user()` in `src/lumina/core/domain_registry.py`.
 
 All other roles (including unauthenticated users) fall through to the global
-`default_domain: education`.  This intentional asymmetry hides system internals
+`default_domain: business-ops`.  This intentional asymmetry hides system internals
 from domain-level users by default.
 
 ### What system domain sessions support
@@ -255,3 +255,4 @@ The following 19 terms are defined in `cfg/system-physics.yaml` v1.1.0:
 `policy_commitment_gate` · `domain_pack` · `admin` ·
 `meta_authority` · `domain_registry` · `pseudonymous_id` · `rbac` ·
 `tool_adapter` · `orchestrator` · `domain_lib`
+

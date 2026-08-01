@@ -19,7 +19,7 @@ Project Lumina principles are organized in two tiers:
 
 **Part II — Domain-Specific Principles (8–10)** — these principles apply strictly to domains where configured in the `domain-physics.yaml`. When a domain-specific principle IS active for a given domain, it is enforced with the same rigor as a universal principle — a Domain Authority cannot selectively disable it within a domain that has it enabled.
 
-The distinction matters because the core engine is domain-agnostic: it must serve an agriculture pack monitoring soil conditions through domain libs just as well as a clinical pack monitoring treatment safety constraints. Principles that are irrelevant to machine-facing or non-human domains (for example, consent screens or domain-specific scaffolding) must not be imposed globally.
+The distinction matters because the core engine is domain-agnostic: it must serve an business-ops pack monitoring soil conditions through domain libs just as well as a clinical pack monitoring treatment safety constraints. Principles that are irrelevant to machine-facing or non-human domains (for example, consent screens or domain-specific scaffolding) must not be imposed globally.
 
 ---
 
@@ -188,3 +188,4 @@ Some violations (e.g., transcript storage, missing consent in a consent-required
 ---
 
 *Universal principles supersede any domain pack, standing order, or Meta Authority policy. Domain-specific principles, once activated for a domain, carry the same weight within that domain. Both tiers may only be changed by a major revision to the Lumina Core specification, with explicit governance review.*
+

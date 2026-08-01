@@ -27,9 +27,10 @@
         },
         "domain_id": {
           "type": "string",
-          "description": "Scope the command list to a specific domain. When omitted or 'system', returns only system-level operations. When set to a domain ID (e.g. 'education'), also includes that domain's operations."
+          "description": "Scope the command list to a specific domain. When omitted or 'system', returns only system-level operations. When set to a domain ID (e.g. 'business-ops'), also includes that domain's operations."
         }
       }
     }
   }
 }
+

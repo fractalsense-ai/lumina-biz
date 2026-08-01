@@ -133,7 +133,7 @@ class TestConsentGateReadsPersisted:
         and allow the user through if consent was previously accepted."""
         from lumina.api.session import SessionContainer
 
-        container = SessionContainer(active_domain_id="education")
+        container = SessionContainer(active_domain_id="business-ops")
         container.user = {"sub": "u1", "role": "user"}
         assert container.consent_accepted is False
 
@@ -160,3 +160,4 @@ class TestConsentGateReadsPersisted:
         consent_rec = mock_persistence.get_user_consent("u1")
         assert consent_rec is None
         # The processing code would return consent_required in this case
+

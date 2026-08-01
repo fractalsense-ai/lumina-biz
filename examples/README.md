@@ -64,7 +64,7 @@ Her response is one step with no work shown.
 
 **6. Domain-lib state step runs**
 
-The ZPD monitor (education domain-lib runtime component) processes tool-adapter outputs/evidence and updates machine-readable state. The answer is correct, so mastery increases. But challenge (0.65) is within Alice's ZPD band [0.3, 0.7], so no ZPD drift.
+The ZPD monitor (business-ops domain-lib runtime component) processes tool-adapter outputs/evidence and updates machine-readable state. The answer is correct, so mastery increases. But challenge (0.65) is within Alice's ZPD band [0.3, 0.7], so no ZPD drift.
 
 **7. Invariant checks**
 
@@ -137,3 +137,4 @@ Alice earned a `+0.10` mastery boost on `solve_one_variable`. The orchestrator p
 3. **The System Logs only records structured telemetry.** Neither Alice's problem response nor the AI's reply is stored. Only hashes and decision summaries are written.
 4. **World simulation is transparent.** The "space mission" framing changes how the problem is presented but not what is checked.
 5. **Mastery increases correctly.** Since Alice was correct and showed her work without hints, she gets the full `+0.10` mastery boost.
+

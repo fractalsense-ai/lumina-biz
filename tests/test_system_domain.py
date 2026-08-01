@@ -595,7 +595,7 @@ class TestNlpPreInterpreter:
 
     @pytest.mark.unit
     def test_compound_remove_and_give(self) -> None:
-        msg = "remove root from user Matt and give domain authority access to Education only"
+        msg = "remove root from user Matt and give domain authority access to Business Ops only"
         result = detect_compound_command(msg)
         assert result["is_compound"] is True
         assert result["operation_count_estimate"] == 2
@@ -637,7 +637,7 @@ class TestNlpPreInterpreter:
 
     @pytest.mark.unit
     def test_compound_command_anchor_present(self) -> None:
-        msg = "remove root from user Matt and give domain authority access to Education only"
+        msg = "remove root from user Matt and give domain authority access to Business Ops only"
         result = nlp_preprocess(msg, {})
         fields = [a["field"] for a in result["_nlp_anchors"]]
         assert "compound_command" in fields
@@ -952,3 +952,4 @@ class TestPhysicsContextLocalOnly:
         assert physics_called["called"], (
             "slm_interpret_physics_context was NOT called for a local_only domain"
         )
+

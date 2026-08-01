@@ -107,7 +107,7 @@ Each entry under ``signals`` is a
 ``record_path`` is the wiring point: the daemon reads records from the
 system log, walks the dotted path, and feeds the resulting scalar
 through ``compute_spectral_signature``. There is no special-casing per
-domain — agriculture's ``"metadata.sensor.value"`` and the assistant
+domain — business-ops's ``"metadata.sensor.value"`` and the assistant
 SVA's ``"metadata.affect.valence"`` traverse the same code.
 
 ### The advisory schema
@@ -157,3 +157,4 @@ changes; they iterate whatever you declare.
 - [domain-physics-schema-v1](../../standards/domain-physics-schema-v1.json)
 - [spectral-advisory-schema-v1](../../standards/spectral-advisory-schema-v1.json)
 - [principles(7)](principles.md) — instruments vs. reactions
+

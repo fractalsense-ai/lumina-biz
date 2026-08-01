@@ -109,7 +109,7 @@ Content-Type: application/json
 {
   "prompt": "How can I help teach algebra to 9th graders who struggle with basic concepts?",
   "iterations": 100,
-  "domain_id": "education"
+  "domain_id": "business-ops"
 }
 ```
 
@@ -164,3 +164,4 @@ Logic scraping is an *active* extension of the [Novel Synthesis Framework](novel
 | Real-time | Batch (asynchronous) |
 
 The two-key verification gate is identical: the system flags, the domain authority confirms.  Logic scraping simply provides a structured way to generate more candidates for the gate.
+

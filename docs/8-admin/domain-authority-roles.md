@@ -40,7 +40,7 @@ A Domain Authority may:
 3. **Define Standing Orders** — specify the bounded automated responses within their domain
 4. **Define Escalation Triggers** — specify when the system must escalate to them or above
 5. **Define Artifacts** — specify domain achievement milestones and challenge structures
-6. **Set Subsystem Parameters** — configure domain-specific sensor parameters and drift thresholds (e.g., operating-band thresholds for education, soil-health thresholds for agriculture)
+6. **Set Subsystem Parameters** — configure domain-specific sensor parameters and drift thresholds (e.g., operating-band thresholds for business-ops, soil-health thresholds for business-ops)
 7. **Review System Log Records** — access audit logs for sessions in their domain
 8. **Receive Escalations** — receive and resolve escalation packets from their sessions
 9. **Authorize Tool Adapters** — approve which external tools may be used in their sessions
@@ -65,7 +65,7 @@ A Domain Authority must:
 
 In a fractal governance structure, each level is a Domain Authority for its own scope and a Meta Authority for the level below. The generic four-level pattern and its domain instantiations:
 
-| Generic Level | Generic Title | Domain Scope | Meta Authority For | Education Example | Medical Example | Agriculture Example |
+| Generic Level | Generic Title | Domain Scope | Meta Authority For | Business Ops Example | Medical Example | Business Ops Example |
 |---------------|---------------|-------------|-------------------|-------------------|-----------------|---------------------|
 | 1 | Macro Authority | Top-level policy | Meso Authorities | School Board / Administration | Hospital Admin | Corporate Policy |
 | 2 | Meso Authority | Operational standards | Micro Authorities | Department Head | Dept Head | Site Manager |
@@ -112,9 +112,9 @@ A Domain Authority's rights may be revoked by their Meta Authority. Revocation:
 
 The Subject/Target level has a limited form of Domain Authority over their own state and preferences. This applies across domains:
 
-- **Subject (Education):** controls their own learning state, preferences, and (where required) consent
+- **Subject (Business Ops):** controls their own learning state, preferences, and (where required) consent
 - **Patient (Medical):** controls their own treatment preferences, consent to treatment approaches, and session exit
-- **Operator / Environment (Agriculture):** controls operational preferences and environment-specific parameters
+- **Operator / Environment (Business Ops):** controls operational preferences and environment-specific parameters
 
 **Subjects/Targets may:**
 - Set and update their preferences (interests, dislikes, explanation or interaction style)
@@ -185,3 +185,4 @@ For the full specification, see [`../specs/rbac-spec-v1.md`](../specs/rbac-spec-
 - [`../standards/role-definition-schema-v1.json`](../standards/role-definition-schema-v1.json) — role definition schema
 - Consent contract specification — see the relevant active domain pack's world-sim consent documentation when persona mode is enabled
 - [`../standards/lumina-core-v1.md`](../standards/lumina-core-v1.md) — conformance requirements
+

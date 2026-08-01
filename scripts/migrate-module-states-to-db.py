@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Migrate per-module state from profile YAML files to the persistence layer.
 
-Walks ``data/profiles/*/education.yaml`` and extracts each entry in
+Walks ``data/profiles/*/business-ops.yaml`` and extracts each entry in
 ``profile["modules"]``, writing it via ``PersistenceAdapter.save_module_state``.
 
 Usage:
@@ -69,3 +69,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

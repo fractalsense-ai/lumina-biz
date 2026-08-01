@@ -415,7 +415,7 @@ async def _resolve_escalation_queue(
 ) -> dict[str, Any]:
     """Escalation queue — pending escalations scoped by caller's domain role.
 
-    Education-domain escalations route to teachers (via
+    Business Ops-domain escalations route to teachers (via
     ``receive_escalations`` in domain-physics), not to system-level roles.
     This resolver delegates to the domain's own API route at
     ``/api/escalations`` when available, but provides a direct persistence
@@ -594,3 +594,4 @@ async def update_panel_data(
         "status": "updated",
         "updated_fields": list(updates.keys()),
     }
+

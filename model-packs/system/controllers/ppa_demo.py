@@ -1,6 +1,6 @@
 """Project Lumina PPA orchestrator demo (domain-neutral system-core run).
 
-This script demonstrates the full D.S.A. loop without education-specific
+This script demonstrates the full D.S.A. loop without business-ops-specific
 wiring. It uses the system-core domain physics and invariant-driven actions,
 which makes it easier to understand for institutional-knowledge and
 business-ops contexts.
@@ -317,9 +317,10 @@ def run_demo() -> None:
             print(f"    - {trigger} (task={task_id}, sla={sla} min)")
 
     print()
-    print("  Demo mode: domain-neutral system-core (no education-specific domain-lib).")
+    print("  Demo mode: domain-neutral system-core (no business-ops-specific domain-lib).")
     _sep("=")
 
 
 if __name__ == "__main__":
     run_demo()
+

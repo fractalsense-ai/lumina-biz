@@ -153,7 +153,7 @@ python ../reference-implementations/yaml-to-json-converter.py \
 
 ### 4. Write the entity profile template
 
-Use the profile template from an existing pack as a base (for example, `student-profile-template.yaml` in the education pack, or a domain-equivalent name in your pack). The template defines the initial state for new entities.
+Use the profile template from an existing pack as a base (for example, `student-profile-template.yaml` in the business-ops pack, or a domain-equivalent name in your pack). The template defines the initial state for new entities.
 
 ### 5. Write tool adapters (if needed)
 
@@ -311,8 +311,8 @@ Packs that fail validation are not usable.
 
 | Domain | Pack | Version | Status |
 |--------|------|---------|--------|
-| Education — Algebra Level 1 | `education/modules/algebra-level-1` | 0.4.0 | Active |
-| Agriculture | `agriculture/` | — | Placeholder |
+| Business Ops — Algebra Level 1 | `business-ops/modules/algebra-level-1` | 0.4.0 | Active |
+| Business Ops | `business-ops/` | — | Placeholder |
 
 ---
 
@@ -323,3 +323,4 @@ Each top-level domain folder should include a `README.md` that defines or links:
 - Domain rules/invariants authority
 - Domain state model (schemas + estimators/sensors)
 - Domain physics and standing-order vocabulary
+

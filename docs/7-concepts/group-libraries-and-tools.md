@@ -16,8 +16,8 @@ library, NLP pre-interpreter.  This self-containment contract is a hard boundary
 pack must not import from another domain pack.
 
 But **within** a single domain pack, identical logic often recurs across modules.  Every
-agriculture module that reads soil-moisture sensors calls the same normalisation routine.
-Every education module that tracks engagement applies the same fatigue formula.  Copying
+business-ops module that reads soil-moisture sensors calls the same normalisation routine.
+Every business-ops module that tracks engagement applies the same fatigue formula.  Copying
 that logic into every module violates DRY and creates maintenance risk.
 
 Group Libraries and Group Tools solve this by declaring **domain-scoped shared resources**
@@ -235,7 +235,7 @@ executed as code. Examples:
 |----------------|--------|---------|
 | `domain-lib/reference/turn-interpretation-spec-v1.md` | All | Defines the JSON output schema for turn-level field extraction |
 | `domain-lib/reference/command-interpreter-spec-v1.md` | System | Defines disambiguation rules and parameter schemas for admin commands |
-| `domain-lib/reference/compressed-state-estimators.md` | Education | Defines compressed state estimator formulas and thresholds |
+| `domain-lib/reference/compressed-state-estimators.md` | Business Ops | Defines compressed state estimator formulas and thresholds |
 
 Reference specs follow the same `group_libraries` declaration pattern in `domain-physics.json`:
 
@@ -265,3 +265,4 @@ reference spec changes, all referencing modules know they may need revalidation.
 - `src/lumina/core/adapter_indexer.py` — `GroupLibraryEntry`, `GroupToolEntry`, `scan_group_resources()`
 - `src/lumina/core/runtime_loader.py` — group resource discovery and context injection
 - `model-packs/<domain>/domain-lib/sensors/environmental_sensors.py` — reference Group Library implementation
+

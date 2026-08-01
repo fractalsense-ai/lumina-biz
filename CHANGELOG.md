@@ -29,14 +29,14 @@ They intentionally diverge: the specification leads, the implementation follows.
 - **`standards/spectral-advisory-schema-v1.json`** — formal schema for `learning_state.spectral_advisories[*]` records (`advisory_id`, `signal`, `band`, `direction`, `z_score`, `message`, `created_utc`, `expires_utc`).
 - **Generalised daemon task** — `rhythm_fft_analysis` in `src/lumina/daemon/tasks.py` now reads `domain_physics["signals"]` and iterates every declared signal on every actor, with no SVA hard-coding. Direction is normalised to the symbolic vocabulary (`positive` / `negative` / `neutral`) at the advisory boundary; `Proposal.detail.direction` retains the integer form for back-compat.
 - **Generalised in-session consumer** — `journal_domain_step` advisory pull now delegates to `lumina.signals.pull_active_advisory`, which arbitrates across all signals (not just SVA axes) by `advisory_priority` → `band_priority` → recency.
-- **Scope Y education delegation** — `model-packs/education/domain-lib/affect_monitor.py` is now a delegating shim over `lumina.signals`, and the education pack ships its own `signals` physics block declaring SVA axes with education-flavored `message_overrides`.
-- **Agriculture POC** — `model-packs/agriculture/modules/operations-level-1/domain-physics.json` declares four sensor signals (`soil_pH`, `soil_moisture`, `air_temperature`, `motor_vibration`) with per-signal `message_overrides`. New `to_signal_samples(...)` adapter on `model-packs/agriculture/domain-lib/sensors/environmental_sensors.py` bridges `SensorReading` records to `SignalSample`. Proves the framework runs end-to-end on a non-affect domain with no framework changes.
+- **Scope Y business-ops delegation** — `model-packs/business-ops/domain-lib/affect_monitor.py` is now a delegating shim over `lumina.signals`, and the business-ops pack ships its own `signals` physics block declaring SVA axes with business-ops-flavored `message_overrides`.
+- **Business Ops POC** — `model-packs/business-ops/modules/operations-level-1/domain-physics.json` declares four sensor signals (`soil_pH`, `soil_moisture`, `air_temperature`, `motor_vibration`) with per-signal `message_overrides`. New `to_signal_samples(...)` adapter on `model-packs/business-ops/domain-lib/sensors/environmental_sensors.py` bridges `SensorReading` records to `SignalSample`. Proves the framework runs end-to-end on a non-affect domain with no framework changes.
 - **Documentation**:
   - `docs/7-concepts/signal-decomposition-framework.md` — concept doc covering the instruments-vs-reactions principle, the `signals` block contract, the advisory schema, and the steps to onboard a new domain.
   - `docs/3-functions/signals.md` — public API reference for `lumina.signals` including the dual integer/symbolic direction vocabulary.
 - **Tests** (75+ new, total 4389 passed):
   - `tests/test_signals_*.py` (61 tests) — unit coverage for the new package (state, baseline, spectral, advisories, templates).
-  - `tests/test_signals_agriculture_poc.py` (10 tests) — end-to-end agriculture POC using real pack files; synthesises a 60-day pH slide, runs the daemon, asserts persisted advisory conforms to `spectral-advisory-schema-v1.json`.
+  - `tests/test_signals_field_ops_poc.py` (10 tests) — end-to-end business-ops POC using real pack files; synthesises a 60-day pH slide, runs the daemon, asserts persisted advisory conforms to `spectral-advisory-schema-v1.json`.
   - `tests/test_daemon_rhythm_fft_generic.py` (4 tests) — daemon-level regression using a synthetic `lab_research` domain with arbitrary signal names declared inline (no real pack files), proving signal-name-agnosticism, deeply-nested `record_path` extraction, exact-vs-wildcard `message_overrides` resolution, and per-signal `advisory_ttl_seconds` honoring.
 
 ### Changed — Phase H
@@ -68,8 +68,8 @@ They intentionally diverge: the specification leads, the implementation follows.
 
 ### Changed
 
-- `model-packs/education/controllers/journal_adapters.py` — added `profile_data`, `persistence`, `user_id`, `session_id` plumbing through `journal_domain_step`; advisory attached at all five tier return points (warmup, tier3, tier2, tier1, ok).
-- `model-packs/education/controllers/freeform_adapters.py` — `freeform_domain_step` now forwards new advisory plumbing kwargs to `journal_domain_step`.
+- `model-packs/business-ops/controllers/journal_adapters.py` — added `profile_data`, `persistence`, `user_id`, `session_id` plumbing through `journal_domain_step`; advisory attached at all five tier return points (warmup, tier3, tier2, tier1, ok).
+- `model-packs/business-ops/controllers/freeform_adapters.py` — `freeform_domain_step` now forwards new advisory plumbing kwargs to `journal_domain_step`.
 - `src/lumina/api/session.py` — `domain_lib_step_fn` lambda now uses `inspect.signature` to forward `profile`, `persistence`, `user_id`, and `session_id` only when the underlying step function accepts them, preserving compatibility with non-journal domain steps.
 - `src/lumina/daemon/tasks.py` — `rhythm_fft_analysis` now persists spectral findings as advisories on `learning_state.spectral_advisories` in addition to writing `Proposal` records.
 
@@ -104,7 +104,8 @@ They intentionally diverge: the specification leads, the implementation follows.
 - **Domain Role Hierarchy** — domain-scoped RBAC role tiers beneath Domain Authority ceiling
 - **JWT Authentication** — dual-secret architecture (admin/user tier separation) with domain role claims
 - **Persistence Layer** — SQLite, filesystem, and null adapters with key-based profile support
-- **Three domain packs** — Education (algebra + world-sim + MUD builder), Agriculture (sensor ops + group libraries), System (SLM-only routing)
+- **Three domain packs** — Business Ops (algebra + world-sim + MUD builder), Business Ops (sensor ops + group libraries), System (SLM-only routing)
 - **Web UI** — Vite + React reference frontend with PluginRegistry for domain-specific UI contributions
 - **Test suite** — 3690+ pytest tests covering orchestrator, middleware, persistence, API, and domain packs
 - **Documentation** — UNIX man-page convention (sections 1–8) with SHA-256 integrity tracking via MANIFEST.yaml
+

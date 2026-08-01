@@ -308,12 +308,12 @@ class TestDomainRoleEdgeCases:
 
     def test_different_domains_different_roles(self) -> None:
         """A user can have different domain roles in different domains."""
-        # Teacher in education domain
+        # Teacher in business-ops domain
         assert check_permission(
             "user_001", "admin", EDU_PERMS, Operation.WRITE,
             domain_role="teacher", domain_roles_config=EDU_DOMAIN_ROLES,
         )
-        # Observer in agriculture domain — read only
+        # Observer in business-ops domain — read only
         assert check_permission(
             "user_001", "user", AGRI_PERMS, Operation.READ,
             domain_role="observer", domain_roles_config=AGRI_DOMAIN_ROLES,
@@ -350,13 +350,13 @@ class TestDomainRolePermissionOrRaise:
 
 
 # ---------------------------------------------------------------------------
-# Agriculture domain roles
+# Business Ops domain roles
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.unit
 class TestAgricultureDomainRoles:
-    """Domain roles for the agriculture domain."""
+    """Domain roles for the business-ops domain."""
 
     def test_site_manager_full_access(self) -> None:
         for op in (Operation.READ, Operation.WRITE, Operation.EXECUTE):
@@ -649,14 +649,14 @@ class TestAssignDomainRoleEndpoint:
         root_token = _dr_register_root(dr_client)
         user = _dr_register_user(dr_client, "carol_dr")
         resp = dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": user["user_id"], "domain_role": "supervisor"},
             headers=_dr_auth(root_token),
         )
         assert resp.status_code == 200
         body = resp.json()
         assert body["user_id"] == user["user_id"]
-        assert body["module_id"] == "education"
+        assert body["module_id"] == "business-ops"
         assert body["domain_role"] == "supervisor"
         assert "record_id" in body
 
@@ -664,7 +664,7 @@ class TestAssignDomainRoleEndpoint:
         root_token = _dr_register_root(dr_client)
         user = _dr_register_user(dr_client, "dave_dr")
         resp = dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": user["user_id"], "domain_role": "wizard"},
             headers=_dr_auth(root_token),
         )
@@ -678,7 +678,7 @@ class TestAssignDomainRoleEndpoint:
             json={"username": "eve_dr", "password": "test-pass-123"},
         ).json()["access_token"]
         resp = dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": user["user_id"], "domain_role": "supervisor"},
             headers=_dr_auth(token),
         )
@@ -687,7 +687,7 @@ class TestAssignDomainRoleEndpoint:
     def test_nonexistent_user_returns_404(self, dr_client: TestClient) -> None:
         root_token = _dr_register_root(dr_client)
         resp = dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": "ghost-id-555", "domain_role": "employee"},
             headers=_dr_auth(root_token),
         )
@@ -699,17 +699,17 @@ class TestAssignDomainRoleEndpoint:
         root_token = _dr_register_root(dr_client)
         user = _dr_register_user(dr_client, "frank_dr")
         dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": user["user_id"], "domain_role": "employee"},
             headers=_dr_auth(root_token),
         )
         stored = dr_api_module.PERSISTENCE.get_user(user["user_id"])
         assert stored is not None
-        assert stored.get("domain_roles", {}).get("education") == "employee"
+        assert stored.get("domain_roles", {}).get("business-ops") == "employee"
 
     def test_unauthenticated_returns_401(self, dr_client: TestClient) -> None:
         resp = dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": "any", "domain_role": "guest"},
         )
         assert resp.status_code == 401
@@ -724,13 +724,13 @@ class TestRevokeDomainRoleEndpoint:
         user = _dr_register_user(dr_client, "grace_dr")
         # assign first
         dr_client.post(
-            "/api/domain-roles/education/assign",
+            "/api/domain-roles/business-ops/assign",
             json={"user_id": user["user_id"], "domain_role": "supervisor"},
             headers=_dr_auth(root_token),
         )
         # revoke
         resp = dr_client.delete(
-            f"/api/domain-roles/education/{user['user_id']}",
+            f"/api/domain-roles/business-ops/{user['user_id']}",
             headers=_dr_auth(root_token),
         )
         assert resp.status_code == 200
@@ -744,7 +744,7 @@ class TestRevokeDomainRoleEndpoint:
         root_token = _dr_register_root(dr_client)
         user = _dr_register_user(dr_client, "henry_dr")
         resp = dr_client.delete(
-            f"/api/domain-roles/education/{user['user_id']}",
+            f"/api/domain-roles/business-ops/{user['user_id']}",
             headers=_dr_auth(root_token),
         )
         assert resp.status_code == 404
@@ -754,7 +754,7 @@ class TestRevokeDomainRoleEndpoint:
     ) -> None:
         root_token = _dr_register_root(dr_client)
         resp = dr_client.delete(
-            "/api/domain-roles/education/ghost-id-xyz",
+            "/api/domain-roles/business-ops/ghost-id-xyz",
             headers=_dr_auth(root_token),
         )
         assert resp.status_code == 404
@@ -767,13 +767,13 @@ class TestRevokeDomainRoleEndpoint:
             json={"username": "iris_dr", "password": "test-pass-123"},
         ).json()["access_token"]
         resp = dr_client.delete(
-            f"/api/domain-roles/education/{user['user_id']}",
+            f"/api/domain-roles/business-ops/{user['user_id']}",
             headers=_dr_auth(token),
         )
         assert resp.status_code == 403
 
     def test_unauthenticated_returns_401(self, dr_client: TestClient) -> None:
-        resp = dr_client.delete("/api/domain-roles/education/any-user")
+        resp = dr_client.delete("/api/domain-roles/business-ops/any-user")
         assert resp.status_code == 401
 
 
@@ -788,7 +788,7 @@ class TestJWTDomainRoles:
 
     def test_create_jwt_with_domain_roles(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(auth, "JWT_SECRET", "test-secret")
-        dr = {"domain/edu/algebra-level-1/v1": "teaching_assistant"}
+        dr = {"domain/bizops/algebra-level-1/v1": "teaching_assistant"}
         token = auth.create_jwt(
             user_id="ta_001",
             role="user",
@@ -820,8 +820,8 @@ class TestJWTDomainRoles:
         """User can hold different domain roles in different modules."""
         monkeypatch.setattr(auth, "JWT_SECRET", "test-secret")
         dr = {
-            "domain/edu/algebra-level-1/v1": "teacher",
-            "domain/edu/geometry-level-1/v1": "teaching_assistant",
+            "domain/bizops/algebra-level-1/v1": "teacher",
+            "domain/bizops/geometry-level-1/v1": "teaching_assistant",
         }
         token = auth.create_jwt(
             user_id="multi_001", role="admin",
@@ -829,3 +829,4 @@ class TestJWTDomainRoles:
         )
         payload = auth.verify_jwt(token)
         assert payload["domain_roles"] == dr
+

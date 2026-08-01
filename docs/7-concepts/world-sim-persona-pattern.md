@@ -15,7 +15,7 @@ last_updated: 2026-03-20
 
 Every domain pack can optionally project a **persona** — a narrative identity the AI adopts for the duration of a session. The world simulation (world-sim) is the mechanism that implements this persona. It is a cosmetic framing layer: the narrative changes how domain content is *presented*, never what it *is*.
 
-This document defines the pattern so that any domain pack can adopt it. The education domain is the reference implementation.
+This document defines the pattern so that any domain pack can adopt it. The business-ops domain is the reference implementation.
 
 ---
 
@@ -101,11 +101,11 @@ Any domain pack may add a `world-sim/` folder. The three-file pattern is the tem
 
 | Domain | Example Setting | Artifact Framing | Task Framing |
 |---|---|---|---|
-| **Education** (ref impl) | `"You are the mission mathematician aboard the Helios research vessel."` | `mission_badge` | `mission_briefing` |
-| **Agriculture** (example) | `"You are managing the Thornfield research farm."` | `harvest_record` | `field_task` |
+| **Business Ops** (ref impl) | `"You are the mission mathematician aboard the Helios research vessel."` | `mission_badge` | `mission_briefing` |
+| **Business Ops** (example) | `"You are managing the Thornfield research farm."` | `harvest_record` | `field_task` |
 | **Medical** (example) | `"You are on duty at the forward field hospital."` | `clinical_competency_record` | `patient_case` |
 
-The consent spec (`magic-circle-consent-v1.md`) must be adapted for each domain using domain-appropriate participant and authority terminology — the education version refers to "student," "parent/guardian," and "teacher." A medical version would use "patient," "healthcare proxy," and "supervising clinician."
+The consent spec (`magic-circle-consent-v1.md`) must be adapted for each domain using domain-appropriate participant and authority terminology — the business-ops version refers to "student," "parent/guardian," and "teacher." A medical version would use "patient," "healthcare proxy," and "supervising clinician."
 
 The domain does not need to be dynamic to adopt world-sim. A static fixed theme is a fully valid implementation.
 
@@ -167,3 +167,4 @@ If `world_sim_override` is absent, the module inherits the domain-wide `world_si
 - [`domain-adapter-pattern.md`](domain-adapter-pattern.md) — engine contract fields, three-layer distinction (tool-adapters / domain-lib / runtime-adapter)
 - Domain-pack `world-sim/` files — spec, consent, and mastery documents for active persona-enabled domains
 - [`../../specs/principles-v1.md`](../../specs/principles-v1.md) — Principle 8 (consent boundary), enforced by magic circle
+

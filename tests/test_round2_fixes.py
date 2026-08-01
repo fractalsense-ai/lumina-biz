@@ -43,8 +43,8 @@ class TestDomainInfoProfileAware:
         domain_info should return that module's physics & ui_overrides."""
         handler = self._get_domain_info_handler()
 
-        fake_profile = {"domain_id": "domain/edu/pre-algebra/v1"}
-        fake_domain = {"id": "domain/edu/pre-algebra/v1", "version": "1.0.0"}
+        fake_profile = {"domain_id": "domain/bizops/pre-algebra/v1"}
+        fake_domain = {"id": "domain/bizops/pre-algebra/v1", "version": "1.0.0"}
         fake_manifest = {"subtitle": "Learning"}
         pa_physics_path = "dp/pre-algebra.json"
 
@@ -53,16 +53,16 @@ class TestDomainInfoProfileAware:
             "ui_manifest": fake_manifest,
             "ui_plugin": None,
             "module_map": {
-                "domain/edu/general-education/v1": {
+                "domain/bizops/general-business-ops/v1": {
                     "domain_physics_path": "dp/ge.json",
                     "ui_overrides": {"subtitle": "Student Commons"},
                 },
-                "domain/edu/pre-algebra/v1": {
+                "domain/bizops/pre-algebra/v1": {
                     "domain_physics_path": pa_physics_path,
                     "ui_overrides": {"subtitle": "Pre-Algebra"},
                 },
             },
-            "role_to_default_module": {"student": "domain/edu/general-education/v1"},
+            "role_to_default_module": {"student": "domain/bizops/general-business-ops/v1"},
         }
         user = {"sub": "student1", "role": "user", "domain_roles": {}}
         profile_path = MagicMock()
@@ -74,14 +74,14 @@ class TestDomainInfoProfileAware:
             patch("lumina.api.routes.system._resolve_role_layout", return_value={}),
             patch("lumina.api.config._resolve_user_profile_path", return_value=profile_path) as mock_resolve,
         ):
-            mock_cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "education"
+            mock_cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "business-ops"
             mock_cfg.DOMAIN_REGISTRY.get_runtime_context.return_value = runtime
             mock_cfg.PERSISTENCE.load_domain_physics.return_value = fake_domain
             mock_cfg.PERSISTENCE.load_subject_profile.return_value = fake_profile
 
             result = await handler(domain_id=None, credentials=None)
 
-        assert result["domain_id"] == "domain/edu/pre-algebra/v1"
+        assert result["domain_id"] == "domain/bizops/pre-algebra/v1"
         assert result["ui_manifest"]["subtitle"] == "Pre-Algebra"
         # Verify physics were loaded from the pre-algebra path
         mock_cfg.PERSISTENCE.load_domain_physics.assert_called_once_with(pa_physics_path)
@@ -91,7 +91,7 @@ class TestDomainInfoProfileAware:
         """When the user has no profile file, role-based routing is used."""
         handler = self._get_domain_info_handler()
 
-        fake_domain = {"id": "domain/edu/general-education/v1", "version": "1.0.0"}
+        fake_domain = {"id": "domain/bizops/general-business-ops/v1", "version": "1.0.0"}
         runtime = {
             "domain_physics_path": "dp/default.json",
             "ui_manifest": {
@@ -106,12 +106,12 @@ class TestDomainInfoProfileAware:
             },
             "ui_plugin": None,
             "module_map": {
-                "domain/edu/general-education/v1": {
+                "domain/bizops/general-business-ops/v1": {
                     "domain_physics_path": "dp/ge.json",
                     "ui_overrides": {"subtitle": "Student Commons"},
                 },
             },
-            "role_to_default_module": {"student": "domain/edu/general-education/v1"},
+            "role_to_default_module": {"student": "domain/bizops/general-business-ops/v1"},
         }
         user = {"sub": "student1", "role": "user", "domain_roles": {}}
         profile_path = MagicMock()
@@ -123,7 +123,7 @@ class TestDomainInfoProfileAware:
             patch("lumina.api.routes.system._resolve_role_layout", return_value={}),
             patch("lumina.api.config._resolve_user_profile_path", return_value=profile_path),
         ):
-            mock_cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "education"
+            mock_cfg.DOMAIN_REGISTRY.resolve_domain_id.return_value = "business-ops"
             mock_cfg.DOMAIN_REGISTRY.get_runtime_context.return_value = runtime
             mock_cfg.PERSISTENCE.load_domain_physics.return_value = fake_domain
 
@@ -145,7 +145,7 @@ _PA_TIERS = [
 
 def _load_pa_generator():
     """Import the pre-algebra problem generator via importlib."""
-    _gen_path = _REPO_ROOT / "model-packs" / "education" / "modules" / "pre-algebra" / "problem_generator.py"
+    _gen_path = _REPO_ROOT / "model-packs" / "business-ops" / "modules" / "pre-algebra" / "problem_generator.py"
     _spec = importlib.util.spec_from_file_location("pa_gen_test", str(_gen_path))
     _mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
     _spec.loader.exec_module(_mod)  # type: ignore[union-attr]
@@ -211,10 +211,10 @@ class TestModuleLevelDefaultTaskSpec:
         default_task_spec with nominal_difficulty 0.15."""
         from lumina.core.runtime_loader import load_yaml
         from conftest import merge_module_config_sidecars
-        cfg = load_yaml(str(_REPO_ROOT / "model-packs" / "education" / "cfg" / "runtime-config.yaml"))
+        cfg = load_yaml(str(_REPO_ROOT / "model-packs" / "business-ops" / "cfg" / "runtime-config.yaml"))
         module_map = cfg["runtime"]["module_map"]
         merge_module_config_sidecars(module_map)
-        pa_entry = module_map["domain/edu/pre-algebra/v1"]
+        pa_entry = module_map["domain/bizops/pre-algebra/v1"]
         task_spec = pa_entry.get("default_task_spec")
         assert task_spec is not None
         assert task_spec["nominal_difficulty"] == 0.45
@@ -226,7 +226,7 @@ class TestModuleLevelDefaultTaskSpec:
 # ═══════════════════════════════════════════════════════════════
 
 
-_HELPERS_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "ops" / "_helpers.py"
+_HELPERS_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "ops" / "_helpers.py"
 _helpers_spec = importlib.util.spec_from_file_location("edu_helpers_r2", str(_HELPERS_PATH))
 _helpers_mod = importlib.util.module_from_spec(_helpers_spec)  # type: ignore[arg-type]
 sys.modules["edu_helpers_r2"] = _helpers_mod
@@ -239,7 +239,7 @@ _ops_pkg_r2.__package__ = _OPS_PKG_R2
 sys.modules[_OPS_PKG_R2] = _ops_pkg_r2
 sys.modules[f"{_OPS_PKG_R2}._helpers"] = _helpers_mod
 
-_ROSTER_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "ops" / "roster.py"
+_ROSTER_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "ops" / "roster.py"
 _roster_spec = importlib.util.spec_from_file_location(
     f"{_OPS_PKG_R2}.roster", str(_ROSTER_PATH),
 )
@@ -294,7 +294,7 @@ class TestRosterGrantsDomainRoles:
     @pytest.mark.anyio
     async def test_teacher_gets_student_module_domain_role(self) -> None:
         student_profile = {
-            "domain_id": "domain/edu/pre-algebra/v1",
+            "domain_id": "domain/bizops/pre-algebra/v1",
             "assigned_teacher_id": None,
         }
         teacher_profile = {
@@ -313,19 +313,19 @@ class TestRosterGrantsDomainRoles:
 
         assert result["status"] == "assigned"
         t_prof = profiles["teacher1"]
-        assert "domain/edu/pre-algebra/v1" in t_prof.get("domain_roles", {})
-        assert t_prof["domain_roles"]["domain/edu/pre-algebra/v1"] == "teacher"
+        assert "domain/bizops/pre-algebra/v1" in t_prof.get("domain_roles", {})
+        assert t_prof["domain_roles"]["domain/bizops/pre-algebra/v1"] == "teacher"
 
     @pytest.mark.anyio
     async def test_existing_domain_role_not_overwritten(self) -> None:
         """If teacher already has domain_roles for the module, keep it."""
         student_profile = {
-            "domain_id": "domain/edu/pre-algebra/v1",
+            "domain_id": "domain/bizops/pre-algebra/v1",
             "assigned_teacher_id": None,
         }
         teacher_profile = {
             "educator_state": {"assigned_students": [], "receive_escalations": True},
-            "domain_roles": {"domain/edu/pre-algebra/v1": "admin"},
+            "domain_roles": {"domain/bizops/pre-algebra/v1": "admin"},
         }
         ctx, profiles = _make_roster_ctx(student_profile, teacher_profile)
         user_data = {"sub": "teacher1", "role": "user"}
@@ -338,7 +338,7 @@ class TestRosterGrantsDomainRoles:
         )
 
         # Should NOT overwrite the existing admin role
-        assert profiles["teacher1"]["domain_roles"]["domain/edu/pre-algebra/v1"] == "admin"
+        assert profiles["teacher1"]["domain_roles"]["domain/bizops/pre-algebra/v1"] == "admin"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -373,19 +373,19 @@ class TestSessionCloseStateFlush:
             task_spec={"task_id": "t1"},
             current_task={},
             turn_count=5,
-            domain_id="education",
+            domain_id="business-ops",
             task_presented_at=0.0,
             subject_profile_path="/fake/profile.yaml",
-            module_key="domain/edu/pre-algebra/v1",
+            module_key="domain/bizops/pre-algebra/v1",
         )
 
-        container = SessionContainer(active_domain_id="education", user={"sub": "student1", "role": "user"})
-        container.contexts["education"] = ctx
+        container = SessionContainer(active_domain_id="business-ops", user={"sub": "student1", "role": "user"})
+        container.contexts["business-ops"] = ctx
         _session_containers["test-close-flush"] = container
 
         runtime = {
             "module_map": {
-                "domain/edu/pre-algebra/v1": {
+                "domain/bizops/pre-algebra/v1": {
                     "profile_serializer_fn": fake_serializer,
                 },
             },
@@ -404,7 +404,7 @@ class TestSessionCloseStateFlush:
             _close_session("test-close-flush", actor_id="student1", actor_role="student")
 
         assert flushed.get("called") is True
-        assert saved_data["data"]["flushed_module"] == "domain/edu/pre-algebra/v1"
+        assert saved_data["data"]["flushed_module"] == "domain/bizops/pre-algebra/v1"
         assert "test-close-flush" not in _session_containers
 
     def test_close_session_graceful_without_serializer(self) -> None:
@@ -421,14 +421,14 @@ class TestSessionCloseStateFlush:
             task_spec={},
             current_task={},
             turn_count=1,
-            domain_id="education",
+            domain_id="business-ops",
             task_presented_at=0.0,
             subject_profile_path="/fake/profile.yaml",
-            module_key="domain/edu/pre-algebra/v1",
+            module_key="domain/bizops/pre-algebra/v1",
         )
 
-        container = SessionContainer(active_domain_id="education", user={"sub": "s1", "role": "user"})
-        container.contexts["education"] = ctx
+        container = SessionContainer(active_domain_id="business-ops", user={"sub": "s1", "role": "user"})
+        container.contexts["business-ops"] = ctx
         _session_containers["test-close-no-ser"] = container
 
         runtime = {"module_map": {}, "profile_serializer_fn": None}
@@ -446,3 +446,4 @@ class TestSessionCloseStateFlush:
 
         assert saved.get("session_state") == {"key": "value"}
         assert "test-close-no-ser" not in _session_containers
+

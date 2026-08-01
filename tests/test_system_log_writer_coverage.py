@@ -75,24 +75,24 @@ def test_log_records_initially_empty(tmp_path: Path) -> None:
 def test_write_commitment_record_uses_callback(tmp_path: Path) -> None:
     appended = []
     writer = _make_writer(tmp_path, callback=lambda sid, rec: appended.append(rec))
-    domain = {"id": "education", "version": "1.0"}
+    domain = {"id": "business-ops", "version": "1.0"}
     policy_commitment = {
-        "subject_id": "education",
+        "subject_id": "business-ops",
         "subject_version": "1.0",
         "subject_hash": "hashval",
     }
     writer.write_commitment_record(domain, policy_commitment)
     assert len(appended) == 1
     assert appended[0]["record_type"] == "CommitmentRecord"
-    assert appended[0]["subject_id"] == "education"
+    assert appended[0]["subject_id"] == "business-ops"
 
 
 @pytest.mark.unit
 def test_write_commitment_record_writes_file(tmp_path: Path) -> None:
     writer = _make_writer(tmp_path)
-    domain = {"id": "education", "version": "1.0",
+    domain = {"id": "business-ops", "version": "1.0",
                "domain_authority": {"pseudonymous_id": "da-001"}}
-    policy_commitment = {"subject_id": "education", "subject_version": "1.0",
+    policy_commitment = {"subject_id": "business-ops", "subject_version": "1.0",
                          "subject_hash": "hashval"}
     writer.write_commitment_record(domain, policy_commitment)
     ledger = tmp_path / "ledger.jsonl"
@@ -114,9 +114,9 @@ def test_write_commitment_record_includes_scope_fields_from_profile(tmp_path: Pa
             "device_id": "device-kiosk-7",
         },
     )
-    domain = {"id": "education", "version": "1.0"}
+    domain = {"id": "business-ops", "version": "1.0"}
     policy_commitment = {
-        "subject_id": "education",
+        "subject_id": "business-ops",
         "subject_version": "1.0",
         "subject_hash": "hashval",
     }
@@ -138,9 +138,9 @@ def test_write_commitment_record_requires_organization_and_site(tmp_path: Path) 
     )
     with pytest.raises(ValueError, match="CommitmentRecord requires scope fields"):
         writer.write_commitment_record(
-            {"id": "education", "version": "1.0"},
+            {"id": "business-ops", "version": "1.0"},
             {
-                "subject_id": "education",
+                "subject_id": "business-ops",
                 "subject_version": "1.0",
                 "subject_hash": "hashval",
             },
@@ -160,9 +160,9 @@ def test_write_commitment_record_rejects_placeholder_scope_and_invalid_device(tm
     )
     with pytest.raises(ValueError, match="CommitmentRecord requires scope fields"):
         writer.write_commitment_record(
-            {"id": "education", "version": "1.0"},
+            {"id": "business-ops", "version": "1.0"},
             {
-                "subject_id": "education",
+                "subject_id": "business-ops",
                 "subject_version": "1.0",
                 "subject_hash": "hashval",
             },
@@ -180,8 +180,8 @@ def test_write_commitment_record_rejects_placeholder_scope_and_invalid_device(tm
     appended = []
     writer._log_append_callback = lambda sid, rec: appended.append(rec)
     writer.write_commitment_record(
-        {"id": "education", "version": "1.0"},
-        {"subject_id": "education", "subject_version": "1.0", "subject_hash": "hashval"},
+        {"id": "business-ops", "version": "1.0"},
+        {"subject_id": "business-ops", "subject_version": "1.0", "subject_hash": "hashval"},
     )
     assert "device_id" not in appended[0]
 
@@ -247,7 +247,7 @@ def test_write_escalation_record_trigger_lookup_from_physics(tmp_path: Path) -> 
     appended = []
     writer = _make_writer(tmp_path, callback=lambda sid, rec: appended.append(rec))
     domain_physics = {
-        "id": "education",
+        "id": "business-ops",
         "version": "1.0",
         "auto_freeze_on_escalation": False,
         "escalation_triggers": [
@@ -374,11 +374,12 @@ def test_append_provenance_trace(tmp_path: Path) -> None:
 def test_hash_chain_advances_with_each_record(tmp_path: Path) -> None:
     appended = []
     writer = _make_writer(tmp_path, callback=lambda sid, rec: appended.append(rec))
-    domain = {"id": "education", "version": "1.0"}
-    policy = {"subject_id": "education", "subject_version": "1.0", "subject_hash": "h"}
+    domain = {"id": "business-ops", "version": "1.0"}
+    policy = {"subject_id": "business-ops", "subject_version": "1.0", "subject_hash": "h"}
     writer.write_commitment_record(domain, policy)
     writer.append_provenance_trace("t1", "a", "default", {})
 
     assert len(appended) == 2
     first_hash = hash_record(appended[0])
     assert appended[1]["prev_record_hash"] == first_hash
+
