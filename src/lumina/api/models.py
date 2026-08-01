@@ -2,9 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+
+
+ConnectorExecutionActionClass = Literal[
+    "query",
+    "create_draft",
+    "update_draft",
+    "request_commit",
+]
+
+ConnectorExecutionCapabilityNamespace = Literal[
+    "service/work-order",
+    "inventory",
+    "warehouse/storage",
+    "logistics/dispatch",
+    "scheduling",
+]
 
 
 # ── Chat ─────────────────────────────────────────────────────
@@ -175,8 +191,8 @@ class ConnectorExecutionActorScopeRequest(BaseModel):
 
 class ConnectorExecutionFixtureRequest(BaseModel):
     request_id: str = Field(min_length=1)
-    action_class: str = Field(min_length=1)
-    capability_namespace: str = Field(min_length=1)
+    action_class: ConnectorExecutionActionClass
+    capability_namespace: ConnectorExecutionCapabilityNamespace
     payload: dict[str, Any] = Field(default_factory=dict)
     actor_scope: ConnectorExecutionActorScopeRequest
     session_id: str | None = None
