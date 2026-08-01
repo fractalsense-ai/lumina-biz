@@ -212,24 +212,24 @@ class TestDualApproval:
     def test_dual_approval_both_approve(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="business-ops+business-ops",
+            domain_id="business-ops+field-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["business-ops", "business-ops"],
+            required_approvers=["business-ops", "field-ops"],
         )
         prop.resolve_approval("business-ops", "approved")
-        assert prop.status == "pending"  # still waiting for business-ops
+        assert prop.status == "pending"  # still waiting for field-ops
 
-        prop.resolve_approval("business-ops", "approved")
+        prop.resolve_approval("field-ops", "approved")
         assert prop.status == "approved"
 
     def test_partial_approval_stays_pending(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="business-ops+business-ops",
+            domain_id="business-ops+field-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["business-ops", "business-ops"],
+            required_approvers=["business-ops", "field-ops"],
         )
         prop.resolve_approval("business-ops", "approved")
         assert prop.status == "pending"
@@ -237,13 +237,13 @@ class TestDualApproval:
     def test_any_rejection_rejects(self):
         prop = Proposal(
             task="cross_domain_synthesis",
-            domain_id="business-ops+business-ops",
+            domain_id="business-ops+field-ops",
             proposal_type="cross_domain_similarity",
             summary="Test",
-            required_approvers=["business-ops", "business-ops"],
+            required_approvers=["business-ops", "field-ops"],
         )
         prop.resolve_approval("business-ops", "approved")
-        prop.resolve_approval("business-ops", "rejected")
+        prop.resolve_approval("field-ops", "rejected")
         assert prop.status == "rejected"
 
     def test_rejection_first_rejects_immediately(self):
