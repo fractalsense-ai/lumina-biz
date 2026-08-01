@@ -190,6 +190,13 @@ artifacts:
   status: planned
   last_updated: 2026-07-11
   sha256: b65e7f13cd6a455028340b151f4b999ad4a416aba6a4a3e7f6d114ba82064657
+- path: docs/roadmap/slices/33-erpnext-reference-connector-execution-plan.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: active
+  last_updated: 2026-08-01
+  sha256: a384ee85eafc40e2a445e0e4360d1e66a2a42ac77573dcd9472f82a7d21cc2b5
 - path: docs/roadmap/slices/34-secondary-provider-connector-and-conformance-harness.md
   type: doc
   section: 0

@@ -95,6 +95,22 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 **If the deterministic test suite fails, your PR will be automatically rejected.**
 
+### Local CI Guardrail (Required Before Push)
+
+Run the containerized backend CI workflow before pushing any backend or API changes:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\compose-ci.ps1 -Target backend
+```
+
+Linux/macOS equivalent:
+
+```bash
+bash scripts/compose-ci.sh backend
+```
+
+This catches Linux/container-only regressions earlier (for example manifest coverage drift or timing-sensitive auth checks) and should be treated as a required local pre-push gate.
+
 ---
 
 ## 📝 Pull Request Process
