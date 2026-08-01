@@ -1,9 +1,9 @@
 ---
 title: "Slice 33 — ERPNext Reference Connector and Deterministic Fixtures"
 slice: 33
-status: planned
+status: active
 version: 0.1.0
-last_updated: 2026-07-11
+last_updated: 2026-08-01
 ---
 
 ## Purpose
@@ -65,3 +65,37 @@ Implement ERPNext as the first reference connector that conforms to canonical bu
 
 - Slice 34: secondary provider connector and conformance harness.
 - Slice 35: auto-repair MVP over connector abstractions.
+
+## Implementation-Ready PR Description Template
+
+### Title
+
+Slice 33: ERPNext reference connector with deterministic fixture conformance
+
+### PR Scope
+
+- Implement ERPNext connector manifest, capability declarations, and canonical operation mapping.
+- Implement deterministic fixture mode for supported query and staged mutation operations.
+- Add connector-level ERPNext error normalization into canonical `connector_error` classes.
+- Add conformance tests and fixture replay tests for supported operations.
+
+### Acceptance Criteria
+
+- ERPNext connector passes canonical conformance tests for each supported capability.
+- Deterministic fixture scenarios cover nominal and failure paths.
+- Provider-specific field mapping remains isolated to ERPNext mapping layer.
+- No credential-bearing values appear in fixture artifacts, logs, or prompt payloads.
+
+### Test Checklist
+
+- [ ] Canonical contract conformance tests for ERPNext operations.
+- [ ] Deterministic fixture replay tests for each supported capability.
+- [ ] Negative tests for malformed mapping and unsupported capability routing.
+- [ ] Error normalization tests for ERPNext response classes.
+- [ ] Secret hygiene checks for fixtures and connector logs.
+
+### Out of Scope Confirmations
+
+- No canonical schema expansion for ERPNext-only fields.
+- No production credential rotation system in this slice.
+- No secondary provider connector implementation.
