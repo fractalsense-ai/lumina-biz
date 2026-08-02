@@ -115,6 +115,7 @@ class TestBusinessOpsAdapters:
         state = self.mod.build_initial_state({"entity_state": {"open_draft_count": 2}})
         assert state["open_draft_count"] == 2
         assert state["turn_count"] == 0
+        assert state["workflow_context"]["current_packet"] == "service_intake_packet"
 
     def test_domain_step_escalates_high_risk_without_approval(self):
         _, decision = self.mod.domain_step({}, {}, {"contains_high_risk_terms": True, "explicit_approval_language": False}, {})
@@ -125,6 +126,68 @@ class TestBusinessOpsAdapters:
         state, decision = self.mod.domain_step({}, {}, {"contains_high_risk_terms": False, "explicit_approval_language": True}, {})
         assert decision["action"] == "stage_erp_draft_update"
         assert state["open_draft_count"] == 1
+
+    def test_domain_step_returns_workflow_dispatch_metadata(self):
+        _, decision = self.mod.domain_step(
+            {"workflow_context": {"current_packet": "service_intake_packet"}},
+            {},
+            {
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
+                "connector_instance_id": "conn-1",
+                "connector_thread_id": "thr-7",
+            },
+            {},
+        )
+        wf = decision["workflow"]
+        assert wf["current_packet"] == "service_intake_packet"
+        assert wf["next_packet"] == "estimate_context_package"
+        assert wf["dispatch"]["handler"] == "workflow.intake_or_status"
+        assert wf["dispatch"]["payload"]["connector_instance_id"] == "conn-1"
+        assert wf["dispatch"]["payload"]["connector_thread_id"] == "thr-7"
+
+    def test_domain_step_fail_closed_when_allowlist_blocks_action(self):
+        _, decision = self.mod.domain_step(
+            {},
+            {},
+            {"contains_high_risk_terms": False, "explicit_approval_language": True},
+            {"allowed_workflow_actions": ["recommend_next_step"]},
+        )
+        assert decision["action"] == "escalate"
+        assert decision["allowlist_blocked"] is True
+
+    def test_domain_step_uses_default_confidence_for_non_numeric_values(self):
+        state, decision = self.mod.domain_step(
+            {"workflow_context": {"current_packet": "estimate_context_package"}},
+            {},
+            {
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
+                "confidence_score": "unknown",
+            },
+            {},
+        )
+        assert decision["confidence_score"] == pytest.approx(0.5)
+        assert state["workflow_context"]["last_confidence"] == pytest.approx(0.5)
+
+    def test_domain_step_emits_tier_mapped_escalation_metadata(self):
+        _, decision = self.mod.domain_step(
+            {},
+            {},
+            {"contains_high_risk_terms": True, "explicit_approval_language": False},
+            {
+                "escalation_policy_by_tier": {
+                    "major": {"target_role": "owner", "priority": "urgent", "sla_minutes": 10},
+                },
+            },
+        )
+        assert decision["action"] == "escalate"
+        assert decision["escalation"] == {
+            "target_role": "owner",
+            "priority": "urgent",
+            "sla_minutes": 10,
+            "recommended": True,
+        }
 
 
 @pytest.mark.unit

@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-08-01
+last_updated: 2026-08-02
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -182,14 +182,14 @@ artifacts:
   doc_version: 1.0.0
   status: planned
   last_updated: 2026-07-11
-  sha256: 6ba2371343c17b499cf38f5a2b8dbe7e9384cd49a1b431e46592a01c50b86796
+  sha256: 0a9e2cd0e6e81ac7ad89945b29e7443db77b5ef81d9d7e4410dbcf9faa8d5f4d
 - path: docs/roadmap/slices/33-erpnext-reference-connector-and-fixtures.md
   type: doc
   section: 0
   doc_version: 1.0.0
   status: planned
   last_updated: 2026-07-11
-  sha256: b65e7f13cd6a455028340b151f4b999ad4a416aba6a4a3e7f6d114ba82064657
+  sha256: 21be4506af9c937f43e674dab0623893ca2dbfb2345f2d42bfc141cd6ae3fdbe
 - path: docs/roadmap/slices/34-secondary-provider-connector-and-conformance-harness.md
   type: doc
   section: 0
@@ -203,7 +203,7 @@ artifacts:
   doc_version: 1.0.0
   status: planned
   last_updated: 2026-07-11
-  sha256: 351237b1729ebab358f0714aa985d88e8ab73bc4548dba02bfbb2414fbf96ae8
+  sha256: fddb5ec8a5f445ac0f13c6c175cf0eeba895984b3d58b77cb5681b44999ac0f7
 - path: docs/roadmap/slices/36-single-box-deployment-and-operational-hardening.md
   type: doc
   section: 0
@@ -1731,7 +1731,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: d32e42b3fd01a4d3173982d3fb3697bcce6aaab004cc838f044301fa530e435f
+  sha256: d4f8b1073f9f138a939cc1ccf77b17f40769fded617dc244043fd89c3cb5bd1c
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
@@ -1829,7 +1829,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-30
-  sha256: fc70043e382ff6f78f4e290f0164868eb5044da68690626a3f769bd653d531c6
+  sha256: 64747cf44b714dcb1cb259f054f0093270fb7b05faf4c51568c43426211549ce
 
 - path: model-packs/business-ops/modules/auto-repair/tool-adapters/erp-draft-staging-adapter-v1.yaml
   type: config

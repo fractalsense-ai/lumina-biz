@@ -105,6 +105,7 @@ class DomainContext:
         "orchestrator",
         "task_spec",
         "current_task",
+        "workflow_context",
         "turn_count",
         "domain_id",
         "module_key",
@@ -117,6 +118,7 @@ class DomainContext:
         orchestrator: Any,
         task_spec: dict[str, Any],
         current_task: dict[str, Any],
+        workflow_context: dict[str, Any],
         turn_count: int,
         domain_id: str,
         task_presented_at: float,
@@ -126,6 +128,7 @@ class DomainContext:
         self.orchestrator = orchestrator
         self.task_spec = task_spec
         self.current_task = current_task
+        self.workflow_context = workflow_context
         self.turn_count = turn_count
         self.domain_id = domain_id
         self.module_key = module_key
@@ -137,6 +140,7 @@ class DomainContext:
             "orchestrator": self.orchestrator,
             "task_spec": self.task_spec,
             "current_task": self.current_task,
+            "workflow_context": self.workflow_context,
             "turn_count": self.turn_count,
             "domain_id": self.domain_id,
             "module_key": self.module_key,
@@ -146,6 +150,8 @@ class DomainContext:
     def sync_from_dict(self, d: dict[str, Any]) -> None:
         self.task_spec = d["task_spec"]
         self.current_task = d["current_task"]
+        if "workflow_context" in d and isinstance(d["workflow_context"], dict):
+            self.workflow_context = d["workflow_context"]
         self.turn_count = d["turn_count"]
         if "module_key" in d:
             self.module_key = d["module_key"]
@@ -359,6 +365,7 @@ def _build_domain_context(
         orchestrator=orch,
         task_spec=task_spec,
         current_task=current_task,
+        workflow_context=dict(ps.get("workflow_context") or {}),
         turn_count=turn_count,
         domain_id=resolved_domain_id,
         task_presented_at=time.time(),
@@ -374,6 +381,7 @@ def _persist_session_container(session_id: str, container: SessionContainer) -> 
         contexts_state[did] = {
             "task_spec": ctx.task_spec,
             "current_task": ctx.current_task,
+            "workflow_context": ctx.workflow_context,
             "turn_count": ctx.turn_count,
             "standing_order_attempts": ctx.orchestrator.get_standing_order_attempts(),
             "domain_id": did,

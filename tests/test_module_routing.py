@@ -126,6 +126,25 @@ class TestModuleArtifacts:
         assert "stage_draft_only" in so_ids
         assert "escalate_to_manager" in so_ids
 
+    def test_module_sidecar_exposes_workflow_control_params(self, module_map):
+        entry = module_map[_ACTIVE_MODULE_ID]
+        params = entry.get("domain_step_params") or {}
+        assert params.get("low_confidence_threshold") == pytest.approx(0.25)
+        assert "allowed_workflow_actions" in params
+        assert set(params["allowed_workflow_actions"]) == {
+            "recommend_next_step",
+            "stage_erp_draft_update",
+            "escalate",
+        }
+
+    def test_module_sidecar_exposes_escalation_policy(self, module_map):
+        entry = module_map[_ACTIVE_MODULE_ID]
+        params = entry.get("domain_step_params") or {}
+        policy = params.get("escalation_policy_by_tier") or {}
+        assert policy["major"]["target_role"] == "manager"
+        assert policy["major"]["priority"] == "high"
+        assert policy["major"]["sla_minutes"] == 15
+
 
 # ---------------------------------------------------------------------------
 # Module routing logic

@@ -4,13 +4,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
-
-from lumina.business_ops.replay import generate_replay_report
 
 
 def _default_repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+_REPO_ROOT = _default_repo_root()
+_SRC = _REPO_ROOT / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+
+from lumina.business_ops.replay import generate_replay_report
 
 
 def main() -> int:

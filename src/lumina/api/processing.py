@@ -647,6 +647,13 @@ def process_message(
                 len(_pending),
             )
 
+    # Persist workflow context emitted by domain-step state transitions so
+    # follow-up turns and rehydrated sessions keep connector/escalation IDs.
+    if isinstance(orch.state, dict):
+        _wf_ctx = orch.state.get("workflow_context")
+        if isinstance(_wf_ctx, dict):
+            session["workflow_context"] = dict(_wf_ctx)
+
     # ── Post-turn processing (domain-hook driven) ──────────────
     _new_task_presented = _new_task_on_resume
     _ptp_fn = _active_mod.get("post_turn_processor_fn") or runtime.get("post_turn_processor_fn")

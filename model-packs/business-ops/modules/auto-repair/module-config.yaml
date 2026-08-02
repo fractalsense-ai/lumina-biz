@@ -15,6 +15,24 @@ default_task_spec:
 
 domain_step_params:
   require_manager_approval_for_high_risk: true
+  low_confidence_threshold: 0.25
+  allowed_workflow_actions:
+    - recommend_next_step
+    - stage_erp_draft_update
+    - escalate
+  escalation_policy_by_tier:
+    major:
+      target_role: manager
+      priority: high
+      sla_minutes: 15
+    minor:
+      target_role: operator
+      priority: normal
+      sla_minutes: 60
+    ok:
+      target_role: operator
+      priority: normal
+      sla_minutes: 240
 
 turn_input_defaults:
   risk_class: operational

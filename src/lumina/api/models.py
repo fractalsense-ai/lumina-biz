@@ -200,6 +200,28 @@ class HolodeckSimulateResponse(BaseModel):
     staged_id: str | None = None
 
 
+# ── Workflow (Business Ops Auto-Repair) ─────────────────────
+
+class AutoRepairWorkflowRequest(BaseModel):
+    session_id: str | None = None
+    message: str = Field(min_length=1)
+    domain_id: str | None = None
+    deterministic_response: bool = False
+    turn_data_override: dict[str, Any] | None = None
+
+
+class AutoRepairWorkflowResponse(BaseModel):
+    session_id: str
+    response: str
+    action: str
+    prompt_type: str
+    escalated: bool
+    domain_id: str | None = None
+    tool_results: list[dict[str, Any]] | None = None
+    structured_content: dict[str, Any] | None = None
+    workflow: dict[str, Any]
+
+
 # ── Tools ────────────────────────────────────────────────────
 
 class ToolRequest(BaseModel):

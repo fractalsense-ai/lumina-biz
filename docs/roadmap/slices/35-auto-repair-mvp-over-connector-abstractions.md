@@ -1,9 +1,9 @@
 ---
 title: "Slice 35 — Auto Repair MVP Over Connector Abstractions"
 slice: 35
-status: planned
-version: 0.1.0
-last_updated: 2026-07-11
+status: active
+version: 0.2.0
+last_updated: 2026-08-02
 ---
 
 ## Purpose
@@ -55,6 +55,26 @@ Deliver the first verticalized end-to-end loop (auto repair operations) using ca
 - End-to-end fixture tests for intake/status/update/escalation flows.
 - Contract tests for vertical workflow packets and escalation record shape.
 - Portability tests across at least two conformant connectors.
+
+### Implementation Evidence (2026-08-02)
+
+- Workflow endpoints implemented and wired: intake/status/draft-update with concrete side effects (draft staging, escalation logging, workflow metadata propagation).
+- Session/domain context persistence now carries workflow context across turns and rehydration.
+- Auto-repair sidecar exposes configurable threshold, allowlist, and escalation policy maps used by runtime adapters.
+- Connector portability replay expanded to a multi-scenario matrix, including cross-module handoff-gated mutation parity with step-sequence expectations.
+
+Validated command outputs:
+
+- `pytest tests/test_business_ops_replay_service.py tests/test_business_ops_e2e_fixture.py -q` -> `5 passed`
+- `pytest tests/test_routes_workflow.py tests/test_business_ops_pack.py tests/test_module_routing.py tests/test_pipeline_fix.py tests/test_business_ops_replay_service.py tests/test_business_ops_e2e_fixture.py -q` -> `60 passed`
+- `.\.venv\Scripts\python.exe scripts/run_business_ops_replay.py --fixture examples/business-ops-auto-repair-cross-provider-fixture.json --out data/staging/business-ops-cross-provider-report.json` -> report written successfully
+
+Key evidence artifacts:
+
+- `examples/business-ops-auto-repair-cross-provider-fixture.json`
+- `data/staging/business-ops-cross-provider-report.json`
+- `tests/test_business_ops_replay_service.py`
+- `tests/test_routes_workflow.py`
 
 ## Ledger/Governance Impact
 
