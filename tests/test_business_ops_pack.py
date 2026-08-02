@@ -245,6 +245,44 @@ class TestBusinessOpsAdapters:
         assert decision["action_class"] is None
         assert state["workflow_packet_type"] == "service_intake_packet"
 
+    def test_domain_step_fails_closed_for_incomplete_allowlist_config(self):
+        state, decision = self.mod.domain_step(
+            {},
+            {},
+            {"workflow_packet_type": "service_intake_packet"},
+            {
+                "connector_allowlist_defaults": {
+                    "capabilities": ["service/work-order"],
+                    # Missing action_classes should fail closed.
+                }
+            },
+        )
+
+        assert decision["action"] == "escalate"
+        assert decision["capability_namespace"] is None
+        assert decision["action_class"] is None
+        assert state["workflow_packet_type"] == "service_intake_packet"
+
+    def test_domain_step_handles_non_numeric_confidence_score(self):
+        state, decision = self.mod.domain_step(
+            {},
+            {},
+            {
+                "workflow_packet_type": "service_intake_packet",
+                "confidence_score": "unknown",
+            },
+            {
+                "connector_allowlist_defaults": {
+                    "capabilities": ["service/work-order"],
+                    "action_classes": ["query", "update_draft", "request_commit"],
+                }
+            },
+        )
+
+        assert decision["action"] == "recommend_next_step"
+        assert decision["tier"] == "minor"
+        assert state["workflow_packet_type"] == "estimate_context_packet"
+
 
 @pytest.mark.unit
 class TestBusinessOpsRolePermissions:

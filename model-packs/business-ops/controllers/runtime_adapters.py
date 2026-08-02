@@ -28,12 +28,17 @@ def _allowlisted(
     capability_namespace: str,
     action_class: str,
 ) -> bool:
-    allow_cfg = params.get("connector_allowlist_defaults") or {}
+    allow_cfg = params.get("connector_allowlist_defaults")
+    if allow_cfg is None:
+        return True
+    if not isinstance(allow_cfg, dict):
+        return False
+
     allowed_capabilities = {str(v).strip() for v in (allow_cfg.get("capabilities") or []) if str(v).strip()}
     allowed_action_classes = {str(v).strip() for v in (allow_cfg.get("action_classes") or []) if str(v).strip()}
 
     if not allowed_capabilities or not allowed_action_classes:
-        return True
+        return False
     return capability_namespace in allowed_capabilities and action_class in allowed_action_classes
 
 
@@ -45,6 +50,13 @@ def _confidence_threshold(params: dict[str, Any]) -> float:
         return float(threshold) if threshold is not None else 0.70
     except (TypeError, ValueError):
         return 0.70
+
+
+def _safe_float(value: Any, default: float) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def build_initial_state(profile: dict[str, Any]) -> dict[str, Any]:
@@ -70,7 +82,7 @@ def domain_step(
 
     high_risk = bool(evidence.get("contains_high_risk_terms", False))
     approved = bool(evidence.get("explicit_approval_language", False))
-    confidence_score = float(evidence.get("confidence_score") or 0.0)
+    confidence_score = _safe_float(evidence.get("confidence_score"), 0.0)
 
     packet_explicit = "workflow_packet_type" in evidence or "workflow_packet_type" in new_state
     packet_type = str(

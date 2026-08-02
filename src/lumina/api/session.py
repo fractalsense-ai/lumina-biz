@@ -257,9 +257,9 @@ def _build_domain_context(
     state_builder = _mod_entry.get("state_builder_fn") or runtime["state_builder_fn"]
     domain_step = _mod_entry.get("domain_step_fn") or runtime["domain_step_fn"]
     domain_params = dict(_mod_entry.get("domain_step_params") or runtime.get("domain_step_params") or {})
-    if "connector_allowlist_defaults" not in domain_params and _mod_entry.get("connector_allowlist_defaults"):
+    if "connector_allowlist_defaults" not in domain_params and "connector_allowlist_defaults" in _mod_entry:
         domain_params["connector_allowlist_defaults"] = _mod_entry.get("connector_allowlist_defaults")
-    if "confidence_profile_defaults" not in domain_params and _mod_entry.get("confidence_profile_defaults"):
+    if "confidence_profile_defaults" not in domain_params and "confidence_profile_defaults" in _mod_entry:
         domain_params["confidence_profile_defaults"] = _mod_entry.get("confidence_profile_defaults")
 
     _sb_sig = inspect.signature(state_builder)
