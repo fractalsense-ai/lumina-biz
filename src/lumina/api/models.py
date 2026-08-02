@@ -2,9 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+
+
+ConnectorExecutionActionClass = Literal[
+    "query",
+    "create_draft",
+    "update_draft",
+    "request_commit",
+]
+
+ConnectorExecutionCapabilityNamespace = Literal[
+    "service/work-order",
+    "inventory",
+    "warehouse/storage",
+    "logistics/dispatch",
+    "scheduling",
+]
 
 
 # ── Chat ─────────────────────────────────────────────────────
@@ -165,6 +181,33 @@ class ConnectorRoutingPreflightResponse(BaseModel):
     policy_version: int
     candidate_connector_ids: list[str]
     evaluated_utc: str
+
+
+class ConnectorExecutionActorScopeRequest(BaseModel):
+    organization_id: str = Field(min_length=1)
+    site_id: str = Field(min_length=1)
+    actor_id: str = Field(min_length=1)
+
+
+class ConnectorExecutionFixtureRequest(BaseModel):
+    request_id: str = Field(min_length=1)
+    action_class: ConnectorExecutionActionClass
+    capability_namespace: ConnectorExecutionCapabilityNamespace
+    payload: dict[str, Any] = Field(default_factory=dict)
+    actor_scope: ConnectorExecutionActorScopeRequest
+    session_id: str | None = None
+
+
+class ConnectorExecutionFixtureResponse(BaseModel):
+    request_id: str
+    result_id: str
+    action_class: str
+    capability_namespace: str
+    status: str
+    occurred_utc: str
+    result_data: dict[str, Any] | None = None
+    errors: list[dict[str, Any]] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 # ── Holodeck Sandbox ─────────────────────────────────────────

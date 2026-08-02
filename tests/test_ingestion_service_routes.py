@@ -367,7 +367,7 @@ class TestListIngestions:
     def test_admin_filtered_to_governed_domains(self) -> None:
         records = [
             {"ingestion_id": "a", "domain_id": "business-ops"},
-            {"ingestion_id": "b", "domain_id": "business-ops"},
+            {"ingestion_id": "b", "domain_id": "field-ops"},
         ]
         svc = MagicMock()
         svc.list_records.return_value = records

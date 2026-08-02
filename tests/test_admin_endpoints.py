@@ -451,13 +451,13 @@ class TestUpdateUserDomainRoles:
         )
         client.patch(
             f"/api/auth/users/{user['user_id']}",
-            json={"domain_roles": {"business-ops": "employee"}},
+            json={"domain_roles": {"field-ops": "employee"}},
             headers=_auth_header(root_token),
         )
         stored = api_module.PERSISTENCE.get_user(user["user_id"])
         assert stored is not None
         assert stored["domain_roles"].get("business-ops") == "supervisor"
-        assert stored["domain_roles"].get("business-ops") == "employee"
+        assert stored["domain_roles"].get("field-ops") == "employee"
 
     def test_domain_roles_in_jwt_after_login(self, client: TestClient) -> None:
         from lumina.auth.auth import verify_jwt

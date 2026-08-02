@@ -289,3 +289,92 @@ def test_preflight_rejects_unsupported_action_class(client) -> None:
     )
 
     assert response.status_code == 422
+
+
+@pytest.mark.integration
+def test_preflight_prefers_capability_route_in_multi_connector_mode(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["connector_registry_entries"] = [
+        {
+            "organization_id": "org-a",
+            "site_id": "site-a",
+            "connector_instance_id": "conn-erpnext",
+            "capability_namespaces": ["inventory"],
+            "supported_action_classes": ["query"],
+            "enabled": True,
+            "health_status": "healthy",
+            "is_site_primary": True,
+        },
+        {
+            "organization_id": "org-a",
+            "site_id": "site-a",
+            "connector_instance_id": "conn-odoo",
+            "capability_namespaces": ["service/work-order", "inventory"],
+            "supported_action_classes": ["query"],
+            "enabled": True,
+            "health_status": "healthy",
+            "is_site_primary": False,
+        },
+    ]
+    payload["capability_routes"] = [
+        {
+            "capability_namespace": "service/work-order",
+            "connector_instance_id": "conn-odoo",
+            "supported_action_classes": ["query"],
+            "priority": 1,
+        }
+    ]
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "resolved"
+    assert body["source"] == "capability_route"
+    assert body["connector_instance_id"] == "conn-odoo"
+
+
+@pytest.mark.integration
+def test_preflight_falls_back_to_site_primary_with_multiple_connectors(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["capability_routes"] = []
+    payload["connector_registry_entries"] = [
+        {
+            "organization_id": "org-a",
+            "site_id": "site-a",
+            "connector_instance_id": "conn-erpnext",
+            "capability_namespaces": ["service/work-order", "inventory"],
+            "supported_action_classes": ["query"],
+            "enabled": True,
+            "health_status": "healthy",
+            "is_site_primary": True,
+        },
+        {
+            "organization_id": "org-a",
+            "site_id": "site-a",
+            "connector_instance_id": "conn-odoo",
+            "capability_namespaces": ["service/work-order", "inventory"],
+            "supported_action_classes": ["query"],
+            "enabled": True,
+            "health_status": "healthy",
+            "is_site_primary": False,
+        },
+    ]
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "resolved"
+    assert body["source"] == "site_primary"
+    assert body["connector_instance_id"] == "conn-erpnext"

@@ -101,7 +101,7 @@ class TestAdminIngestionExecute:
     def test_list_ingestions_admin_filtered_by_governed(self) -> None:
         records = [
             {"ingestion_id": "a", "domain_id": "business-ops"},
-            {"ingestion_id": "b", "domain_id": "business-ops"},
+            {"ingestion_id": "b", "domain_id": "field-ops"},
         ]
         svc = _ingest_svc(records=records)
         admin = _user("admin", governed=["business-ops"])
@@ -306,7 +306,7 @@ class TestAdminEscalationsExecute:
     def test_list_escalations_admin_filtered_by_governed(self) -> None:
         escalations = [
             {"record_id": "e1", "domain_id": "business-ops"},
-            {"record_id": "e2", "domain_id": "business-ops"},
+            {"record_id": "e2", "domain_id": "field-ops"},
         ]
         # get_model_pack_id is called on each escalation — patch it
         with patch(

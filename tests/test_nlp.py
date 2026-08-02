@@ -139,8 +139,8 @@ _DOMAIN_MAP = {
         "description": "Algebra, math problems, learning",
         "keywords": ["algebra", "equation", "math", "solve", "variable"],
     },
-    "business-ops": {
-        "label": "Business Ops",
+    "field-ops": {
+        "label": "Field Ops",
         "description": "Farming, crop management, irrigation",
         "keywords": ["crop", "irrigation", "harvest", "soil", "fertilizer"],
     },
@@ -170,7 +170,7 @@ def test_classify_domain_keyword_match() -> None:
 def test_classify_domain_keyword_match_field_ops() -> None:
     result = classify_domain("The crop irrigation needs fertilizer this harvest season", _DOMAIN_MAP)
     assert result is not None
-    assert result["domain_id"] == "business-ops"
+    assert result["domain_id"] == "field-ops"
     assert result["method"] == "keyword"
 
 
