@@ -119,7 +119,7 @@ Each domain defines its own evidence schema and runtime pipeline (for example, b
 
 ## A — Actor
 
-The **Actor** is whatever changes the state of the system relative to a given domain. Actors are context-dependent: in an business-ops domain the Actor may be a student; in business-ops it may be a pH sensor, a farmer operating equipment, or a weather station. The Domain Authority defines which entities qualify as Actors in the domain pack.
+The **Actor** is whatever changes the state of the system relative to a given domain. Actors are context-dependent: in an education domain the Actor may be a learner; in business-ops it may be an operator, a customer-intake user, or a weather station. The Domain Authority defines which entities qualify as Actors in the domain pack.
 
 The AI orchestrator is **not** an Actor — it is an executor and translator that mediates between the DSA pillars. Its pipeline is: sensor → domain logic → module action → actuator → feedback → system state.
 

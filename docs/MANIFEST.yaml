@@ -329,7 +329,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: a6bd638262ceb7494d41ed46412bff77f784124f9b843587d17394643dcbd6d0
+  sha256: 77dc1686343305518451220a474bc738ef2c6b8f1b1d2a2e8da0a52e2ce282e4
 - path: docs/3-functions/auth.md
   type: doc
   section: 3
@@ -469,7 +469,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-19
-  sha256: cfbfe20c7da8d795fdaacb2a35a4b854fee610de3510b1d722ec2469e7176338
+  sha256: c0d4b401a35b199474a89241b0173cacf7e20529d53c58538c3a0237c33fed1a
 - path: docs/7-concepts/file-generation-staging.md
   type: doc
   section: 7
@@ -553,7 +553,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-18
-  sha256: 8b17fd137d13838d21f9559e626860a18521fd9b932c089517341f47e0e0a568
+  sha256: 1673e5ed9207ce2cccb745b02a21bc952a7144668fb07e8802085634546cda35
 - path: docs/7-concepts/parallel-authority-tracks.md
   type: doc
   section: 7
@@ -815,7 +815,7 @@ artifacts:
   doc_version: 1.2.0
   status: active
   last_updated: 2026-03-08
-  sha256: 17671ca44af8b8aae0f9641c16f70310462d78c498ee8479ff025dbb44f7054c
+  sha256: 8369f3b0a01358c5ef4314d2786927a28c084b0c1d05bae20f6bcc542e2bdc87
 - path: docs/8-admin/evaluation-harness.md
   type: spec
   doc_version: 1.0.0
@@ -903,7 +903,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: b73feb12337ea01f6afe1f9f19b80110f5c5a530c40b0f6ab859d4a3bde7cfee
+  sha256: e34b065baf7f6e73417536161e7456679171d3b39fe9bfb73442d5632f600dd5
 - path: docs/3-functions/affect-monitor.md
   type: doc
   section: 3
