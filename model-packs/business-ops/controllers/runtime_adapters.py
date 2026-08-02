@@ -7,56 +7,61 @@ from typing import Any, Callable
 _PACKET_ORDER = (
     "service_intake_packet",
     "estimate_context_packet",
-    "status_lookup_packet",
     "customer_communication_draft_packet",
+    "escalation_record",
 )
 
+_ACTION_TO_HANDLER = {
+    "recommend_next_step": "workflow.intake_or_status",
+    "stage_erp_draft_update": "workflow.stage_draft_update",
+    "escalate": "workflow.escalate_case",
+}
 
-def _next_packet(packet_type: str) -> str:
-    try:
-        idx = _PACKET_ORDER.index(packet_type)
-    except ValueError:
-        return _PACKET_ORDER[0]
-    if idx + 1 >= len(_PACKET_ORDER):
-        return _PACKET_ORDER[-1]
-    return _PACKET_ORDER[idx + 1]
-
-
-def _allowlisted(
-    params: dict[str, Any],
-    *,
-    capability_namespace: str,
-    action_class: str,
-) -> bool:
-    allow_cfg = params.get("connector_allowlist_defaults")
-    if allow_cfg is None:
-        return True
-    if not isinstance(allow_cfg, dict):
-        return False
-
-    allowed_capabilities = {str(v).strip() for v in (allow_cfg.get("capabilities") or []) if str(v).strip()}
-    allowed_action_classes = {str(v).strip() for v in (allow_cfg.get("action_classes") or []) if str(v).strip()}
-
-    if not allowed_capabilities or not allowed_action_classes:
-        return False
-    return capability_namespace in allowed_capabilities and action_class in allowed_action_classes
+_DEFAULT_ESCALATION_POLICY = {
+    "major": {"target_role": "manager", "priority": "high", "sla_minutes": 15},
+    "minor": {"target_role": "operator", "priority": "normal", "sla_minutes": 60},
+    "ok": {"target_role": "operator", "priority": "normal", "sla_minutes": 240},
+}
 
 
-def _confidence_threshold(params: dict[str, Any]) -> float:
-    threshold = params.get("require_confirmation_threshold")
-    if threshold is None:
-        threshold = (params.get("confidence_profile_defaults") or {}).get("confirmation_threshold")
-    try:
-        return float(threshold) if threshold is not None else 0.70
-    except (TypeError, ValueError):
-        return 0.70
-
-
-def _safe_float(value: Any, default: float) -> float:
+def _to_float(value: Any, default: float) -> float:
     try:
         return float(value)
     except (TypeError, ValueError):
         return default
+
+
+def _allowlisted(action: str, params: dict[str, Any]) -> bool:
+    if "allowed_workflow_actions" not in params:
+        return True
+    allowed = params.get("allowed_workflow_actions")
+    if not isinstance(allowed, list) or not allowed:
+        return False
+    return action in {str(item) for item in allowed}
+
+
+def _next_packet(current_packet: str, action: str) -> str:
+    if action == "escalate":
+        return "escalation_record"
+    if current_packet not in _PACKET_ORDER:
+        return _PACKET_ORDER[0]
+    current_idx = _PACKET_ORDER.index(current_packet)
+    if current_idx >= len(_PACKET_ORDER) - 1:
+        return _PACKET_ORDER[-1]
+    return _PACKET_ORDER[current_idx + 1]
+
+
+def _resolve_escalation_policy(tier: str, params: dict[str, Any]) -> dict[str, Any]:
+    raw_policy = params.get("escalation_policy_by_tier")
+    if isinstance(raw_policy, dict):
+        candidate = raw_policy.get(tier)
+        if isinstance(candidate, dict):
+            return {
+                "target_role": str(candidate.get("target_role", "manager")),
+                "priority": str(candidate.get("priority", "high")),
+                "sla_minutes": int(_to_float(candidate.get("sla_minutes"), 15.0)),
+            }
+    return dict(_DEFAULT_ESCALATION_POLICY.get(tier, _DEFAULT_ESCALATION_POLICY["major"]))
 
 
 def build_initial_state(profile: dict[str, Any]) -> dict[str, Any]:
@@ -64,8 +69,16 @@ def build_initial_state(profile: dict[str, Any]) -> dict[str, Any]:
     return {
         "open_draft_count": int(entity_state.get("open_draft_count", 0)),
         "last_recommendation_tier": entity_state.get("last_recommendation_tier"),
+        "workflow_context": {
+            "current_packet": "service_intake_packet",
+            "next_packet": "estimate_context_packet",
+            "connector_instance_id": entity_state.get("connector_instance_id"),
+            "connector_thread_id": entity_state.get("connector_thread_id"),
+            "escalation_record_id": entity_state.get("escalation_record_id"),
+            "last_action": None,
+            "last_confidence": None,
+        },
         "turn_count": 0,
-        "workflow_packet_type": "service_intake_packet",
     }
 
 
@@ -76,75 +89,79 @@ def domain_step(
     params: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     new_state = dict(state)
-    new_state.setdefault("open_draft_count", 0)
-    new_state.setdefault("last_recommendation_tier", None)
     new_state["turn_count"] = int(new_state.get("turn_count", 0)) + 1
 
     high_risk = bool(evidence.get("contains_high_risk_terms", False))
     approved = bool(evidence.get("explicit_approval_language", False))
-    confidence_score = _safe_float(evidence.get("confidence_score"), 0.0)
-
-    packet_explicit = "workflow_packet_type" in evidence or "workflow_packet_type" in new_state
-    packet_type = str(
-        evidence.get("workflow_packet_type")
-        or new_state.get("workflow_packet_type")
-        or "service_intake_packet"
-    )
-    if packet_type not in _PACKET_ORDER:
-        packet_type = "service_intake_packet"
-
-    if approved and not packet_explicit:
-        capability_namespace = "service/work-order"
-        action_class = "update_draft"
-        action = "stage_erp_draft_update"
-        tier = "minor"
-        new_state["open_draft_count"] = int(new_state.get("open_draft_count", 0)) + 1
-    elif packet_type == "customer_communication_draft_packet":
-        capability_namespace = "service/work-order"
-        if approved:
-            action_class = "update_draft"
-            action = "stage_erp_draft_update"
-            tier = "minor"
-            new_state["open_draft_count"] = int(new_state.get("open_draft_count", 0)) + 1
-        else:
-            action_class = "query"
-            action = "recommend_next_step"
-            tier = "major"
-    else:
-        capability_namespace = "service/work-order"
-        action_class = "query"
-        action = "recommend_next_step"
-        tier = "ok"
-        if confidence_score < _confidence_threshold(params):
-            tier = "minor"
+    confidence = _to_float(evidence.get("confidence_score"), 0.5)
+    low_conf_threshold = _to_float(params.get("low_confidence_threshold"), 0.25)
 
     if high_risk and not approved:
         tier = "major"
         action = "escalate"
-        capability_namespace = ""
-        action_class = ""
-    elif action != "escalate" and not _allowlisted(
-        params,
-        capability_namespace=capability_namespace,
-        action_class=action_class,
-    ):
+    elif confidence < low_conf_threshold:
         tier = "major"
         action = "escalate"
-        capability_namespace = ""
-        action_class = ""
+    elif approved:
+        tier = "minor"
+        action = "stage_erp_draft_update"
+        new_state["open_draft_count"] = int(new_state.get("open_draft_count", 0)) + 1
+    else:
+        tier = "ok"
+        action = "recommend_next_step"
 
-    next_packet = packet_type if action == "escalate" else _next_packet(packet_type)
-    new_state["workflow_packet_type"] = next_packet
+    allowlist_blocked = False
+    if not _allowlisted(action, params):
+        action = "escalate"
+        tier = "major"
+        allowlist_blocked = True
+
+    workflow_context = dict(new_state.get("workflow_context") or {})
+    current_packet = str(
+        evidence.get("packet_type")
+        or workflow_context.get("current_packet")
+        or _PACKET_ORDER[0]
+    )
+    next_packet = _next_packet(current_packet, action)
+
+    for key in ("connector_instance_id", "connector_thread_id", "escalation_record_id"):
+        if key in evidence and evidence.get(key) is not None:
+            workflow_context[key] = evidence.get(key)
+
+    workflow_context["current_packet"] = current_packet
+    workflow_context["next_packet"] = next_packet
+    workflow_context["last_action"] = action
+    workflow_context["last_confidence"] = confidence
+
+    new_state["workflow_context"] = workflow_context
+    escalation_policy = _resolve_escalation_policy(tier, params)
 
     new_state["last_recommendation_tier"] = tier
     return new_state, {
         "tier": tier,
         "action": action,
         "escalation_eligible": high_risk,
-        "workflow_packet_type": packet_type,
-        "next_workflow_packet_type": next_packet,
-        "capability_namespace": capability_namespace or None,
-        "action_class": action_class or None,
+        "confidence_score": confidence,
+        "allowlist_blocked": allowlist_blocked,
+        "workflow": {
+            "current_packet": current_packet,
+            "next_packet": next_packet,
+            "dispatch": {
+                "handler": _ACTION_TO_HANDLER.get(action, "workflow.intake_or_status"),
+                "payload": {
+                    "connector_instance_id": workflow_context.get("connector_instance_id"),
+                    "connector_thread_id": workflow_context.get("connector_thread_id"),
+                    "escalation_record_id": workflow_context.get("escalation_record_id"),
+                    "allowlist_blocked": allowlist_blocked,
+                },
+            },
+        },
+        "escalation": {
+            "target_role": escalation_policy["target_role"],
+            "priority": escalation_policy["priority"],
+            "sla_minutes": escalation_policy["sla_minutes"],
+            "recommended": action == "escalate",
+        },
     }
 
 

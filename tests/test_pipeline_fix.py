@@ -37,6 +37,7 @@ class TestDomainContextModuleKey:
             orchestrator=MagicMock(),
             task_spec={"task_id": "test"},
             current_task={},
+            workflow_context={},
             turn_count=0,
             domain_id="business-ops",
             task_presented_at=time.time(),
@@ -404,6 +405,7 @@ class TestModuleKeyPersistence:
             orchestrator=MagicMock(**{"get_standing_order_attempts.return_value": {}}),
             task_spec={"task_id": "t"},
             current_task={},
+            workflow_context={"current_packet": "service_intake_packet"},
             turn_count=0,
             domain_id="business-ops",
             task_presented_at=time.time(),
@@ -418,10 +420,12 @@ class TestModuleKeyPersistence:
             contexts_state[did] = {
                 "task_spec": c.task_spec,
                 "current_task": c.current_task,
+                "workflow_context": c.workflow_context,
                 "turn_count": c.turn_count,
                 "domain_id": did,
                 "module_key": c.module_key,
             }
 
         assert contexts_state["business-ops"]["module_key"] == "domain/bizops/domain-authority/v1"
+        assert contexts_state["business-ops"]["workflow_context"]["current_packet"] == "service_intake_packet"
 

@@ -1,13 +1,13 @@
 ---
-version: 1.2.2
-last_updated: 2026-07-31
+version: 1.2.3
+last_updated: 2026-08-02
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.2
+**Version:** 1.2.3
 **Status:** Active
-**Last updated:** 2026-07-31
+**Last updated:** 2026-08-02
 
 ---
 
@@ -60,7 +60,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [32](slices/32-auto-repair-mvp-and-single-box-deployment.md) | Business Ops Pack Bootstrap | Delivered |
 | [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Active |
 | [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Planned |
-| [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Planned |
+| [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Active |
 | [36](slices/36-single-box-deployment-and-operational-hardening.md) | Single-Box Deployment and Operational Hardening | Planned |
 
 ---

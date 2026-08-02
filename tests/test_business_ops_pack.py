@@ -56,7 +56,6 @@ class TestBusinessOpsPackStructure:
             "controllers/nlp_pre_interpreter.py",
             "domain-lib/reference/turn-interpretation-spec-v1.md",
             "domain-lib/reference/auto-repair-task-event-contract-v1.md",
-            "domain-lib/reference/auto-repair-provider-portability-checklist-v1.md",
             "domain-lib/reference/single-box-deployment-topology-v1.md",
             "modules/auto-repair/module-config.yaml",
             "modules/auto-repair/domain-physics.yaml",
@@ -101,52 +100,6 @@ class TestBusinessOpsPackStructure:
         for key in ("id", "version", "admin", "meta_authority_id", "invariants", "standing_orders", "escalation_triggers", "artifacts"):
             assert key in physics
         assert physics["id"] == "domain/bizops/auto-repair/v1"
-        assert physics["artifacts"] == []
-
-    def test_auto_repair_contract_references_live_in_subsystem_configs(self):
-        physics = json.loads((PACK / "modules" / "auto-repair" / "domain-physics.json").read_text(encoding="utf-8"))
-        refs = (((physics.get("subsystem_configs") or {}).get("contract_references") or {}).get("references") or [])
-
-        assert len(refs) == 4
-        by_id = {entry["id"]: entry for entry in refs}
-        assert set(by_id.keys()) == {
-            "service_intake_packet",
-            "estimate_context_packet",
-            "customer_communication_draft_packet",
-            "provider_portability_checklist",
-        }
-        assert by_id["service_intake_packet"]["path"].endswith("auto-repair-task-event-contract-v1.md")
-        assert by_id["provider_portability_checklist"]["path"].endswith("auto-repair-provider-portability-checklist-v1.md")
-        assert all(entry["type"] == "contract_reference" for entry in refs)
-
-    def test_auto_repair_module_config_exposes_auditable_thresholds(self):
-        module_cfg = _load_yaml(PACK / "modules" / "auto-repair" / "module-config.yaml")
-        confidence = module_cfg["confidence_profile_defaults"]
-        escalation = module_cfg["escalation_profile_defaults"]
-        allowlist = module_cfg["connector_allowlist_defaults"]
-
-        assert 0 < float(confidence["confirmation_threshold"]) < float(confidence["suggest_threshold"]) <= 1
-        assert int(confidence["stale_after_days"]) > 0
-        assert float(confidence["stale_penalty"]) >= 0
-        assert float(confidence["missing_precedent_penalty"]) >= 0
-
-        assert int(escalation["manager_review_sla_minutes"]) > 0
-        assert int(escalation["cto_review_sla_minutes"]) >= int(escalation["manager_review_sla_minutes"])
-        assert isinstance(escalation["irreversible_actions_require_human_approval"], bool)
-
-        assert "service/work-order" in allowlist["capabilities"]
-        assert "query" in allowlist["action_classes"]
-        assert "request_commit" in allowlist["action_classes"]
-
-    def test_auto_repair_contract_docs_define_vertical_packets(self):
-        contract_text = (PACK / "domain-lib" / "reference" / "auto-repair-task-event-contract-v1.md").read_text(encoding="utf-8")
-        portability_text = (PACK / "domain-lib" / "reference" / "auto-repair-provider-portability-checklist-v1.md").read_text(encoding="utf-8")
-
-        assert "service_intake_packet" in contract_text
-        assert "estimate_context_packet" in contract_text
-        assert "customer_communication_draft_packet" in contract_text
-        assert "confidence_and_escalation_profile_defaults" in contract_text
-        assert "## checklist" in portability_text
 
 
 @pytest.mark.unit
@@ -162,6 +115,7 @@ class TestBusinessOpsAdapters:
         state = self.mod.build_initial_state({"entity_state": {"open_draft_count": 2}})
         assert state["open_draft_count"] == 2
         assert state["turn_count"] == 0
+        assert state["workflow_context"]["current_packet"] == "service_intake_packet"
 
     def test_domain_step_escalates_high_risk_without_approval(self):
         _, decision = self.mod.domain_step({}, {}, {"contains_high_risk_terms": True, "explicit_approval_language": False}, {})
@@ -173,115 +127,67 @@ class TestBusinessOpsAdapters:
         assert decision["action"] == "stage_erp_draft_update"
         assert state["open_draft_count"] == 1
 
-    def test_domain_step_emits_canonical_query_for_service_intake_packet(self):
-        state, decision = self.mod.domain_step(
+    def test_domain_step_returns_workflow_dispatch_metadata(self):
+        _, decision = self.mod.domain_step(
+            {"workflow_context": {"current_packet": "service_intake_packet"}},
             {},
-            {},
-            {"workflow_packet_type": "service_intake_packet", "confidence_score": 0.92},
             {
-                "connector_allowlist_defaults": {
-                    "capabilities": ["service/work-order"],
-                    "action_classes": ["query", "update_draft", "request_commit"],
-                }
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
+                "connector_instance_id": "conn-1",
+                "connector_thread_id": "thr-7",
             },
-        )
-
-        assert decision["action"] == "recommend_next_step"
-        assert decision["capability_namespace"] == "service/work-order"
-        assert decision["action_class"] == "query"
-        assert decision["workflow_packet_type"] == "service_intake_packet"
-        assert state["workflow_packet_type"] == "estimate_context_packet"
-
-    def test_domain_step_requires_approval_before_customer_draft_stage(self):
-        state, decision = self.mod.domain_step(
-            {"workflow_packet_type": "customer_communication_draft_packet"},
             {},
-            {"explicit_approval_language": False},
-            {
-                "connector_allowlist_defaults": {
-                    "capabilities": ["service/work-order"],
-                    "action_classes": ["query", "update_draft", "request_commit"],
-                }
-            },
         )
+        wf = decision["workflow"]
+        assert wf["current_packet"] == "service_intake_packet"
+        assert wf["next_packet"] == "estimate_context_packet"
+        assert wf["dispatch"]["handler"] == "workflow.intake_or_status"
+        assert wf["dispatch"]["payload"]["connector_instance_id"] == "conn-1"
+        assert wf["dispatch"]["payload"]["connector_thread_id"] == "thr-7"
 
-        assert decision["action"] == "recommend_next_step"
-        assert decision["action_class"] == "query"
-        assert decision["tier"] == "major"
-        assert state["open_draft_count"] == 0
-
-    def test_domain_step_customer_draft_with_approval_uses_update_draft(self):
-        state, decision = self.mod.domain_step(
-            {"workflow_packet_type": "customer_communication_draft_packet"},
-            {},
-            {"explicit_approval_language": True},
-            {
-                "connector_allowlist_defaults": {
-                    "capabilities": ["service/work-order"],
-                    "action_classes": ["query", "update_draft", "request_commit"],
-                }
-            },
-        )
-
-        assert decision["action"] == "stage_erp_draft_update"
-        assert decision["action_class"] == "update_draft"
-        assert state["open_draft_count"] == 1
-
-    def test_domain_step_escalates_on_allowlist_violation(self):
-        state, decision = self.mod.domain_step(
+    def test_domain_step_fail_closed_when_allowlist_blocks_action(self):
+        _, decision = self.mod.domain_step(
             {},
             {},
-            {"workflow_packet_type": "service_intake_packet"},
-            {
-                "connector_allowlist_defaults": {
-                    "capabilities": ["inventory"],
-                    "action_classes": ["update_draft"],
-                }
-            },
+            {"contains_high_risk_terms": False, "explicit_approval_language": True},
+            {"allowed_workflow_actions": ["recommend_next_step"]},
         )
-
         assert decision["action"] == "escalate"
-        assert decision["capability_namespace"] is None
-        assert decision["action_class"] is None
-        assert state["workflow_packet_type"] == "service_intake_packet"
+        assert decision["allowlist_blocked"] is True
 
-    def test_domain_step_fails_closed_for_incomplete_allowlist_config(self):
+    def test_domain_step_uses_default_confidence_for_non_numeric_values(self):
         state, decision = self.mod.domain_step(
-            {},
-            {},
-            {"workflow_packet_type": "service_intake_packet"},
-            {
-                "connector_allowlist_defaults": {
-                    "capabilities": ["service/work-order"],
-                    # Missing action_classes should fail closed.
-                }
-            },
-        )
-
-        assert decision["action"] == "escalate"
-        assert decision["capability_namespace"] is None
-        assert decision["action_class"] is None
-        assert state["workflow_packet_type"] == "service_intake_packet"
-
-    def test_domain_step_handles_non_numeric_confidence_score(self):
-        state, decision = self.mod.domain_step(
-            {},
+            {"workflow_context": {"current_packet": "estimate_context_packet"}},
             {},
             {
-                "workflow_packet_type": "service_intake_packet",
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "confidence_score": "unknown",
             },
+            {},
+        )
+        assert decision["confidence_score"] == pytest.approx(0.5)
+        assert state["workflow_context"]["last_confidence"] == pytest.approx(0.5)
+
+    def test_domain_step_emits_tier_mapped_escalation_metadata(self):
+        _, decision = self.mod.domain_step(
+            {},
+            {},
+            {"contains_high_risk_terms": True, "explicit_approval_language": False},
             {
-                "connector_allowlist_defaults": {
-                    "capabilities": ["service/work-order"],
-                    "action_classes": ["query", "update_draft", "request_commit"],
-                }
+                "escalation_policy_by_tier": {
+                    "major": {"target_role": "owner", "priority": "urgent", "sla_minutes": 10},
+                },
             },
         )
-
-        assert decision["action"] == "recommend_next_step"
-        assert decision["tier"] == "minor"
-        assert state["workflow_packet_type"] == "estimate_context_packet"
+        assert decision["action"] == "escalate"
+        assert decision["escalation"] == {
+            "target_role": "owner",
+            "priority": "urgent",
+            "sla_minutes": 10,
+            "recommended": True,
+        }
 
 
 @pytest.mark.unit

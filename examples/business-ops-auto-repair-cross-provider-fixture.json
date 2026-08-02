@@ -1,0 +1,505 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_id": "business-ops-auto-repair-cross-provider-v1",
+  "scope": {
+    "organization_id": "org-auto-1",
+    "site_id": "site-west-1",
+    "actor_id": "operator-17"
+  },
+  "thread_routing": {
+    "decision_id": "tr-decision-002",
+    "new_thread_id": "thread-new-002",
+    "candidates": [
+      {"thread_id": "thread-existing-10", "summary_record_id": "sum-10", "score": 0.93},
+      {"thread_id": "thread-existing-11", "summary_record_id": "sum-11", "score": 0.81}
+    ],
+    "expected": {
+      "decision": "attach_existing",
+      "thread_id": "thread-existing-10",
+      "rationale_code": "high_confidence_match",
+      "operator_confirmation_required": false
+    }
+  },
+  "decision_precedent": {
+    "record_id": "dp-score-002",
+    "evaluated_utc": "2026-08-02T10:00:00Z",
+    "risk_class": "operational",
+    "candidates": [
+      {
+        "summary_record_id": "sum-10",
+        "thread_id": "thread-existing-10",
+        "similarity": 0.86,
+        "created_utc": "2026-08-01T09:00:00Z"
+      }
+    ],
+    "expected": {
+      "tier": "require_confirmation",
+      "final_score": 0.86
+    }
+  },
+  "connector_resolution": {
+    "request_id": "conn-req-010",
+    "action_class": "create_draft",
+    "capability_namespace": "erp/work-order",
+    "idempotency_key": "idem-010",
+    "correlation_id": "corr-010",
+    "entries": [
+      {
+        "organization_id": "org-auto-1",
+        "site_id": "site-west-1",
+        "connector_instance_id": "conn-erpnext-primary",
+        "capability_namespaces": ["erp/work-order", "erp/customer"],
+        "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+        "enabled": true,
+        "health_status": "healthy",
+        "is_site_primary": true
+      }
+    ],
+    "routes": [
+      {
+        "capability_namespace": "erp/work-order",
+        "connector_instance_id": "conn-erpnext-primary",
+        "supported_action_classes": ["create_draft", "update_draft"],
+        "priority": 10
+      }
+    ],
+    "expected": {
+      "status": "resolved",
+      "source": "capability_route",
+      "reason_code": "ok",
+      "connector_instance_id": "conn-erpnext-primary"
+    }
+  },
+  "connector_portability": {
+    "scenario_matrix": [
+      {
+        "scenario_id": "auto-repair-create-draft-parity",
+        "providers": [
+          {
+            "provider": "erpnext",
+            "canonical_expected": {
+              "status": "resolved",
+              "source": "capability_route",
+              "reason_code": "ok"
+            },
+            "connector_resolution": {
+              "request_id": "conn-req-erpnext",
+              "action_class": "create_draft",
+              "capability_namespace": "erp/work-order",
+              "idempotency_key": "idem-erpnext",
+              "correlation_id": "corr-erpnext",
+              "entries": [
+                {
+                  "organization_id": "org-auto-1",
+                  "site_id": "site-west-1",
+                  "connector_instance_id": "conn-erpnext-1",
+                  "capability_namespaces": ["erp/work-order", "erp/customer"],
+                  "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+                  "enabled": true,
+                  "health_status": "healthy",
+                  "is_site_primary": true
+                }
+              ],
+              "routes": [
+                {
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-erpnext-1",
+                  "supported_action_classes": ["create_draft"],
+                  "priority": 10
+                }
+              ],
+              "expected": {
+                "status": "resolved",
+                "source": "capability_route",
+                "reason_code": "ok",
+                "connector_instance_id": "conn-erpnext-1"
+              }
+            }
+          },
+          {
+            "provider": "odoo",
+            "canonical_expected": {
+              "status": "resolved",
+              "source": "capability_route",
+              "reason_code": "ok"
+            },
+            "connector_resolution": {
+              "request_id": "conn-req-odoo",
+              "action_class": "create_draft",
+              "capability_namespace": "erp/work-order",
+              "idempotency_key": "idem-odoo",
+              "correlation_id": "corr-odoo",
+              "entries": [
+                {
+                  "organization_id": "org-auto-1",
+                  "site_id": "site-west-1",
+                  "connector_instance_id": "conn-odoo-1",
+                  "capability_namespaces": ["erp/work-order", "erp/customer"],
+                  "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+                  "enabled": true,
+                  "health_status": "healthy",
+                  "is_site_primary": true
+                }
+              ],
+              "routes": [
+                {
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-odoo-1",
+                  "supported_action_classes": ["create_draft"],
+                  "priority": 10
+                }
+              ],
+              "expected": {
+                "status": "resolved",
+                "source": "capability_route",
+                "reason_code": "ok",
+                "connector_instance_id": "conn-odoo-1"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "scenario_id": "dispatch-update-unhealthy-fallback",
+        "providers": [
+          {
+            "provider": "erpnext",
+            "canonical_expected": {
+              "status": "error",
+              "source": "capability_route",
+              "reason_code": "connector_unhealthy"
+            },
+            "connector_resolution": {
+              "request_id": "conn-req-erpnext-unhealthy",
+              "action_class": "update_draft",
+              "capability_namespace": "erp/work-order",
+              "idempotency_key": "idem-erpnext-unhealthy",
+              "correlation_id": "corr-erpnext-unhealthy",
+              "entries": [
+                {
+                  "organization_id": "org-auto-1",
+                  "site_id": "site-west-1",
+                  "connector_instance_id": "conn-erpnext-uh-1",
+                  "capability_namespaces": ["erp/work-order"],
+                  "supported_action_classes": ["query", "update_draft"],
+                  "enabled": true,
+                  "health_status": "unhealthy",
+                  "is_site_primary": true
+                }
+              ],
+              "routes": [
+                {
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-erpnext-uh-1",
+                  "supported_action_classes": ["update_draft"],
+                  "priority": 10
+                }
+              ],
+              "expected": {
+                "status": "error",
+                "source": "capability_route",
+                "reason_code": "connector_unhealthy",
+                "connector_instance_id": null
+              }
+            }
+          },
+          {
+            "provider": "odoo",
+            "canonical_expected": {
+              "status": "error",
+              "source": "capability_route",
+              "reason_code": "connector_unhealthy"
+            },
+            "connector_resolution": {
+              "request_id": "conn-req-odoo-unhealthy",
+              "action_class": "update_draft",
+              "capability_namespace": "erp/work-order",
+              "idempotency_key": "idem-odoo-unhealthy",
+              "correlation_id": "corr-odoo-unhealthy",
+              "entries": [
+                {
+                  "organization_id": "org-auto-1",
+                  "site_id": "site-west-1",
+                  "connector_instance_id": "conn-odoo-uh-1",
+                  "capability_namespaces": ["erp/work-order"],
+                  "supported_action_classes": ["query", "update_draft"],
+                  "enabled": true,
+                  "health_status": "unhealthy",
+                  "is_site_primary": true
+                }
+              ],
+              "routes": [
+                {
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-odoo-uh-1",
+                  "supported_action_classes": ["update_draft"],
+                  "priority": 10
+                }
+              ],
+              "expected": {
+                "status": "error",
+                "source": "capability_route",
+                "reason_code": "connector_unhealthy",
+                "connector_instance_id": null
+              }
+            }
+          }
+        ]
+      },
+      {
+        "scenario_id": "mutation-missing-idempotency",
+        "providers": [
+          {
+            "provider": "erpnext",
+            "canonical_expected": {
+              "status": "error",
+              "source": "no_route",
+              "reason_code": "missing_idempotency_key"
+            },
+            "connector_resolution": {
+              "request_id": "conn-req-erpnext-no-idem",
+              "action_class": "create_draft",
+              "capability_namespace": "erp/work-order",
+              "correlation_id": "corr-erpnext-no-idem",
+              "entries": [
+                {
+                  "organization_id": "org-auto-1",
+                  "site_id": "site-west-1",
+                  "connector_instance_id": "conn-erpnext-no-idem-1",
+                  "capability_namespaces": ["erp/work-order"],
+                  "supported_action_classes": ["query", "create_draft"],
+                  "enabled": true,
+                  "health_status": "healthy",
+                  "is_site_primary": true
+                }
+              ],
+              "routes": [
+                {
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-erpnext-no-idem-1",
+                  "supported_action_classes": ["create_draft"],
+                  "priority": 10
+                }
+              ],
+              "expected": {
+                "status": "error",
+                "source": "no_route",
+                "reason_code": "missing_idempotency_key",
+                "connector_instance_id": null
+              }
+            }
+          },
+          {
+            "provider": "odoo",
+            "canonical_expected": {
+              "status": "error",
+              "source": "no_route",
+              "reason_code": "missing_idempotency_key"
+            },
+            "connector_resolution": {
+              "request_id": "conn-req-odoo-no-idem",
+              "action_class": "create_draft",
+              "capability_namespace": "erp/work-order",
+              "correlation_id": "corr-odoo-no-idem",
+              "entries": [
+                {
+                  "organization_id": "org-auto-1",
+                  "site_id": "site-west-1",
+                  "connector_instance_id": "conn-odoo-no-idem-1",
+                  "capability_namespaces": ["erp/work-order"],
+                  "supported_action_classes": ["query", "create_draft"],
+                  "enabled": true,
+                  "health_status": "healthy",
+                  "is_site_primary": true
+                }
+              ],
+              "routes": [
+                {
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-odoo-no-idem-1",
+                  "supported_action_classes": ["create_draft"],
+                  "priority": 10
+                }
+              ],
+              "expected": {
+                "status": "error",
+                "source": "no_route",
+                "reason_code": "missing_idempotency_key",
+                "connector_instance_id": null
+              }
+            }
+          }
+        ]
+      },
+      {
+        "scenario_id": "cross-module-handoff-gated-mutation",
+        "providers": [
+          {
+            "provider": "erpnext",
+            "canonical_expected": [
+              {
+                "status": "error",
+                "source": "no_route",
+                "reason_code": "missing_idempotency_key"
+              },
+              {
+                "status": "resolved",
+                "source": "capability_route",
+                "reason_code": "ok"
+              }
+            ],
+            "connector_resolution_steps": [
+              {
+                "request_id": "conn-req-erpnext-handoff-step1",
+                "action_class": "request_commit",
+                "capability_namespace": "erp/work-order",
+                "correlation_id": "corr-erpnext-handoff-step1",
+                "entries": [
+                  {
+                    "organization_id": "org-auto-1",
+                    "site_id": "site-west-1",
+                    "connector_instance_id": "conn-erpnext-handoff-1",
+                    "capability_namespaces": ["erp/work-order"],
+                    "supported_action_classes": ["query", "create_draft", "request_commit"],
+                    "enabled": true,
+                    "health_status": "healthy",
+                    "is_site_primary": true
+                  }
+                ],
+                "routes": [
+                  {
+                    "capability_namespace": "erp/work-order",
+                    "connector_instance_id": "conn-erpnext-handoff-1",
+                    "supported_action_classes": ["request_commit"],
+                    "priority": 10
+                  }
+                ],
+                "expected": {
+                  "status": "error",
+                  "source": "no_route",
+                  "reason_code": "missing_idempotency_key",
+                  "connector_instance_id": null
+                }
+              },
+              {
+                "request_id": "conn-req-erpnext-handoff-step2",
+                "action_class": "request_commit",
+                "capability_namespace": "erp/work-order",
+                "idempotency_key": "idem-erpnext-handoff-step2",
+                "correlation_id": "corr-erpnext-handoff-step2",
+                "entries": [
+                  {
+                    "organization_id": "org-auto-1",
+                    "site_id": "site-west-1",
+                    "connector_instance_id": "conn-erpnext-handoff-1",
+                    "capability_namespaces": ["erp/work-order"],
+                    "supported_action_classes": ["query", "create_draft", "request_commit"],
+                    "enabled": true,
+                    "health_status": "healthy",
+                    "is_site_primary": true
+                  }
+                ],
+                "routes": [
+                  {
+                    "capability_namespace": "erp/work-order",
+                    "connector_instance_id": "conn-erpnext-handoff-1",
+                    "supported_action_classes": ["request_commit"],
+                    "priority": 10
+                  }
+                ],
+                "expected": {
+                  "status": "resolved",
+                  "source": "capability_route",
+                  "reason_code": "ok",
+                  "connector_instance_id": "conn-erpnext-handoff-1"
+                }
+              }
+            ]
+          },
+          {
+            "provider": "odoo",
+            "canonical_expected": [
+              {
+                "status": "error",
+                "source": "no_route",
+                "reason_code": "missing_idempotency_key"
+              },
+              {
+                "status": "resolved",
+                "source": "capability_route",
+                "reason_code": "ok"
+              }
+            ],
+            "connector_resolution_steps": [
+              {
+                "request_id": "conn-req-odoo-handoff-step1",
+                "action_class": "request_commit",
+                "capability_namespace": "erp/work-order",
+                "correlation_id": "corr-odoo-handoff-step1",
+                "entries": [
+                  {
+                    "organization_id": "org-auto-1",
+                    "site_id": "site-west-1",
+                    "connector_instance_id": "conn-odoo-handoff-1",
+                    "capability_namespaces": ["erp/work-order"],
+                    "supported_action_classes": ["query", "create_draft", "request_commit"],
+                    "enabled": true,
+                    "health_status": "healthy",
+                    "is_site_primary": true
+                  }
+                ],
+                "routes": [
+                  {
+                    "capability_namespace": "erp/work-order",
+                    "connector_instance_id": "conn-odoo-handoff-1",
+                    "supported_action_classes": ["request_commit"],
+                    "priority": 10
+                  }
+                ],
+                "expected": {
+                  "status": "error",
+                  "source": "no_route",
+                  "reason_code": "missing_idempotency_key",
+                  "connector_instance_id": null
+                }
+              },
+              {
+                "request_id": "conn-req-odoo-handoff-step2",
+                "action_class": "request_commit",
+                "capability_namespace": "erp/work-order",
+                "idempotency_key": "idem-odoo-handoff-step2",
+                "correlation_id": "corr-odoo-handoff-step2",
+                "entries": [
+                  {
+                    "organization_id": "org-auto-1",
+                    "site_id": "site-west-1",
+                    "connector_instance_id": "conn-odoo-handoff-1",
+                    "capability_namespaces": ["erp/work-order"],
+                    "supported_action_classes": ["query", "create_draft", "request_commit"],
+                    "enabled": true,
+                    "health_status": "healthy",
+                    "is_site_primary": true
+                  }
+                ],
+                "routes": [
+                  {
+                    "capability_namespace": "erp/work-order",
+                    "connector_instance_id": "conn-odoo-handoff-1",
+                    "supported_action_classes": ["request_commit"],
+                    "priority": 10
+                  }
+                ],
+                "expected": {
+                  "status": "resolved",
+                  "source": "capability_route",
+                  "reason_code": "ok",
+                  "connector_instance_id": "conn-odoo-handoff-1"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

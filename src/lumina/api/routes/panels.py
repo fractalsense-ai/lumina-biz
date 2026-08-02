@@ -32,6 +32,23 @@ _Resolver = Callable[
     Awaitable[dict[str, Any]],
 ]
 
+# Domain-role categories used by generic panel aggregates.
+_STAFF_DOMAIN_ROLES = {
+    "teacher",
+    "teaching_assistant",
+    "domain_authority",
+    "owner",
+    "manager",
+    "operator",
+    "front_desk",
+    "admin",
+    "super_admin",
+}
+
+
+def _is_staff_domain_role(role_id: Any) -> bool:
+    return str(role_id).strip() in _STAFF_DOMAIN_ROLES
+
 
 # ─────────────────────────────────────────────────────────────
 # Helpers
@@ -284,7 +301,7 @@ async def _resolve_domain_overview(
 
     System-track (root / super_admin): domain-centric with domain_count.
     Domain-track (admin): module-centric with module_count,
-    active student and staff counts.
+    active member and staff counts.
     """
     if user_data.get("role") not in ("root", "admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Insufficient system role")
@@ -304,19 +321,19 @@ async def _resolve_domain_overview(
                         modules.append({"module_id": mk, "domain_id": did})
             except Exception:
                 pass
-        # Count active students / staff from persistence
+        # Count active members / staff from persistence.
         all_users = await run_in_threadpool(_cfg.PERSISTENCE.list_users)
-        active_students = 0
+        active_members = 0
         active_staff = 0
         for u in (all_users or []):
             d_roles = u.get("domain_roles") or {}
             for mid, rid in d_roles.items():
                 if mid not in governed:
                     continue
-                if rid == "student":
-                    active_students += 1
-                elif rid in ("teacher", "teaching_assistant", "domain_authority"):
+                if _is_staff_domain_role(rid):
                     active_staff += 1
+                else:
+                    active_members += 1
                 break  # count each user once
         # Also count system-role admins whose governed scope overlaps
         for u in (all_users or []):
@@ -331,7 +348,7 @@ async def _resolve_domain_overview(
             "panel": pcfg.get("id", "domain_overview"),
             "module_count": len(modules),
             "modules": modules,
-            "active_students": active_students,
+            "active_members": active_members,
             "active_staff": active_staff,
         }
 
@@ -457,7 +474,7 @@ async def _resolve_escalation_queue(
 async def _resolve_staff_directory(
     user_data: dict[str, Any], profile: dict[str, Any], pcfg: dict[str, Any],
 ) -> dict[str, Any]:
-    """Staff visible to the domain authority — teachers, TAs, and DAs."""
+    """Staff visible to the domain authority across supported domains."""
     if user_data.get("role") not in ("root", "admin", "super_admin"):
         raise HTTPException(status_code=403, detail="Insufficient system role")
     governed = _resolve_da_governed(user_data)
@@ -468,7 +485,7 @@ async def _resolve_staff_directory(
         uid = u.get("user_id", "")
         d_roles = u.get("domain_roles") or {}
         for _mid, _rid in d_roles.items():
-            if _rid in ("teacher", "teaching_assistant", "domain_authority"):
+            if _is_staff_domain_role(_rid):
                 if governed is not None and _mid not in governed:
                     continue
                 staff.append({

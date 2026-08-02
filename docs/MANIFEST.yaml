@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-08-01
+last_updated: 2026-08-02
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -210,7 +210,7 @@ artifacts:
   doc_version: 1.0.0
   status: planned
   last_updated: 2026-07-11
-  sha256: 351237b1729ebab358f0714aa985d88e8ab73bc4548dba02bfbb2414fbf96ae8
+  sha256: fddb5ec8a5f445ac0f13c6c175cf0eeba895984b3d58b77cb5681b44999ac0f7
 - path: docs/roadmap/slices/36-single-box-deployment-and-operational-hardening.md
   type: doc
   section: 0
@@ -1659,13 +1659,13 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-04
-  sha256: d312b76742d0517446a3bb91a965118c2e7162c21914da65f05f66b4320f5ba3
+  sha256: e43a70d2894a230c9b5729d614cf97df5c38a84a718d97becc6ad6680e53ecf0
 - path: examples/invite-onboarding-example.yaml
   type: doc
   doc_version: 1.0.0
   status: active
   last_updated: 2026-04-04
-  sha256: 8e92b11fdc96348dd2bf5a95ad45780391de476fc06655acd3f8342d5af84c91
+  sha256: 945b376b70a5af457c3c3a6aeb211f9ce47f8e5b5fca114cd2d01213753f19d2
 - path: docs/8-admin/meta-authority-policy-template.yaml
   type: doc
   doc_version: 1.0.0
@@ -1738,7 +1738,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: cd99e47a1f17f766cb202a986acb9fb9c51abc3b4255126519831505ca54e2e1
+  sha256: d4f8b1073f9f138a939cc1ccf77b17f40769fded617dc244043fd89c3cb5bd1c
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
@@ -1836,7 +1836,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-30
-  sha256: b56a6d1a9d03b7a69ac5f325d2efe3b255cb59feb7f945b16935924f814400a2
+  sha256: 64747cf44b714dcb1cb259f054f0093270fb7b05faf4c51568c43426211549ce
 
 - path: model-packs/business-ops/modules/auto-repair/tool-adapters/erp-draft-staging-adapter-v1.yaml
   type: config
