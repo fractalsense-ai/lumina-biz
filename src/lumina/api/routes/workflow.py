@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import hashlib
+import json
 import logging
+from pathlib import Path
 import uuid
 from typing import Any
 
@@ -29,8 +32,8 @@ _ACTION_TO_HANDLER = {
 
 _PACKET_ORDER = (
     "service_intake_packet",
-    "estimate_context_package",
-    "customer_communication_draft",
+    "estimate_context_packet",
+    "customer_communication_draft_packet",
     "escalation_record",
 )
 
@@ -53,11 +56,54 @@ def _write_workflow_context(session_id: str, context: dict[str, Any]) -> None:
 
 
 def _append_session_record(session_id: str, record: dict[str, Any]) -> None:
+    ledger_path = _cfg.PERSISTENCE.get_system_ledger_path(session_id)
+    to_write = dict(record)
+    to_write.setdefault("record_id", str(uuid.uuid4()))
+    to_write["prev_record_hash"] = _previous_record_hash(session_id, ledger_path)
     _cfg.PERSISTENCE.append_log_record(
         session_id,
-        record,
-        ledger_path=_cfg.PERSISTENCE.get_system_ledger_path(session_id),
+        to_write,
+        ledger_path=ledger_path,
     )
+
+
+def _canonical_record_hash(record: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        record,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _previous_record_hash(session_id: str, ledger_path: str) -> str:
+    if ledger_path.startswith("sqlite://"):
+        records = _cfg.PERSISTENCE.query_log_records(session_id=session_id, limit=1)
+        if not records:
+            return "genesis"
+        return _canonical_record_hash(records[0])
+
+    path = Path(ledger_path)
+    if not path.exists():
+        return "genesis"
+
+    last_record: dict[str, Any] | None = None
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            payload = line.strip()
+            if not payload:
+                continue
+            try:
+                parsed = json.loads(payload)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(parsed, dict):
+                last_record = parsed
+
+    if last_record is None:
+        return "genesis"
+    return _canonical_record_hash(last_record)
 
 
 def _next_packet(current_packet: str, action: str) -> str:
@@ -90,7 +136,8 @@ def _execute_workflow_handler(
             "stage": stage,
             "domain_id": domain_id,
             "actor_id": actor_id,
-            "message": message,
+            "message_summary": message[:200],
+            "message_redacted": True,
             "status": "staged",
             "created_utc": datetime.now(timezone.utc).isoformat(),
         }
@@ -166,7 +213,7 @@ def _workflow_metadata(
     return {
         "stage": stage,
         "current_packet": context.get("current_packet", "service_intake_packet"),
-        "next_packet": context.get("next_packet", "estimate_context_package"),
+        "next_packet": context.get("next_packet", "estimate_context_packet"),
         "dispatch": {
             "handler": _ACTION_TO_HANDLER.get(action, "workflow.intake_or_status"),
             "payload": {
@@ -222,7 +269,7 @@ async def _run_workflow_turn(
         )
     except Exception as exc:
         log.exception("Workflow step failed (stage=%s, session=%s)", stage, session_id)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Workflow processing failed") from exc
 
     execution = await run_in_threadpool(
         _execute_workflow_handler,
@@ -279,7 +326,7 @@ async def auto_repair_status(
         req,
         stage="status",
         stage_defaults={
-            "packet_type": "estimate_context_package",
+            "packet_type": "estimate_context_packet",
         },
         credentials=credentials,
     )
@@ -294,7 +341,7 @@ async def auto_repair_draft_update(
         req,
         stage="draft-update",
         stage_defaults={
-            "packet_type": "customer_communication_draft",
+            "packet_type": "customer_communication_draft_packet",
             "explicit_approval_language": True,
         },
         credentials=credentials,

@@ -6,8 +6,8 @@ from typing import Any, Callable
 
 _PACKET_ORDER = (
     "service_intake_packet",
-    "estimate_context_package",
-    "customer_communication_draft",
+    "estimate_context_packet",
+    "customer_communication_draft_packet",
     "escalation_record",
 )
 
@@ -71,7 +71,7 @@ def build_initial_state(profile: dict[str, Any]) -> dict[str, Any]:
         "last_recommendation_tier": entity_state.get("last_recommendation_tier"),
         "workflow_context": {
             "current_packet": "service_intake_packet",
-            "next_packet": "estimate_context_package",
+            "next_packet": "estimate_context_packet",
             "connector_instance_id": entity_state.get("connector_instance_id"),
             "connector_thread_id": entity_state.get("connector_thread_id"),
             "escalation_record_id": entity_state.get("escalation_record_id"),

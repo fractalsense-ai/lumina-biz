@@ -210,7 +210,7 @@ class TestWorkflowRoutes:
             )
         assert resp.status_code == 200
         td = captured["turn_data_override"]
-        assert td["packet_type"] == "customer_communication_draft"
+        assert td["packet_type"] == "customer_communication_draft_packet"
         assert td["explicit_approval_language"] is True
         assert resp.json()["workflow"]["execution"]["type"] == "draft_staged"
         assert "draft_id" in resp.json()["workflow"]["execution"]
@@ -253,7 +253,7 @@ class TestWorkflowRoutes:
             assert payload["escalation_record_id"] == esc_id
             assert payload["connector_instance_id"] == "conn-42"
             assert payload["connector_thread_id"] == "thread-19"
-            assert second.json()["workflow"]["next_packet"] == "customer_communication_draft"
+            assert second.json()["workflow"]["next_packet"] == "customer_communication_draft_packet"
 
     def test_authentication_required(self, client: TestClient) -> None:
         resp = client.post(

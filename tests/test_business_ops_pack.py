@@ -141,7 +141,7 @@ class TestBusinessOpsAdapters:
         )
         wf = decision["workflow"]
         assert wf["current_packet"] == "service_intake_packet"
-        assert wf["next_packet"] == "estimate_context_package"
+        assert wf["next_packet"] == "estimate_context_packet"
         assert wf["dispatch"]["handler"] == "workflow.intake_or_status"
         assert wf["dispatch"]["payload"]["connector_instance_id"] == "conn-1"
         assert wf["dispatch"]["payload"]["connector_thread_id"] == "thr-7"
@@ -158,7 +158,7 @@ class TestBusinessOpsAdapters:
 
     def test_domain_step_uses_default_confidence_for_non_numeric_values(self):
         state, decision = self.mod.domain_step(
-            {"workflow_context": {"current_packet": "estimate_context_package"}},
+            {"workflow_context": {"current_packet": "estimate_context_packet"}},
             {},
             {
                 "contains_high_risk_terms": False,
