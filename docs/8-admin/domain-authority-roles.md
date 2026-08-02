@@ -19,9 +19,9 @@ This document defines the **Domain Authority** role in Project Lumina: what it m
 
 ## What Is a Domain Authority?
 
-A **Domain Authority** is a human participant who has been granted authoring rights over a Domain Physics document within a defined scope. The Domain Authority is typically a subject-matter or operational expert — for example, a teacher, curriculum designer, physician, or site manager, depending on the domain.
+A **Domain Authority** is a human participant who has been granted authoring rights over a Domain Physics document within a defined scope. The Domain Authority is typically a subject-matter or operational expert — for example, an instructor, curriculum designer, physician, or site manager, depending on the domain.
 
-The Domain Authority is not an administrator or manager. Their authority is specifically about **what is correct and acceptable within their subject domain**. A teacher is the Domain Authority for "what is correct in algebra" — not for "school IT policy." A lead physician is the Domain Authority for "what is correct in this treatment protocol" — not for "hospital HR policy."
+The Domain Authority is not an administrator or manager. Their authority is specifically about **what is correct and acceptable within their subject domain**. An instructor is the Domain Authority for "what is correct in a learning module" — not for "school IT policy." A lead physician is the Domain Authority for "what is correct in this treatment protocol" — not for "hospital HR policy."
 
 ### Architectural Isolation
 
@@ -40,7 +40,7 @@ A Domain Authority may:
 3. **Define Standing Orders** — specify the bounded automated responses within their domain
 4. **Define Escalation Triggers** — specify when the system must escalate to them or above
 5. **Define Artifacts** — specify domain achievement milestones and challenge structures
-6. **Set Subsystem Parameters** — configure domain-specific sensor parameters and drift thresholds (e.g., operating-band thresholds for business-ops, soil-health thresholds for business-ops)
+6. **Set Subsystem Parameters** — configure domain-specific sensor parameters and drift thresholds (e.g., mastery-band thresholds for education, operating-band thresholds for business-ops)
 7. **Review System Log Records** — access audit logs for sessions in their domain
 8. **Receive Escalations** — receive and resolve escalation packets from their sessions
 9. **Authorize Tool Adapters** — approve which external tools may be used in their sessions
@@ -65,12 +65,12 @@ A Domain Authority must:
 
 In a fractal governance structure, each level is a Domain Authority for its own scope and a Meta Authority for the level below. The generic four-level pattern and its domain instantiations:
 
-| Generic Level | Generic Title | Domain Scope | Meta Authority For | Business Ops Example | Medical Example | Business Ops Example |
+| Generic Level | Generic Title | Domain Scope | Meta Authority For | Education Example | Medical Example | Business Ops Example |
 |---------------|---------------|-------------|-------------------|-------------------|-----------------|---------------------|
 | 1 | Macro Authority | Top-level policy | Meso Authorities | School Board / Administration | Hospital Admin | Corporate Policy |
 | 2 | Meso Authority | Operational standards | Micro Authorities | Department Head | Dept Head | Site Manager |
-| 3 | Micro Authority | Subject-matter / operational correctness | Subjects/Targets (in session) | Teacher | Lead Physician | Operator |
-| 4 | Subject/Target | Own state and preferences | (none below) | Student | Patient | Environment |
+| 3 | Micro Authority | Subject-matter / operational correctness | Subjects/Targets (in session) | Instructor | Lead Physician | Operator |
+| 4 | Subject/Target | Own state and preferences | (none below) | Learner | Patient | Customer Intake |
 
 The Subject/Target is the Domain Authority for their own state — they can set preferences, exit sessions, and (where the domain requires it) consent or withdraw consent. They are not the Domain Authority for what is objectively correct within the domain.
 
@@ -112,7 +112,7 @@ A Domain Authority's rights may be revoked by their Meta Authority. Revocation:
 
 The Subject/Target level has a limited form of Domain Authority over their own state and preferences. This applies across domains:
 
-- **Subject (Business Ops):** controls their own learning state, preferences, and (where required) consent
+- **Learner (Education):** controls their own learning state, preferences, and (where required) consent
 - **Patient (Medical):** controls their own treatment preferences, consent to treatment approaches, and session exit
 - **Operator / Environment (Business Ops):** controls operational preferences and environment-specific parameters
 
@@ -140,7 +140,7 @@ Project Lumina defines six operational roles for runtime access control. These r
 | **IT Support** | `super_admin` | 2 | — | Tier-1 technical support. Diagnostics, runtime monitoring, session troubleshooting. Cross-cutting role. |
 | **Quality Assurance** | `operator` | 2 | — | Conformance testing. Runs evaluation harness, regression tests on assigned modules. Cross-cutting role. |
 | **half_operator** | `half_operator` | 2 | — | Compliance / audit officer. Read-only access to System Log records, audit logs, and session traces within scope. Cross-cutting role. |
-| **Standard User** | `user` | 3 | — | Session participant (student, patient, operator). Execute-only access on permitted modules. Maps to **Subject/Target**. |
+| **Standard User** | `user` | 3 | — | Session participant (learner, patient, operator). Execute-only access on permitted modules. Maps to **Subject/Target**. |
 
 ### Role-to-Governance Mapping
 
@@ -148,8 +148,8 @@ Project Lumina defines six operational roles for runtime access control. These r
 |-----------------|-----------------|--------------|
 | 1 — Macro | School Board / Admin | `root` |
 | 2 — Meso | Department Head | `admin` (Meta Authority scope) |
-| 3 — Micro | Teacher / Operator | `admin` (module scope) |
-| 4 — Subject | Student / Patient | `user` |
+| 3 — Micro | Instructor / Operator | `admin` (module scope) |
+| 4 — Subject | Learner / Patient / Operator | `user` |
 | (cross-cutting) | IT Support | `super_admin` |
 | (cross-cutting) | operator Tester | `operator` |
 | (cross-cutting) | Compliance | `half_operator` |
@@ -172,7 +172,7 @@ Permission bits: **r** (4) = read, **w** (2) = write, **x** (1) = execute.
 
 Optional `acl` entries provide fine-grained overrides beyond owner/group/others.
 
-For the full specification, see [`../specs/rbac-spec-v1.md`](../specs/rbac-spec-v1.md).
+For the full specification, see [`../5-standards/rbac-spec.md`](../5-standards/rbac-spec.md).
 
 ---
 
@@ -180,9 +180,9 @@ For the full specification, see [`../specs/rbac-spec-v1.md`](../specs/rbac-spec-
 
 - [`GOVERNANCE.md`](../GOVERNANCE.md) — fractal authority structure
 - [`meta-authority-policy-template.yaml`](meta-authority-policy-template.yaml) — Meta Authority policy
-- [`../specs/rbac-spec-v1.md`](../specs/rbac-spec-v1.md) — RBAC specification
+- [`../5-standards/rbac-spec.md`](../5-standards/rbac-spec.md) — RBAC specification
 - [`../standards/rbac-permission-schema-v1.json`](../standards/rbac-permission-schema-v1.json) — permission schema
 - [`../standards/role-definition-schema-v1.json`](../standards/role-definition-schema-v1.json) — role definition schema
-- Consent contract specification — see the relevant active domain pack's world-sim consent documentation when persona mode is enabled
-- [`../standards/lumina-core-v1.md`](../standards/lumina-core-v1.md) — conformance requirements
+- Consent contract specification — see the relevant active domain pack consent documentation when persona mode is enabled
+- [`../5-standards/lumina-core.md`](../5-standards/lumina-core.md) — conformance requirements
 
