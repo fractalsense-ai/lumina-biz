@@ -8,133 +8,69 @@ This directory contains worked examples of Project Lumina interaction loops.
 
 | File | Description |
 |------|-------------|
-| `causal-learning-trace-example.json` | System Log records from a real (simulated) 5-turn algebra session |
-| `escalation-example-packet.yaml` | A complete escalation packet for a major ZPD drift event |
-| `invite-onboarding-example.yaml` | Full invite → setup-password → login onboarding flow |
+| `causal-learning-trace-example.json` | System Log records from a simulated business-ops auto-repair flow |
+| `escalation-example-packet.yaml` | A complete escalation packet for manager review in auto-repair |
+| `invite-onboarding-example.yaml` | Full invite -> setup-password -> login onboarding flow |
 
 ---
 
-## Walkthrough: One Full Interaction Loop
+## Walkthrough: One Full Auto-Repair Interaction Loop
 
-This walkthrough traces a single turn of an algebra session with student Alice.
+This walkthrough traces a single turn sequence of a business-ops auto-repair session.
 
 ### Setup
 
-- **Domain:** Algebra Level 1 v0.4.0
-- **Student:** Alice (pseudonymous ID: `a3f8c2e1b4d7f9a0c5e2b8d1a6f3c7e4`)
-- **Session:** turn 6 (mid-session)
-- **Current state:** Alice has been doing well (mastery ~0.65) but is now attempting a harder problem
+- **Domain:** Business Ops Auto-Repair v1.0.0
+- **Operator:** operator-17
+- **Session:** turn 3 (mid-workflow)
+- **Current state:** Work order intake complete; estimate review in progress
 
-### Turn 6 — Step by Step
+### Turn Sequence — Step by Step
 
 **1. Load and verify domain pack**
 
-The orchestrator loads module `domain-physics.json` as machine-authoritative policy truth and verifies its SHA-256 hash against the `CommitmentRecord` in the System Logs. If the hash doesn't match, the session is frozen.
+The orchestrator loads `domain-physics.json` and verifies the hash lineage through the System Log.
 
-**2. Task presentation**
+**2. Intake and estimate context**
 
-Alice is presented with: `Solve for x: 3x + 7 = 22`  
-Task nominal_difficulty: 0.65  
-The domain is using a "space mission" world simulation theme because Alice likes space, so the task is framed as: *"The fuel calculation for today's mission requires solving: 3x + 7 = 22. Find x."*
+The session contains a high-cost repair estimate with confidence below the confirmation threshold.
 
-**3. Alice responds**
+**3. Tool adapters run**
 
-Alice writes: `x = 5`
+- Connector query verifies parts availability.
+- Cost summary computes estimated total.
+- Confidence scorer returns `0.62` against required threshold `0.70`.
 
-Her response is one step with no work shown.
-
-**4. Tool adapters run**
-
-- **substitution-checker**: Substitutes x=5 into 3x+7=22 → LHS=22, RHS=22 → ✓
-- **step-counter**: Only 1 step shown → violates `show_work_minimum` (≥3 required)
-- **method-recognizer**: Direct substitution without showing work → `method_recognized: false`
-
-**5. Evidence summary assembled**
+**4. Evidence summary assembled**
 
 ```json
 {
-  "correctness": "correct",
-  "hint_used": false,
-  "response_latency_sec": 8.0,
-  "frustration_marker_count": 0,
-  "repeated_error": false,
-  "off_task_ratio": 0.0
+  "confidence_score": 0.62,
+  "required_threshold": 0.70,
+  "estimated_cost_usd": 2400,
+  "parts_available": true,
+  "risk_class": "operational"
 }
 ```
 
-**6. Domain-lib state step runs**
+**5. Invariant checks and standing order**
 
-The ZPD monitor (business-ops domain-lib runtime component) processes tool-adapter outputs/evidence and updates machine-readable state. The answer is correct, so mastery increases. But challenge (0.65) is within Alice's ZPD band [0.3, 0.7], so no ZPD drift.
+- `high_risk_requires_approval` fails due high cost and low confidence.
+- Standing order `escalate_to_manager` is applied.
 
-**7. Invariant checks**
+**6. Escalation record emitted**
 
-The orchestrator evaluates module invariants from `domain-physics.json` against structured evidence and updated state signals:
+A structured `EscalationRecord` is appended with evidence summary and manager target.
 
-- `equivalence_preserved`: N/A (no step-by-step shown)
-- `solution_verifies`: PASS (substitution check passed)
-- `show_work_minimum`: FAIL — only 1 step shown (requires 3)
+**7. Session continues under review**
 
-**8. Standing order applied**
-
-`show_work_minimum` fired → standing order `request_more_steps` (attempt 1/3)
-
-Orchestrator response: *"Great — x=5 is correct! But I need to see your work. Can you show me at least 3 steps? Start from 3x + 7 = 22 and show each transformation."*
-
-**9. System Log TraceEvent written**
-
-```json
-{
-  "record_type": "TraceEvent",
-  "event_type": "standing_order_applied",
-  "standing_order_id": "request_more_steps",
-  "standing_order_attempt": 1,
-  "decision": "show_work_minimum_violated_correct_answer",
-  "evidence_summary": {
-    "correctness": "correct",
-    "hint_used": false,
-    "response_latency_sec": 8.0,
-    "frustration_marker_count": 0,
-    "repeated_error": false,
-    "off_task_ratio": 0.0
-  }
-}
-```
-
-**10. Alice responds again**
-
-Alice shows her work:
-```
-3x + 7 = 22
-3x = 22 - 7
-3x = 15
-x = 5
-```
-
-**11. Tool adapters run again**
-
-- step-counter: 4 steps → PASS
-- equivalence-checker: Each step preserves equivalence → PASS
-- substitution-checker: x=5 verifies → PASS
-
-**12. All invariants pass**
-
-No standing orders needed. System Log `TraceEvent` written with `decision: "all_invariants_pass"`.
-
-**13. Mastery update**
-
-`solve_one_variable` and `show_work_steps` mastery both increase (correct, no hint, showed work).
-
-**14. Session continues**
-
-Alice earned a `+0.10` mastery boost on `solve_one_variable`. The orchestrator prepares the next task.
+Manager can approve staged draft update, request adjustment, or reject and require new estimate.
 
 ---
 
 ## Key Points
 
-1. **The answer being correct doesn't mean all invariants pass.** `show_work_minimum` fired even though the answer was right.
-2. **Standing orders have limited attempts.** If Alice had refused to show her work 3 times, the orchestrator would have escalated to the teacher.
-3. **The System Logs only records structured telemetry.** Neither Alice's problem response nor the AI's reply is stored. Only hashes and decision summaries are written.
-4. **World simulation is transparent.** The "space mission" framing changes how the problem is presented but not what is checked.
-5. **Mastery increases correctly.** Since Alice was correct and showed her work without hints, she gets the full `+0.10` mastery boost.
-
+1. Low confidence can force escalation even when parts are available.
+2. Escalation is deterministic and auditable through structured records.
+3. The System Log stores telemetry and decision lineage, not freeform transcript content.
+4. Role and policy checks are domain-driven and must stay connector-agnostic.
