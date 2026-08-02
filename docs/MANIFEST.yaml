@@ -448,7 +448,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-23
-  sha256: f4c69e37778dbaa544aa02609ad11446b62323c62af0bebf3b9d4fafc2d5df51
+  sha256: 98d785b7af465475188f46dd4d1fd6089a1a942f9a9c98121849cab06b5e77e7
 - path: docs/7-concepts/domain-adapter-pattern.md
   type: doc
   section: 7
@@ -777,7 +777,7 @@ artifacts:
   doc_version: 1.2.0
   status: active
   last_updated: 2026-03-22
-  sha256: f1894507eee236efdfbffe3e22361a1e6c469e1e18a9db36e6e52712ddba0e79
+  sha256: 255fee483434e1c1a9710be136c5feea08396dc613df5fe244cea9bca6d59c55
 - path: docs/8-admin/secrets-and-runtime-config.md
   type: doc
   section: 8
@@ -885,7 +885,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-09
-  sha256: 4d6721fc9200fa47cd94d3ae6da0e6335817c9a0f12181a9a937932b7cca5ffa
+  sha256: fc7fe9b4b3a15879418a58267c004ba6ee081bd50e4408621ae79fb30a2b3e18
 - path: docs/5-standards/system-log.md
   type: standard
   doc_version: 1.1.0
