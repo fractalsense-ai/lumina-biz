@@ -1,13 +1,13 @@
 ---
-version: 1.2.0
-last_updated: 2026-03-27
+version: 1.3.0
+last_updated: 2026-08-03
 ---
 
 # Domain Adapter Pattern
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Status:** Active  
-**Last updated:** 2026-03-27  
+**Last updated:** 2026-08-03  
 
 ---
 
@@ -229,6 +229,28 @@ The orchestrator receives a `domain_lib_step_fn` lambda that wraps the domain's 
 ### ❌ Bypassing the adapter to write gate signals in the server
 
 All engine contract fields must be populated by the domain pack's `interpret_turn_input`. Writing `turn_data["problem_solved"] = True` anywhere in `processing.py` or in the orchestrator constitutes domain logic in the core and must be moved to the adapter.
+
+---
+
+## G. Slice 39 Profile-Layer Guardrail
+
+For service-like business domains, Slice 39 introduces a mandatory separation between canonical workflow behavior and vertical presentation profiles.
+
+### Rule 1 — Canonical envelopes remain stable
+
+Runtime adapters and connector mappings must continue to exchange canonical payload envelopes for action classes (`query`, `create_draft`, `update_draft`, `request_commit`, etc.).
+
+### Rule 2 — Vertical variation stays in profile/config space
+
+Differences such as towing vs retail-delivery terminology, display priorities, and optional metadata belong in profile-layer configuration, not in core engine fields or provider-specific action classes.
+
+### Rule 3 — Provider specifics stay in mapping adapters
+
+ERPNext/Odoo object names and custom doctype/table wiring are mapping concerns and must remain isolated in connector adapter modules.
+
+### Rule 4 — No profile key leakage into canonical payload keys
+
+Profile-specific keys must be filtered or rejected before canonical mapping functions execute. Mapping tests should enforce this behavior for all supported providers.
 
 ---
 

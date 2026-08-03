@@ -476,7 +476,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-18
-  sha256: 5e92d71675405ca97a4673f736ecc57db66bd275437aa5687a6c60ec7a11cc3e
+  sha256: 7c9e902ee010e42df0b8aced6f948de11be0b485fc92cb0aa89e6b42ad085b6f
 - path: docs/7-concepts/domain-evidence-extension.md
   type: doc
   section: 7
@@ -644,7 +644,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-24
-  sha256: 7cc888a796c75c7d18d608cb0301af20323adb3128d61b076e8a2ad3948a1a74
+  sha256: a262aace1e370ed9f22200cf2e1a2dcd42a5dd629f84040cb2be7de52b4008b1
 - path: docs/7-concepts/affect-monitoring-pipeline.md
   type: doc
   section: 7
@@ -1844,6 +1844,13 @@ artifacts:
   status: active
   last_updated: 2026-07-30
   sha256: 690835e22d5e9745a355f983b5e4185929367704ea1c0b4fd7aae30f5c970ae1
+
+- path: model-packs/business-ops/cfg/service-vertical-profiles.yaml
+  type: config
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-03
+  sha256: 05afd7b387c33d3f702f7444bf14c99797fbde673c950d3fa3598d810ec05fd4
 
 - path: model-packs/business-ops/modules/auto-repair/domain-physics.yaml
   type: config
