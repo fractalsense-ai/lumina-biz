@@ -21,7 +21,7 @@ last_updated: 2026-03-20
 
 Domain Role Hierarchy is an extension to Lumina's RBAC system that allows each domain to define its own role tiers beneath the Domain Authority ceiling. While the 7 system-level roles (`root`, `admin`, `super_admin`, `operator`, `half_operator`, `user`, `guest`) provide coarse-grained access control across the entire system, domain roles provide fine-grained access control *within* a specific domain.
 
-**Problem:** In an business-ops deployment, a department head (Domain Authority), teachers, teaching assistants, and students all need different levels of access to the same domain module. The system-level `user` role treats them all identically. An enterprise deployment has the same challenge with managers, team leads, and employees.
+**Problem:** In a multi-role deployment, a department head (Domain Authority), supervisors, specialists, and operators all need different levels of access to the same domain module. The system-level `user` role treats them all identically. An enterprise deployment has the same challenge with managers, team leads, and employees.
 
 **Solution:** Each domain-physics document can declare an optional `domain_roles` block that defines a hierarchy of roles scoped to that domain. These roles integrate with the existing JWT and permission resolution system as an additive overlay.
 
@@ -35,7 +35,7 @@ Domain Role Hierarchy is an extension to Lumina's RBAC system that allows each d
 
 3. **Backward-compatible** — The `domain_roles` block is optional. Domains without it work exactly as before. Domain roles are purely additive.
 
-4. **Domain-scoped** — A domain role exists only within its domain. A user can be a `teacher` in algebra and a `student` in geometry. There is no cross-domain inheritance.
+4. **Domain-scoped** — A domain role exists only within its domain. A user can be a `site_manager` in one module and an `observer` in another. There is no cross-domain inheritance.
 
 ---
 
@@ -51,41 +51,41 @@ Domain roles are declared in the `domain_roles` block of a domain-physics docume
     "schema_version": "1.0",
     "roles": [
       {
-        "role_id": "teacher",
-        "role_name": "Teacher",
+        "role_id": "site_manager",
+        "role_name": "Site Manager",
         "hierarchy_level": 1,
-        "description": "Instructor with full domain access.",
+        "description": "On-site manager with full module access.",
         "maps_to_system_role": "admin",
         "default_access": "rwx",
         "may_assign_domain_roles": true,
         "max_assignable_level": 2,
         "scoped_capabilities": {
           "receive_escalations": true,
-          "view_all_student_progress": true
+          "view_all_case_status": true
         }
       },
       {
-        "role_id": "teaching_assistant",
-        "role_name": "Teaching Assistant",
+        "role_id": "field_operator",
+        "role_name": "Field Operator",
         "hierarchy_level": 2,
-        "description": "Support staff with read and execute access.",
+        "description": "Operational staff with read and execute access.",
         "maps_to_system_role": "user",
         "default_access": "rx"
       },
       {
-        "role_id": "student",
-        "role_name": "Student",
+        "role_id": "observer",
+        "role_name": "Observer",
         "hierarchy_level": 3,
-        "description": "Learner with execute-only access.",
+        "description": "Read-only observer for supervised workflows.",
         "maps_to_system_role": "user",
-        "default_access": "x"
+        "default_access": "r"
       }
     ],
     "role_acl": [
       {
-        "domain_role": "teaching_assistant",
+        "domain_role": "field_operator",
         "access": "r",
-        "scope": "log_records_own_students"
+        "scope": "log_records_assigned_cases"
       }
     ]
   }
@@ -112,7 +112,7 @@ Each domain role maps to a system role via `maps_to_system_role`. This determine
 
 | System Role | Use For | Ceiling |
 |-------------|---------|---------|
-| `admin` | Sub-DA roles like teachers, managers | Full rwx possible |
+| `admin` | Sub-DA roles like site managers, supervisors | Full rwx possible |
 | `user` | Operational roles like TAs, field operators | Based on module ACL |
 | `guest` | Limited-access domain roles | Read and/or execute only |
 
@@ -124,12 +124,12 @@ Domain roles are carried in the JWT as a `domain_roles` claim mapping module IDs
 
 ```json
 {
-  "sub": "user_ta_001",
+  "sub": "user_ops_001",
   "role": "user",
   "governed_modules": [],
   "domain_roles": {
-    "domain/bizops/algebra-level-1/v1": "teaching_assistant",
-    "domain/bizops/geometry-level-1/v1": "student"
+    "domain/bizops/auto-repair/v1": "field_operator",
+    "domain/bizops/claims-desk/v1": "observer"
   }
 }
 ```
@@ -158,7 +158,7 @@ Domain roles are purely additive. They can grant access that the system role alo
 
 ## Domain Examples
 
-### Business Ops
+### Education
 
 | Domain Role | Level | System Mapping | Access | Description |
 |-------------|-------|----------------|--------|-------------|
@@ -204,9 +204,9 @@ The `scoped_capabilities` field provides domain-specific boolean flags that go b
 ```json
 "scoped_capabilities": {
   "receive_escalations": true,
-  "view_all_student_progress": true,
+  "view_all_case_status": true,
   "modify_standing_orders": false,
-  "issue_hints": true
+  "approve_work_orders": true
 }
 ```
 
@@ -214,22 +214,22 @@ Capabilities are free-form and domain-defined. They are not enforced by the perm
 
 ### Smart escalation routing via `receive_escalations`
 
-When `receive_escalations: true` is set on a domain role and a student profile's `assigned_teacher_id` is populated with the actor ID of a user holding that role, the orchestrator automatically populates `escalation_target_id` in every escalation record written for that student. This routes the escalation directly to the named teacher in dashboards and notification systems without requiring manual triage.
+When `receive_escalations: true` is set on a domain role and a work profile's `assigned_manager_id` is populated with the actor ID of a user holding that role, the orchestrator automatically populates `escalation_target_id` in escalation records for that work item. This routes escalations directly to the assigned decision-maker in dashboards and notification systems without requiring manual triage.
 
-`assigned_room_id` in the student profile is also carried into the escalation record as `assigned_room_id`, giving classroom-level context to multi-room deployments. See [escalation-pin-unlock](../8-admin/escalation-pin-unlock.md) for the full teacher-student freeze/unlock workflow.
+`assigned_site_id` can also be carried into the escalation record to preserve location context in multi-site deployments. See [escalation-pin-unlock](../8-admin/escalation-pin-unlock.md) for the staged escalation and approval workflow.
 
 ---
 
-## Student Profile Assignment Fields
+## Assignment Fields
 
 The active domain profile (`model-packs/business-ops/profiles/entity.yaml`) includes assignment fields that connect entities to domain role holders:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `assigned_teacher_id` | `string \| null` | Actor ID of the teacher responsible for this student. Populated at registration or role-assignment time. Used by the orchestrator to set `escalation_target_id` in escalation records. |
-| `assigned_room_id` | `string \| null` | Classroom or cohort identifier. Carried into escalation records for routing and reporting. |
+| `assigned_manager_id` | `string \| null` | Actor ID of the manager responsible for this work profile. Populated at registration or role-assignment time. Used by the orchestrator to set `escalation_target_id` in escalation records. |
+| `assigned_site_id` | `string \| null` | Site or operational unit identifier. Carried into escalation records for routing and reporting. |
 
-These fields are set by the Domain Authority (or a teacher with `may_assign_domain_roles: true`) when assigning a student role. They are stored in the persistence backend alongside the rest of the student profile and are read by `ppa_orchestrator._write_escalation_record()` at escalation time.
+These fields are set by the Domain Authority (or a delegated manager with `may_assign_domain_roles: true`) when assigning operational roles. They are stored in the persistence backend alongside the rest of the profile and are read by `ppa_orchestrator._write_escalation_record()` at escalation time.
 
 ---
 
@@ -237,7 +237,7 @@ These fields are set by the Domain Authority (or a teacher with `may_assign_doma
 
 Domain roles are assigned by the Domain Authority or by roles with `may_assign_domain_roles: true`. Assignments are recorded in the System Logs as `domain_role_assignment` commitment records for full auditability.
 
-A role can only assign roles at or below its `max_assignable_level`. For example, a teacher at level 1 with `max_assignable_level: 2` can assign teaching assistants (level 2) and students (level 3) but not other teachers (level 1).
+A role can only assign roles at or below its `max_assignable_level`. For example, a site manager at level 1 with `max_assignable_level: 2` can assign field operators (level 2) and observers (level 3) but not other site managers (level 1).
 
 ---
 

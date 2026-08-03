@@ -25,11 +25,11 @@ The **State** pillar of the D.S.A. Framework is a compressed, mathematically str
 
 | Domain | Example Domain Lib Components |
 |--------|----------------|
-| **Business Ops** | ZPD monitor, affect estimator (SVA), cognitive fatigue estimator |
+| **Education** | competency-band monitor, response-quality trend estimator, engagement stability estimator |
 | **Business Ops** | Soil-health drift monitor, equipment-status estimator, weather-deviation checks |
 | **Medicine** | Vital-sign trend monitor, alert-fatigue estimator, treatment-response checks |
 
-A ZPD monitor is business-ops's equivalent of a soil-health monitor in business-ops. They both answer the question: *"Is the entity currently operating within its optimal functioning band?"* — but the signals, thresholds, and interpretations are entirely domain-specific.
+A competency-band monitor is education's equivalent of a soil-health monitor in business-ops. They both answer the question: *"Is the entity currently operating within its optimal functioning band?"* — but the signals, thresholds, and interpretations are entirely domain-specific.
 
 ---
 
@@ -67,7 +67,7 @@ Each domain pack must include a `domain-lib/` directory containing:
 
 The compressed state schema defines the *fields* that may be populated. Which fields are populated and what thresholds matter is domain-specific:
 
-| Schema Field | Business Ops | Business Ops | Medicine |
+| Schema Field | Education | Business Ops | Medicine |
 |--------------|-----------|-------------|---------|
 | `salience` | Engagement/focus | Operator attention | Patient compliance |
 | `valence` | Emotional tone toward task | N/A (not applicable) | Patient affect |

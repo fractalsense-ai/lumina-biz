@@ -35,7 +35,7 @@ Meso Authority
 Micro Authority
   Role: Domain Authority for subject-matter or operational correctness
   Meta Authority for: Subjects/Targets (within their sessions)
-  Examples: Teacher / Lead Physician / Operator
+  Examples: Specialist / Lead Physician / Operator
         ↓
 Subject/Target
   Role: Domain Authority for their own state and preferences
@@ -43,9 +43,9 @@ Subject/Target
   Examples: Learner / Patient / Farm Environment
 ```
 
-**Business Ops instantiation:** Administration → Department Head → Teacher → Student  
+**Education instantiation:** Administration → Department Head → Instructor → Learner  
 **Medical instantiation:** Hospital Admin → Department Head → Lead Physician → Patient  
-**Business Ops instantiation:** Corporate Policy → Site Manager → Operator → Environment
+**Business Ops instantiation:** Corporate Policy → Site Manager → Operator → Customer Intake
 
 Each level:
 1. **Authors its own Domain Physics** — YAML ruleset defining invariants, standing orders, and escalation triggers within its scope
@@ -70,7 +70,7 @@ Constraints:
 - All domain pack versions must be hash-committed to the System Logs before taking effect
 - Domain pack changes require explicit versioning and a CHANGELOG entry
 
-See [`governance/domain-authority-roles.md`](governance/domain-authority-roles.md) for role definitions and onboarding.
+See [`docs/8-admin/domain-authority-roles.md`](docs/8-admin/domain-authority-roles.md) for role definitions and onboarding.
 
 ---
 
@@ -123,14 +123,14 @@ Every escalation step must be recorded. An escalation that is not acknowledged w
 
 All stakeholders have the right to audit within their authority scope:
 
-- **Subject/Target** (e.g., Student, Patient): may request a summary of their own System Log records (structured telemetry only, never raw transcripts)
-- **Micro Authority** (e.g., Teacher, Physician, Operator): may audit System Log records for sessions within their domain
+- **Subject/Target** (e.g., Learner, Patient, Operator): may request a summary of their own System Log records (structured telemetry only, never raw transcripts)
+- **Micro Authority** (e.g., Instructor, Physician, Operator): may audit System Log records for sessions within their domain
 - **Meso Authority** (e.g., Department Head, Site Manager): may audit Micro Authority-level System Log records
 - **Macro Authority** (e.g., Administration, Hospital Admin, Corporate Policy): may audit all System Log records within their scope
 
 Audit outputs are structured summaries. No audit may produce a transcript — the System Logs does not store transcripts.
 
-See [`governance/audit-and-rollback.md`](governance/audit-and-rollback.md) for audit procedures and rollback policy.
+See [`docs/8-admin/audit-and-rollback.md`](docs/8-admin/audit-and-rollback.md) for audit procedures and rollback policy.
 
 ---
 
@@ -150,7 +150,7 @@ Domain Physics changes may be rolled back by a Domain Authority within their sco
 - Must append a `CommitmentRecord` to the System Logs explaining the reason
 - Does not remove prior System Log records — the ledger is append-only
 
-See [`governance/audit-and-rollback.md`](governance/audit-and-rollback.md).
+See [`docs/8-admin/audit-and-rollback.md`](docs/8-admin/audit-and-rollback.md).
 
 ---
 

@@ -79,14 +79,14 @@ The `groups` block in a domain-physics document defines named groups for chmod-s
 
 ```yaml
 groups:
-  educators:
-    description: "Teaching staff with group-level permissions."
+  operations_staff:
+    description: "Operations staff with group-level permissions."
     members:
-      domain_roles: [teacher, teaching_assistant]
-  learners:
-    description: "Students enrolled in the module."
+      domain_roles: [owner, manager, operator, front_desk]
+  intake_participants:
+    description: "Customer intake participants enrolled in this module."
     members:
-      domain_roles: [student]
+      domain_roles: [customer_intake]
 ```
 
 Each group entry has:
@@ -166,7 +166,7 @@ curl -X POST /api/auth/invite \
   -d '{
     "username": "dr-chen",
     "role": "admin",
-    "governed_modules": ["domain/bizops/algebra-level-1/v1"],
+    "governed_modules": ["domain/bizops/auto-repair/v1"],
     "email": "dr.chen@example.com"
   }'
 # Response includes: setup_url, setup_token, email_sent
@@ -200,20 +200,20 @@ Domain roles are declared in the `domain_roles` block of a domain-physics docume
 domain_roles:
   schema_version: "1.0"
   roles:
-    - role_id: teacher
-      role_name: Teacher
+    - role_id: owner
+      role_name: Owner
       hierarchy_level: 1
       maps_to_system_role: user
       default_access: rwx
       may_assign_domain_roles: true
       max_assignable_level: 2
-    - role_id: teaching_assistant
-      role_name: Teaching Assistant
+    - role_id: manager
+      role_name: Manager
       hierarchy_level: 2
       maps_to_system_role: user
       default_access: rx
-    - role_id: student
-      role_name: Student
+    - role_id: operator
+      role_name: Operator
       hierarchy_level: 3
       maps_to_system_role: user
       default_access: x
@@ -234,7 +234,7 @@ When a user has domain roles, their JWT carries a `domain_roles` claim:
   "sub": "user_ta_001",
   "role": "user",
   "domain_roles": {
-    "domain/bizops/algebra-level-1/v1": "teaching_assistant"
+    "domain/bizops/auto-repair/v1": "operator"
   }
 }
 ```
@@ -296,7 +296,7 @@ subject to these constraints:
   own `governed_modules`.
 - The invite follows the same HITL staging flow as root invites.
 
-This allows DAs to onboard students, TAs, and parents without escalating
+This allows DAs to onboard operators, front-desk users, and intake participants without escalating
 to root for every new user.
 
 ## Escalation Resolution by Domain Role
@@ -304,7 +304,7 @@ to root for every new user.
 Users with a domain role that has `receive_escalations: true` in their
 module's domain-physics can resolve escalations for that module.  This
 extends the default RBAC check (which allows only `root` and
-`admin`) to include teachers and other instructional staff.
+`admin`) to include managers and other operational staff.
 
 The resolution is scoped: the user can only resolve escalations whose
 `model_pack_id` matches a module where they hold an escalation-capable
@@ -313,11 +313,11 @@ domain role.
 ## SEE ALSO
 
 - [parallel-authority-tracks](../7-concepts/parallel-authority-tracks.md) — Three-track authority model concept
-- [rbac-spec-v1](../../specs/rbac-spec-v1.md) — Full RBAC specification
+- [rbac-spec](../5-standards/rbac-spec.md) — Full RBAC specification
 - [auth(3)](../3-functions/auth.md) — JWT authentication module
 - [permissions(3)](../3-functions/permissions.md) — Permission checker
 - [domain-role-hierarchy](../7-concepts/domain-role-hierarchy.md) — Domain-scoped role hierarchy concept
-- [domain-authority-roles](../../governance/domain-authority-roles.md) — Governance role definitions
+- [domain-authority-roles](domain-authority-roles.md) — Governance role definitions
 - [list-domains(1)](../1-commands/list-domains.md) — List registered domains
 - [list-modules(1)](../1-commands/list-modules.md) — List modules for a domain
 - [graceful-degradation](../7-concepts/graceful-degradation.md) — Clarification flow for SLM failures
