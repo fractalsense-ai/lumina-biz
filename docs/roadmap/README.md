@@ -1,13 +1,13 @@
 ---
-version: 1.2.3
-last_updated: 2026-08-02
+version: 1.2.4
+last_updated: 2026-08-03
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.3
+**Version:** 1.2.4
 **Status:** Active
-**Last updated:** 2026-08-02
+**Last updated:** 2026-08-03
 
 ---
 
@@ -62,6 +62,8 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Planned |
 | [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Active |
 | [36](slices/36-single-box-deployment-and-operational-hardening.md) | Single-Box Deployment and Operational Hardening | Planned |
+| [37](slices/37-erp-identity-authority-and-claim-contract.md) | ERP Identity Authority and Claim Contract | Active |
+| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Planned |
 
 ---
 

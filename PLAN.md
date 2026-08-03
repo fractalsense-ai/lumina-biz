@@ -1,6 +1,6 @@
 # PLAN.md — Current Execution Plan
 
-_Last updated: 2026-08-01_
+_Last updated: 2026-08-03_
 
 ## Why This File Changed
 
@@ -10,96 +10,120 @@ This file now tracks the active implementation target and handoff details.
 
 ## Active Target
 
-Slice 33: ERPNext Reference Connector and Deterministic Fixtures
+Slice 37: ERP Identity Authority and Claim Contract
 
 Roadmap source:
-- docs/roadmap/slices/33-erpnext-reference-connector-and-fixtures.md
+- docs/roadmap/slices/37-erp-identity-authority-and-claim-contract.md
+- docs/roadmap/slices/38-erp-jwt-verification-gateway-and-auth-transition.md
 
 Current status:
-- Slice 32 is delivered and validated.
-- Slice 33 is active and is the current execution focus.
+- Slice 35 and docs decontamination cleanup are complete.
+- Slice 37 is active and defines ERP as SSOT for domain/user identity.
+- Slice 38 is planned and defines runtime verification and endpoint transition.
 
 ## Objective
 
-Deliver the first provider-specific reference connector (`erpnext`) that conforms to Lumina canonical business-system contracts and deterministic routing behavior.
+Establish ERP as the single source of truth (SSOT) for domain/user identity and membership context, while preserving a Lumina-owned JWT track for system/developer control-plane access (`root`, `super_admin`).
 
 ## Scope
 
-1. Connector core
-- Add ERPNext connector package under `src/lumina/**`.
-- Implement connector manifest/capability declaration.
-- Implement canonical operation dispatch.
-- Implement canonical-to-ERPNext mapping layer.
+1. Identity authority and claim contract (Slice 37)
+- Define ERP ownership for domain/user identity lifecycle and organization/site assignment truth.
+- Define canonical ERP JWT claim requirements (`iss`, `aud`, `sub`, `exp`, `iat`, `jti`, `role`, `organization_id`, `site_id`).
+- Define role and context claim mapping into Lumina runtime authorization.
 
-2. Deterministic fixture mode
-- Add fixture-backed execution mode for local tests and CI.
-- Cover nominal query flows and staged mutation flows.
-- Cover deterministic provider failure responses.
+2. Verification gateway and transition model (Slice 38)
+- Define verification strategy for ERP-issued JWTs (issuer/audience/signature/time claims).
+- Define key rotation handling (static keys and/or JWKS cache behavior).
+- Define compatibility and deprecation stages for Lumina-issued domain/user tokens.
 
-3. Error normalization + conformance
-- Normalize ERPNext failures to canonical `connector_error` shapes.
-- Add conformance tests per supported capability.
-- Add negative tests for unsupported capabilities and malformed mappings.
+3. System-track preservation
+- Keep Lumina-issued system-track JWTs for control-plane operations.
+- Preserve `/api/admin/auth/*` as the bounded system/developer path.
 
-4. Documentation
-- Add command/concept docs for running connector fixtures.
-- Document provider isolation boundary (canonical vs ERPNext specifics).
-- Update roadmap evidence after green test pass.
+4. Operational safeguards
+- Define break-glass fallback posture as time-bounded and auditable.
+- Define denial behavior for invalid/missing claims.
 
 ## Out of Scope
 
-- Canonical schema expansion for ERPNext-only fields.
-- Production credential rotation implementation.
-- Secondary provider implementation.
+- Full removal of system-track Lumina JWT in this phase.
+- Full enterprise IdP federation beyond ERP-issued token contract.
+- Immediate hard-cut deletion of all legacy domain/user auth endpoints in Slice 37.
 
 ## Acceptance Criteria
 
-- ERPNext connector passes canonical conformance tests for supported capabilities.
-- Deterministic fixtures cover nominal and failure paths.
-- Provider-specific logic stays isolated to mapping/adapter layer.
-- No credential-bearing data in fixtures, logs, or prompt payloads.
+- ERP is explicitly documented as SSOT for domain/user identity and membership context.
+- Canonical claim contract and verification constraints are unambiguous.
+- System-track Lumina JWT path remains explicitly preserved and isolated.
+- Migration/deprecation phases for domain/user token issuance are explicit and reversible.
 
 ## Test Checklist
 
-- [ ] `tests/test_*connector*erpnext*` pass.
-- [ ] Fixture replay tests pass per supported operation.
-- [ ] Negative tests pass for malformed mappings and unsupported capabilities.
-- [ ] Error normalization tests pass for ERPNext response classes.
-- [ ] Secret hygiene checks pass for fixture/log artifacts.
+- [ ] Contract validation scenarios documented for issuer, audience, required claims, expiry, and invalid signature.
+- [ ] Transition scenarios documented for compatibility window and deprecation behavior.
+- [ ] System-track auth preservation explicitly verified in docs/contracts.
+- [ ] `python -m lumina.systools.verify_repo` passes.
+- [ ] `python -m lumina.systools.manifest_integrity check` passes.
 
-## Implementation-Ready PR Description Template
+## Implementation-Ready PR Description Template (Slice 37)
 
 ### Title
 
-Slice 33: ERPNext reference connector with deterministic fixture conformance
+Slice 37: ERP identity authority and canonical claim contract
 
 ### PR Scope
 
-- Implement ERPNext connector capability declarations and canonical mappings.
-- Add deterministic fixture mode and replay scenarios.
-- Add conformance + error-normalization test coverage.
-- Update operator and concept docs for connector boundaries.
+- Define ERP as SSOT for domain/user identities.
+- Define canonical JWT claim contract and validation constraints.
+- Preserve Lumina system-track JWT path for control-plane operations.
 
 ### Acceptance Criteria
 
-- Supported capabilities pass canonical conformance tests.
-- Fixture mode reproduces nominal and failure paths deterministically.
-- Provider specifics remain isolated from canonical contracts.
-- No credential-bearing data in fixtures/logs/prompts.
+- Claim contract is explicit and internally consistent with RBAC/auth docs.
+- Invalid/missing-claim deny behavior is documented.
+- Dependency boundaries into Slice 38 are explicit.
 
 ### Test Checklist
 
-- [ ] Conformance tests for supported operations.
-- [ ] Fixture replay tests for nominal and error cases.
-- [ ] Unsupported capability / malformed mapping negatives.
-- [ ] Error normalization contract tests.
-- [ ] Secret hygiene verification.
+- [ ] Issuer/audience/claim/expiry scenario matrix documented.
+- [ ] Fallback governance behavior documented and bounded.
+- [ ] Repo and manifest integrity checks pass.
 
 ### Out of Scope Confirmations
 
-- No production credential rotation in this slice.
-- No secondary provider connector in this slice.
-- No ERPNext-specific field promotion into canonical schemas.
+- No middleware rewiring in Slice 37.
+- No removal of system-track auth endpoints.
+
+## Implementation-Ready PR Description Template (Slice 38)
+
+### Title
+
+Slice 38: ERP JWT verification gateway and domain/user auth transition
+
+### PR Scope
+
+- Define runtime verification gateway for ERP-issued JWTs.
+- Define compatibility/deprecation path for Lumina-issued domain/user tokens.
+- Preserve system-track Lumina JWT control-plane behavior.
+
+### Acceptance Criteria
+
+- Verification and key-rotation behavior is deterministic and documented.
+- Transition/rollback path is explicit.
+- System-track preservation is explicit.
+
+### Test Checklist
+
+- [ ] Invalid-token scenario matrix documented.
+- [ ] Rotation/cache and fallback behavior documented.
+- [ ] Compatibility and deprecation stages documented.
+- [ ] Repo and manifest integrity checks pass.
+
+### Out of Scope Confirmations
+
+- No `/api/admin/auth/*` removal in this slice.
+- No non-ERP IdP migration in this slice.
 
 ## Notes
 
