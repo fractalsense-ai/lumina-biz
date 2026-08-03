@@ -1,13 +1,13 @@
 ---
-version: 1.2.3
-last_updated: 2026-08-02
+version: 1.2.5
+last_updated: 2026-08-03
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.3
+**Version:** 1.2.5
 **Status:** Active
-**Last updated:** 2026-08-02
+**Last updated:** 2026-08-03
 
 ---
 
@@ -58,10 +58,12 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [30](slices/30-erpnext-adapter-foundation-and-fixtures.md) | Canonical Business-System Contracts and Capability Taxonomy | Delivered |
 | [31](slices/31-business-ops-pack-bootstrap.md) | Connector Registry and Capability Routing | Delivered |
 | [32](slices/32-auto-repair-mvp-and-single-box-deployment.md) | Business Ops Pack Bootstrap | Delivered |
-| [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Active |
-| [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Planned |
-| [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Active |
+| [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Delivered |
+| [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Delivered |
+| [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Delivered |
 | [36](slices/36-single-box-deployment-and-operational-hardening.md) | Single-Box Deployment and Operational Hardening | Planned |
+| [37](slices/37-erp-identity-authority-and-claim-contract.md) | ERP Identity Authority and Claim Contract | Active |
+| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Planned |
 
 ---
 

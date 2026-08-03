@@ -1,9 +1,9 @@
 ---
 title: "Slice 35 — Auto Repair MVP Over Connector Abstractions"
 slice: 35
-status: active
-version: 0.2.0
-last_updated: 2026-08-02
+status: delivered
+version: 0.2.1
+last_updated: 2026-08-03
 ---
 
 ## Purpose
