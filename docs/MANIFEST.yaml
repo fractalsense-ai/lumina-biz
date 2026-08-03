@@ -187,9 +187,9 @@ artifacts:
   type: doc
   section: 0
   doc_version: 1.0.0
-  status: planned
-  last_updated: 2026-07-11
-  sha256: 21be4506af9c937f43e674dab0623893ca2dbfb2345f2d42bfc141cd6ae3fdbe
+  status: delivered
+  last_updated: 2026-08-03
+  sha256: 79679a9753a9e4a8f2de2972e8d60af5ff07fc3f18e42bd1825143a43723ef24
 - path: docs/roadmap/slices/33-erpnext-reference-connector-execution-plan.md
   type: doc
   section: 0
@@ -201,16 +201,16 @@ artifacts:
   type: doc
   section: 0
   doc_version: 1.0.0
-  status: planned
-  last_updated: 2026-07-11
-  sha256: 9445a7b931a92de6c9335ff3c369abc7d324911b42e364a96721a83e7587571b
+  status: delivered
+  last_updated: 2026-08-03
+  sha256: ab467ea6336b141e05702f0c6cc8f5e33245fa67aaa63abd5ead85ad95ccd954
 - path: docs/roadmap/slices/35-auto-repair-mvp-over-connector-abstractions.md
   type: doc
   section: 0
   doc_version: 1.0.0
-  status: planned
-  last_updated: 2026-07-11
-  sha256: fddb5ec8a5f445ac0f13c6c175cf0eeba895984b3d58b77cb5681b44999ac0f7
+  status: delivered
+  last_updated: 2026-08-03
+  sha256: 6ef3190507658101f9734ef253eb84864c0d276ed18754d9f03589579920b787
 - path: docs/roadmap/slices/36-single-box-deployment-and-operational-hardening.md
   type: doc
   section: 0
@@ -1738,7 +1738,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: 7cd32d93c53e321cf39d0313d5e4aae66c35815a11e0e4f698e6f0303bed9b73
+  sha256: 1e9c46862fab109ec0e16349054de1c119f97f685880b0b94fa13f55cff39fe7
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
