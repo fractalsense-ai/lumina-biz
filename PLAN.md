@@ -25,6 +25,18 @@ Current status:
 
 Establish ERP as the single source of truth (SSOT) for domain/user identity and membership context, while preserving a Lumina-owned JWT track for system/developer control-plane access (`root`, `super_admin`).
 
+## Generic ERP Core Guardrail
+
+Execution must preserve a reusable generic ERP service core where service-like verticals (for example towing and retail-delivery) remain profile/presentation variants over the same canonical workflow and action graph.
+
+Direction lock:
+- Prefer profile-layer and mapping-layer extension before any core workflow divergence.
+- Keep provider-specific behavior isolated in connector mapping adapters or bounded customization hooks.
+- Do not introduce vertical-specific forks in core runtime semantics without an explicit roadmap pivot.
+
+Roadmap anchor:
+- docs/roadmap/slices/39-generic-erp-service-core-and-vertical-profile-layer.md
+
 ## Scope
 
 1. Identity authority and claim contract (Slice 37)

@@ -84,3 +84,4 @@ Key evidence artifacts:
 ## Follow-Up Slices
 
 - Slice 36: single-box deployment and operational hardening.
+- Slice 39: generic ERP service core and vertical profile layer (reusability lock for future service-like verticals).

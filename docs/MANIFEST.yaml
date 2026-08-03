@@ -210,14 +210,14 @@ artifacts:
   doc_version: 1.0.0
   status: delivered
   last_updated: 2026-08-03
-  sha256: 6ef3190507658101f9734ef253eb84864c0d276ed18754d9f03589579920b787
+  sha256: 4077e26d38885d9d3b74c8879aa39fbbee546e7a851e7a717a6d43cd56c66647
 - path: docs/roadmap/slices/36-single-box-deployment-and-operational-hardening.md
   type: doc
   section: 0
-  doc_version: 1.0.0
+  doc_version: 0.2.0
   status: planned
-  last_updated: 2026-07-11
-  sha256: 0e53f2d78c40586c69919e5d3be45fe831e41490721797f68c44b7d549eecf56
+  last_updated: 2026-08-03
+  sha256: e7880035350ff9d04a40b5881ddb798174dd15e4d5451025812c2b78b3040297
 - path: docs/roadmap/slices/37-erp-identity-authority-and-claim-contract.md
   type: doc
   section: 0
@@ -232,6 +232,13 @@ artifacts:
   status: planned
   last_updated: 2026-08-03
   sha256: a496c594ca4458fae830184970e1eaac3623f604b581db37ef580398ce688eb7
+- path: docs/roadmap/slices/39-generic-erp-service-core-and-vertical-profile-layer.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-08-03
+  sha256: f4e051b0f05a142173de8d96552128425b24d1eecdee567748abde9ab8f33b84
 - path: docs/1-commands/README.md
   type: doc
   section: 1
@@ -1752,7 +1759,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-19
-  sha256: 1e9c46862fab109ec0e16349054de1c119f97f685880b0b94fa13f55cff39fe7
+  sha256: 02570d79f895f337fc01d81860c4a263bfbae729ccde4d29651b80dd56f103c3
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
