@@ -78,7 +78,7 @@ In both cases:
 
 ### 2. Domain Library (`domain-lib/`)
 
-**Passive state estimators** that track entity state across turns — e.g., ZPD monitor, fluency tracker, fatigue model. They are implemented as Python classes/functions and called **inside the runtime adapter** (`domain_step` in `runtime_adapters.py`). They are never called directly by the core engine.
+**Passive state estimators** that track entity state across turns — e.g., progression monitor, consistency tracker, stability model. They are implemented as Python classes/functions and called **inside the runtime adapter** (`domain_step` in `runtime_adapters.py`). They are never called directly by the core engine.
 
 - Specifications live in `domain-lib/*.md`
 - Implementations live in `controllers/*.py`
@@ -224,7 +224,7 @@ problem_solved = (
 
 ### ❌ Calling domain-lib directly from the orchestrator
 
-The orchestrator receives a `domain_lib_step_fn` lambda that wraps the domain's `domain_step` function. It calls that lambda — it does not import or call ZPD monitors, fluency trackers, or any other domain-lib component directly.
+The orchestrator receives a `domain_lib_step_fn` lambda that wraps the domain's `domain_step` function. It calls that lambda — it does not import or call domain progression monitors, consistency trackers, or any other domain-lib component directly.
 
 ### ❌ Bypassing the adapter to write gate signals in the server
 

@@ -55,7 +55,7 @@ pack, but all nine are present in a fully-realised production pack.
 | **Tool adapters** | `modules/<module>/tool-adapters/*.yaml` + `controllers/tool_adapters.py` | Orchestrator policy system (YAML-declared) or runtime adapter directly (Python) | Recommended | Active, deterministic verifiers — compute domain-specific field values on demand |
 | **Runtime adapter** | `controllers/runtime_adapters.py` | Core engine on every turn | Yes | Phase A (NLP pre-processing before LLM) + Phase B (signal synthesis after tools); emits engine contract fields |
 | **NLP pre-interpreter** | `controllers/nlp_pre_interpreter.py` | Core engine before LLM prompt assembly | Yes (all text-input domains) | Deterministic extraction of domain-meaningful signals from raw input; produces `_nlp_anchors` |
-| **Domain library** | `domain-lib/reference/*.md` specs + `controllers/*.py` implementations | Runtime adapter only — never the engine directly | Where applicable | Passive reference specs (interpretation schemas, estimator definitions) and state estimators tracking entity state across turns (ZPD monitor, fluency tracker, fatigue model) |
+| **Domain library** | `domain-lib/reference/*.md` specs + `controllers/*.py` implementations | Runtime adapter only — never the engine directly | Where applicable | Passive reference specs (interpretation schemas, estimator definitions) and state estimators tracking entity state across turns (progression monitor, consistency tracker, stability model) |
 | **Group Libraries / Group Tools** | `domain-lib/*.py` (libraries) + `controllers/group_tool_adapters.py` (tools) | Runtime adapter (libraries) or policy system (tools) — declared in physics files | Where applicable | Shared pure-function libraries and shared active verifiers used by multiple modules within the domain |
 | **API route handlers** | `controllers/api_handlers.py` + `cfg/runtime-config.yaml` §adapters.api_routes | Core server at startup (dynamically mounted) | No | Domain-owned HTTP endpoints — telemetry submission, dashboard data, domain-specific queries. The core server wraps each handler with auth + role enforcement; the domain handler stays framework-free |
 | **Frontend plugin** | `web/plugin.ts` + `web/components/` + `web/services/` | Framework `PluginRegistry` at UI load time | No | Domain-owned UI: dashboard tabs, sidebar panels, slash commands, chat hooks, client-side services. Built as ES module via Vite; declared in `cfg/runtime-config.yaml` §ui |
@@ -75,7 +75,7 @@ step** that match its pedagogical mode.
 
 | Module type | Turn interpreter | Domain step | Tool usage mode |
 |---|---|---|---|
-| **Learning** | `interpret_turn_input` — builds algebra context hints, calls `algebra_parser` proactively 7×, produces `correctness`, `step_count`, `equivalence_preserved` | `domain_step` — ZPD monitor + fluency tracker | **Evaluation** (proactive): tools fire on every turn to verify student work |
+| **Learning** | `interpret_turn_input` — builds algebra context hints, calls `algebra_parser` proactively 7×, produces `correctness`, `step_count`, `equivalence_preserved` | `domain_step` — progression monitor + consistency tracker | **Evaluation** (proactive): tools fire on every turn to verify structured work evidence |
 | **Free-form** | `freeform_interpret_turn_input` — SLM classification of intent, deterministic student-command detection, no proactive tool calls | `freeform_domain_step` — neutral passthrough, no monitoring | **Assistance** (on-demand): tools available through `apply_tool_call_policy()` when conversation needs them |
 | **Governance** | `interpret_turn_input` (governance) — SLM classification of operator intent, structured command dispatch via `slm_parse_admin_command` | *(governance modules use the admin pipeline, not domain_step)* | **Command dispatch**: SLM parses operator commands into structured operation dicts |
 
@@ -316,7 +316,7 @@ The three currently active domain packs illustrate this:
 | **Pre-interpreter extractors** | answer_match, frustration_markers, hint_request, off_task_ratio | admin_verb (mutation/read), target_user, target_role, compound_command, glossary_match | soil sensor thresholds, pest signal keywords, moisture anomaly detection |
 | **Physics invariant type** | Pedagogical (max_consecutive_incorrect, zpd_drift_limit, session_fatigue) | Operational security (privilege escalation gates, unauthorised access paths) | Environmental (moisture_low, pest_pressure_critical, yield_at_risk) |
 | **Tool adapters** | algebra-parser, substitution-checker, calculator | system ctl tools | operations tool adapters |
-| **Domain library components** | ZPD monitor, fluency tracker, fatigue estimator | Turn interpretation spec, command interpreter spec, sensor probes | Turn interpretation spec, sensor normalisation |
+| **Domain library components** | progression monitor, consistency tracker, stability estimator | Turn interpretation spec, command interpreter spec, sensor probes | Turn interpretation spec, sensor normalisation |
 | **World-sim enabled** | Yes (space, nature, sports, general_math themes) | No | No |
 | **Access roles** | user, admin, super_admin, operator, root | super_admin, root | domain-specific |
 | **LLM vs SLM routing** | LLM (external permitted) | SLM-only (`local_only: true`) | LLM (external permitted) |

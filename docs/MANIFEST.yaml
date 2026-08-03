@@ -329,7 +329,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: 77dc1686343305518451220a474bc738ef2c6b8f1b1d2a2e8da0a52e2ce282e4
+  sha256: d37377a658b93a5b16a5fb4c081381873ed8f1c550f3fb23413de40d8d5c2c30
 - path: docs/3-functions/auth.md
   type: doc
   section: 3
@@ -455,7 +455,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-18
-  sha256: 40652be323606944ffdeb4e0796aec33ed0ffbe61d70425dff08baa4c3891e3c
+  sha256: 5e92d71675405ca97a4673f736ecc57db66bd275437aa5687a6c60ec7a11cc3e
 - path: docs/7-concepts/domain-evidence-extension.md
   type: doc
   section: 7
@@ -567,7 +567,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-13
-  sha256: 76d8e32c04e38e68966115025316cf97c7be31a79b24ab17c1445c1cba60f069
+  sha256: acc7706aa696c3561ab17d8db0a9623fbd6877a9d57e4ac0b55ae7bc5d8c0623
 - path: docs/7-concepts/resource-monitor-daemon.md
   type: doc
   section: 7
@@ -686,7 +686,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-21
-  sha256: 7d3b8de9fd8ec1cd0cc5b5a085c26555d6f49164c641ab442f2369e643b79c38
+  sha256: b8c123e6efde5a9eb6fa95eb71af4738d61c63552dc258ef118a04478a41567a
 - path: docs/7-concepts/hmvc-heritage.md
   type: doc
   section: 7
@@ -903,7 +903,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: e34b065baf7f6e73417536161e7456679171d3b39fe9bfb73442d5632f600dd5
+  sha256: 41f08813e6260d6e781a8f2f1fec1a42606af6b0ddef34973de3114406eb7fe3
 - path: docs/3-functions/affect-monitor.md
   type: doc
   section: 3

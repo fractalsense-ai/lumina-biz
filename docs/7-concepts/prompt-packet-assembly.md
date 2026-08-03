@@ -134,8 +134,8 @@ Domain library functions track entity state across turns. They are called by the
 
 | Domain | Library function | What it tracks |
 |--------|-----------------|---------------|
-| Business Ops | ZPD monitor | Whether the current task is inside, above, or below the learning zone |
-| Business Ops | Fluency tracker | Vocabulary and problem-type fluency across the session |
+| Business Ops | Workflow progression monitor | Whether the current task is on-track, blocked, or escalation-prone |
+| Business Ops | Response consistency tracker | Terminology and decision consistency across the session |
 | Business Ops | Fatigue estimator | Engagement and response-quality degradation signal |
 | Business Ops | Variance tracker | Rolling deviation from expected yield or moisture baselines |
 
