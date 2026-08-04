@@ -1,13 +1,13 @@
 ---
-version: 1.3.0
-last_updated: 2026-08-03
+version: 1.4.1
+last_updated: 2026-08-04
 ---
 
 # Domain Adapter Pattern
 
-**Version:** 1.3.0  
+**Version:** 1.4.1  
 **Status:** Active  
-**Last updated:** 2026-08-03  
+**Last updated:** 2026-08-04  
 
 ---
 
@@ -23,7 +23,7 @@ This is the hard invariant:
 
 > **Zero domain-specific names may appear in `src/lumina/`.** All domain logic, domain field names, and domain computations live exclusively in the domain pack.
 
-What varies completely between domains is *how* the runtime adapter computes those contract fields. An business-ops adapter might say "the problem is solved when the algebra parser confirms the substitution." A mass-spectrometry lab adapter might say "the task is complete when all 15 verified procedural steps have been logged." The core engine sees only `problem_solved: true` — the reasoning behind it stays in the domain pack.
+What varies completely between domains is *how* the runtime adapter computes those contract fields. A service workflow adapter might say "the current node is ready when intake completeness and approval checks pass." A manufacturing adapter might say "the current node is ready when required checkpoints for this step are complete." The core engine sees only `task_ready_for_execution: true` — the reasoning behind it stays in the domain pack.
 
 ---
 
@@ -33,30 +33,48 @@ These are the fields the core engine reads by name from `turn_data`. Every domai
 
 | Field | Type | Default | What the engine does with it |
 |---|---|---|---|
-| `problem_solved` | `bool` | `false` | When `True`, fires the **problem-advancement gate** — the engine generates the next task using the domain's `generate_problem` tool function |
-| `problem_status` | `str` | `""` | When non-empty, writes to `current_problem["status"]` — lets the adapter tag the running lifecycle state of the current task (e.g. `"step_3_of_15_complete"`, `"in_progress"`) |
+| `task_ready_for_execution` | `bool` | `false` | When `True`, fires the **task-advancement gate** for the current task/node — the engine routes progression through domain-owned tooling |
+| `task_status` | `str` | `""` | When non-empty, writes to `current_task["status"]` — lets the adapter tag the running lifecycle state of the current task (e.g. `"intake_complete"`, `"awaiting_approval"`) |
+
+### Scope note: node readiness vs workflow completion
+
+`task_ready_for_execution` is a **node/task readiness** signal, not a whole-workflow completion signal.
+
+- In DAG-driven domains, dependency checks (`depends_on`, topological scheduling, ready-node selection) remain inside the domain pack's orchestration logic.
+- The host/core runtime does not need DAG internals. It consumes generic turn signals only.
+- If a domain needs a distinct terminal indicator (for example `workflow_complete`), that indicator is domain-owned and separate from `task_ready_for_execution`.
 
 ### Usage pattern
 
-These two fields are complementary for multi-step tasks. On each turn the adapter sets `problem_status` to a progress marker. On the final successful turn it also sets `problem_solved = True`, which triggers the engine to retire the current task and present the next one.
+These two fields are complementary for multi-step tasks. On each turn the adapter sets `task_status` to a progress marker. When the current node/task has sufficient prerequisites, it sets `task_ready_for_execution = True`, which triggers the engine to retire or advance the current task and route to the next workflow step.
 
-**Business Ops example** — single verification step:
+**Business Ops example** — intake and approval verification:
 ```python
-evidence["problem_solved"] = (
-    evidence.get("correctness") == "correct"
-    and evidence.get("substitution_check") is True
-    and evidence.get("step_count", 0) >= evidence.get("min_steps", 1)
+evidence["task_ready_for_execution"] = (
+    evidence.get("intake_complete") is True
+    and evidence.get("explicit_approval_language") is True
+    and evidence.get("confidence_score", 0.0) >= evidence.get("approval_threshold", 0.6)
 )
 ```
 
 **Hypothetical mass-spec example** — 15-step procedural task:
 ```python
 steps_done = evidence.get("verified_step_count", 0)
-evidence["problem_status"] = f"step_{steps_done}_of_15_complete"
-evidence["problem_solved"] = steps_done >= 15
+evidence["task_status"] = f"step_{steps_done}_of_15_complete"
+evidence["task_ready_for_execution"] = steps_done >= 15
 ```
 
 Both examples live entirely in their respective domain packs. The engine sees the same two field names regardless of domain.
+
+### Missing-information path
+
+If prerequisites are missing, domains should route to bounded information acquisition rather than dead-end blocking:
+
+- ask actor for required fields,
+- retrieve from external business system via approved connector/tool,
+- retrieve scoped institutional memory evidence.
+
+This keeps DAG/task flow moving without exposing DAG internals to the host.
 
 ---
 
@@ -120,18 +138,18 @@ And called from the main server via `runtime.get("nlp_pre_interpreter_fn")` befo
 
 | Extractor | Output fields | Method |
 |---|---|---|
-| `extract_answer_match` | `correctness` (correct/incorrect), `extracted_answer` | Regex patterns for `x = N`, "answer is N", bare number |
-| `extract_frustration_markers` | `frustration_marker_count`, `markers` | Keyword regex, ALL_CAPS ratio, excessive punctuation |
-| `extract_hint_request` | `hint_used` | Keyword regex ("help me", "I'm stuck", "give me a hint") |
-| `extract_off_task_ratio` | `off_task_ratio` | Math vocabulary overlap as a ratio of total tokens |
+| `extract_risk_markers` | `contains_high_risk_terms`, `risk_markers` | Keyword regex and policy phrase matching |
+| `extract_approval_language` | `explicit_approval_language` | Keyword regex for explicit approval intents |
+| `extract_intake_completeness` | `intake_complete`, `missing_fields` | Deterministic payload/intake field checks |
+| `extract_workflow_focus_ratio` | `off_workflow_ratio` | Workflow vocabulary overlap as a ratio of total tokens |
 
 Extracted values are returned as a partial `evidence` dict plus a `_nlp_anchors` metadata list. The anchors are formatted into natural-language lines and prepended to the LLM context hint, tagged as deterministic:
 
 ```
 NLP pre-analysis (deterministic):
-- correctness: correct (confidence: 0.95) — matched answer "4" to expected "x = 4"
-- frustration_marker_count: 0
-- off_task_ratio: 0.1
+- intake_complete: true
+- explicit_approval_language: true
+- off_workflow_ratio: 0.1
 Use these as starting values. Override if your analysis disagrees.
 ```
 
@@ -184,24 +202,23 @@ return evidence
 
 The core engine reads the field by name via `turn_data.get("my_signal")`. If the field name is not yet in the engine contract field reference table above, open a PR to add it — that table is the only coupling point between domain packs and the core engine.
 
-### Annotated reference: `problem_solved` in an active domain
+### Annotated reference: `task_ready_for_execution` in an active domain
 
 ```python
 # At the end of interpret_turn_input() in
 # model-packs/business-ops/controllers/runtime_adapters.py
 
-# A problem is fully solved when correctness is confirmed by substitution
-# and the step-count minimum has been met. This flag is consumed by the
-# core engine's problem-advancement gate and must not reference domain
+# A task is ready for execution when intake checks and approval checks pass.
+# This flag is consumed by the core engine's task-advancement gate and must not reference domain
 # field names outside this adapter.
-evidence["problem_solved"] = (
-    evidence.get("correctness") == "correct"      # LLM or NLP confirmed correct
-    and evidence.get("substitution_check") is True # algebra parser verified x=answer
-    and evidence.get("step_count", 0) >= evidence.get("min_steps", 1)  # sufficient work shown
+evidence["task_ready_for_execution"] = (
+    evidence.get("intake_complete") is True
+    and evidence.get("explicit_approval_language") is True
+    and evidence.get("confidence_score", 0.0) >= evidence.get("approval_threshold", 0.6)
 )
 ```
 
-`min_steps` itself is a domain-owned field set by the problem generator (`problem_generator.py`) and carried through `current_problem` into the evidence defaults. The orchestrator's invariant check (`show_work_minimum`) uses `"step_count >= min_steps"` — the RHS is resolved as a field reference from evidence, not a hardcoded literal. This is also entirely within the domain pack.
+Workflow thresholds are domain-owned fields set by runtime configuration and carried through `current_task` into evidence defaults. Invariant checks should reference those evidence fields by name, not hardcoded literals. This is also entirely within the domain pack.
 
 ---
 
@@ -213,14 +230,14 @@ These are the anti-patterns that violate the domain-agnostic invariant. All thre
 
 ```python
 # WRONG — in src/lumina/api/
-problem_solved = (
-    correctness == "correct"
-    and turn_data.get("substitution_check") is True   # ← business-ops field
-    and resolved_action not in {"request_more_steps"}  # ← business-ops SO ID
+task_ready_for_execution = (
+    intake_status == "complete"
+    and turn_data.get("approval_check") is True      # ← domain field
+    and resolved_action not in {"request_more_info"}  # ← domain standing-order ID
 )
 ```
 
-`substitution_check` is an business-ops field. `request_more_steps` is an business-ops standing-order ID. Neither should appear in the core engine. The correct fix is to move the computation into the adapter (Phase B) and have the engine read only `turn_data.get("problem_solved")`.
+`approval_check` is a domain field. `request_more_info` is a domain standing-order ID. Neither should appear in the core engine. The correct fix is to move the computation into the adapter (Phase B) and have the engine read only `turn_data.get("task_ready_for_execution")`.
 
 ### ❌ Calling domain-lib directly from the orchestrator
 
@@ -228,7 +245,7 @@ The orchestrator receives a `domain_lib_step_fn` lambda that wraps the domain's 
 
 ### ❌ Bypassing the adapter to write gate signals in the server
 
-All engine contract fields must be populated by the domain pack's `interpret_turn_input`. Writing `turn_data["problem_solved"] = True` anywhere in `processing.py` or in the orchestrator constitutes domain logic in the core and must be moved to the adapter.
+All engine contract fields must be populated by the domain pack's `interpret_turn_input`. Writing `turn_data["task_ready_for_execution"] = True` anywhere in `processing.py` or in the orchestrator constitutes domain logic in the core and must be moved to the adapter.
 
 ---
 
@@ -256,8 +273,6 @@ Profile-specific keys must be filtered or rejected before canonical mapping func
 
 ## Reference: Business Ops Domain Adapter Structure
 
-## Reference: Business Ops Domain Adapter Structure
-
 ```
 model-packs/business-ops/
 ├── cfg/
@@ -269,7 +284,7 @@ model-packs/business-ops/
 │   ├── nlp_pre_interpreter.py       ← Phase A: intent/signal extraction
 │   ├── domain_state.py              ← domain-lib state evolution helpers
 │   ├── policy_compiler.py           ← standing-order and route synthesis
-│   └── runtime_adapters.py          ← Phase A + Phase B synthesis; computes problem_solved
+│   └── runtime_adapters.py          ← Phase A + Phase B synthesis; computes task_ready_for_execution
 └── modules/auto-repair/
     └── tool-adapters/
         ├── business-ops-knowledge-hub-v1.yaml
