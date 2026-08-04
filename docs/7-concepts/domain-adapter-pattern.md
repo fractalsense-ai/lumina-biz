@@ -17,13 +17,13 @@ This document explains how domain packs extend the core engine's behaviour witho
 
 ## A. The Engine Contract
 
-The core engine (`src/lumina/api/processing.py`) reads a small set of **well-known generic fields** from `turn_data` after each turn. These fields are called **engine contract fields**. The engine never inspects domain-specific field names — it only reads these reserved names and acts on their values.
+The core engine (`src/lumina/api/processing.py`) reads a small set of **well-known generic fields** from `turn_data` after each turn. These fields are called **engine contract fields**. The engine never inspects domain-specific field names.
 
 This is the hard invariant:
 
 > **Zero domain-specific names may appear in `src/lumina/`.** All domain logic, domain field names, and domain computations live exclusively in the domain pack.
 
-What varies completely between domains is *how* the runtime adapter computes those contract fields. A service workflow adapter might say "the current node is ready when intake completeness and approval checks pass." A manufacturing adapter might say "the current node is ready when required checkpoints for this step are complete." The core engine sees only `task_ready_for_execution: true` — the reasoning behind it stays in the domain pack.
+What varies completely between domains is *how* the runtime adapter computes those contract fields. A service workflow adapter might say "the current node is ready when intake completeness and approval checks pass." A manufacturing adapter might say "the current node is ready when required checkpoints for this step are complete." The host sees only generic synthesized signals — the reasoning stays in the domain pack.
 
 ---
 
@@ -33,7 +33,7 @@ These are the fields the core engine reads by name from `turn_data`. Every domai
 
 | Field | Type | Default | What the engine does with it |
 |---|---|---|---|
-| `task_ready_for_execution` | `bool` | `false` | When `True`, fires the **task-advancement gate** for the current task/node — the engine routes progression through domain-owned tooling |
+| `task_ready_for_execution` | `bool` | `false` | Reserved readiness signal for task/node advancement. Domain packs and hooks may consume it; core runtime consumption is optional and version-dependent. |
 | `task_status` | `str` | `""` | When non-empty, writes to `current_task["status"]` — lets the adapter tag the running lifecycle state of the current task (e.g. `"intake_complete"`, `"awaiting_approval"`) |
 
 ### Scope note: node readiness vs workflow completion
@@ -46,7 +46,7 @@ These are the fields the core engine reads by name from `turn_data`. Every domai
 
 ### Usage pattern
 
-These two fields are complementary for multi-step tasks. On each turn the adapter sets `task_status` to a progress marker. When the current node/task has sufficient prerequisites, it sets `task_ready_for_execution = True`, which triggers the engine to retire or advance the current task and route to the next workflow step.
+These two fields are complementary for multi-step tasks. On each turn the adapter sets `task_status` to a progress marker. When the current node/task has sufficient prerequisites, it may also set `task_ready_for_execution = True` as a domain-owned readiness signal.
 
 **Business Ops example** — intake and approval verification:
 ```python
@@ -166,7 +166,7 @@ The LLM may override them, but having deterministic anchors as a prior makes ove
 
 ## E. Phase B — Signal Synthesis (Step-by-Step Template)
 
-Phase B runs at the **end of `interpret_turn_input()`**, after the LLM has produced the base evidence dict and after any tool adapter overrides (algebra parser, etc.) have been applied. Its job is to compute the engine contract fields that the core engine will act on.
+Phase B runs at the **end of `interpret_turn_input()`**, after the LLM has produced the base evidence dict and after any tool adapter overrides (algebra parser, etc.) have been applied. Its job is to compute engine-contract and domain-owned synthesized signals for downstream orchestration.
 
 ### Template for adding a new computed gate signal
 
@@ -209,7 +209,7 @@ The core engine reads the field by name via `turn_data.get("my_signal")`. If the
 # model-packs/business-ops/controllers/runtime_adapters.py
 
 # A task is ready for execution when intake checks and approval checks pass.
-# This flag is consumed by the core engine's task-advancement gate and must not reference domain
+# This is a domain-owned readiness signal and must not reference domain
 # field names outside this adapter.
 evidence["task_ready_for_execution"] = (
     evidence.get("intake_complete") is True
@@ -237,7 +237,7 @@ task_ready_for_execution = (
 )
 ```
 
-`approval_check` is a domain field. `request_more_info` is a domain standing-order ID. Neither should appear in the core engine. The correct fix is to move the computation into the adapter (Phase B) and have the engine read only `turn_data.get("task_ready_for_execution")`.
+`approval_check` is a domain field. `request_more_info` is a domain standing-order ID. Neither should appear in the core engine. The correct fix is to move the computation into the adapter (Phase B) and expose only generic synthesized signals to the host.
 
 ### ❌ Calling domain-lib directly from the orchestrator
 
@@ -245,7 +245,7 @@ The orchestrator receives a `domain_lib_step_fn` lambda that wraps the domain's 
 
 ### ❌ Bypassing the adapter to write gate signals in the server
 
-All engine contract fields must be populated by the domain pack's `interpret_turn_input`. Writing `turn_data["task_ready_for_execution"] = True` anywhere in `processing.py` or in the orchestrator constitutes domain logic in the core and must be moved to the adapter.
+All synthesized signals must be populated by the domain pack's `interpret_turn_input`. Writing `turn_data["task_ready_for_execution"] = True` anywhere in `processing.py` or in the orchestrator constitutes domain logic in the core and must be moved to the adapter.
 
 ---
 

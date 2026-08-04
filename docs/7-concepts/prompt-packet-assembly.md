@@ -75,7 +75,7 @@ Each layer in the assembly pipeline has a distinct role, a distinct owner, and a
 | ═ | **Assembled Prompt Contract** | Core engine | — | The complete packet serialized for LLM consumption |
 | 6 | **LLM** | External LLM provider | — | Probabilistic response — never trusted as sole authority |
 | 7 | **Tool-Adapter Verification** | Domain pack (policy-driven) | Per-turn | Deterministic override of specific LLM-produced fields (e.g., algebra parser replaces `correctness`) |
-| 8 | **Domain Adapter B — Signal Synthesis** | Domain pack | Per-turn | Engine contract fields (`task_ready_for_execution`, `task_status`) for current node/task readiness and lifecycle state; final `evidence` dict |
+| 8 | **Domain Adapter B — Signal Synthesis** | Domain pack | Per-turn | Engine contract fields (for example `task_status`) plus domain-owned readiness signals; final `evidence` dict |
 | 9 | **System Log** | Core engine | Append-only | Hash-chained trace event logging the decision, provenance hashes, and outcome. Events are emitted to the [System Log Micro-Router](system-log-micro-router.md) which routes them by level (AUDIT → immutable ledger, WARNING → dashboard, etc.). |
 
 **DAG boundary note:** In DAG-driven domains, dependency evaluation and ready-node scheduling remain inside the domain pack. The host consumes only the generic synthesized signals and does not require DAG internals.
