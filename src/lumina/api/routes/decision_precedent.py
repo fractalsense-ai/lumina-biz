@@ -21,7 +21,7 @@ from lumina.api.models import (
     DecisionPrecedentPreflightResponse,
 )
 from lumina.decision_precedent.policy import load_decision_precedent_policy
-from lumina.decision_precedent.scorer import DecisionConfidenceScore
+from lumina.decision_precedent.scorer import DecisionConfidenceScore, EntityStateLink
 from lumina.decision_precedent.service import evaluate_decision_precedent
 from lumina.system_log.admin_operations import build_trace_event
 from lumina.system_log.commit_guard import requires_log_commit
@@ -42,6 +42,26 @@ class _PendingConfirmation:
 
 _pending_confirmations: dict[str, _PendingConfirmation] = {}
 _consumed_confirmation_ids: dict[str, float] = {}
+
+
+def _entity_state_links_from_request(req: DecisionPrecedentPreflightRequest) -> tuple[EntityStateLink, ...]:
+    entity_id = (req.entity_id or "").strip()
+    entity_type = (req.entity_type or "").strip()
+    if not entity_id or not entity_type:
+        return ()
+    transition_seed = f"{entity_type}:{entity_id}:{(req.from_state or '').strip()}:{(req.to_state or '').strip()}"
+    transition_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"entity-transition:{transition_seed}"))
+    related = tuple(record_id.strip() for record_id in req.related_record_ids if isinstance(record_id, str) and record_id.strip())
+    return (
+        EntityStateLink(
+            entity_id=entity_id,
+            entity_type=entity_type,
+            transition_id=transition_id,
+            from_state=(req.from_state or "").strip() or None,
+            to_state=(req.to_state or "").strip() or None,
+            related_record_ids=related,
+        ),
+    )
 
 
 def _prune_expired_confirmations(now: float | None = None) -> None:
@@ -72,6 +92,7 @@ def _build_escalation_record(
     packet_id = str(uuid.uuid4())
     packet = {
         "packet_id": packet_id,
+        "decision_group_key": score.decision_group_key,
         "organization_id": score.organization_id,
         "site_id": score.site_id,
         "actor_id": score.actor_id,
@@ -84,6 +105,8 @@ def _build_escalation_record(
         "precedent_summary_record_ids": [
             match.summary_record_id for match in score.precedent_matches
         ],
+        "entity_state_links": [link.as_record() for link in score.entity_state_links],
+        "missing_information_fields": list(score.missing_information_fields),
         "created_utc": timestamp.astimezone(UTC).isoformat().replace("+00:00", "Z"),
     }
     return {
@@ -131,6 +154,10 @@ async def preflight(
             policy=policy,
             actor_id=str(user["sub"]),
             risk_class=req.risk_class,
+            entity_state_links=_entity_state_links_from_request(req),
+            missing_information_fields=tuple(
+                field.strip() for field in req.missing_information_fields if isinstance(field, str) and field.strip()
+            ),
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -169,6 +196,7 @@ async def preflight(
         )
     return DecisionPrecedentPreflightResponse(
         confidence_record_id=score.record_id,
+        decision_group_key=score.decision_group_key,
         organization_id=score.organization_id,
         site_id=score.site_id,
         actor_id=score.actor_id,

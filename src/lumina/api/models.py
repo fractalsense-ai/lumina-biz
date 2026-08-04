@@ -108,10 +108,17 @@ class DecisionPrecedentPreflightRequest(BaseModel):
     message: str = Field(min_length=1)
     risk_class: str = Field(min_length=1)
     session_id: str | None = None
+    entity_id: str | None = None
+    entity_type: str | None = None
+    from_state: str | None = None
+    to_state: str | None = None
+    related_record_ids: list[str] = Field(default_factory=list)
+    missing_information_fields: list[str] = Field(default_factory=list)
 
 
 class DecisionPrecedentPreflightResponse(BaseModel):
     confidence_record_id: str
+    decision_group_key: str
     organization_id: str
     site_id: str
     actor_id: str
@@ -392,8 +399,8 @@ class SessionResumeRequest(BaseModel):
 class EscalationResolveRequest(BaseModel):
     decision: str  # "approve", "reject", "defer"
     reasoning: str
-    generate_pin: bool = False          # generate OTP so child can self-unlock
-    intervention_notes: str | None = None  # teacher's description of what they did
+    generate_pin: bool = False          # generate OTP so subject can self-unlock
+    intervention_notes: str | None = None  # reviewer's description of what they did
     generate_proposal: bool = False     # trigger domain-physics proposal from notes
 
 

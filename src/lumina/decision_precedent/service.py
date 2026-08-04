@@ -4,7 +4,12 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from lumina.decision_precedent.policy import DecisionPrecedentPolicy
-from lumina.decision_precedent.scorer import DecisionConfidenceScore, PrecedentCandidate, score_decision_precedent
+from lumina.decision_precedent.scorer import (
+    DecisionConfidenceScore,
+    EntityStateLink,
+    PrecedentCandidate,
+    score_decision_precedent,
+)
 from lumina.retrieval.contracts import RetrievalFilter
 from lumina.retrieval.institutional import InstitutionalMemoryIndexer
 
@@ -55,6 +60,8 @@ def evaluate_decision_precedent(
     risk_class: str,
     evaluated_utc: datetime | None = None,
     record_id: str | None = None,
+    entity_state_links: tuple[EntityStateLink, ...] = (),
+    missing_information_fields: tuple[str, ...] = (),
 ) -> DecisionConfidenceScore:
     """Return deterministic confidence from same-site summaries without retaining query text."""
     if not isinstance(query, str) or not query.strip():
@@ -75,4 +82,6 @@ def evaluate_decision_precedent(
         risk_class=risk_class,
         evaluated_utc=evaluated_utc or datetime.now(UTC),
         record_id=record_id,
+        entity_state_links=entity_state_links,
+        missing_information_fields=missing_information_fields,
     )

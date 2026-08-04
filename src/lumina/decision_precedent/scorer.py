@@ -1,6 +1,7 @@
 """Pure deterministic confidence scoring over already scope-filtered evidence."""
 from __future__ import annotations
 
+import hashlib
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -10,6 +11,32 @@ from lumina.decision_precedent.policy import DecisionPrecedentPolicy
 
 DecisionTier = Literal["suggest_only", "require_confirmation", "mandatory_escalation"]
 RecencyBand = Literal["current", "stale"]
+
+
+@dataclass(frozen=True)
+class EntityStateLink:
+    """Stable linkage metadata for one entity state transition context."""
+
+    entity_id: str
+    entity_type: str
+    transition_id: str
+    from_state: str | None = None
+    to_state: str | None = None
+    related_record_ids: tuple[str, ...] = ()
+
+    def as_record(self) -> dict[str, object]:
+        record: dict[str, object] = {
+            "entity_id": self.entity_id,
+            "entity_type": self.entity_type,
+            "transition_id": self.transition_id,
+        }
+        if self.from_state:
+            record["from_state"] = self.from_state
+        if self.to_state:
+            record["to_state"] = self.to_state
+        if self.related_record_ids:
+            record["related_record_ids"] = list(self.related_record_ids)
+        return record
 
 
 @dataclass(frozen=True)
@@ -61,6 +88,9 @@ class DecisionConfidenceScore:
     tier: DecisionTier
     rationale_codes: tuple[str, ...]
     precedent_matches: tuple[PrecedentMatch, ...]
+    decision_group_key: str
+    entity_state_links: tuple[EntityStateLink, ...] = ()
+    missing_information_fields: tuple[str, ...] = ()
 
     def as_record(self, *, created_utc: datetime | None = None) -> dict[str, object]:
         """Serialize schema-valid evidence without raw input text or transcript data."""
@@ -78,12 +108,15 @@ class DecisionConfidenceScore:
             "final_score": self.final_score,
             "tier": self.tier,
             "rationale_codes": list(self.rationale_codes),
+            "decision_group_key": self.decision_group_key,
+            "missing_information_fields": list(self.missing_information_fields),
             "precedent_matches": [
                 {
                     "record_id": f"{self.record_id}:match:{match.rank}",
                     "organization_id": self.organization_id,
                     "site_id": self.site_id,
                     "actor_id": self.actor_id,
+                    "decision_group_key": self.decision_group_key,
                     "summary_record_id": match.summary_record_id,
                     "thread_id": match.thread_id,
                     "similarity": match.similarity,
@@ -93,6 +126,7 @@ class DecisionConfidenceScore:
                 }
                 for match in self.precedent_matches
             ],
+            "entity_state_links": [link.as_record() for link in self.entity_state_links],
             "created_utc": timestamp.astimezone(UTC).isoformat().replace("+00:00", "Z"),
         }
 
@@ -122,6 +156,23 @@ def _ordered_matches(
     return tuple(matches)
 
 
+def _decision_group_key(
+    *,
+    organization_id: str,
+    site_id: str,
+    risk_class: str,
+    top_summary_record_id: str | None,
+) -> str:
+    scope_seed = "|".join([
+        organization_id,
+        site_id,
+        risk_class,
+        top_summary_record_id or "no_precedent",
+    ])
+    digest = hashlib.sha256(scope_seed.encode("utf-8")).hexdigest()
+    return f"dgrp:{digest[:16]}"
+
+
 def score_decision_precedent(
     candidates: list[PrecedentCandidate],
     policy: DecisionPrecedentPolicy,
@@ -130,6 +181,8 @@ def score_decision_precedent(
     risk_class: str,
     evaluated_utc: datetime | None = None,
     record_id: str | None = None,
+    entity_state_links: tuple[EntityStateLink, ...] = (),
+    missing_information_fields: tuple[str, ...] = (),
 ) -> DecisionConfidenceScore:
     """Score candidates deterministically; risk and absence always override similarity."""
     actor_id = _require_identifier(actor_id, "actor_id")
@@ -159,10 +212,20 @@ def score_decision_precedent(
     else:
         tier = "mandatory_escalation"
         rationale.append("insufficient_confidence")
+    if missing_information_fields:
+        rationale.append("missing_information_required")
+        if tier == "suggest_only":
+            tier = "require_confirmation"
     if best and best.recency_band == "stale":
         rationale.append("stale_precedent")
     if risk_class in policy.confirmation_risk_classes and tier == "require_confirmation":
         rationale.append("confirmation_risk_class")
+    decision_group_key = _decision_group_key(
+        organization_id=policy.organization_id,
+        site_id=policy.site_id,
+        risk_class=risk_class,
+        top_summary_record_id=best.summary_record_id if best else None,
+    )
     return DecisionConfidenceScore(
         record_id=record_id or str(uuid.uuid4()),
         organization_id=policy.organization_id,
@@ -177,4 +240,7 @@ def score_decision_precedent(
         tier=tier,
         rationale_codes=tuple(rationale),
         precedent_matches=matches,
+        decision_group_key=decision_group_key,
+        entity_state_links=entity_state_links,
+        missing_information_fields=missing_information_fields,
     )
