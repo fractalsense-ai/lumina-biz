@@ -54,13 +54,11 @@ async def execute(
         }
 
     if operation == "update_user_preferences":
-        # Keep backward compatibility for older educational flows while
-        # preferring business-ops friendly aliases.
+        # Shared profile update aliases remain workflow-generic.
         target_user_id = str(
             params.get("target_user_id", "")
             or params.get("operator_id", "")
             or params.get("worker_id", "")
-            or params.get("student_id", "")
         ).strip()
         updates = params.get("updates") or {}
         note = str(params.get("note", "")).strip()

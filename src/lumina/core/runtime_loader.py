@@ -285,7 +285,7 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
         )
 
     # Optional post-turn processor adapter (domain packs can use this for
-    # progression-gated advancement, problem_solved override, etc.)
+    # progression-gated advancement, task readiness override, etc.)
     post_turn_processor_fn: Callable[..., Any] | None = None
     _ptp_cfg = adapters_cfg.get("post_turn_processor")
     if _ptp_cfg is not None:

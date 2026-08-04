@@ -5,7 +5,7 @@ Owns all domain-physics decision logic: invariant evaluation, standing-order
 attempt tracking, and action/escalation resolution.
 
 The Actor in D.S.A. is whatever changes the state of the system relative to
-a domain (student, sensor, farmer — context-dependent).  The orchestrator is
+a domain (subject, sensor, operator — context-dependent).  The orchestrator is
 NOT an Actor; it evaluates evidence produced by Actors and resolves the
 appropriate standing-order or escalation response.
 

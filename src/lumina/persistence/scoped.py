@@ -142,7 +142,7 @@ class ScopedPersistenceAdapter:
 
     # ── Safe user reads (password_hash stripped) ─────────────
     # Domain-pack handlers may need to resolve user info for
-    # operations like "assign teacher to module".  Read access is
+    # operations like "assign reviewer to module".  Read access is
     # allowed but password hashes are always stripped.
 
     def get_user(self, user_id: str) -> dict[str, Any] | None:

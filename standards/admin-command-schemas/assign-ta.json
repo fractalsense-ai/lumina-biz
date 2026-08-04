@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "lumina://standards/admin-command-schemas/assign-ta.json",
   "schema_version": "1.0.0",
-  "last_updated": "2026-06-19",
+  "last_updated": "2026-08-03",
   "title": "assign_ta",
-  "description": "Assign a teaching assistant to one or more students. Teachers assign TAs linked to themselves; domain authorities can assign any TA.",
+  "description": "Assign an assistant/reviewer to one or more subject entities. Reviewer-role operators can assign linked assistants; domain authorities can assign any assistant.",
   "type": "object",
   "required": [
     "operation",
@@ -29,12 +29,12 @@
         "ta_id": {
           "type": "string",
           "minLength": 1,
-          "description": "User ID or display name of the teaching assistant."
+          "description": "User ID or display name of the assistant/reviewer."
         },
         "student_ids": {
           "type": "string",
           "minLength": 1,
-          "description": "Comma-separated student user IDs or display names."
+          "description": "Legacy field name for comma-separated subject user IDs or display names."
         }
       }
     }

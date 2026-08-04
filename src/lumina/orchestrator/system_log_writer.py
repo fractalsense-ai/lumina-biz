@@ -206,9 +206,7 @@ class SystemLogWriter:
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "session_id": self.session_id,
             "event_type": "turn_processed",
-            "actor_id": self._profile.get(
-                "subject_id", self._profile.get("student_id", "unknown")
-            ),
+            "actor_id": self._profile.get("subject_id", "unknown"),
             "actor_role": "subject",
             "decision": action,
             "decision_rationale": {
@@ -244,7 +242,7 @@ class SystemLogWriter:
         """Append an EscalationRecord to the System Logs."""
         # Resolve target_role and sla_minutes from domain physics
         # escalation_triggers when available, instead of hardcoding.
-        target_role = "teacher"
+        target_role = "manager"
         sla_minutes = 30
         if domain_physics:
             for et in domain_physics.get("escalation_triggers") or []:
@@ -261,9 +259,7 @@ class SystemLogWriter:
             "session_id": self.session_id,
             "model_pack_id": domain_physics.get("id", "") if domain_physics else "",
             "model_pack_version": domain_physics.get("version", "") if domain_physics else "",
-            "actor_id": self._profile.get(
-                "subject_id", self._profile.get("student_id", "unknown")
-            ),
+            "actor_id": self._profile.get("subject_id", "unknown"),
             "actor_role": "subject",
             "status": "open",
             "trigger": trigger,
@@ -274,7 +270,12 @@ class SystemLogWriter:
                 "domain_metric_pct": domain_lib_decision.get("drift_pct"),
             },
             "target_role": target_role,
-            "escalation_target_id": self._profile.get("assigned_teacher_id") or None,
+            "escalation_target_id": (
+                self._profile.get("assigned_assignee_id")
+                or self._profile.get("assigned_operator_id")
+                or self._profile.get("assigned_teacher_id")
+                or None
+            ),
             "assigned_room_id": self._profile.get("assigned_room_id") or None,
             "sla_minutes": sla_minutes,
             "metadata": dict(provenance_metadata or {}),
@@ -285,8 +286,8 @@ class SystemLogWriter:
         self._append_log_record(record)
 
         # ── Auto-freeze session on escalation ─────────────────
-        # Learning modules freeze immediately so the student cannot continue
-        # unsupervised.  Modules may opt out (e.g. student-commons) by setting
+        # Sessions may auto-freeze immediately after escalation to block
+        # unreviewed progression. Modules may opt out by setting
         # ``auto_freeze_on_escalation: false`` in their domain physics.
         _auto_freeze = True
         if domain_physics:
@@ -369,9 +370,7 @@ class SystemLogWriter:
             "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "session_id": self.session_id,
             "event_type": "other",
-            "actor_id": self._profile.get(
-                "subject_id", self._profile.get("student_id", "unknown")
-            ),
+            "actor_id": self._profile.get("subject_id", "unknown"),
             "actor_role": "subject",
             "decision": action,
             "task_id": task_id,
