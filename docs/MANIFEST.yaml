@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-08-03
+last_updated: 2026-08-04
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -476,7 +476,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-18
-  sha256: 7c9e902ee010e42df0b8aced6f948de11be0b485fc92cb0aa89e6b42ad085b6f
+  sha256: d3701d3862f00534ce8142054091076ec09b675107713f09bbe9e6473a14a917
 - path: docs/7-concepts/domain-evidence-extension.md
   type: doc
   section: 7
@@ -588,7 +588,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-13
-  sha256: acc7706aa696c3561ab17d8db0a9623fbd6877a9d57e4ac0b55ae7bc5d8c0623
+  sha256: e16323e3c24aa09c455e7ebc954af7732f9077c114fe35f9b252cdea6e1f4180
 - path: docs/7-concepts/resource-monitor-daemon.md
   type: doc
   section: 7
@@ -714,7 +714,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-23
-  sha256: e30c5fd64a8cc0006ff12615938671042a565561d158a592e4a5ade194beaf77
+  sha256: fb3bad0cc336b6038c8663a9d51490ec47c91ad663fce9aa8ad5fc7a0e49eb79
 - path: docs/7-concepts/ledger-tier-separation.md
   type: doc
   section: 7
@@ -1771,6 +1771,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-05-06
+  sha256: a935ab92d6d38be419d896bab120c7b6ece990ae62c349d26e4f4b3e4dae2ca7
 - path: docs/roadmap/slices/03-request-intake-and-classification.md
   type: doc
   doc_version: 1.0.0

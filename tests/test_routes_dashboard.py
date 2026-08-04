@@ -126,6 +126,84 @@ class TestDashboardDomains:
             assert "pending_ingestions" in entry
             assert "review_ingestions" in entry
 
+    def test_admin_scope_filters_domains_and_handles_escalation_errors(
+        self,
+        client: TestClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from lumina.services.dashboard import routes as dashboard_routes
+
+        async def _admin_user(_credentials):
+            return {"role": "admin", "governed_modules": ["business-ops"]}
+
+        monkeypatch.setattr(dashboard_routes, "get_current_user", _admin_user)
+        monkeypatch.setattr(dashboard_routes, "require_auth", lambda user: user)
+        monkeypatch.setattr(
+            dashboard_routes._cfg.DOMAIN_REGISTRY,
+            "list_domains",
+            lambda: [
+                {"domain_id": "business-ops"},
+                {"domain_id": "education", "name": "Education"},
+            ],
+        )
+
+        def _raise_escalations(*args, **kwargs):
+            raise RuntimeError("simulated persistence failure")
+
+        monkeypatch.setattr(dashboard_routes._cfg.PERSISTENCE, "query_escalations", _raise_escalations)
+
+        class _FakeIngestService:
+            def list_records(self, domain_id: str, status: str):
+                if status == "pending_extraction":
+                    return [{"id": "p1"}]
+                return [{"id": "r1"}, {"id": "r2"}]
+
+        monkeypatch.setattr(dashboard_routes, "_get_ingest_service", lambda: _FakeIngestService())
+
+        resp = client.get("/api/dashboard/domains")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert len(body) == 1
+        assert body[0]["domain_id"] == "business-ops"
+        assert body[0]["name"] == "business-ops"
+        assert body[0]["version"] == "0.0.0"
+        assert body[0]["pending_escalations"] == 0
+        assert body[0]["pending_ingestions"] == 1
+        assert body[0]["review_ingestions"] == 2
+
+    def test_admin_without_governed_modules_gets_empty_domain_list(
+        self,
+        client: TestClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from lumina.services.dashboard import routes as dashboard_routes
+
+        async def _admin_user(_credentials):
+            return {"role": "admin"}
+
+        monkeypatch.setattr(dashboard_routes, "get_current_user", _admin_user)
+        monkeypatch.setattr(dashboard_routes, "require_auth", lambda user: user)
+        monkeypatch.setattr(
+            dashboard_routes._cfg.DOMAIN_REGISTRY,
+            "list_domains",
+            lambda: [{"domain_id": "business-ops"}],
+        )
+
+        class _FakeIngestService:
+            def list_records(self, domain_id: str, status: str):
+                return []
+
+        monkeypatch.setattr(dashboard_routes, "_get_ingest_service", lambda: _FakeIngestService())
+        monkeypatch.setattr(
+            dashboard_routes._cfg.PERSISTENCE,
+            "query_escalations",
+            lambda **kwargs: [],
+        )
+
+        resp = client.get("/api/dashboard/domains")
+        assert resp.status_code == 200
+        assert resp.json() == []
+
 
 # ─────────────────────────────────────────────────────────────
 # GET /api/dashboard/telemetry
@@ -184,4 +262,34 @@ class TestDashboardTelemetry:
         assert "total" in esc
         assert "pending" in esc
         assert "resolved" in esc
+
+    def test_telemetry_handles_escalation_query_failure(
+        self,
+        client: TestClient,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from lumina.services.dashboard import routes as dashboard_routes
+
+        async def _root_user(_credentials):
+            return {"role": "root"}
+
+        monkeypatch.setattr(dashboard_routes, "get_current_user", _root_user)
+        monkeypatch.setattr(dashboard_routes, "require_auth", lambda user: user)
+        monkeypatch.setattr(
+            dashboard_routes._cfg.PERSISTENCE,
+            "query_log_records",
+            lambda domain_id=None: [{}, {"record_type": "event"}, {"record_type": "event"}],
+        )
+
+        def _raise_escalations(*args, **kwargs):
+            raise RuntimeError("simulated escalation lookup failure")
+
+        monkeypatch.setattr(dashboard_routes._cfg.PERSISTENCE, "query_escalations", _raise_escalations)
+
+        resp = client.get("/api/dashboard/telemetry?domain_id=business-ops")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["record_type_counts"]["unknown"] == 1
+        assert body["record_type_counts"]["event"] == 2
+        assert body["escalation_summary"] == {"total": 0, "pending": 0, "resolved": 0}
 
