@@ -63,7 +63,7 @@ _VALID_TURN_DATA = {
     "equivalence_preserved": True,
     "step_count": 3,
     "min_steps": 1,
-    "problem_solved": True,
+    "task_ready_for_execution": True,
     "student_answer": "x = 5",
 }
 

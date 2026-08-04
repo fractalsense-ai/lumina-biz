@@ -298,7 +298,7 @@ class TestPerModuleLocalOnly:
         session = self._make_session("domain/bizops/algebra-level-1/v1")
         runtime = self._make_runtime(module_map=module_map)
 
-        interpret_mock = MagicMock(return_value={"correctness": "correct", "problem_solved": True})
+        interpret_mock = MagicMock(return_value={"correctness": "correct", "task_ready_for_execution": True})
         mock_persistence = MagicMock()
 
         with (

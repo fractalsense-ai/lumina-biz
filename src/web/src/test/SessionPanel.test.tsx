@@ -28,7 +28,7 @@ describe('SessionPanel delete gating', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows delete button for Student Commons sessions', async () => {
+  it('shows delete button for Subject Commons sessions', async () => {
     const sessions = [
       makeSummary({
         sessionId: 'commons-1',

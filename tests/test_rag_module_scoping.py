@@ -164,7 +164,7 @@ class TestStandingOrderCounterResetOnTaskTransition:
         runtime = {"tool_fns": {"generate_problem": gen_fn}}
 
         result = _post_turn_fn(
-            turn_data={"problem_solved": True},
+            turn_data={"task_ready_for_execution": True},
             prompt_contract={"prompt_type": "continue"},
             resolved_action="continue",
             session={"module_key": "pre-algebra"},
