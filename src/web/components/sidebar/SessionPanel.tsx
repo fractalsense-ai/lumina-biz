@@ -35,7 +35,7 @@ export function SessionPanel({
   refreshKey,
 }: SessionPanelProps) {
   const [sessions, setSessions] = useState<SessionSummary[]>([])
-  const learningModuleLockLabel = 'Learning module — deletion requires teacher approval'
+  const learningModuleLockLabel = 'Protected module — deletion requires reviewer approval'
 
   const refresh = useCallback(async () => {
     try {

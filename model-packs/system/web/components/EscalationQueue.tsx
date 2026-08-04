@@ -18,6 +18,7 @@ interface Escalation {
   status: string
   timestamp_utc: string
   reason?: string
+  subject_username?: string
   student_username?: string
   active_module?: string
   evidence?: {
@@ -117,9 +118,9 @@ export function EscalationQueue({ auth, domainId }: { auth: AuthState; domainId?
               <p className="font-medium text-foreground text-sm">
                 {esc.reason ?? esc.trigger}
               </p>
-              {esc.student_username && (
+              {(esc.subject_username ?? esc.student_username) && (
                 <p className="text-xs text-foreground font-medium">
-                  Student: {esc.student_username}
+                  Subject: {esc.subject_username ?? esc.student_username}
                   {esc.active_module && (
                     <span className="ml-2 px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                       {esc.active_module.split('/').pop()}

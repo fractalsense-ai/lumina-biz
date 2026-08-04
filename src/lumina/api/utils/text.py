@@ -17,7 +17,7 @@ def strip_latex_delimiters(text: str) -> str:
 
     Removes delimiter pairs (\\(…\\), \\[…\\], $…$, $$…$$), converts
     \\frac{a}{b} → (a)/(b), and strips remaining LaTeX commands with braces
-    so the student-facing response never contains raw markup.
+    so the subject-facing response never contains raw markup.
     """
     # Display delimiters first (longer pattern takes priority over inline $)
     text = _LATEX_DOLLAR2_RE.sub(r"\1", text)

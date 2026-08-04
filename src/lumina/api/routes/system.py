@@ -32,7 +32,7 @@ def _resolve_role_layout(
 
     Returns a dict with ``sidebar_panels`` (list) and ``capabilities`` (list)
     that the frontend uses to render the correct UI.  Unauthenticated
-    requests receive the most restrictive layout (student / empty).
+    requests receive the most restrictive layout (subject / empty).
     """
     from lumina.api.config import _SYSTEM_ROLE_TO_DOMAIN_ROLE
 

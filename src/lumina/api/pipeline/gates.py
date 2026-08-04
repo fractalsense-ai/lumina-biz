@@ -69,7 +69,7 @@ def check_user_freeze(
 
     return {
         "response": (
-            "Your account is temporarily locked pending teacher review. "
+            "Your account is temporarily locked pending assigned reviewer review. "
             "Please enter your unlock PIN."
         ),
         "action": "user_frozen",
@@ -123,7 +123,7 @@ def check_session_freeze(
         }
 
     return {
-        "response": "This session is temporarily locked pending teacher review.",
+        "response": "This session is temporarily locked pending assigned reviewer review.",
         "action": "session_frozen",
         "prompt_type": "session_frozen",
         "escalated": True,

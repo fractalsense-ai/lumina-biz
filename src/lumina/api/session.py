@@ -292,7 +292,7 @@ def _build_domain_context(
 
     # ── Initial module state seed from runtime-config ─────────
     # Pass the zeroed-out state shape declared in the module's
-    # runtime-config entry so new students get physics-correct
+    # runtime-config entry so new subjects get physics-correct
     # dimensions without the profile template hardcoding them.
     if "initial_module_state" in _sb_sig.parameters:
         _sb_kwargs["initial_module_state"] = _mod_entry.get("initial_module_state")

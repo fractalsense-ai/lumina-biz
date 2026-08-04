@@ -1068,7 +1068,7 @@ function ChatInterface({
       if (slashCmd) {
         // /help is client-side only
         if (slashCmd.operation === null) {
-          const effectiveRole = roleLayout?.effective_role ?? 'student'
+          const effectiveRole = roleLayout?.effective_role ?? 'subject'
           const helpText = generateHelpText(effectiveRole, auth.role, domainKey)
           const helpMessage: Message = {
             role: 'assistant',
@@ -1599,13 +1599,13 @@ function ChatInterface({
             {sessionFrozen && (
               <div className="max-w-3xl mx-auto mb-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 px-4 py-2 text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
                 <Warning size={16} weight="bold" />
-                <span>Session locked — enter the 6-digit PIN from your teacher to continue.</span>
+                <span>Session locked — enter the 6-digit PIN from your assigned reviewer to continue.</span>
               </div>
             )}
             <div className="max-w-3xl mx-auto flex gap-3 items-end relative">
               <SlashCommandPalette
                 inputValue={inputValue}
-                effectiveRole={roleLayout?.effective_role ?? 'student'}
+                effectiveRole={roleLayout?.effective_role ?? 'subject'}
                 platformRole={auth.role}
                 domainKey={domainKey}
                 onSelect={(text) => setInputValue(text)}
@@ -1694,7 +1694,7 @@ function App() {
   const showDashboard = auth !== null && (auth.role === 'root' || auth.role === 'admin')
   const hasDomainRoles = auth !== null && !!auth.domainRoles && Object.keys(auth.domainRoles).length > 0
 
-  // Escalation events for domain-role holders (teachers)
+  // Escalation events for domain-role holders (assigned reviewers)
   const [escalationEvents, setEscalationEvents] = useState<SSEEvent[]>([])
   const handleSSEEvent = useCallback((event: SSEEvent) => {
     if (event.type === 'escalation' && hasDomainRoles) {
@@ -1706,7 +1706,7 @@ function App() {
   }, [hasDomainRoles])
   const clearEscalations = useCallback(() => setEscalationEvents([]), [])
 
-  // SSE event stream for governance-role users and domain-role holders (e.g. teachers)
+  // SSE event stream for governance-role users and domain-role holders (e.g. assigned reviewers)
   const { unreadCount, clearUnread } = useEventStream({
     token: auth?.token ?? '',
     enabled: (showDashboard || hasDomainRoles) && consentGiven,
