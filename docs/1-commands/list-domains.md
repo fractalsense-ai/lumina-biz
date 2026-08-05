@@ -51,10 +51,10 @@ Requires one of: `root`, `admin`, `super_admin`.
     "operation": "list_domains",
     "domains": [
       {
-        "domain_id": "education",
-        "label": "Education",
-        "module_prefix": "edu",
-        "runtime_config_path": "model-packs/education/cfg/runtime-config.yaml"
+        "domain_id": "business-ops",
+        "label": "Business Ops — Auto Repair",
+        "module_prefix": "biz",
+        "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml"
       }
     ],
     "count": 3

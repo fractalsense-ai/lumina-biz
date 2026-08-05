@@ -2,7 +2,7 @@
 
 Validates that ``rhythm_fft_analysis`` is fully signal-name-agnostic:
 the test synthesizes an ad-hoc "lab" domain (not assistant, not
-education, not agriculture) with arbitrary signal names, custom
+business-ops, not business-ops) with arbitrary signal names, custom
 ``record_path`` extractors, custom band sets, per-signal
 ``message_overrides``, and per-signal ``advisory_priority`` /
 ``advisory_ttl_seconds``. The daemon must run end-to-end against this
@@ -10,9 +10,9 @@ synthetic domain with no special-casing.
 
 This test exists to prevent regression to the SVA-specific assumptions
 the daemon used to carry. It complements
-``test_signals_agriculture_poc.py`` (which exercises a real domain
+``test_signals_field_ops_poc.py`` (which exercises a real domain
 pack) by running the same wiring against a physics block constructed
-inline, with no agriculture-pack files involved.
+inline, with no business-ops-pack files involved.
 """
 
 from __future__ import annotations
@@ -302,3 +302,4 @@ class TestDaemonRhythmFFTGeneric:
             # Allow 1s of slack for serialization rounding
             assert 3500 <= window <= 3700, (
                 f"expected ~1h TTL, got {window}s on {adv}")
+

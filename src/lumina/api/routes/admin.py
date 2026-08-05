@@ -1,7 +1,7 @@
 """Admin endpoints: audit log, manifest, HITL admin command staging.
 
 Escalation REST endpoints and session-unlock have been extracted to the
-education domain pack (model-packs/education/controllers/) and are
+domain-pack controller modules and are
 mounted dynamically at startup via api_routes in runtime-config.yaml.
 """
 
@@ -132,7 +132,7 @@ def _has_domain_capability(user_data: dict[str, Any], module_id: str, capability
     return False
 
 
-# ── Escalation REST endpoints — moved to model-packs/education/controllers/escalation_handlers.py
+# ── Escalation REST endpoints — moved to domain-pack escalation handlers
 # Mounted dynamically at startup via api_routes in runtime-config.yaml.
 
 
@@ -642,8 +642,8 @@ async def _dispatch_command(
     # Inject domain_id from the request into params so query operations
     # (e.g. list_commands) can scope to the session's active domain.
     # The frontend sends the session's active module path (e.g.
-    # "domain/edu/domain-authority/v1") which must be resolved to the
-    # registry domain ID ("education") before injection.
+    # "domain/bizops/auto-repair/v1") which must be resolved to the
+    # registry domain ID ("business-ops") before injection.
     _parsed_params = parsed.get("params")
     if isinstance(_parsed_params, dict) and not _parsed_params.get("domain_id") and req.domain_id:
         _injected_domain = req.domain_id

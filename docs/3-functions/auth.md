@@ -30,7 +30,7 @@ Create a signed JWT containing user identity and RBAC claims.
 **Claims:** `sub` (user_id), `role`, `governed_modules`, `domain_roles` (optional), `iss` ("lumina"), `iat`, `exp`
 
 **Parameters:**
-- `domain_roles` — optional `dict[str, str]` mapping domain module IDs to domain-scoped role IDs (e.g., `{"domain/edu/algebra-level-1/v1": "teaching_assistant"}`). Omitted from the token payload when `None` or empty.
+- `domain_roles` — optional `dict[str, str]` mapping domain module IDs to domain-scoped role IDs (e.g., `{"domain/bizops/algebra-level-1/v1": "teaching_assistant"}`). Omitted from the token payload when `None` or empty.
 
 ### `verify_jwt(token) → dict`
 
@@ -83,3 +83,4 @@ This module uses zero external dependencies for JWT — implemented using the st
 ## SEE ALSO
 
 [permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md)
+

@@ -18,7 +18,7 @@ detail: what an Actor is, how Actors are typed and grouped, how evidence flows t
 Actors into State, and how the Actor model differs from RBAC roles.
 
 For the full three-pillar contract see
-[`dsa-framework-v1`](../../specs/dsa-framework-v1.md).
+[`dsa-framework`](dsa-framework.md).
 
 ---
 
@@ -27,8 +27,8 @@ For the full three-pillar contract see
 An Actor is **whatever changes the state of the system relative to a given domain**.
 Actors are context-dependent:
 
-- In an education domain the Actor is a **student**.
-- In an agriculture domain an Actor may be a **pH sensor**, a **farm operator**, or a
+- In an education domain the Actor can be a **learner**.
+- In a business-ops domain an Actor may be an **operator**, a **customer-intake user**, or a
   **weather station**.
 - In the system domain the Actor is the **administrator** who manages configuration and
   lifecycle.
@@ -48,8 +48,8 @@ sensor → domain logic → module action → actuator → feedback → system s
 
 The orchestrator observes incoming evidence (produced by Actors), updates the State,
 checks Domain invariants, selects a response within standing orders, and escalates when
-it cannot stabilize. See [`dsa-framework-v1 § A`](../../specs/dsa-framework-v1.md) for
-the full constraint set.
+it cannot stabilize. See [`dsa-framework § A`](dsa-framework.md) for the full
+constraint set.
 
 ---
 
@@ -70,7 +70,7 @@ definition:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | Unique identifier within the module (e.g. `sensor`, `student`, `operator`) |
+| `id` | string | yes | Unique identifier within the module (e.g. `sensor`, `learner`, `operator`) |
 | `label` | string | yes | Human-readable display name |
 | `description` | string | yes | What this Actor does and what evidence it produces |
 | `evidence_sources` | array of strings | yes | Tool adapter URIs that produce evidence for this Actor type (may be empty) |
@@ -111,7 +111,7 @@ Each domain physics file may declare an `actor_groups` object at the top level:
 
 ### Overlapping Membership
 
-An Actor type may appear in multiple groups. For example, in a larger agriculture
+An Actor type may appear in multiple groups. For example, in a larger business-ops
 deployment a `sensor` Actor might belong to both `barn_monitors` and `silo_monitors`
 if it feeds evidence into both operational contexts. Groups are not exclusive — they
 describe **operational scope**, not ownership.
@@ -123,7 +123,7 @@ Actor groups and RBAC permission groups serve different purposes:
 | Aspect | Actor Groups | Permission Groups |
 |--------|-------------|-------------------|
 | **Defined in** | `actor_groups` in domain physics | `permission_groups` in domain physics |
-| **Members are** | Actor type IDs (`sensor`, `student`) | Domain role IDs (`teacher`, `farm_manager`) |
+| **Members are** | Actor type IDs (`sensor`, `learner`) | Domain role IDs (`instructor`, `operations_manager`) |
 | **Purpose** | Classify evidence-producing entities by operational context | Control access to domain modules and operations |
 | **Enforced by** | Domain lib and orchestrator routing | `permissions.py` RBAC engine |
 
@@ -182,3 +182,4 @@ When creating a new domain pack:
   assembled into prompt packets
 - [`domain-physics-schema-v1.json`](../../standards/domain-physics-schema-v1.json) —
   JSON Schema defining `actor_types` and `actor_groups`
+

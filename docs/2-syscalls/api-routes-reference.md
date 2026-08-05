@@ -413,19 +413,6 @@ through `POST /api/admin/command` with the appropriate `operation` field:
 `trigger_daemon_task`, `daemon_status`, `daemon_report`, `review_proposals`, `resolve_proposal`.
 See Section 1 (Admin) for the admin command endpoint specification.
 
-### Vocabulary
-
-| Method | Path | Track | Roles | Description |
-|--------|------|-------|-------|-------------|
-| POST | `/api/user/{user_id}/vocabulary-metric` | user | any | Submit vocabulary metric |
-| GET | `/api/dashboard/education/vocabulary-growth` | user | root, da, operator, half_operator | Vocabulary growth dashboard |
-
-#### POST `/api/user/{user_id}/vocabulary-metric`
-
-**Request:** `{term, domain_id?, mastery_level?, context?}`
-**Response:** `{recorded: true}`
-**Errors:** 401 (unauthenticated), 403 (user_id mismatch with token)
-
 ---
 
 ## Error Code Summary
@@ -454,3 +441,4 @@ See Section 1 (Admin) for the admin command endpoint specification.
 - [zero-trust-architecture(7)](../7-concepts/zero-trust-architecture.md) — security enforcement layers
 - [air-gapped-admin-architecture(8)](../8-admin/air-gapped-admin-architecture.md) — admin token isolation
 - [auth(3)](../3-functions/auth.md) — JWT implementation details
+

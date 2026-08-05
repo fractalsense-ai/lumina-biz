@@ -61,7 +61,7 @@
       "label": "Admin Onboarding SOP",
       "description": "Standard operating procedure for creating an admin account with explicit module-boundary definition.",
       "steps": [
-        "1. Root or super_admin identifies the module IDs the admin will govern (e.g. domain/edu/algebra-level-1/v1).",
+        "1. Root or super_admin identifies the module IDs the admin will govern (e.g. domain/bizops/algebra-level-1/v1).",
         "2. Issue POST /api/auth/invite with role=admin and governed_modules=[list of module IDs].  The request is rejected (400) if governed_modules is absent or empty.",
         "3. Deliver the setup_url to the incoming DA via the user_management_sop flow.",
         "4. After the DA activates their account, optionally assign domain-scoped roles via PATCH /api/auth/users/{id} with domain_roles.",
@@ -80,15 +80,15 @@
       "label": "SLM Command Translation Guidance",
       "description": "Rules for translating natural-language admin commands into structured JSON before schema validation.",
       "steps": [
-        "1. When the user specifies a domain-specific role (student, teacher, teaching_assistant, parent, observer, field_operator, site_manager), map it to the system role 'user' and preserve the original name in the 'intended_domain_role' field.",
-        "2. Strip domain prefixes from role names: 'education_user' → 'user', 'agriculture_field_operator' → 'field_operator' → 'user'.",
+        "1. Framework role fields must use canonical system roles only (root, admin, super_admin, operator, half_operator, user, guest). Domain-specific roles must be carried in domain-role assignment fields.",
+        "2. If a domain-specific role appears in a framework role field, normalize role='user' and preserve the original token in 'intended_domain_role' for follow-up assignment.",
         "3. Valid system roles are: root, admin, super_admin, operator, half_operator, user, guest.",
-        "4. If governed_modules is 'all' or omitted, attempt to resolve the target domain from context (e.g. 'add a student to education' → domain=education) and list concrete module IDs.",
+        "4. If governed_modules is 'all' or omitted, attempt to resolve the target domain from context (e.g. 'add a service writer to business-ops' → domain=business-ops) and list concrete module IDs.",
         "5. If the domain is ambiguous, request clarification — do not guess.",
         "6. For discovery queries (list domains, list modules, module status), produce the matching operation directly — these are HITL-exempt and execute immediately."
       ],
       "notes": [
-        "Domain roles live in domain-physics.json, not in the RBAC system. A 'student' is a user with a domain role, not a separate system role.",
+        "Domain roles live in domain-physics.json, not in system-tier RBAC fields. Domain-role assignment is explicit and module-scoped.",
         "The intended_domain_role field is advisory — it guides downstream domain-role assignment after the user account is created."
       ]
     },
@@ -224,7 +224,7 @@
     { "term": "domain_lib",         "definition": "A domain-pack library of pure functions available to controller adapters without LLM involvement." },
     { "term": "pseudonymous_id",    "definition": "The opaque, non-reversible identifier stored in the System Logs in place of a real user identifier." },
     { "term": "ingestion_pipeline", "definition": "The upload → extract → SLM-interpret → DA-review → commit workflow for importing external content into a domain pack." },
-    { "term": "governed_modules",   "definition": "The list of module IDs (e.g. domain/edu/algebra-level-1/v1) that an admin has authoring and approval rights over.  Required at invite time; cannot be empty for the admin role." },
+    { "term": "governed_modules",   "definition": "The list of module IDs (e.g. domain/bizops/algebra-level-1/v1) that an admin has authoring and approval rights over.  Required at invite time; cannot be empty for the admin role." },
     { "term": "invite_token",       "definition": "A single-use, URL-safe token generated when an admin invites a new user.  Embedded in the setup_url; consumed by POST /api/auth/setup-password to activate the account.  Expires after LUMINA_INVITE_TOKEN_TTL_SECONDS (default 24 h)." },
     { "term": "pending_user",       "definition": "A user account that has been created by invitation but not yet activated.  active=false, password_hash is empty.  Cannot log in until POST /api/auth/setup-password is called with a valid invite_token." },
     { "term": "user_management_sop","definition": "The standing order defining the invite → setup-link → password-set → active account workflow.  Ensures passwords are never transmitted over the admin interface." },
@@ -426,3 +426,4 @@
     }
   }
 }
+

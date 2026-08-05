@@ -1,6 +1,6 @@
 # Model-Packs — Lumina Framework
 
-Model-packs are authored system models loaded by the Lumina Framework. They are the "mods" layer: the same engine underneath, a different modeled system on top. This directory contains the reference model-packs for education, agriculture, assistant, system administration, and the template scaffold.
+Model-packs are authored system models loaded by the Lumina Framework. They are the "mods" layer: the same engine underneath, a different modeled system on top. This directory contains the framework packs plus the active business-ops domain pack.
 
 ---
 
@@ -19,7 +19,7 @@ inherits them unchanged.
 |------|-----------|------|--------|
 | System Model Pack | `model-packs/system/` | Sole governance, authority, and ingress layer — all requests route through it | Required |
 | Template Model Pack | `model-packs/template/` | Canonical scaffold shapes used by System Pack routing and the Coding Agent | Required |
-| Coding Agent Model Pack | `model-packs/coding-agent/` *(planned)* | Bounded artifact factory — receives scoped jobs from System Pack, produces build artefacts | Planned — architecture contract in `docs/roadmap/slices/06-coding-agent-model-pack-architecture-v2.md` |
+| Coding Agent Model Pack | `model-packs/coding-agent/` | Bounded artifact factory — receives scoped jobs from System Pack, produces build artefacts | Active |
 
 ### Reference / Provisional Packs
 
@@ -31,15 +31,10 @@ base framework boundary is stable.
 
 | Pack | Directory | Purpose |
 |------|-----------|---------|
-| Education | `model-packs/education/` | Reference domain — algebra module, ZPD/fluency state estimators, world-sim persona |
-| Agriculture | `model-packs/agriculture/` | Reference domain — environmental sensor adapters, operations-level module |
-| Assistant | `model-packs/assistant/` | Reference domain — conversational assistant pattern |
+| Business Ops | `model-packs/business-ops/` | Active domain — deterministic operations workflows and replay evidence capture |
 
-> **Why they are still here:** The base framework engine is domain-agnostic.
-> Reference packs exercise every part of the adapter pattern, runtime loader,
-> domain registry, and signal pipeline in a realistic way during R&D. They
-> remain useful examples until the Coding Agent Pack skeleton exists and the
-> extraction process is ready.
+> **Status note:** Legacy R&D vertical packs were split out of this repository.
+> This repo keeps framework packs and the active business-ops domain pack.
 
 ---
 
@@ -78,42 +73,21 @@ See [`../docs/7-concepts/lumina-framework-ontology.md`](../docs/7-concepts/lumin
 ```
 model-packs/
 ├── README.md                   ← this file
-├── education/
+├── business-ops/
 │   ├── README.md                ← domain principles/rules/states/physics index
 │   ├── cfg/
-│   │   └── runtime-config.yaml  ← defaults, schema, tool policies, deterministic templates
-│   ├── domain-lib/             ← passive reference specs + state estimators
-│   │   ├── README.md
-│   │   └── reference/          ← interpretation schemas and domain knowledge specs (TMs)
-│   │       ├── turn-interpretation-spec-v1.md
-│   │       ├── compressed-state-estimators.md
-│   │       ├── zpd-monitor-spec-v1.md
-│   │       └── fatigue-estimation-spec-v1.md
-│   ├── controllers/            ← runtime adapter: NLP pre-processing + signal synthesis
-│   │   ├── nlp_pre_interpreter.py   ← Phase A: deterministic extractors
-│   │   ├── runtime_adapters.py      ← interpret_turn_input: Phase A + B + domain-lib calls
-│   │   ├── problem_generator.py     ← generates next task spec (sets min_steps etc.)
-│   │   ├── fluency_monitor.py       ← domain-lib: fluency state estimator
-│   │   ├── zpd_monitor_v0_2.py      ← domain-lib: ZPD state estimator
-│   │   └── api_handlers.py         ← domain-owned API route handlers (see §adapters.api_routes)
-│   ├── prompts/                ← persona directives ONLY
-│   │   └── domain-persona-v1.md     ← domain voice and identity
-│   ├── world-sim/              ← optional: persona layer (theme, consent, mastery surface)
-│   │   ├── world-sim-spec-v1.md     ← persona parameters: theme, setting, in-world labels
-│   │   ├── magic-circle-consent-v1.md  ← activation gate: consent required before persona starts
-│   │   └── artifact-and-mastery-spec-v1.md  ← reward surface: in-world artifact naming
-│   └─ modules/
-│       └─ algebra-level-1/        ← complete worked example
-│           ├─ domain-physics.yaml    (source — human-authored)
-│           ├─ domain-physics.json    (derived — machine-authoritative)
-│           ├─ tool-adapters/         ← active verifiers called by the orchestrator policy
-│           │   ├─ algebra-parser-adapter-v1.yaml
-│           │   ├─ calculator-adapter-v1.yaml
-│           │   └─ substitution-checker-adapter-v1.yaml
-│           ├─ student-profile-template.yaml
-│           ├─ example-student-alice.yaml
-│           ├─ prompt-contract-schema.json
-│           └─ CHANGELOG.md
+│   │   └── runtime-config.yaml  ← defaults, schema, and deterministic templates
+│   ├── domain-lib/              ← passive reference specs
+│   ├── controllers/             ← runtime adapter and NLP pre-interpreter
+│   ├── prompts/                 ← domain persona directives
+│   ├── profiles/                ← domain entity templates
+│   └── modules/
+│       └── auto-repair/
+│           ├── domain-physics.yaml
+│           ├── domain-physics.json
+│           ├── module-config.yaml
+│           └── tool-adapters/
+│               └── erp-draft-staging-adapter-v1.yaml
 ├── system/
 │   ├── cfg/
 │   │   └── runtime-config.yaml
@@ -130,21 +104,14 @@ model-packs/
 │   └── modules/
 │       └── system-core/
 │           └── domain-physics.json
-└── agriculture/
-    ├── README.md               ← domain principles/rules/states/physics index
-    ├── cfg/
-    │   └── runtime-config.yaml
-    ├── domain-lib/
-    │   ├── README.md
-    │   ├── reference/          ← interpretation schemas
-    │   │   └── turn-interpretation-spec-v1.md
-    │   └── sensors/            ← environmental sensor modules
-    │       └── environmental_sensors.py
-    ├── prompts/
-    │   └── domain-persona-v1.md
-    └── modules/
-        └── operations-level-1/
-            └── domain-physics.json
+├── template/
+│   ├── README.md
+│   ├── cfg/
+│   └── modules/
+└── coding-agent/
+  ├── README.md
+  ├── cfg/
+  └── modules/
 ```
 
 ### Three-layer distinction
@@ -158,7 +125,7 @@ Model-packs use three distinct component types. They are different in how the co
 | **Runtime adapter** | `controllers/runtime_adapters.py` | Core engine (`interpret_turn_input`) | Synthesis layer — runs NLP pre-processing (Phase A) and signal synthesis (Phase B), calls domain-lib internally, writes engine contract fields |
 | **World-sim persona** | `world-sim/` (optional) | Domain runtime adapter — selected once at session start in `build_initial_learning_state`; theme hint injected on every turn via `interpret_turn_input` | Narrative framing layer — cosmetic only; domain physics and invariants are unchanged. Three files: spec (parameters), consent (activation gate), mastery (reward surface). |
 
-See [`docs/7-concepts/domain-adapter-pattern.md`](../docs/7-concepts/domain-adapter-pattern.md) for the full authoring guide including the engine contract field reference and the `problem_solved` / `problem_status` pattern.
+See [`docs/7-concepts/domain-adapter-pattern.md`](../docs/7-concepts/domain-adapter-pattern.md) for the full authoring guide including the engine contract field reference and the `task_ready_for_execution` / `task_status` pattern.
 
 See [`docs/7-concepts/world-sim-persona-pattern.md`](../docs/7-concepts/world-sim-persona-pattern.md) for the full persona pattern reference, including static vs. dynamic theme selection, configuration layout, and the implementation checklist for adding a world-sim to a new domain.
 
@@ -186,7 +153,7 @@ python ../reference-implementations/yaml-to-json-converter.py \
 
 ### 4. Write the entity profile template
 
-Use the profile template from an existing pack as a base (for example, `student-profile-template.yaml` in the education pack, or a domain-equivalent name in your pack). The template defines the initial state for new entities.
+Use the profile template from an existing pack as a base (for example, `subject-profile-template.yaml` in a domain pack, or a domain-equivalent name in your pack). The template defines the initial state for new entities.
 
 ### 5. Write tool adapters (if needed)
 
@@ -214,7 +181,7 @@ Every material module policy change requires:
 
 Create `controllers/runtime_adapters.py` with an `interpret_turn_input` function. This is the synthesis layer where:
 - **Phase A** — an optional NLP pre-interpreter extracts deterministic signals from raw input before the LLM prompt is assembled
-- **Phase B** — at the end of the function, engine contract fields (`problem_solved`, `problem_status`) are computed from domain-owned evidence
+- **Phase B** — at the end of the function, engine contract fields (`task_ready_for_execution`, `task_status`) are computed from domain-owned evidence
 
 See [`docs/7-concepts/domain-adapter-pattern.md`](../docs/7-concepts/domain-adapter-pattern.md) for the step-by-step template, engine contract field catalogue, and worked examples for both single-step and multi-step task domains.
 
@@ -344,8 +311,8 @@ Packs that fail validation are not usable.
 
 | Domain | Pack | Version | Status |
 |--------|------|---------|--------|
-| Education — Algebra Level 1 | `education/modules/algebra-level-1` | 0.4.0 | Active |
-| Agriculture | `agriculture/` | — | Placeholder |
+| Business Ops — Algebra Level 1 | `business-ops/modules/algebra-level-1` | 0.4.0 | Active |
+| Business Ops | `business-ops/` | — | Placeholder |
 
 ---
 
@@ -356,3 +323,4 @@ Each top-level domain folder should include a `README.md` that defines or links:
 - Domain rules/invariants authority
 - Domain state model (schemas + estimators/sensors)
 - Domain physics and standing-order vocabulary
+

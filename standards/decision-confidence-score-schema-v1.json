@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://projectlumina.org/standards/decision-confidence-score-schema-v1.json",
   "schema_version": "1.0.0",
-  "last_updated": "2026-07-20",
+  "last_updated": "2026-08-04",
   "title": "Decision Confidence Score Schema",
   "description": "Deterministic, transcript-free confidence evidence for a scoped decision precedent evaluation.",
   "type": "object",
@@ -10,7 +10,8 @@
   "required": [
     "record_id", "organization_id", "site_id", "actor_id", "policy_version",
     "risk_class", "similarity_score", "recency_penalty", "missing_precedent_penalty",
-    "final_score", "tier", "rationale_codes", "precedent_matches", "created_utc"
+    "final_score", "tier", "rationale_codes", "decision_group_key", "missing_information_fields",
+    "precedent_matches", "entity_state_links", "created_utc"
   ],
   "properties": {
     "record_id": {"type": "string", "minLength": 1},
@@ -25,6 +26,12 @@
     "final_score": {"type": "number", "minimum": 0, "maximum": 1},
     "tier": {"type": "string", "enum": ["suggest_only", "require_confirmation", "mandatory_escalation"]},
     "rationale_codes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "decision_group_key": {"type": "string", "minLength": 1},
+    "missing_information_fields": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
     "precedent_matches": {
       "type": "array",
       "items": {
@@ -32,19 +39,40 @@
         "additionalProperties": false,
         "required": [
           "record_id", "organization_id", "site_id", "actor_id", "summary_record_id",
-          "thread_id", "similarity", "created_utc", "recency_band", "rank"
+          "decision_group_key", "thread_id", "similarity", "created_utc", "recency_band", "rank"
         ],
         "properties": {
           "record_id": {"type": "string", "minLength": 1},
           "organization_id": {"type": "string", "minLength": 1},
           "site_id": {"type": "string", "minLength": 1},
           "actor_id": {"type": "string", "minLength": 1},
+          "decision_group_key": {"type": "string", "minLength": 1},
           "summary_record_id": {"type": "string", "minLength": 1},
           "thread_id": {"type": "string", "minLength": 1},
           "similarity": {"type": "number", "minimum": 0, "maximum": 1},
           "created_utc": {"type": "string", "format": "date-time"},
           "recency_band": {"type": "string", "enum": ["current", "stale"]},
           "rank": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "entity_state_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["entity_id", "entity_type", "transition_id"],
+        "properties": {
+          "entity_id": {"type": "string", "minLength": 1},
+          "entity_type": {"type": "string", "minLength": 1},
+          "transition_id": {"type": "string", "minLength": 1},
+          "from_state": {"type": "string", "minLength": 1},
+          "to_state": {"type": "string", "minLength": 1},
+          "related_record_ids": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1},
+            "uniqueItems": true
+          }
         }
       }
     },

@@ -1,0 +1,31 @@
+# version: 1.0.0
+# last_updated: 2026-07-30
+schema_version: 1.0.0
+domain: business-ops
+
+roles:
+  owner:
+    maps_to_system_role: admin
+    actor_group: governance
+    may_approve_high_risk: true
+    may_stage_erp_drafts: true
+  manager:
+    maps_to_system_role: operator
+    actor_group: governance
+    may_approve_high_risk: true
+    may_stage_erp_drafts: true
+  operator:
+    maps_to_system_role: user
+    actor_group: operations
+    may_approve_high_risk: false
+    may_stage_erp_drafts: true
+  front_desk:
+    maps_to_system_role: user
+    actor_group: intake
+    may_approve_high_risk: false
+    may_stage_erp_drafts: false
+  customer_intake:
+    maps_to_system_role: guest
+    actor_group: intake
+    may_approve_high_risk: false
+    may_stage_erp_drafts: false

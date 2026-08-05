@@ -4,12 +4,12 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import App from '../app'
 
 const DOMAIN_INFO_RESPONSE = {
-  domain_id: 'domain/edu/algebra-level-1/v1',
+  domain_id: 'domain/bizops/auto-repair/v1',
   domain_version: '1.0.0',
   ui_manifest: {
     title: 'Lumina Test Domain',
     subtitle: 'Test subtitle',
-    domain_label: 'Education',
+    domain_label: 'Business Operations',
     consent_heading: 'Consent Heading',
     consent_text: 'Consent text',
     consent_button_label: 'I Agree',
@@ -21,7 +21,7 @@ const AUTH_STATE = {
   token: 'test-token',
   userId: 'user1',
   username: 'testuser',
-  role: 'student',
+  role: 'subject',
 }
 
 /** Create a scoped auth token with organization_id and site_id */

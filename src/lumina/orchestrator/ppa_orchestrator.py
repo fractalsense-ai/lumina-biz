@@ -46,8 +46,8 @@ Design constraints:
 Usage::
 
     from lumina.orchestrator.ppa_orchestrator import PPAOrchestrator, load_domain_physics
-    domain  = load_domain_physics("model-packs/education/modules/algebra-level-1/domain-physics.json")
-    profile = load_yaml("model-packs/education/modules/algebra-level-1/example-student-alice.yaml")
+    domain  = load_domain_physics("model-packs/business-ops/modules/auto-repair/domain-physics.json")
+    profile = load_yaml("model-packs/business-ops/profiles/entity.yaml")
     orch    = PPAOrchestrator(domain, profile, ledger_path="session.jsonl")
     contract, action = orch.process_turn(task_spec, evidence)
 """

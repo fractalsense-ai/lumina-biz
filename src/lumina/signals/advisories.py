@@ -2,7 +2,7 @@
 
 Domain-agnostic equivalent of the bespoke advisory plumbing previously
 wired into ``src/lumina/daemon/tasks.py`` and
-``model-packs/education/controllers/journal_adapters.py``.
+domain-pack journal adapters.
 
 Persisted advisory dict shape (lives on
 ``profile.learning_state.spectral_advisories``):

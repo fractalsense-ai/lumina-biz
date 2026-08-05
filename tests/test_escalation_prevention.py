@@ -41,12 +41,12 @@ def _load_api_module():
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     mod.DOMAIN_REGISTRY = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/education/cfg/runtime-config.yaml",
+        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
         load_runtime_context_fn=load_runtime_context,
     )
     mod.PERSISTENCE = NullPersistenceAdapter()
@@ -87,7 +87,7 @@ def _make_domain_token(user_id: str = "da-001", governed: list[str] | None = Non
     return create_scoped_jwt(
         user_id=user_id,
         role="admin",
-        governed_modules=governed or ["education"],
+        governed_modules=governed or ["business-ops"],
     )
 
 
@@ -214,16 +214,6 @@ class TestUserTokenCannotReachAdmin:
         )
         assert resp.status_code == 403
 
-    def test_user_cannot_access_vocabulary_growth(self, client: TestClient) -> None:
-        _register_root(client)
-        user_token = _make_user_token()
-        resp = client.get(
-            "/api/dashboard/education/vocabulary-growth",
-            headers=_auth_header(user_token),
-        )
-        assert resp.status_code == 403
-
-
 # ─────────────────────────────────────────────────────────────
 # Self-role-escalation attempts → 403
 # ─────────────────────────────────────────────────────────────
@@ -344,3 +334,4 @@ class TestHolodeckRoleGate:
             headers=_auth_header(auditor_token),
         )
         assert resp.status_code == 403
+

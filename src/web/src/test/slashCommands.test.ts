@@ -8,48 +8,48 @@ import {
 import { registerPlugin, _resetForTesting } from '@/plugins/PluginRegistry'
 import type { DomainPlugin } from '@/plugins/types'
 
-// Education plugin commands (mirroring model-packs/education/web/plugin.ts)
-const educationPlugin: DomainPlugin = {
-  id: 'education-test',
+// business-ops plugin commands (test-local plugin fixture)
+const businessOpsPlugin: DomainPlugin = {
+  id: 'business-ops-test',
   register(reg) {
     reg.addSlashCommands([
       {
-        name: 'teachers',
+        name: 'reviewers',
         operation: 'list_users',
-        description: 'Show available teachers',
+        description: 'Show available reviewers',
         args: [],
-        defaultParams: { domain_role: 'teacher', domain_id: 'education' },
-        allowedRoles: ['student', 'guardian', 'teaching_assistant', 'teacher', 'domain_authority'],
-        domainScope: 'education',
-        aliases: ['list_teachers'],
+        defaultParams: { domain_role: 'reviewer', domain_id: 'business-ops' },
+        allowedRoles: ['subject', 'guardian', 'assistant', 'reviewer', 'domain_authority'],
+        domainScope: 'business-ops',
+        aliases: ['list_reviewers'],
         tier: 'user',
       },
       {
         name: 'join',
-        operation: 'request_teacher_assignment',
-        description: 'Request assignment to a teacher or teaching assistant',
-        args: ['teacher_id'],
-        allowedRoles: ['student'],
-        domainScope: 'education',
+        operation: 'request_reviewer_assignment',
+        description: 'Request assignment to a reviewer or assistant',
+        args: ['reviewer_id'],
+        allowedRoles: ['subject'],
+        domainScope: 'business-ops',
         tier: 'user',
       },
       {
-        name: 'students',
+        name: 'subjects',
         operation: 'list_users',
-        description: 'List your students',
+        description: 'List your assigned subjects',
         args: [],
-        defaultParams: { domain_role: 'student', domain_id: 'education' },
-        allowedRoles: ['teaching_assistant', 'teacher', 'domain_authority'],
-        domainScope: 'education',
+        defaultParams: { domain_role: 'subject', domain_id: 'business-ops' },
+        allowedRoles: ['assistant', 'reviewer', 'domain_authority'],
+        domainScope: 'business-ops',
         tier: 'user',
       },
       {
         name: 'assign',
-        operation: 'assign_student',
-        description: 'Assign a student, TA, guardian, or module(s)',
-        args: ['student_id'],
-        allowedRoles: ['student', 'teaching_assistant', 'teacher', 'domain_authority'],
-        domainScope: 'education',
+        operation: 'assign_subject',
+        description: 'Assign a subject, assistant, guardian, or module(s)',
+        args: ['subject_id'],
+        allowedRoles: ['subject', 'assistant', 'reviewer', 'domain_authority'],
+        domainScope: 'business-ops',
         tier: 'user',
         subCommands: {
           module: {
@@ -61,14 +61,14 @@ const educationPlugin: DomainPlugin = {
             args: ['target', 'module_ids'],
             joinTrailingArgs: true,
           },
-          ta: {
-            operation: 'assign_ta',
-            args: ['ta_id', 'student_ids'],
+          assistant: {
+            operation: 'assign_assistant',
+            args: ['assistant_id', 'subject_ids'],
             joinTrailingArgs: true,
           },
           guardian: {
             operation: 'assign_guardian',
-            args: ['guardian_id', 'student_id'],
+            args: ['guardian_id', 'subject_id'],
           },
         },
       },
@@ -77,9 +77,9 @@ const educationPlugin: DomainPlugin = {
         operation: 'list_escalations',
         description: 'List pending escalations',
         args: [],
-        allowedRoles: ['teacher', 'domain_authority'],
+        allowedRoles: ['reviewer', 'domain_authority'],
         aliases: ['list_escalations'],
-        domainScope: 'education',
+        domainScope: 'business-ops',
         tier: 'user',
       },
     ])
@@ -103,13 +103,13 @@ const systemPlugin: DomainPlugin = {
     ])
     reg.addRoleEquivalences({
       system_admin: 'admin',
-      system_operator: 'teacher',
+      system_operator: 'operator',
     })
   },
 }
 
 // Register plugins for tests that depend on domain commands & role equivalences
-beforeAll(() => { registerPlugin(educationPlugin); registerPlugin(systemPlugin) })
+beforeAll(() => { registerPlugin(businessOpsPlugin); registerPlugin(systemPlugin) })
 afterAll(() => { _resetForTesting() })
 
 // ── parseSlashCommand — basic dispatch ───────────────────
@@ -133,16 +133,16 @@ describe('parseSlashCommand', () => {
   })
 
   it('parses single-arg commands', () => {
-    const result = parseSlashCommand('/join teacher123')
+    const result = parseSlashCommand('/join reviewer123')
     expect(result).not.toBeNull()
-    expect(result!.operation).toBe('request_teacher_assignment')
-    expect(result!.params).toEqual({ teacher_id: 'teacher123' })
+    expect(result!.operation).toBe('request_reviewer_assignment')
+    expect(result!.params).toEqual({ reviewer_id: 'reviewer123' })
   })
 
   it('merges defaultParams', () => {
-    const result = parseSlashCommand('/teachers')
+    const result = parseSlashCommand('/reviewers')
     expect(result).not.toBeNull()
-    expect(result!.params).toEqual({ domain_role: 'teacher', domain_id: 'education' })
+    expect(result!.params).toEqual({ domain_role: 'reviewer', domain_id: 'business-ops' })
   })
 
   it('resolves aliases', () => {
@@ -172,11 +172,11 @@ describe('parseSlashCommand — new exempt operations', () => {
     expect(none!.operation).toBe('list_ingestions')
     expect(none!.params).toEqual({})
 
-    const withDomain = parseSlashCommand('/ingestions education')
-    expect(withDomain!.params).toEqual({ domain_id: 'education' })
+    const withDomain = parseSlashCommand('/ingestions business-ops')
+    expect(withDomain!.params).toEqual({ domain_id: 'business-ops' })
 
-    const withBoth = parseSlashCommand('/ingestions education pending')
-    expect(withBoth!.params).toEqual({ domain_id: 'education', status: 'pending' })
+    const withBoth = parseSlashCommand('/ingestions business-ops pending')
+    expect(withBoth!.params).toEqual({ domain_id: 'business-ops', status: 'pending' })
   })
 
   it('/review_ingestion <ingestion_id>', () => {
@@ -186,15 +186,15 @@ describe('parseSlashCommand — new exempt operations', () => {
   })
 
   it('/proposals [domain_id]', () => {
-    const result = parseSlashCommand('/proposals education')
+    const result = parseSlashCommand('/proposals business-ops')
     expect(result!.operation).toBe('review_proposals')
-    expect(result!.params).toEqual({ domain_id: 'education' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops' })
   })
 
   it('/module_status <domain_id> [module_id]', () => {
-    const result = parseSlashCommand('/module_status education algebra-1')
+    const result = parseSlashCommand('/module_status business-ops algebra-1')
     expect(result!.operation).toBe('module_status')
-    expect(result!.params).toEqual({ domain_id: 'education', module_id: 'algebra-1' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops', module_id: 'algebra-1' })
   })
 
   it('/daemon_status', () => {
@@ -216,21 +216,21 @@ describe('parseSlashCommand — new exempt operations', () => {
   })
 
   it('/roles <domain_id>', () => {
-    const result = parseSlashCommand('/roles education')
+    const result = parseSlashCommand('/roles business-ops')
     expect(result!.operation).toBe('list_domain_rbac_roles')
-    expect(result!.params).toEqual({ domain_id: 'education' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops' })
   })
 
   it('/manifest <domain_id>', () => {
-    const result = parseSlashCommand('/manifest agriculture')
+    const result = parseSlashCommand('/manifest business-ops')
     expect(result!.operation).toBe('get_domain_module_manifest')
-    expect(result!.params).toEqual({ domain_id: 'agriculture' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops' })
   })
 
   it('/physics <domain_id> [module_id]', () => {
-    const result = parseSlashCommand('/physics education algebra-1')
+    const result = parseSlashCommand('/physics business-ops algebra-1')
     expect(result!.operation).toBe('get_domain_physics')
-    expect(result!.params).toEqual({ domain_id: 'education', module_id: 'algebra-1' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops', module_id: 'algebra-1' })
   })
 
   it('/daemon_tasks', () => {
@@ -250,9 +250,9 @@ describe('parseSlashCommand — new exempt operations', () => {
 
 describe('parseSlashCommand — new HITL-required operations', () => {
   it('/commit_physics <domain_id>', () => {
-    const result = parseSlashCommand('/commit_physics education')
+    const result = parseSlashCommand('/commit_physics business-ops')
     expect(result!.operation).toBe('commit_domain_physics')
-    expect(result!.params).toEqual({ domain_id: 'education' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops' })
   })
 
   it('/update_role <user_id> <new_role>', () => {
@@ -268,9 +268,9 @@ describe('parseSlashCommand — new HITL-required operations', () => {
   })
 
   it('/assign_role <user_id> <module_id> <domain_role>', () => {
-    const result = parseSlashCommand('/assign_role user-789 algebra-1 teacher')
+    const result = parseSlashCommand('/assign_role user-789 bay-intake reviewer')
     expect(result!.operation).toBe('assign_domain_role')
-    expect(result!.params).toEqual({ user_id: 'user-789', module_id: 'algebra-1', domain_role: 'teacher' })
+    expect(result!.params).toEqual({ user_id: 'user-789', module_id: 'bay-intake', domain_role: 'reviewer' })
   })
 
   it('/revoke_role <user_id> <module_id>', () => {
@@ -280,9 +280,9 @@ describe('parseSlashCommand — new HITL-required operations', () => {
   })
 
   it('/trigger_daemon [domain_id] [tasks]', () => {
-    const result = parseSlashCommand('/trigger_daemon education ingestion_sweep')
+    const result = parseSlashCommand('/trigger_daemon business-ops ingestion_sweep')
     expect(result!.operation).toBe('trigger_daemon_task')
-    expect(result!.params).toEqual({ domain_id: 'education', tasks: 'ingestion_sweep' })
+    expect(result!.params).toEqual({ domain_id: 'business-ops', tasks: 'ingestion_sweep' })
   })
 })
 
@@ -290,12 +290,12 @@ describe('parseSlashCommand — new HITL-required operations', () => {
 
 describe('parseSlashCommand — joinTrailingArgs', () => {
   it('/resolve joins rationale from remaining tokens', () => {
-    const result = parseSlashCommand('/resolve esc-001 approved Student met all requirements this term')
+    const result = parseSlashCommand('/resolve esc-001 approved Subject met all workflow requirements this cycle')
     expect(result!.operation).toBe('resolve_escalation')
     expect(result!.params).toEqual({
       escalation_id: 'esc-001',
       resolution: 'approved',
-      rationale: 'Student met all requirements this term',
+      rationale: 'Subject met all workflow requirements this cycle',
     })
   })
 
@@ -309,9 +309,9 @@ describe('parseSlashCommand — joinTrailingArgs', () => {
   })
 
   it('/update_physics transforms key+value into updates object', () => {
-    const result = parseSlashCommand('/update_physics education max_retries 5')
+    const result = parseSlashCommand('/update_physics business-ops max_retries 5')
     expect(result!.operation).toBe('update_domain_physics')
-    expect(result!.params.domain_id).toBe('education')
+    expect(result!.params.domain_id).toBe('business-ops')
     // key/value should be collapsed into updates JSON
     expect(result!.params.updates).toBeDefined()
     const updates = JSON.parse(result!.params.updates)
@@ -321,7 +321,7 @@ describe('parseSlashCommand — joinTrailingArgs', () => {
   })
 
   it('/update_physics with string value', () => {
-    const result = parseSlashCommand('/update_physics education label My Domain Label')
+    const result = parseSlashCommand('/update_physics business-ops label My Domain Label')
     expect(result!.operation).toBe('update_domain_physics')
     const updates = JSON.parse(result!.params.updates)
     expect(updates).toEqual({ label: 'My Domain Label' })
@@ -335,26 +335,26 @@ describe('parseSlashCommand — alias coverage', () => {
     ['/list_ingestions', 'list_ingestions'],
     ['/review_proposals', 'review_proposals'],
     ['/explain_reasoning evt-1', 'explain_reasoning'],
-    ['/list_domain_rbac_roles education', 'list_domain_rbac_roles'],
-    ['/get_domain_module_manifest education', 'get_domain_module_manifest'],
-    ['/get_domain_physics education', 'get_domain_physics'],
+    ['/list_domain_rbac_roles business-ops', 'list_domain_rbac_roles'],
+    ['/get_domain_module_manifest business-ops', 'get_domain_module_manifest'],
+    ['/get_domain_physics business-ops', 'get_domain_physics'],
     ['/list_daemon_tasks', 'list_daemon_tasks'],
     ['/approve_interpretation ing-1 interp-1', 'approve_interpretation'],
-    ['/commit_domain_physics education', 'commit_domain_physics'],
+    ['/commit_domain_physics business-ops', 'commit_domain_physics'],
     ['/update_user_role user-1 root', 'update_user_role'],
     ['/deactivate_user user-1', 'deactivate_user'],
-    ['/assign_domain_role user-1 mod-1 teacher', 'assign_domain_role'],
+    ['/assign_domain_role user-1 mod-1 reviewer', 'assign_domain_role'],
     ['/revoke_domain_role user-1 mod-1', 'revoke_domain_role'],
     ['/resolve_escalation esc-1 approved ok', 'resolve_escalation'],
     ['/reject_ingestion ing-1 bad', 'reject_ingestion'],
-    ['/trigger_daemon_task education sweep', 'trigger_daemon_task'],
+    ['/trigger_daemon_task business-ops sweep', 'trigger_daemon_task'],
     // New operation-name aliases
     ['/list_domains', 'list_domains'],
     ['/list_escalations', 'list_escalations'],
     ['/list_users', 'list_users'],
-    ['/invite_user alice teacher', 'invite_user'],
+    ['/invite_user alice reviewer', 'invite_user'],
     ['/list_modules', 'list_modules'],
-    ['/update_domain_physics education label Test', 'update_domain_physics'],
+    ['/update_domain_physics business-ops label Test', 'update_domain_physics'],
   ]
 
   for (const [input, expectedOp] of aliasTests) {
@@ -376,8 +376,8 @@ describe('getCommandsForRole', () => {
     expect(names).toContain('deactivate')
   })
 
-  it('student does not see root-only commands', () => {
-    const cmds = getCommandsForRole('student')
+  it('subject does not see root-only commands', () => {
+    const cmds = getCommandsForRole('subject')
     const names = cmds.map((c) => c.name)
     expect(names).not.toContain('update_role')
     expect(names).not.toContain('deactivate')
@@ -412,7 +412,7 @@ describe('getCommandsForRole', () => {
     expect(names).toContain('deactivate')
     expect(names).toContain('assign_role')
     expect(names).toContain('domains')
-    expect(names).toContain('teachers')
+    expect(names).toContain('reviewers')
     expect(names).toContain('help')
   })
 
@@ -424,22 +424,22 @@ describe('getCommandsForRole', () => {
     expect(names).toContain('ingestions')
     // system_admin should NOT see root-only commands without platformRole
     expect(names).not.toContain('update_role')
-    // Without a domainKey, education-scoped commands are excluded
-    expect(names).not.toContain('teachers')
-    expect(names).not.toContain('students')
+    // Without a domainKey, business-ops-scoped commands are excluded
+    expect(names).not.toContain('reviewers')
+    expect(names).not.toContain('subjects')
     expect(names).not.toContain('join')
     expect(names).not.toContain('escalations')
     // /modules is system-wide (no domainScope), visible to all
     expect(names).toContain('modules')
   })
 
-  it('system_operator maps to teacher via plugin role equivalences', () => {
+  it('system_operator maps to operator via plugin role equivalences', () => {
     const cmds = getCommandsForRole('system_operator')
     const names = cmds.map((c) => c.name)
-    // Without a domainKey, education-scoped commands (including escalations) are excluded
+    // Without a domainKey, business-ops-scoped commands (including escalations) are excluded
     expect(names).not.toContain('escalations')
     expect(names).not.toContain('domains')
-    expect(names).not.toContain('teachers')
+    expect(names).not.toContain('reviewers')
     // /switch is system-wide (no domainScope), visible to all
     expect(names).toContain('switch')
   })
@@ -448,24 +448,24 @@ describe('getCommandsForRole', () => {
 // ── getCommandsForRole — domain scoping ─────────────────
 
 describe('getCommandsForRole — domain scoping', () => {
-  it('domain_authority on education sees education-scoped commands', () => {
-    const cmds = getCommandsForRole('domain_authority', undefined, 'education')
+  it('domain_authority on business-ops sees business-ops-scoped commands', () => {
+    const cmds = getCommandsForRole('domain_authority', undefined, 'business-ops')
     const names = cmds.map((c) => c.name)
-    expect(names).toContain('teachers')
-    expect(names).toContain('students')
+    expect(names).toContain('reviewers')
+    expect(names).toContain('subjects')
     expect(names).toContain('modules')
     expect(names).toContain('assign')
     expect(names).toContain('escalations')
     expect(names).toContain('switch')
-    // /join is student-only, so domain_authority still doesn't see it
+    // /join is subject-only, so domain_authority still doesn't see it
     expect(names).not.toContain('join')
   })
 
-  it('system_admin on system domain does NOT see education-scoped commands', () => {
+  it('system_admin on system domain does NOT see business-ops-scoped commands', () => {
     const cmds = getCommandsForRole('system_admin', undefined, 'system')
     const names = cmds.map((c) => c.name)
-    expect(names).not.toContain('teachers')
-    expect(names).not.toContain('students')
+    expect(names).not.toContain('reviewers')
+    expect(names).not.toContain('subjects')
     expect(names).not.toContain('assign')
     expect(names).not.toContain('join')
     // /modules and /switch are system-wide (no domainScope), visible in all domains
@@ -477,19 +477,19 @@ describe('getCommandsForRole — domain scoping', () => {
     expect(names).toContain('ingestions')
   })
 
-  it('system_operator on system domain does NOT see education-scoped commands', () => {
+  it('system_operator on system domain does NOT see business-ops-scoped commands', () => {
     const cmds = getCommandsForRole('system_operator', undefined, 'system')
     const names = cmds.map((c) => c.name)
-    expect(names).not.toContain('teachers')
+    expect(names).not.toContain('reviewers')
     expect(names).not.toContain('escalations')
     // /switch is system-wide, visible in all domains
     expect(names).toContain('switch')
   })
 
-  it('student on education sees education-scoped student commands', () => {
-    const cmds = getCommandsForRole('student', undefined, 'education')
+  it('subject on business-ops sees business-ops-scoped subject commands', () => {
+    const cmds = getCommandsForRole('subject', undefined, 'business-ops')
     const names = cmds.map((c) => c.name)
-    expect(names).toContain('teachers')
+    expect(names).toContain('reviewers')
     expect(names).toContain('join')
     expect(names).toContain('modules')
     expect(names).toContain('switch')
@@ -498,15 +498,15 @@ describe('getCommandsForRole — domain scoping', () => {
   it('platformRole root always sees ALL commands regardless of domainKey', () => {
     const cmds = getCommandsForRole('system_admin', 'root', 'system')
     const names = cmds.map((c) => c.name)
-    expect(names).toContain('teachers')
-    expect(names).toContain('students')
+    expect(names).toContain('reviewers')
+    expect(names).toContain('subjects')
     expect(names).toContain('modules')
     expect(names).toContain('update_role')
     expect(names).toContain('domains')
   })
 
   it('commands without domainScope are visible on any domain', () => {
-    const eduCmds = getCommandsForRole('admin', undefined, 'education')
+    const eduCmds = getCommandsForRole('admin', undefined, 'business-ops')
     const sysCmds = getCommandsForRole('system_admin', undefined, 'system')
     const eduNames = eduCmds.map((c) => c.name)
     const sysNames = sysCmds.map((c) => c.name)
@@ -522,14 +522,14 @@ describe('getCommandsForRole — domain scoping', () => {
 
 describe('generateHelpText', () => {
   it('includes arg hints for parameterised commands', () => {
-    const text = generateHelpText('admin', undefined, 'education')
+    const text = generateHelpText('admin', undefined, 'business-ops')
     expect(text).toContain('`/resolve <escalation_id> <resolution> <rationale>`')
     expect(text).toContain('`/reject <ingestion_id> <reason>`')
     expect(text).toContain('`/assign_role <user_id> <module_id> <domain_role>`')
   })
 
   it('shows aliases', () => {
-    const text = generateHelpText('admin', undefined, 'education')
+    const text = generateHelpText('admin', undefined, 'business-ops')
     expect(text).toContain('also: /resolve_escalation')
     expect(text).toContain('also: /reject_ingestion')
   })
@@ -541,10 +541,10 @@ describe('generateHelpText', () => {
     expect(text).toContain('/assign_role')
   })
 
-  it('excludes education-scoped commands on system domain for non-root', () => {
+  it('excludes business-ops-scoped commands on system domain for non-root', () => {
     const text = generateHelpText('system_admin', undefined, 'system')
-    expect(text).not.toContain('/teachers')
-    expect(text).not.toContain('/students')
+    expect(text).not.toContain('/reviewers')
+    expect(text).not.toContain('/subjects')
     // /modules is system-wide, visible in all domains
     expect(text).toContain('/modules')
     expect(text).toContain('/domains')
@@ -554,35 +554,35 @@ describe('generateHelpText', () => {
 // ── Sub-command routing ─────────────────────────────────
 
 describe('parseSlashCommand — sub-command routing', () => {
-  it('/assign without sub-command falls back to assign_student', () => {
-    const result = parseSlashCommand('/assign student123')
+  it('/assign without sub-command falls back to assign_subject', () => {
+    const result = parseSlashCommand('/assign subject123')
     expect(result).not.toBeNull()
-    expect(result!.operation).toBe('assign_student')
-    expect(result!.params).toEqual({ student_id: 'student123' })
+    expect(result!.operation).toBe('assign_subject')
+    expect(result!.params).toEqual({ subject_id: 'subject123' })
   })
 
-  it('/assign ta routes to assign_ta', () => {
-    const result = parseSlashCommand('/assign ta ta-user stu1,stu2')
+  it('/assign assistant routes to assign_assistant', () => {
+    const result = parseSlashCommand('/assign assistant assistant-user sub1,sub2')
     expect(result).not.toBeNull()
-    expect(result!.operation).toBe('assign_ta')
-    expect(result!.params).toEqual({ ta_id: 'ta-user', student_ids: 'stu1,stu2' })
+    expect(result!.operation).toBe('assign_assistant')
+    expect(result!.params).toEqual({ assistant_id: 'assistant-user', subject_ids: 'sub1,sub2' })
   })
 
-  it('/assign ta with joinTrailingArgs joins remaining tokens', () => {
-    const result = parseSlashCommand('/assign ta ta-user stu1 stu2 stu3')
+  it('/assign assistant with joinTrailingArgs joins remaining tokens', () => {
+    const result = parseSlashCommand('/assign assistant assistant-user sub1 sub2 sub3')
     expect(result).not.toBeNull()
-    expect(result!.operation).toBe('assign_ta')
-    expect(result!.params).toEqual({ ta_id: 'ta-user', student_ids: 'stu1 stu2 stu3' })
+    expect(result!.operation).toBe('assign_assistant')
+    expect(result!.params).toEqual({ assistant_id: 'assistant-user', subject_ids: 'sub1 sub2 sub3' })
   })
 
   it('/assign guardian routes to assign_guardian', () => {
-    const result = parseSlashCommand('/assign guardian parent-jane student-alice')
+    const result = parseSlashCommand('/assign guardian parent-jane subject-alice')
     expect(result).not.toBeNull()
     expect(result!.operation).toBe('assign_guardian')
-    expect(result!.params).toEqual({ guardian_id: 'parent-jane', student_id: 'student-alice' })
+    expect(result!.params).toEqual({ guardian_id: 'parent-jane', subject_id: 'subject-alice' })
   })
 
-  it('/assign guardian with only guardian_id (student self-assign)', () => {
+  it('/assign guardian with only guardian_id (subject self-assign)', () => {
     const result = parseSlashCommand('/assign guardian parent-jane')
     expect(result).not.toBeNull()
     expect(result!.operation).toBe('assign_guardian')
@@ -603,10 +603,11 @@ describe('parseSlashCommand — sub-command routing', () => {
     expect(result!.params).toEqual({ target: 'user-1', module_ids: 'algebra-1 pre-algebra geometry' })
   })
 
-  it('/assign with unknown sub-command treats it as student_id', () => {
-    const result = parseSlashCommand('/assign unknownstudent')
+  it('/assign with unknown sub-command treats it as subject_id', () => {
+    const result = parseSlashCommand('/assign unknownsubject')
     expect(result).not.toBeNull()
-    expect(result!.operation).toBe('assign_student')
-    expect(result!.params).toEqual({ student_id: 'unknownstudent' })
+    expect(result!.operation).toBe('assign_subject')
+    expect(result!.params).toEqual({ subject_id: 'unknownsubject' })
   })
 })
+

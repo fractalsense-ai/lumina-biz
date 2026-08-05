@@ -21,7 +21,7 @@ wrong and how to fix it, rather than silently swallowing the error or
 returning a bare HTTP error code.
 
 **Problem:** The SLM is probabilistic.  It may output domain-specific role
-names (`student`, `teacher`) that are not valid system roles, omit required
+names (`service_writer`, `service_manager`) in a field that expects a framework role, omit required
 fields like `governed_modules`, or produce ambiguous values like `"all"`.
 Previously, these failures were caught by a generic `except` block and
 silently discarded — the user saw a normal LLM response with no indication
@@ -58,10 +58,10 @@ Natural language → SLM parse → _normalize_slm_command() → Schema validatio
   "operation": "invite_user",
   "error": "Command schema validation failed: ...",
   "hints": [
-    "'student' is a domain role, not a system role. The system role should be 'user'.",
-    "Available domains: education (Education), agriculture (Agriculture)"
+          "'service_writer' is a domain role, not a system role. Set role='user' and provide domain role assignment separately.",
+    "Available domains: business-ops (Business Ops), business-ops (Business Ops)"
   ],
-  "original_params": { "username": "alice", "role": "student" }
+     "original_params": { "username": "alex", "role": "service_writer" }
 }
 ```
 
@@ -106,3 +106,4 @@ SLM errors at the normalization stage.
 ## SEE ALSO
 
 command-execution-pipeline(7), domain-role-hierarchy(7), rbac-spec-v1(5)
+

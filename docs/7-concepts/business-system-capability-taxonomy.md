@@ -1,13 +1,13 @@
 ---
-version: "1.0.0"
-last_updated: "2026-07-24"
+version: "1.1.0"
+last_updated: "2026-08-03"
 ---
 
 # Business-System Capability Taxonomy
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Active  
-**Last updated:** 2026-07-24
+**Last updated:** 2026-08-03
 
 ## Purpose
 
@@ -76,6 +76,31 @@ The canonical action class set for Slice 30 is:
 
 Action classes describe intent, not provider mechanics.
 
+## Generic Service Core Profile Layer (Slice 39)
+
+Slice 39 locks a generic service-core strategy:
+
+- The canonical service workflow and action graph remain shared across service-like verticals.
+- Vertical differentiation (for example towing vs retail-delivery) is expressed as profile-layer configuration and presentation overlays.
+- Provider differences remain in connector mapping adapters.
+
+### Profile-layer variation (allowed)
+
+- UI and prompt labels
+- Optional profile metadata fields
+- Escalation copy and presentation text
+- Bounded provider mapping hooks for custom doctype/table alignment
+
+### Canonical-core variation (not allowed without roadmap pivot)
+
+- New provider-specific action classes
+- Provider-specific keys injected into canonical payload envelopes
+- Vertical-specific forks of routing precedence or staged mutation semantics
+
+### Minimum profile parity requirement
+
+For each service-like profile, canonical outcomes must be parity-checked across at least two providers (ERPNext and Odoo) through the shared conformance/replay harness.
+
 ## Contract Alignment
 
 The taxonomy must be used consistently across these standards:
@@ -103,6 +128,7 @@ A connector is conformant for a namespace/action pair only when:
 2. Requests and results validate against canonical schemas.
 3. Deterministic fixture scenarios exist for nominal and failure paths.
 4. Error normalization preserves canonical `code`, `severity`, and `retryable` semantics.
+5. Profile-layer variants preserve canonical action-graph behavior and do not alter canonical payload contracts.
 
 ## Canonical Logistics Entities
 

@@ -40,7 +40,7 @@ The Domain is the **immutable ruleset** for a session. It is authored by the Dom
 - Defined in advance by the Domain Authority
 - Have explicit `max_attempts` limits
 - Must escalate when exhausted (`escalation_on_exhaust: true`)
-- Action vocabulary is domain-defined (education, agriculture, medical, and others)
+- Action vocabulary is domain-defined (business-ops, business-ops, medical, and others)
 
 **Escalation Triggers** — conditions causing the system to pass control to the Meta Authority:
 - Named conditions are domain-defined
@@ -107,7 +107,7 @@ State is never inferred from raw conversation content. Turn data is a structured
 }
 ```
 
-Each domain defines its own evidence schema and runtime pipeline (for example, agriculture and medical domains use different fields and thresholds).
+Each domain defines its own evidence schema and runtime pipeline (for example, business-ops and medical domains use different fields and thresholds).
 
 ### State Storage
 
@@ -119,7 +119,7 @@ Each domain defines its own evidence schema and runtime pipeline (for example, a
 
 ## A — Actor
 
-The **Actor** is whatever changes the state of the system relative to a given domain. Actors are context-dependent: in an education domain the Actor may be a student; in agriculture it may be a pH sensor, a farmer operating equipment, or a weather station. The Domain Authority defines which entities qualify as Actors in the domain pack.
+The **Actor** is whatever changes the state of the system relative to a given domain. Actors are context-dependent: in an education domain the Actor may be a learner; in business-ops it may be an operator, a customer-intake user, or a weather station. The Domain Authority defines which entities qualify as Actors in the domain pack.
 
 The AI orchestrator is **not** an Actor — it is an executor and translator that mediates between the DSA pillars. Its pipeline is: sensor → domain logic → module action → actuator → feedback → system state.
 
@@ -206,11 +206,12 @@ Earlier documents may use `sensor` where this spec now uses `domain lib`. In thi
 
 - [`../standards/lumina-core-v1.md`](../standards/lumina-core-v1.md) — conformance requirements
 - [`../standards/domain-physics-schema-v1.json`](../standards/domain-physics-schema-v1.json) — Domain schema
-- [`../model-packs/education/schemas/compressed-state-schema-v1.json`](../model-packs/education/schemas/compressed-state-schema-v1.json) — education domain subject state schema (example)
-- [`../model-packs/education/reference-implementations/zpd-monitor-v0.2.py`](../model-packs/education/reference-implementations/zpd-monitor-v0.2.py) — education domain lib reference implementation (example)
+- [`../model-packs/business-ops/profiles/entity.yaml`](../model-packs/business-ops/profiles/entity.yaml) — business-ops entity profile example
+- [`../model-packs/business-ops/controllers/runtime_adapters.py`](../model-packs/business-ops/controllers/runtime_adapters.py) — business-ops domain adapter implementation example
 
 ## SEE ALSO
 
 - [`context-is-not-conversation(7)`](context-is-not-conversation.md) — why Domain, State, and Actor are maintained as separate structures
 - [`ai-governance-principles(7)`](ai-governance-principles.md) — governing constraints that D.S.A. satisfies structurally
 - [`prompt-packet-assembly(7)`](prompt-packet-assembly.md) — runtime assembly pipeline that consumes D.S.A. structures each turn
+

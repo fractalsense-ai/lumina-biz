@@ -31,7 +31,7 @@ The System Logs does not own domain vocabulary. The System Logs defines the **co
 This allows any domain to extend `evidence_summary` freely, while guaranteeing:
 - A discoverable reference to the schema that validates the contents.
 - A stable, cross-domain baseline of universal signals.
-- No education-specific fields in the core ledger specification.
+- No business-ops-specific fields in the core ledger specification.
 
 ---
 
@@ -110,11 +110,11 @@ Field definitions use standard JSON Schema keywords (`type`, `enum`, `minimum`, 
 
 ---
 
-## Education Domain Example
+## Business Ops Domain Example
 
-**Schema ID:** `lumina:evidence:education:v1`
+**Schema ID:** `lumina:evidence:business-ops:v1`
 
-**File:** `model-packs/education/modules/algebra-level-1/evidence-schema.json`
+**File:** `model-packs/business-ops/modules/auto-repair/evidence-schema.json`
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -127,11 +127,11 @@ Field definitions use standard JSON Schema keywords (`type`, `enum`, `minimum`, 
 | `solution_value` | `number \| string \| null` | Extracted solution value |
 | `equivalence_preserved` | `boolean \| null` | Each step preserves algebraic equivalence |
 
-A complete education `evidence_summary` record looks like:
+A complete business-ops `evidence_summary` record looks like:
 
 ```json
 {
-  "_domain": "domain/lumina/education/v1",
+  "_domain": "domain/lumina/business-ops/v1",
   "_schema_version": "1.0",
   "response_latency_sec": 8.4,
   "off_task_ratio": 0.0,
@@ -148,22 +148,22 @@ A complete education `evidence_summary` record looks like:
 
 ---
 
-## Agriculture Domain Example
+## Operations Domain Example
 
-**Schema ID:** `lumina:evidence:agriculture:v1`
+**Schema ID:** `lumina:evidence:operations:v1`
 
-**File:** `model-packs/agriculture/modules/operations-level-1/evidence-schema.json`
+**File:** `model-packs/<operations-domain>/modules/<module>/evidence-schema.json`
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `within_tolerance` | `boolean \| null` | Sensor reading or decision within acceptable range |
 | `step_count` | `integer \| null` | Discrete operational steps provided |
 
-A complete agriculture `evidence_summary` record:
+A complete operations `evidence_summary` record:
 
 ```json
 {
-  "_domain": "domain/lumina/agriculture/v1",
+  "_domain": "domain/lumina/operations/v1",
   "_schema_version": "1.0",
   "response_latency_sec": 3.1,
   "off_task_ratio": 0.0,
@@ -208,3 +208,4 @@ To extend the System Logs with a new domain's evidence vocabulary:
 - [`standards/domain-evidence-schema-v1.json`](domain-evidence-schema-v1.json) — Meta-schema for evidence declarations
 - [`ledger/trace-event-schema.json`](../ledger/trace-event-schema.json) — TraceEvent JSON Schema
 - [`standards/domain-physics-schema-v1.json`](domain-physics-schema-v1.json) — Domain physics schema
+

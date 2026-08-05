@@ -18,7 +18,7 @@
       "properties": {
         "domain_id": {
           "type": "string",
-          "description": "Domain key to scope the profile view (default: education)."
+          "description": "Domain key to scope the profile view (default: business-ops)."
         }
       },
       "additionalProperties": false
@@ -26,3 +26,4 @@
   },
   "required": ["operation"]
 }
+

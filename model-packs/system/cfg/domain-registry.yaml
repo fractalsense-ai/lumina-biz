@@ -12,11 +12,11 @@
 # Fallback domain for unauthenticated (anonymous) sessions.
 # Set this to a "welcome" or "landing" domain pack when one exists.
 # Defaults to default_domain when absent.
-unauthenticated_domain: education
+unauthenticated_domain: business-ops
 
 # Fallback domain for authenticated users whose role is not listed in
 # role_defaults below.
-default_domain: education
+default_domain: business-ops
 
 # Role-based default: when NLP routing returns no confident match, authenticated
 # users with these roles are routed to the specified domain instead of the global
@@ -24,42 +24,24 @@ default_domain: education
 #
 # Design rationale: system-level operators (root, super_admin) should land in the
 # system domain so they can query Lumina internals without being dropped into a
-# domain-specific session (e.g. education).  The global default_domain is kept
-# as education to mask system internals from domain-level users.
-#
-# admin users are routed to the domain matching their first
-# governed_modules entry (via module_prefix resolution), so a teacher whose JWT
-# carries domain/edu/… lands in education, not the system domain.
+# domain-specific session. Domain-level users fall through to default_domain.
 role_defaults:
   root: system
   super_admin: system
 
 domains:
-  education:
-    runtime_config_path: model-packs/education/cfg/runtime-config.yaml
-    label: Education — Algebra Level 1
-    description: K-12 algebra tutoring domain with scaffolded problem solving.
-    module_prefix: edu
+  business-ops:
+    runtime_config_path: model-packs/business-ops/cfg/runtime-config.yaml
+    label: Business Ops — Auto Repair
+    description: Business operations domain with deterministic governance and evidence capture.
+    module_prefix: biz
     keywords:
-      - algebra
-      - equation
-      - math
-      - solve
-      - variable
-      - tutoring
-
-  agriculture:
-    runtime_config_path: model-packs/agriculture/cfg/runtime-config.yaml
-    label: Agriculture — Operations Level 1
-    description: Agricultural operations monitoring and variance reporting.
-    module_prefix: agri
-    keywords:
-      - crop
-      - yield
-      - soil
-      - harvest
-      - irrigation
-      - agriculture
+      - work order
+      - service ticket
+      - repair
+      - parts
+      - estimate
+      - operations
 
   system:
     runtime_config_path: model-packs/system/cfg/runtime-config.yaml
@@ -78,23 +60,6 @@ domains:
       - domain physics
       - domain pack
       - domain authority
-
-  assistant:
-    runtime_config_path: model-packs/assistant/cfg/runtime-config.yaml
-    label: Assistant — General Purpose
-    description: General-purpose conversational assistant with intent-based per-turn module routing, tool-call governance, and task tracking.
-    module_prefix: asst
-    keywords:
-      - assistant
-      - help
-      - chat
-      - weather
-      - calendar
-      - search
-      - write
-      - plan
-      - task
-      - general
 
   coding-agent:
     runtime_config_path: model-packs/coding-agent/cfg/runtime-config.yaml
@@ -123,14 +88,3 @@ domains:
   #   keywords:
   #     - template
   #     - scaffold
-      - meta authority
-      - domain registry
-      - pseudonymous
-      - rbac
-      - tool adapter
-      - orchestrator
-      - domain lib
-      - policy gate
-      - audit
-      - hash chain
-      - physics schema

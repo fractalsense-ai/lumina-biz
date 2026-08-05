@@ -78,12 +78,12 @@ vlog = logging.getLogger("lumina.verbose")
 
 
 def _load_journal_nlp_pre_interpreter():
-    module_key = "lumina_model_packs_education_journal_nlp_pre_interpreter"
+    module_key = "lumina_model_packs_business_ops_journal_nlp_pre_interpreter"
     cached = sys.modules.get(module_key)
     if cached is not None:
         return cached
     repo_root = Path(__file__).resolve().parents[3]
-    module_path = repo_root / "model-packs" / "education" / "controllers" / "journal_nlp_pre_interpreter.py"
+    module_path = repo_root / "model-packs" / "business-ops" / "controllers" / "nlp_pre_interpreter.py"
     spec = importlib.util.spec_from_file_location(module_key, module_path)
     if spec is None or spec.loader is None:
         raise ModuleNotFoundError(f"Cannot load journal NLP pre-interpreter from {module_path}")
@@ -646,6 +646,13 @@ def process_message(
                 "[ORCH] %d blocked task(s) deferred to pending_tasks queue",
                 len(_pending),
             )
+
+    # Persist workflow context emitted by domain-step state transitions so
+    # follow-up turns and rehydrated sessions keep connector/escalation IDs.
+    if isinstance(orch.state, dict):
+        _wf_ctx = orch.state.get("workflow_context")
+        if isinstance(_wf_ctx, dict):
+            session["workflow_context"] = dict(_wf_ctx)
 
     # ── Post-turn processing (domain-hook driven) ──────────────
     _new_task_presented = _new_task_on_resume

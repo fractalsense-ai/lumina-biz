@@ -38,7 +38,7 @@ routes to it. This is exactly how Lumina works.
 
 | HMVC Concept | Lumina Equivalent | Location | Notes |
 |---|---|---|---|
-| **Module** (self-contained app) | **Domain Pack** | `model-packs/{domain}/` | Each pack is a bounded cognitive subsystem — education, agriculture, system admin |
+| **Module** (self-contained app) | **Domain Pack** | `model-packs/{domain}/` | Each pack is a bounded cognitive subsystem — business-ops, business-ops, system admin |
 | **Model** (data, rules, state) | **Physics + Schemas + Evidence** | `modules/{mod}/domain-physics.*`, `schemas/`, `evidence-schema.json` | Invariants, standing orders, entity state schemas, evidence vocabulary |
 | **Controller** (input→logic→output) | **Controllers directory** | `controllers/runtime_adapters.py`, `nlp_pre_interpreter.py`, `tool_adapters.py` | Runtime adapter (synthesis), NLP pre-interpreter (information gate), tool adapters (active verifiers) |
 | **View** (presentation layer) | **Prompts + World-Sim Persona** | `prompts/`, `world-sim/` | Domain system override, turn interpretation prompt, narrative framing |
@@ -46,7 +46,7 @@ routes to it. This is exactly how Lumina works.
 | **Module routes / config** | **Runtime Config** | `cfg/runtime-config.yaml` | Adapter bindings, access control, module routing, world-sim config |
 | **Module API endpoints** | **Domain API Route Handlers** | `controllers/api_handlers.py` + `cfg/runtime-config.yaml` §adapters.api_routes | Domain-owned HTTP endpoints dynamically mounted by the core server at startup — the domain declares routes, the framework provides auth/role middleware |
 | **Framework router** | **Domain Registry** | `cfg/domain-registry.yaml` + `src/lumina/core/domain_registry.py` | Maps domain_id → runtime context; role-based defaults; NLP routing |
-| **Framework core** | **Core Engine** | `src/lumina/` | Zero domain-specific names — reads only `problem_solved` and `problem_status` |
+| **Framework core** | **Core Engine** | `src/lumina/` | Zero domain-specific names — consumes generic synthesized turn signals (for example `task_status`) |
 | **Sub-request** (module→module) | **Cross-Domain Synthesis** | Opt-in, dual-key DA approval | See [`cross-domain-synthesis(7)`](cross-domain-synthesis.md) |
 
 ---
@@ -66,7 +66,7 @@ A domain pack declares everything needed to bring a subject area into the engine
 The engine loads a pack at session start by reading its `cfg/runtime-config.yaml` manifest,
 wiring up its controllers, and routing all subsequent turns through the pack's processing
 pipeline. The engine does not know what "correctness" means in algebra, what "moisture
-levels" mean in agriculture, or what "privilege escalation" means in system admin. It reads
+levels" mean in business-ops, or what "privilege escalation" means in system admin. It reads
 two contract fields and moves on.
 
 This is the self-containment contract, and it is the HMVC module isolation principle enforced
@@ -91,15 +91,14 @@ The controllers directory contains three distinct responsibilities:
 
 | File | HMVC Role | What It Does |
 |---|---|---|
-| `runtime_adapters.py` | **Primary controller** | Synthesis layer — runs Phase A (NLP pre-processing) and Phase B (signal synthesis after tools); emits engine contract fields `problem_solved` and `problem_status` |
+| `runtime_adapters.py` | **Primary controller** | Synthesis layer — runs Phase A (NLP pre-processing) and Phase B (signal synthesis after tools); emits generic turn/task lifecycle signals (for example `task_status`) and domain-owned readiness signals |
 | `nlp_pre_interpreter.py` | **Input filter / front controller** | Information gate — deterministic extraction of domain-meaningful signals before any LLM inference; produces `_nlp_anchors` |
 | `tool_adapters.py` | **Action controller** | Active verifier dispatch — wraps tool-adapter YAML specs as callable Python functions for the orchestrator |
 
-Additional controller files are domain-specific:
-
-- `problem_generator.py` (education) — task generation controller
-- `fluency_monitor.py` (education) — fluency estimation invoked by the runtime adapter
-- `zpd_monitor_v0_2.py` (education) — ZPD state estimation reference implementation
+Additional controller files are domain-specific and optional. Some packs add
+specialized orchestration helpers (for example, policy compilers or
+domain-specific decision evaluators), while others keep all behavior inside
+`runtime_adapters.py`.
 
 These files were historically named `systools/` (system tools). The rename to `controllers/`
 surfaces the HMVC heritage: these are the pack's controllers, not generic system utilities.
@@ -152,7 +151,7 @@ prose changes.
 Additionally, each domain pack declares a `ui` section in its `runtime-config.yaml`.
 This section is the **declarative View binding** for the frontend:
 
-- `plugin_bundle` — path to the domain's built ES module (e.g. `model-packs/education/web/dist/plugin.js`)
+- `plugin_bundle` — path to the domain's built ES module (e.g. `model-packs/<domain>/web/dist/plugin.js`)
 - `slash_commands` — array of domain-contributed slash commands
 - `dashboard_tabs` — array of tab definitions (id, label, endpoint, roles, type)
 
@@ -179,7 +178,7 @@ domain's plugin bundle and calls its `register(api)` function.  The plugin uses:
 - `api.addChatHooks()` — contribute chat lifecycle hooks
 
 This achieves full HMVC View isolation: each domain can define its own telemetry and
-monitoring views (e.g., education: ZPD distribution; system: pack integrity; agriculture:
+monitoring views (e.g., business-ops: ZPD distribution; system: pack integrity; business-ops:
 
 ---
 
@@ -266,3 +265,4 @@ file at the root of any domain pack directory.
 | [`nlp-semantic-router(7)`](nlp-semantic-router.md) | Two-tier NLP routing — framework-level domain classification before per-pack pre-interpretation |
 | [`world-sim-persona-pattern(7)`](world-sim-persona-pattern.md) | View-layer narrative framing pattern |
 | [`domain-profile-spec-v1`](../../specs/domain-profile-spec-v1.md) | Domain profile authoring specification |
+

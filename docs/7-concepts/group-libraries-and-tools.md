@@ -16,8 +16,8 @@ library, NLP pre-interpreter.  This self-containment contract is a hard boundary
 pack must not import from another domain pack.
 
 But **within** a single domain pack, identical logic often recurs across modules.  Every
-agriculture module that reads soil-moisture sensors calls the same normalisation routine.
-Every education module that tracks engagement applies the same fatigue formula.  Copying
+business-ops module that reads soil-moisture sensors calls the same normalisation routine.
+Every business-ops module that tracks engagement applies the same fatigue formula.  Copying
 that logic into every module violates DRY and creates maintenance risk.
 
 Group Libraries and Group Tools solve this by declaring **domain-scoped shared resources**
@@ -148,10 +148,10 @@ for validation — see [`execution-route-compilation(7)`](execution-route-compil
 
 ---
 
-## D. Agriculture Example — Environmental Sensors
+## D. Domain Example — Environmental Sensors
 
-The agriculture domain provides the reference implementation of a Group Library:
-`model-packs/agriculture/domain-lib/sensors/environmental_sensors.py`.
+An operations domain can provide a reference implementation of a Group Library:
+`model-packs/<domain>/domain-lib/sensors/environmental_sensors.py`.
 
 This module provides:
 
@@ -164,19 +164,19 @@ This module provides:
 | `compute_field_summary()` | Aggregate a batch of readings into a field-level summary dict |
 | `DEFAULT_THRESHOLDS` | Pre-configured thresholds for moisture, temperature, pH, nitrogen |
 
-The module is registered in `operations-level-1/domain-physics.json` under
+The module is registered in a module `domain-physics.json` under
 `group_libraries` with `id: "environmental_sensors"`.  Future modules (crop-planning,
 livestock) can reference the same library by adding it to their own physics declarations.
 
 ```
-model-packs/agriculture/
+model-packs/<domain>/
 ├── domain-lib/
 │   ├── sensors/
 │   │   └── environmental_sensors.py    ← Group Library (shared)
 │   └── reference/
 │       └── turn-interpretation-spec-v1.md  ← Reference spec (TM)
 ├── modules/
-│   ├── operations-level-1/
+│   ├── <module>/
 │   │   └── domain-physics.json     ← declares group_libraries: ["environmental_sensors", "turn_interpretation"]
 │   └── crop-planning/              ← (future) would also declare the same libraries
 └── controllers/
@@ -235,7 +235,7 @@ executed as code. Examples:
 |----------------|--------|---------|
 | `domain-lib/reference/turn-interpretation-spec-v1.md` | All | Defines the JSON output schema for turn-level field extraction |
 | `domain-lib/reference/command-interpreter-spec-v1.md` | System | Defines disambiguation rules and parameter schemas for admin commands |
-| `domain-lib/reference/compressed-state-estimators.md` | Education | Defines compressed state estimator formulas and thresholds |
+| `domain-lib/reference/compressed-state-estimators.md` | Business Ops | Defines compressed state estimator formulas and thresholds |
 
 Reference specs follow the same `group_libraries` declaration pattern in `domain-physics.json`:
 
@@ -264,4 +264,5 @@ reference spec changes, all referencing modules know they may need revalidation.
 - [`execution-route-compilation(7)`](execution-route-compilation.md) — route compiler validates group library dependencies at compile time
 - `src/lumina/core/adapter_indexer.py` — `GroupLibraryEntry`, `GroupToolEntry`, `scan_group_resources()`
 - `src/lumina/core/runtime_loader.py` — group resource discovery and context injection
-- `model-packs/agriculture/domain-lib/sensors/environmental_sensors.py` — reference Group Library implementation
+- `model-packs/<domain>/domain-lib/sensors/environmental_sensors.py` — reference Group Library implementation
+

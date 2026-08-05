@@ -3,7 +3,9 @@ param(
     [string]$ApiBaseUrl = "http://127.0.0.1:8000",
     [switch]$SkipOrchestratorDemo,
     [switch]$SkipFrontend,
-    [switch]$SkipApiScenarios
+    [switch]$SkipApiScenarios,
+    [switch]$SkipBusinessOpsReplay,
+    [switch]$SkipSingleBoxSmoke
 )
 
 $ErrorActionPreference = "Stop"
@@ -105,6 +107,25 @@ if (-not $SkipOrchestratorDemo) {
     }
 }
 
+if (-not $SkipBusinessOpsReplay) {
+    Write-Section "Business Ops Replay Evidence"
+    & $PythonExe "scripts/run_business_ops_replay.py" --out "data/staging/business-ops-replay-report.json"
+    if ($LASTEXITCODE -ne 0) {
+        throw "run_business_ops_replay.py failed"
+    }
+}
+
+if (-not $SkipSingleBoxSmoke) {
+    Write-Section "Single-Box Smoke"
+    & $PythonExe "scripts/single_box_health_check.py" `
+        --runtime-config "model-packs/business-ops/cfg/runtime-config.yaml" `
+        --json-out "data/staging/single-box-health-report.json" `
+        --fail-on-degraded
+    if ($LASTEXITCODE -ne 0) {
+        throw "single_box_health_check.py failed"
+    }
+}
+
 if (-not $SkipFrontend) {
     Write-Section "Front-End Build"
     Push-Location "src/web"
@@ -153,7 +174,19 @@ if (-not $SkipApiScenarios) {
             $env:LUMINA_PORT = "$apiPort"
 
             if ([string]::IsNullOrWhiteSpace($env:LUMINA_RUNTIME_CONFIG_PATH)) {
-                $defaultRuntimeConfig = "model-packs/education/cfg/runtime-config.yaml"
+                $runtimeCandidates = @(
+                    "model-packs/business-ops/cfg/runtime-config.yaml",
+                    "model-packs/system/cfg/runtime-config.yaml",
+                    "model-packs/coding-agent/cfg/runtime-config.yaml"
+                )
+                $defaultRuntimeConfig = $runtimeCandidates | Where-Object {
+                    Test-Path (Join-Path $repoRoot $_)
+                } | Select-Object -First 1
+
+                if ([string]::IsNullOrWhiteSpace($defaultRuntimeConfig)) {
+                    throw "Unable to pick default runtime config: none of the known runtime config candidates exist"
+                }
+
                 Write-Host "LUMINA_RUNTIME_CONFIG_PATH not set; defaulting to '$defaultRuntimeConfig' for local API startup."
                 $env:LUMINA_RUNTIME_CONFIG_PATH = $defaultRuntimeConfig
             }

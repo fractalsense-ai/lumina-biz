@@ -1,0 +1,16 @@
+{
+  "connector_registry_entries": [
+    {
+      "organization_id": "org-a",
+      "site_id": "site-a",
+      "connector_instance_id": "erpnext-primary",
+      "health_status": "healthy"
+    },
+    {
+      "organization_id": "org-a",
+      "site_id": "site-a",
+      "connector_instance_id": "erpnext-secondary",
+      "health_status": "degraded"
+    }
+  ]
+}

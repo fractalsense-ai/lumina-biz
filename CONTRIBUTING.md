@@ -16,7 +16,7 @@ Before contributing, you must understand the firewall between the core engine an
 
 The core orchestrator (`lumina-api-server.py`, `dsa-orchestrator.py`) is **100% domain-agnostic**.
 
-* **Zero Domain Logic:** You may not hardcode rules, prompts, or assumptions about specific subjects (e.g., education, medical, agriculture) into the core engine.
+* **Zero Domain Logic:** You may not hardcode rules, prompts, or assumptions about specific subjects (e.g., business-ops, medical, business-ops) into the core engine.
 * **Contract Enforcement:** The engine's only job is to assemble the dynamic prompt contract, execute it, verify the tool/invariant outputs, and log the state change to the System Logs.
 
 ### 2. Model-Packs (`model-packs/`)
@@ -26,7 +26,7 @@ All modeled-system-specific behavior lives here. If you are adding a new use cas
 * You must define the rules of reality in a `domain-physics.json` file.
 * You must provide a complete `runtime-config.yaml` to map actions to your specific Python tool adapters.
 * **Fractal Authority:** Your model-pack must clearly define its governance levels (Macro → Meso → Micro → Target).
-* **Runtime Adapter:** You must implement `controllers/runtime_adapters.py` with an `interpret_turn_input` function. All domain-specific signal computation — including engine contract fields like `problem_solved` and `problem_status` — must be computed here. These fields must never be hardcoded or evaluated inside `src/lumina/`. See [`docs/7-concepts/domain-adapter-pattern.md`](docs/7-concepts/domain-adapter-pattern.md) for the complete authoring pattern, engine contract field catalogue, and examples covering both single-step and multi-step task domains (e.g., a 15-step procedural task produces `problem_status = "step_N_of_15_complete"` on each turn and sets `problem_solved = True` on the final step).
+* **Runtime Adapter:** You must implement `controllers/runtime_adapters.py` with an `interpret_turn_input` function. All domain-specific signal computation — including generic lifecycle signals like `task_status` and any domain-owned readiness signals — must be computed here. These fields must never be hardcoded or evaluated inside `src/lumina/`. See [`docs/7-concepts/domain-adapter-pattern.md`](docs/7-concepts/domain-adapter-pattern.md) for the complete authoring pattern, engine contract field catalogue, and examples covering both single-step and multi-step task domains.
 
 ---
 
@@ -95,6 +95,22 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 **If the deterministic test suite fails, your PR will be automatically rejected.**
 
+### Local CI Guardrail (Required Before Push)
+
+Run the containerized backend CI workflow before pushing any backend or API changes:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\compose-ci.ps1 -Target backend
+```
+
+Linux/macOS equivalent:
+
+```bash
+bash scripts/compose-ci.sh backend
+```
+
+This catches Linux/container-only regressions earlier (for example manifest coverage drift or timing-sensitive auth checks) and should be treated as a required local pre-push gate.
+
 ---
 
 ## 📝 Pull Request Process
@@ -117,3 +133,4 @@ Before you push, ask yourself:
 * *Did I bypass the Domain Authority's explicit rules?*
 
 If the answer to any of these is yes, revise your code. We build for accountability.
+

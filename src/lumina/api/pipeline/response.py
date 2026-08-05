@@ -62,10 +62,7 @@ def build_escalation_content(
         # Generic fallback: extract actor_pseudonym from orchestrator profile
         _actor_pseudonym = ""
         if hasattr(orchestrator, "_writer"):
-            _actor_pseudonym = orchestrator._writer._profile.get(
-                "subject_id",
-                orchestrator._writer._profile.get("student_id", ""),
-            )
+            _actor_pseudonym = orchestrator._writer._profile.get("subject_id", "")
         session_ctx = {
             "domain_id": resolved_domain_id,
             "actor_pseudonym": _actor_pseudonym,

@@ -19,7 +19,7 @@ def fs_adapter(tmp_path: Path) -> FilesystemPersistenceAdapter:
 
 @pytest.fixture
 def scoped(fs_adapter: FilesystemPersistenceAdapter) -> ScopedPersistenceAdapter:
-    return ScopedPersistenceAdapter(fs_adapter, domain_id="education")
+    return ScopedPersistenceAdapter(fs_adapter, domain_id="business-ops")
 
 
 # ── Tier path methods ────────────────────────────────────────
@@ -34,14 +34,14 @@ def test_system_ledger_path(fs_adapter: FilesystemPersistenceAdapter) -> None:
 
 @pytest.mark.unit
 def test_domain_ledger_path(fs_adapter: FilesystemPersistenceAdapter) -> None:
-    path = fs_adapter.get_domain_ledger_path("education")
-    assert "domains" in path and "education" in path
+    path = fs_adapter.get_domain_ledger_path("business-ops")
+    assert "domains" in path and "business-ops" in path
     assert path.endswith("domain.jsonl")
 
 
 @pytest.mark.unit
 def test_module_ledger_path(fs_adapter: FilesystemPersistenceAdapter) -> None:
-    path = fs_adapter.get_module_ledger_path("education", "algebra-v1")
+    path = fs_adapter.get_module_ledger_path("business-ops", "algebra-v1")
     assert "modules" in path and "algebra-v1" in path
     assert path.endswith("algebra-v1.jsonl")
 
@@ -54,7 +54,7 @@ def test_scoped_default_write_goes_to_domain_tier(scoped: ScopedPersistenceAdapt
     record = {"record_type": "CommitmentRecord", "record_id": "r1"}
     scoped.append_log_record("admin", record)
 
-    domain_path = Path(fs_adapter.get_domain_ledger_path("education"))
+    domain_path = Path(fs_adapter.get_domain_ledger_path("business-ops"))
     assert domain_path.exists()
     records = fs_adapter._load_ledger_records(domain_path)
     assert len(records) == 1
@@ -78,7 +78,7 @@ def test_scoped_append_domain_log_record(scoped: ScopedPersistenceAdapter, fs_ad
     record = {"record_type": "CommitmentRecord", "record_id": "r3"}
     scoped.append_domain_log_record("admin", record)
 
-    domain_path = Path(fs_adapter.get_domain_ledger_path("education"))
+    domain_path = Path(fs_adapter.get_domain_ledger_path("business-ops"))
     records = fs_adapter._load_ledger_records(domain_path)
     assert any(r["record_id"] == "r3" for r in records)
 
@@ -88,7 +88,7 @@ def test_scoped_append_module_log_record(scoped: ScopedPersistenceAdapter, fs_ad
     record = {"record_type": "TraceEvent", "record_id": "r4"}
     scoped.append_module_log_record("admin", record, module_id="algebra-v1")
 
-    module_path = Path(fs_adapter.get_module_ledger_path("education", "algebra-v1"))
+    module_path = Path(fs_adapter.get_module_ledger_path("business-ops", "algebra-v1"))
     assert module_path.exists()
     records = fs_adapter._load_ledger_records(module_path)
     assert any(r["record_id"] == "r4" for r in records)
@@ -165,11 +165,11 @@ def test_tier_isolation_system_vs_domain(fs_adapter: FilesystemPersistenceAdapte
     )
     fs_adapter.append_log_record(
         "admin", dom_record,
-        ledger_path=fs_adapter.get_domain_ledger_path("education"),
+        ledger_path=fs_adapter.get_domain_ledger_path("business-ops"),
     )
 
     sys_path = Path(fs_adapter.get_system_ledger_path("admin"))
-    dom_path = Path(fs_adapter.get_domain_ledger_path("education"))
+    dom_path = Path(fs_adapter.get_domain_ledger_path("business-ops"))
 
     sys_records = fs_adapter._load_ledger_records(sys_path)
     dom_records = fs_adapter._load_ledger_records(dom_path)
@@ -193,14 +193,14 @@ def test_validate_chain_includes_tier_ledgers(fs_adapter: FilesystemPersistenceA
     }
     fs_adapter.append_log_record(
         "admin", record,
-        ledger_path=fs_adapter.get_domain_ledger_path("education"),
+        ledger_path=fs_adapter.get_domain_ledger_path("business-ops"),
     )
 
     result = fs_adapter.validate_log_chain()
     assert result["scope"] == "all"
     # Should find the domain ledger
     labels = [r["session_id"] for r in result["results"]]
-    assert any("education" in label for label in labels)
+    assert any("business-ops" in label for label in labels)
 
 
 # ── query_log_records scans tier directories ─────────────────
@@ -217,7 +217,7 @@ def test_query_finds_records_in_tier_dirs(fs_adapter: FilesystemPersistenceAdapt
     )
     fs_adapter.append_log_record(
         "admin", r2,
-        ledger_path=fs_adapter.get_domain_ledger_path("education"),
+        ledger_path=fs_adapter.get_domain_ledger_path("business-ops"),
     )
 
     all_records = fs_adapter.query_log_records(record_type="CommitmentRecord", limit=100)
@@ -238,17 +238,17 @@ def test_iter_all_ledger_paths(fs_adapter: FilesystemPersistenceAdapter) -> None
     )
     fs_adapter.append_log_record(
         "admin", {"record_id": "b"},
-        ledger_path=fs_adapter.get_domain_ledger_path("education"),
+        ledger_path=fs_adapter.get_domain_ledger_path("business-ops"),
     )
     fs_adapter.append_log_record(
         "admin", {"record_id": "c"},
-        ledger_path=fs_adapter.get_module_ledger_path("education", "algebra-v1"),
+        ledger_path=fs_adapter.get_module_ledger_path("business-ops", "algebra-v1"),
     )
 
     paths = fs_adapter._iter_all_ledger_paths()
     path_strs = [str(p) for p in paths]
     assert any("system" in s for s in path_strs)
-    assert any("education" in s and "domain.jsonl" in s for s in path_strs)
+    assert any("business-ops" in s and "domain.jsonl" in s for s in path_strs)
     assert any("algebra-v1" in s for s in path_strs)
 
 
@@ -257,12 +257,12 @@ def test_iter_all_ledger_paths(fs_adapter: FilesystemPersistenceAdapter) -> None
 
 @pytest.mark.unit
 def test_is_in_scope_exact_domain_id(scoped: ScopedPersistenceAdapter) -> None:
-    assert scoped._is_in_scope("education") is True
+    assert scoped._is_in_scope("business-ops") is True
 
 
 @pytest.mark.unit
 def test_is_in_scope_hierarchical_in_domain(scoped: ScopedPersistenceAdapter) -> None:
-    assert scoped._is_in_scope("education/algebra-v1") is True
+    assert scoped._is_in_scope("business-ops/algebra-v1") is True
 
 
 @pytest.mark.unit
@@ -285,7 +285,7 @@ def test_update_governed_modules_in_scope(
     fs_adapter,
 ) -> None:
     fs_adapter.create_user("u10", "charlie", "salt:hash", "teacher", [])
-    result = scoped.update_user_governed_modules("u10", add=["education/algebra-v1"])
+    result = scoped.update_user_governed_modules("u10", add=["business-ops/algebra-v1"])
     # Should succeed without PermissionError
     user = fs_adapter.get_user("u10")
     assert user is not None
@@ -329,14 +329,14 @@ def test_get_domain_ledger_path_defaults_to_domain_id(
     scoped: ScopedPersistenceAdapter,
 ) -> None:
     path = scoped.get_domain_ledger_path()
-    assert "education" in path
+    assert "business-ops" in path
 
 
 @pytest.mark.unit
 def test_get_module_ledger_path_explicit(
     scoped: ScopedPersistenceAdapter,
 ) -> None:
-    path = scoped.get_module_ledger_path("education", "algebra-v1")
+    path = scoped.get_module_ledger_path("business-ops", "algebra-v1")
     assert "algebra-v1" in path
 
 
@@ -367,7 +367,7 @@ def test_get_user_consent_delegates(
 
 @pytest.mark.unit
 def test_load_profile_delegates(scoped: ScopedPersistenceAdapter) -> None:
-    result = scoped.load_profile("u-none", "education")
+    result = scoped.load_profile("u-none", "business-ops")
     assert result is None or isinstance(result, dict)
 
 
@@ -375,8 +375,8 @@ def test_load_profile_delegates(scoped: ScopedPersistenceAdapter) -> None:
 def test_save_and_load_profile(
     scoped: ScopedPersistenceAdapter, fs_adapter
 ) -> None:
-    scoped.save_profile("u30", "education", {"score": 42})
-    result = scoped.load_profile("u30", "education")
+    scoped.save_profile("u30", "business-ops", {"score": 42})
+    result = scoped.load_profile("u30", "business-ops")
     assert result is not None
     assert result.get("score") == 42
 
@@ -389,8 +389,8 @@ def test_list_profiles_delegates(scoped: ScopedPersistenceAdapter) -> None:
 
 @pytest.mark.unit
 def test_delete_profile_delegates(scoped: ScopedPersistenceAdapter) -> None:
-    scoped.save_profile("u40", "education", {"data": 1})
-    deleted = scoped.delete_profile("u40", "education")
+    scoped.save_profile("u40", "business-ops", {"data": 1})
+    deleted = scoped.delete_profile("u40", "business-ops")
     assert deleted is True
 
 
@@ -440,7 +440,7 @@ def test_validate_log_chain_delegates(scoped: ScopedPersistenceAdapter) -> None:
 
 @pytest.mark.unit
 def test_has_policy_commitment_delegates(scoped: ScopedPersistenceAdapter) -> None:
-    result = scoped.has_policy_commitment("education", "1.0", "abc123")
+    result = scoped.has_policy_commitment("business-ops", "1.0", "abc123")
     assert isinstance(result, bool)
 
 
@@ -460,5 +460,6 @@ def test_query_escalations_delegates(scoped: ScopedPersistenceAdapter) -> None:
 
 @pytest.mark.unit
 def test_query_commitments_delegates(scoped: ScopedPersistenceAdapter) -> None:
-    result = scoped.query_commitments("education")
+    result = scoped.query_commitments("business-ops")
     assert isinstance(result, list)
+

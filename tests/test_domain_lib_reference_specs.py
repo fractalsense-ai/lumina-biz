@@ -11,10 +11,10 @@ DOMAIN_PACKS = REPO_ROOT / "model-packs"
 
 ALL_TURN_SPECS = [
     DOMAIN_PACKS / "system" / "domain-lib" / "reference" / "turn-interpretation-spec-v1.md",
-    DOMAIN_PACKS / "education" / "domain-lib" / "reference" / "turn-interpretation-spec-v1.md",
-    DOMAIN_PACKS / "agriculture" / "domain-lib" / "reference" / "turn-interpretation-spec-v1.md",
+    DOMAIN_PACKS / "business-ops" / "domain-lib" / "reference" / "turn-interpretation-spec-v1.md",
+    DOMAIN_PACKS / "business-ops" / "domain-lib" / "reference" / "turn-interpretation-spec-v1.md",
 ]
-SPEC_IDS = ["system", "education", "agriculture"]
+SPEC_IDS = ["system", "business-ops", "business-ops"]
 
 COMMAND_SPEC = (
     DOMAIN_PACKS / "system" / "domain-lib" / "reference" / "command-interpreter-spec-v1.md"
@@ -72,3 +72,4 @@ class TestAllSpecsHaveVersionHeaders:
             assert "version:" in text.lower(), (
                 f"{spec_path.relative_to(REPO_ROOT)} missing version header"
             )
+

@@ -1,0 +1,940 @@
+{
+  "connector_portability": {
+    "all_match": true,
+    "all_match_expected": true,
+    "mode": "scenario_matrix",
+    "scenarios": [
+      {
+        "all_match": true,
+        "all_match_expected": true,
+        "canonical_baseline": {
+          "reason_code": "ok",
+          "source": "capability_route",
+          "status": "resolved"
+        },
+        "parity_matches": [
+          true,
+          true
+        ],
+        "providers": [
+          {
+            "canonical_signature": {
+              "reason_code": "ok",
+              "source": "capability_route",
+              "status": "resolved"
+            },
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": "conn-erpnext-1",
+                "reason_code": "ok",
+                "source": "capability_route",
+                "status": "resolved"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "create_draft",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-erpnext-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": "conn-erpnext-1",
+                "correlation_id": "corr-erpnext",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": "idem-erpnext",
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "ok",
+                "request_id": "conn-req-erpnext",
+                "resolution_id": "3ccb7158-c2f2-444f-a81a-9702e779352a",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "capability_route",
+                "status": "resolved"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": "conn-erpnext-1",
+                  "reason_code": "ok",
+                  "source": "capability_route",
+                  "status": "resolved"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "create_draft",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-erpnext-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-erpnext-1",
+                  "correlation_id": "corr-erpnext",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": "idem-erpnext",
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "ok",
+                  "request_id": "conn-req-erpnext",
+                  "resolution_id": "3ccb7158-c2f2-444f-a81a-9702e779352a",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "capability_route",
+                  "status": "resolved"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "erpnext"
+          },
+          {
+            "canonical_signature": {
+              "reason_code": "ok",
+              "source": "capability_route",
+              "status": "resolved"
+            },
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": "conn-odoo-1",
+                "reason_code": "ok",
+                "source": "capability_route",
+                "status": "resolved"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "create_draft",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-odoo-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": "conn-odoo-1",
+                "correlation_id": "corr-odoo",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": "idem-odoo",
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "ok",
+                "request_id": "conn-req-odoo",
+                "resolution_id": "d5d78e6e-1b1a-45e5-a0ec-13d73d56d6a3",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "capability_route",
+                "status": "resolved"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": "conn-odoo-1",
+                  "reason_code": "ok",
+                  "source": "capability_route",
+                  "status": "resolved"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "create_draft",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-odoo-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-odoo-1",
+                  "correlation_id": "corr-odoo",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": "idem-odoo",
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "ok",
+                  "request_id": "conn-req-odoo",
+                  "resolution_id": "d5d78e6e-1b1a-45e5-a0ec-13d73d56d6a3",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "capability_route",
+                  "status": "resolved"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "odoo"
+          }
+        ],
+        "scenario_id": "auto-repair-create-draft-parity"
+      },
+      {
+        "all_match": true,
+        "all_match_expected": true,
+        "canonical_baseline": {
+          "reason_code": "connector_unhealthy",
+          "source": "capability_route",
+          "status": "error"
+        },
+        "parity_matches": [
+          true,
+          true
+        ],
+        "providers": [
+          {
+            "canonical_signature": {
+              "reason_code": "connector_unhealthy",
+              "source": "capability_route",
+              "status": "error"
+            },
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": null,
+                "reason_code": "connector_unhealthy",
+                "source": "capability_route",
+                "status": "error"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "update_draft",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-erpnext-uh-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": null,
+                "correlation_id": "corr-erpnext-unhealthy",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": "idem-erpnext-unhealthy",
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "connector_unhealthy",
+                "request_id": "conn-req-erpnext-unhealthy",
+                "resolution_id": "c83d1c0f-4e8e-4424-b0b8-c32750a083eb",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "capability_route",
+                "status": "error"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": null,
+                  "reason_code": "connector_unhealthy",
+                  "source": "capability_route",
+                  "status": "error"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "update_draft",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-erpnext-uh-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": null,
+                  "correlation_id": "corr-erpnext-unhealthy",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": "idem-erpnext-unhealthy",
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "connector_unhealthy",
+                  "request_id": "conn-req-erpnext-unhealthy",
+                  "resolution_id": "c83d1c0f-4e8e-4424-b0b8-c32750a083eb",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "capability_route",
+                  "status": "error"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "erpnext"
+          },
+          {
+            "canonical_signature": {
+              "reason_code": "connector_unhealthy",
+              "source": "capability_route",
+              "status": "error"
+            },
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": null,
+                "reason_code": "connector_unhealthy",
+                "source": "capability_route",
+                "status": "error"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "update_draft",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-odoo-uh-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": null,
+                "correlation_id": "corr-odoo-unhealthy",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": "idem-odoo-unhealthy",
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "connector_unhealthy",
+                "request_id": "conn-req-odoo-unhealthy",
+                "resolution_id": "e52ec237-8106-49c1-bcb9-f6e9fe0612ae",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "capability_route",
+                "status": "error"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": null,
+                  "reason_code": "connector_unhealthy",
+                  "source": "capability_route",
+                  "status": "error"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "update_draft",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-odoo-uh-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": null,
+                  "correlation_id": "corr-odoo-unhealthy",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": "idem-odoo-unhealthy",
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "connector_unhealthy",
+                  "request_id": "conn-req-odoo-unhealthy",
+                  "resolution_id": "e52ec237-8106-49c1-bcb9-f6e9fe0612ae",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "capability_route",
+                  "status": "error"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "odoo"
+          }
+        ],
+        "scenario_id": "dispatch-update-unhealthy-fallback"
+      },
+      {
+        "all_match": true,
+        "all_match_expected": true,
+        "canonical_baseline": {
+          "reason_code": "missing_idempotency_key",
+          "source": "no_route",
+          "status": "error"
+        },
+        "parity_matches": [
+          true,
+          true
+        ],
+        "providers": [
+          {
+            "canonical_signature": {
+              "reason_code": "missing_idempotency_key",
+              "source": "no_route",
+              "status": "error"
+            },
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": null,
+                "reason_code": "missing_idempotency_key",
+                "source": "no_route",
+                "status": "error"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "create_draft",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-erpnext-no-idem-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": null,
+                "correlation_id": "corr-erpnext-no-idem",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": null,
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "missing_idempotency_key",
+                "request_id": "conn-req-erpnext-no-idem",
+                "resolution_id": "6adc1e9d-72bc-465f-b88a-2248b17b4fba",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "no_route",
+                "status": "error"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": null,
+                  "reason_code": "missing_idempotency_key",
+                  "source": "no_route",
+                  "status": "error"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "create_draft",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-erpnext-no-idem-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": null,
+                  "correlation_id": "corr-erpnext-no-idem",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": null,
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "missing_idempotency_key",
+                  "request_id": "conn-req-erpnext-no-idem",
+                  "resolution_id": "6adc1e9d-72bc-465f-b88a-2248b17b4fba",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "no_route",
+                  "status": "error"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "erpnext"
+          },
+          {
+            "canonical_signature": {
+              "reason_code": "missing_idempotency_key",
+              "source": "no_route",
+              "status": "error"
+            },
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": null,
+                "reason_code": "missing_idempotency_key",
+                "source": "no_route",
+                "status": "error"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "create_draft",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-odoo-no-idem-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": null,
+                "correlation_id": "corr-odoo-no-idem",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": null,
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "missing_idempotency_key",
+                "request_id": "conn-req-odoo-no-idem",
+                "resolution_id": "35d6c4a1-ee50-406f-bfda-ee215249c299",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "no_route",
+                "status": "error"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": null,
+                  "reason_code": "missing_idempotency_key",
+                  "source": "no_route",
+                  "status": "error"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "create_draft",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-odoo-no-idem-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": null,
+                  "correlation_id": "corr-odoo-no-idem",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": null,
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "missing_idempotency_key",
+                  "request_id": "conn-req-odoo-no-idem",
+                  "resolution_id": "35d6c4a1-ee50-406f-bfda-ee215249c299",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "no_route",
+                  "status": "error"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "odoo"
+          }
+        ],
+        "scenario_id": "mutation-missing-idempotency"
+      },
+      {
+        "all_match": true,
+        "all_match_expected": true,
+        "canonical_baseline": [
+          {
+            "reason_code": "missing_idempotency_key",
+            "source": "no_route",
+            "status": "error"
+          },
+          {
+            "reason_code": "ok",
+            "source": "capability_route",
+            "status": "resolved"
+          }
+        ],
+        "parity_matches": [
+          true,
+          true
+        ],
+        "providers": [
+          {
+            "canonical_signature": [
+              {
+                "reason_code": "missing_idempotency_key",
+                "source": "no_route",
+                "status": "error"
+              },
+              {
+                "reason_code": "ok",
+                "source": "capability_route",
+                "status": "resolved"
+              }
+            ],
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": null,
+                "reason_code": "missing_idempotency_key",
+                "source": "no_route",
+                "status": "error"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "request_commit",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-erpnext-handoff-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": null,
+                "correlation_id": "corr-erpnext-handoff-step1",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": null,
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "missing_idempotency_key",
+                "request_id": "conn-req-erpnext-handoff-step1",
+                "resolution_id": "dd87ead4-c3d3-42e6-adb2-dcbf9fd92e4b",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "no_route",
+                "status": "error"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": null,
+                  "reason_code": "missing_idempotency_key",
+                  "source": "no_route",
+                  "status": "error"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "request_commit",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-erpnext-handoff-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": null,
+                  "correlation_id": "corr-erpnext-handoff-step1",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": null,
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "missing_idempotency_key",
+                  "request_id": "conn-req-erpnext-handoff-step1",
+                  "resolution_id": "dd87ead4-c3d3-42e6-adb2-dcbf9fd92e4b",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "no_route",
+                  "status": "error"
+                }
+              },
+              {
+                "expected": {
+                  "connector_instance_id": "conn-erpnext-handoff-1",
+                  "reason_code": "ok",
+                  "source": "capability_route",
+                  "status": "resolved"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "request_commit",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-erpnext-handoff-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-erpnext-handoff-1",
+                  "correlation_id": "corr-erpnext-handoff-step2",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": "idem-erpnext-handoff-step2",
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "ok",
+                  "request_id": "conn-req-erpnext-handoff-step2",
+                  "resolution_id": "6bd2b4df-fa99-4b0f-b289-37308559dfe4",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "capability_route",
+                  "status": "resolved"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "erpnext"
+          },
+          {
+            "canonical_signature": [
+              {
+                "reason_code": "missing_idempotency_key",
+                "source": "no_route",
+                "status": "error"
+              },
+              {
+                "reason_code": "ok",
+                "source": "capability_route",
+                "status": "resolved"
+              }
+            ],
+            "connector_resolution": {
+              "expected": {
+                "connector_instance_id": null,
+                "reason_code": "missing_idempotency_key",
+                "source": "no_route",
+                "status": "error"
+              },
+              "matches_expected": {
+                "connector_instance_id": true,
+                "reason_code": true,
+                "source": true,
+                "status": true
+              },
+              "record": {
+                "action_class": "request_commit",
+                "actor_id": "operator-17",
+                "candidate_connector_ids": [
+                  "conn-odoo-handoff-1"
+                ],
+                "capability_namespace": "erp/work-order",
+                "connector_instance_id": null,
+                "correlation_id": "corr-odoo-handoff-step1",
+                "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                "idempotency_key": null,
+                "organization_id": "org-auto-1",
+                "policy_version": 1,
+                "reason_code": "missing_idempotency_key",
+                "request_id": "conn-req-odoo-handoff-step1",
+                "resolution_id": "e8e1053e-0ced-4929-ac75-5df007a8ee79",
+                "schema_version": "1.0.0",
+                "site_id": "site-west-1",
+                "source": "no_route",
+                "status": "error"
+              }
+            },
+            "connector_resolution_steps": [
+              {
+                "expected": {
+                  "connector_instance_id": null,
+                  "reason_code": "missing_idempotency_key",
+                  "source": "no_route",
+                  "status": "error"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "request_commit",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-odoo-handoff-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": null,
+                  "correlation_id": "corr-odoo-handoff-step1",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": null,
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "missing_idempotency_key",
+                  "request_id": "conn-req-odoo-handoff-step1",
+                  "resolution_id": "e8e1053e-0ced-4929-ac75-5df007a8ee79",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "no_route",
+                  "status": "error"
+                }
+              },
+              {
+                "expected": {
+                  "connector_instance_id": "conn-odoo-handoff-1",
+                  "reason_code": "ok",
+                  "source": "capability_route",
+                  "status": "resolved"
+                },
+                "matches_expected": {
+                  "connector_instance_id": true,
+                  "reason_code": true,
+                  "source": true,
+                  "status": true
+                },
+                "record": {
+                  "action_class": "request_commit",
+                  "actor_id": "operator-17",
+                  "candidate_connector_ids": [
+                    "conn-odoo-handoff-1"
+                  ],
+                  "capability_namespace": "erp/work-order",
+                  "connector_instance_id": "conn-odoo-handoff-1",
+                  "correlation_id": "corr-odoo-handoff-step2",
+                  "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+                  "idempotency_key": "idem-odoo-handoff-step2",
+                  "organization_id": "org-auto-1",
+                  "policy_version": 1,
+                  "reason_code": "ok",
+                  "request_id": "conn-req-odoo-handoff-step2",
+                  "resolution_id": "b54f45cd-c210-4d20-89e3-09808523fb73",
+                  "schema_version": "1.0.0",
+                  "site_id": "site-west-1",
+                  "source": "capability_route",
+                  "status": "resolved"
+                }
+              }
+            ],
+            "matches_canonical_expected": true,
+            "provider": "odoo"
+          }
+        ],
+        "scenario_id": "cross-module-handoff-gated-mutation"
+      }
+    ]
+  },
+  "connector_resolution": {
+    "expected": {
+      "connector_instance_id": "conn-erpnext-primary",
+      "reason_code": "ok",
+      "source": "capability_route",
+      "status": "resolved"
+    },
+    "matches_expected": {
+      "connector_instance_id": true,
+      "reason_code": true,
+      "source": true,
+      "status": true
+    },
+    "record": {
+      "action_class": "create_draft",
+      "actor_id": "operator-17",
+      "candidate_connector_ids": [
+        "conn-erpnext-primary"
+      ],
+      "capability_namespace": "erp/work-order",
+      "connector_instance_id": "conn-erpnext-primary",
+      "correlation_id": "corr-010",
+      "evaluated_utc": "2026-08-02T14:36:49.043908Z",
+      "idempotency_key": "idem-010",
+      "organization_id": "org-auto-1",
+      "policy_version": 1,
+      "reason_code": "ok",
+      "request_id": "conn-req-010",
+      "resolution_id": "abd5e5a4-7f17-4555-9da2-7e0a3d94e515",
+      "schema_version": "1.0.0",
+      "site_id": "site-west-1",
+      "source": "capability_route",
+      "status": "resolved"
+    }
+  },
+  "decision_precedent": {
+    "expected": {
+      "final_score": 0.86,
+      "tier": "require_confirmation"
+    },
+    "matches_expected": {
+      "final_score": true,
+      "tier": true
+    },
+    "record": {
+      "actor_id": "operator-17",
+      "created_utc": "2026-07-30T12:00:00Z",
+      "final_score": 0.86,
+      "missing_precedent_penalty": 0.0,
+      "organization_id": "org-auto-1",
+      "policy_version": 1,
+      "precedent_matches": [
+        {
+          "actor_id": "operator-17",
+          "created_utc": "2026-08-01T09:00:00Z",
+          "organization_id": "org-auto-1",
+          "rank": 1,
+          "recency_band": "current",
+          "record_id": "dp-score-002:match:1",
+          "similarity": 0.86,
+          "site_id": "site-west-1",
+          "summary_record_id": "sum-10",
+          "thread_id": "thread-existing-10"
+        }
+      ],
+      "rationale_codes": [
+        "confirmation_threshold",
+        "confirmation_risk_class"
+      ],
+      "recency_penalty": 0.0,
+      "record_id": "dp-score-002",
+      "risk_class": "operational",
+      "similarity_score": 0.86,
+      "site_id": "site-west-1",
+      "tier": "require_confirmation"
+    }
+  },
+  "fixture_id": "business-ops-auto-repair-cross-provider-v1",
+  "schema_version": "1.0.0",
+  "scope": {
+    "actor_id": "operator-17",
+    "organization_id": "org-auto-1",
+    "site_id": "site-west-1"
+  },
+  "thread_routing": {
+    "expected": {
+      "decision": "attach_existing",
+      "operator_confirmation_required": false,
+      "rationale_code": "high_confidence_match",
+      "thread_id": "thread-existing-10"
+    },
+    "matches_expected": {
+      "decision": true,
+      "operator_confirmation_required": true,
+      "rationale_code": true,
+      "thread_id": true
+    },
+    "record": {
+      "actor_id": "operator-17",
+      "candidates": [
+        {
+          "rank": 1,
+          "score": 0.93,
+          "summary_record_id": "sum-10",
+          "thread_id": "thread-existing-10"
+        },
+        {
+          "rank": 2,
+          "score": 0.81,
+          "summary_record_id": "sum-11",
+          "thread_id": "thread-existing-11"
+        }
+      ],
+      "confidence": 0.93,
+      "created_utc": "2026-07-30T12:00:00Z",
+      "decision": "attach_existing",
+      "decision_id": "tr-decision-002",
+      "operator_confirmation_required": false,
+      "operator_override": false,
+      "organization_id": "org-auto-1",
+      "policy_version": 1,
+      "rationale_code": "high_confidence_match",
+      "schema_version": "1.0.0",
+      "site_id": "site-west-1",
+      "source_thread_id": null,
+      "thread_id": "thread-existing-10"
+    }
+  }
+}

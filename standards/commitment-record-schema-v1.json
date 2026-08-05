@@ -95,7 +95,7 @@
     },
     "domain_id": {
       "type": ["string", "null"],
-      "description": "Domain identifier scoping this commitment to a specific domain tier ledger (e.g. 'education'). Null or absent for system-tier records."
+      "description": "Domain identifier scoping this commitment to a specific domain tier ledger (e.g. 'business-ops'). Null or absent for system-tier records."
     },
     "subject_version": {
       "type": ["string", "null"],
@@ -156,3 +156,4 @@
     }
   }
 }
+

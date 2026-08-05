@@ -105,6 +105,7 @@ class DomainContext:
         "orchestrator",
         "task_spec",
         "current_task",
+        "workflow_context",
         "turn_count",
         "domain_id",
         "module_key",
@@ -117,6 +118,7 @@ class DomainContext:
         orchestrator: Any,
         task_spec: dict[str, Any],
         current_task: dict[str, Any],
+        workflow_context: dict[str, Any],
         turn_count: int,
         domain_id: str,
         task_presented_at: float,
@@ -126,6 +128,7 @@ class DomainContext:
         self.orchestrator = orchestrator
         self.task_spec = task_spec
         self.current_task = current_task
+        self.workflow_context = workflow_context
         self.turn_count = turn_count
         self.domain_id = domain_id
         self.module_key = module_key
@@ -137,6 +140,7 @@ class DomainContext:
             "orchestrator": self.orchestrator,
             "task_spec": self.task_spec,
             "current_task": self.current_task,
+            "workflow_context": self.workflow_context,
             "turn_count": self.turn_count,
             "domain_id": self.domain_id,
             "module_key": self.module_key,
@@ -146,6 +150,8 @@ class DomainContext:
     def sync_from_dict(self, d: dict[str, Any]) -> None:
         self.task_spec = d["task_spec"]
         self.current_task = d["current_task"]
+        if "workflow_context" in d and isinstance(d["workflow_context"], dict):
+            self.workflow_context = d["workflow_context"]
         self.turn_count = d["turn_count"]
         if "module_key" in d:
             self.module_key = d["module_key"]
@@ -198,7 +204,7 @@ def _build_domain_context(
 
     if user is not None:
         domain_key = resolved_domain_id.split("/")[0] if "/" in resolved_domain_id else resolved_domain_id
-        # Extract domain role from JWT claim (e.g. {"domain/edu/algebra-level-1/v1": "teacher"})
+        # Extract domain role from JWT claim (e.g. {"domain/bizops/auto-repair/v1": "operator"})
         _user_domain_roles = user.get("domain_roles") or {}
         _domain_role = _user_domain_roles.get(resolved_domain_id)
         if not _domain_role:
@@ -257,6 +263,10 @@ def _build_domain_context(
     state_builder = _mod_entry.get("state_builder_fn") or runtime["state_builder_fn"]
     domain_step = _mod_entry.get("domain_step_fn") or runtime["domain_step_fn"]
     domain_params = dict(_mod_entry.get("domain_step_params") or runtime.get("domain_step_params") or {})
+    if "connector_allowlist_defaults" not in domain_params and "connector_allowlist_defaults" in _mod_entry:
+        domain_params["connector_allowlist_defaults"] = _mod_entry.get("connector_allowlist_defaults")
+    if "confidence_profile_defaults" not in domain_params and "confidence_profile_defaults" in _mod_entry:
+        domain_params["confidence_profile_defaults"] = _mod_entry.get("confidence_profile_defaults")
 
     _sb_sig = inspect.signature(state_builder)
     _sb_kwargs: dict[str, Any] = {}
@@ -282,7 +292,7 @@ def _build_domain_context(
 
     # ── Initial module state seed from runtime-config ─────────
     # Pass the zeroed-out state shape declared in the module's
-    # runtime-config entry so new students get physics-correct
+    # runtime-config entry so new subjects get physics-correct
     # dimensions without the profile template hardcoding them.
     if "initial_module_state" in _sb_sig.parameters:
         _sb_kwargs["initial_module_state"] = _mod_entry.get("initial_module_state")
@@ -359,6 +369,7 @@ def _build_domain_context(
         orchestrator=orch,
         task_spec=task_spec,
         current_task=current_task,
+        workflow_context=dict(ps.get("workflow_context") or {}),
         turn_count=turn_count,
         domain_id=resolved_domain_id,
         task_presented_at=time.time(),
@@ -374,6 +385,7 @@ def _persist_session_container(session_id: str, container: SessionContainer) -> 
         contexts_state[did] = {
             "task_spec": ctx.task_spec,
             "current_task": ctx.current_task,
+            "workflow_context": ctx.workflow_context,
             "turn_count": ctx.turn_count,
             "standing_order_attempts": ctx.orchestrator.get_standing_order_attempts(),
             "domain_id": did,

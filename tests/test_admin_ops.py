@@ -89,8 +89,8 @@ class TestAdminIngestionExecute:
     @pytest.mark.unit
     def test_list_ingestions_root_returns_all(self) -> None:
         records = [
-            {"ingestion_id": "a", "domain_id": "education"},
-            {"ingestion_id": "b", "domain_id": "agriculture"},
+            {"ingestion_id": "a", "domain_id": "business-ops"},
+            {"ingestion_id": "b", "domain_id": "business-ops"},
         ]
         svc = _ingest_svc(records=records)
         with patch("lumina.api.routes.ops.admin_ingestion._get_ingest_service", return_value=svc):
@@ -100,15 +100,15 @@ class TestAdminIngestionExecute:
     @pytest.mark.unit
     def test_list_ingestions_admin_filtered_by_governed(self) -> None:
         records = [
-            {"ingestion_id": "a", "domain_id": "education"},
-            {"ingestion_id": "b", "domain_id": "agriculture"},
+            {"ingestion_id": "a", "domain_id": "business-ops"},
+            {"ingestion_id": "b", "domain_id": "field-ops"},
         ]
         svc = _ingest_svc(records=records)
-        admin = _user("admin", governed=["education"])
+        admin = _user("admin", governed=["business-ops"])
         with patch("lumina.api.routes.ops.admin_ingestion._get_ingest_service", return_value=svc):
             result = _run(ingest_execute("list_ingestions", {}, admin, _fake_ctx()))
         assert result["count"] == 1
-        assert result["records"][0]["domain_id"] == "education"
+        assert result["records"][0]["domain_id"] == "business-ops"
 
     @pytest.mark.unit
     def test_review_ingestion_missing_id_raises_422(self) -> None:
@@ -237,7 +237,7 @@ def _esc_ctx(
     if domain_not_found:
         dr.resolve_domain_id.side_effect = DomainNotFoundError("unknown domain", [])
     else:
-        dr.resolve_domain_id.return_value = "education"
+        dr.resolve_domain_id.return_value = "business-ops"
 
     ctx = _fake_ctx(persistence=p, domain_registry=dr, can_govern=can_govern)
     return ctx
@@ -296,7 +296,7 @@ class TestAdminEscalationsExecute:
         with pytest.raises(HTTPException) as exc:
             _run(esc_execute(
                 "list_escalations",
-                {"domain_id": "education"},
+                {"domain_id": "business-ops"},
                 _user("admin"),
                 ctx,
             ))
@@ -305,8 +305,8 @@ class TestAdminEscalationsExecute:
     @pytest.mark.unit
     def test_list_escalations_admin_filtered_by_governed(self) -> None:
         escalations = [
-            {"record_id": "e1", "domain_id": "education"},
-            {"record_id": "e2", "domain_id": "agriculture"},
+            {"record_id": "e1", "domain_id": "business-ops"},
+            {"record_id": "e2", "domain_id": "field-ops"},
         ]
         # get_model_pack_id is called on each escalation — patch it
         with patch(
@@ -316,7 +316,7 @@ class TestAdminEscalationsExecute:
             result = _run(esc_execute(
                 "list_escalations",
                 {},
-                _user("admin", governed=["education"]),
+                _user("admin", governed=["business-ops"]),
                 _esc_ctx(escalations=escalations),
             ))
         assert result["count"] == 1
@@ -516,7 +516,7 @@ def _physics_ctx(
     if domain_not_found:
         dr.resolve_domain_id.side_effect = DomainNotFoundError("unknown", [])
     else:
-        dr.resolve_domain_id.return_value = "education"
+        dr.resolve_domain_id.return_value = "business-ops"
     dr.get_runtime_context.return_value = {"domain_physics_path": "/fake/physics.json"}
     dr.list_modules_for_domain.return_value = modules or []
 
@@ -566,7 +566,7 @@ class TestAdminPhysicsExecute:
 
             dr = MagicMock()
             dr._repo_root = tmp
-            dr.resolve_domain_id.return_value = "education"
+            dr.resolve_domain_id.return_value = "business-ops"
             dr.get_runtime_context.return_value = {"domain_physics_path": str(physics_path)}
 
             ctx = _fake_ctx(persistence=p, domain_registry=dr)
@@ -663,13 +663,13 @@ class TestAdminPhysicsExecute:
         with tempfile.TemporaryDirectory() as tmp:
             dp_path = Path(tmp) / "algebra.json"
             dp_path.write_text(
-                json.dumps({"label": "Algebra", "version": "2", "domain": "education"}),
+                json.dumps({"label": "Algebra", "version": "2", "domain": "business-ops"}),
                 encoding="utf-8",
             )
             modules = [{"module_id": "edu/algebra", "domain_physics_path": "algebra.json"}]
             dr = MagicMock()
             dr._repo_root = tmp
-            dr.resolve_domain_id.return_value = "education"
+            dr.resolve_domain_id.return_value = "business-ops"
             dr.list_modules_for_domain.return_value = modules
             ctx = _fake_ctx(domain_registry=dr)
             result = _run(physics_execute(
@@ -714,3 +714,4 @@ class TestAdminPhysicsExecute:
     def test_unknown_operation_returns_none(self) -> None:
         result = _run(physics_execute("delete_physics", {}, _user("root"), _physics_ctx()))
         assert result is None
+

@@ -50,13 +50,13 @@ def test_clear() -> None:
 @pytest.mark.unit
 def test_turn_record_fields() -> None:
     rb = ConversationRingBuffer(maxlen=5)
-    rb.push("user msg", "llm resp", 42, "agriculture")
+    rb.push("user msg", "llm resp", 42, "business-ops")
     rec = rb.snapshot()[0]
     assert isinstance(rec, TurnRecord)
     assert rec.user_message == "user msg"
     assert rec.llm_response == "llm resp"
     assert rec.turn_number == 42
-    assert rec.domain_id == "agriculture"
+    assert rec.domain_id == "business-ops"
     assert rec.timestamp > 0
 
 
@@ -162,3 +162,4 @@ def test_hydrate_respects_maxlen() -> None:
     snap = rb.snapshot()
     assert snap[0].turn_number == 2
     assert snap[-1].turn_number == 4
+

@@ -139,7 +139,7 @@ def scan_tool_adapters(domain_pack_path: Path) -> dict[str, AdapterEntry]:
     Parameters
     ----------
     domain_pack_path : Path
-        Root of a single domain pack (e.g. ``model-packs/education``).
+        Root of a single domain pack (e.g. ``model-packs/business-ops``).
 
     Returns
     -------

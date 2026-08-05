@@ -104,7 +104,7 @@ export const systemPlugin: DomainPlugin = {
     reg.addSidebarPanels(SYSTEM_SIDEBAR_PANELS)
     reg.addRoleEquivalences({
       system_admin: 'admin',
-      system_operator: 'teacher',
+      system_operator: 'operator',
     })
   },
 }

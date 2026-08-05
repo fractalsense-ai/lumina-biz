@@ -26,6 +26,8 @@ API_BASE_URL="http://127.0.0.1:8000"
 SKIP_ORCHESTRATOR_DEMO=false
 SKIP_FRONTEND=false
 SKIP_API_SCENARIOS=false
+SKIP_BUSINESS_OPS_REPLAY=false
+SKIP_SINGLE_BOX_SMOKE=false
 
 # ── Parse arguments ───────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -35,6 +37,8 @@ while [[ $# -gt 0 ]]; do
         --skip-orchestrator-demo) SKIP_ORCHESTRATOR_DEMO=true; shift;;
         --skip-frontend)          SKIP_FRONTEND=true; shift;;
         --skip-api-scenarios)     SKIP_API_SCENARIOS=true; shift;;
+        --skip-business-ops-replay) SKIP_BUSINESS_OPS_REPLAY=true; shift;;
+        --skip-single-box-smoke)  SKIP_SINGLE_BOX_SMOKE=true; shift;;
         *) echo "Unknown argument: $1" >&2; exit 1;;
     esac
 done
@@ -119,6 +123,19 @@ if [ "$SKIP_ORCHESTRATOR_DEMO" = "false" ]; then
     "$PYTHON" "reference-implementations/dsa-orchestrator-demo.py"
 fi
 
+if [ "$SKIP_BUSINESS_OPS_REPLAY" = "false" ]; then
+    section "Business Ops Replay Evidence"
+    "$PYTHON" "scripts/run_business_ops_replay.py" --out "data/staging/business-ops-replay-report.json"
+fi
+
+if [ "$SKIP_SINGLE_BOX_SMOKE" = "false" ]; then
+    section "Single-Box Smoke"
+    "$PYTHON" "scripts/single_box_health_check.py" \
+        --runtime-config "model-packs/business-ops/cfg/runtime-config.yaml" \
+        --json-out "data/staging/single-box-health-report.json" \
+        --fail-on-degraded
+fi
+
 # ── Front-End Build (optional) ────────────────────────────────────────────────
 if [ "$SKIP_FRONTEND" = "false" ]; then
     section "Front-End Build"
@@ -172,7 +189,22 @@ if [ "$SKIP_API_SCENARIOS" = "false" ]; then
         export LUMINA_PORT="$API_PORT"
 
         if [ -z "${LUMINA_RUNTIME_CONFIG_PATH:-}" ]; then
-            DEFAULT_RUNTIME_CONFIG="model-packs/education/runtime-config.yaml"
+            for candidate in \
+                "model-packs/business-ops/cfg/runtime-config.yaml" \
+                "model-packs/system/cfg/runtime-config.yaml" \
+                "model-packs/coding-agent/cfg/runtime-config.yaml"
+            do
+                if [ -f "$candidate" ]; then
+                    DEFAULT_RUNTIME_CONFIG="$candidate"
+                    break
+                fi
+            done
+
+            if [ -z "${DEFAULT_RUNTIME_CONFIG:-}" ]; then
+                echo "ERROR: Unable to pick default runtime config from known candidates" >&2
+                exit 1
+            fi
+
             echo "LUMINA_RUNTIME_CONFIG_PATH not set; defaulting to '$DEFAULT_RUNTIME_CONFIG' for local API startup."
             export LUMINA_RUNTIME_CONFIG_PATH="$DEFAULT_RUNTIME_CONFIG"
         fi

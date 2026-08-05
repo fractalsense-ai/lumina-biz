@@ -53,7 +53,7 @@ def detect_glossary_query(
     glossary: list[dict[str, Any]],
     domain_id: str | None = None,
 ) -> dict[str, Any] | None:
-    """Match a student message against the domain glossary.
+    """Match a subject message against the domain glossary.
 
     Returns the matched glossary entry dict or None.
     Matching is case-insensitive against ``term`` and ``aliases``.

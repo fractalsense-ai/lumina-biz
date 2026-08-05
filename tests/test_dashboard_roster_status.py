@@ -1,4 +1,4 @@
-"""Tests for the education domain dashboard_handlers (roster_status + risk scoring)
+"""Tests for the business-ops domain dashboard_handlers (roster_status + risk scoring)
 and the escalation enrichment logic (_enrich_escalation_records, _TRIGGER_LABELS)."""
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 # ── Import helpers ────────────────────────────────────────────
 
 def _import_dashboard_handlers():
-    """Import the dashboard_handlers module from the education domain pack."""
-    path = _REPO_ROOT / "model-packs" / "education" / "controllers" / "dashboard_handlers.py"
+    """Import the dashboard_handlers module from the business-ops domain pack."""
+    path = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "dashboard_handlers.py"
     spec = importlib.util.spec_from_file_location("dashboard_handlers", str(path))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -26,8 +26,8 @@ def _import_dashboard_handlers():
 
 
 def _import_escalation_handlers():
-    """Import escalation_handlers from the education domain pack."""
-    path = _REPO_ROOT / "model-packs" / "education" / "controllers" / "escalation_handlers.py"
+    """Import escalation_handlers from the business-ops domain pack."""
+    path = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "escalation_handlers.py"
     spec = importlib.util.spec_from_file_location("escalation_handlers", str(path))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -214,7 +214,7 @@ class TestEnrichEscalationRecords:
                 "escalation_id": "esc-001",
                 "actor_id": "stu-1",
                 "trigger": "frustration_detected",
-                "model_pack_id": "general-education",
+                "model_pack_id": "general-business-ops",
                 "domain_lib_decision": {
                     "domain_alert_flag": True,
                     "domain_metric_pct": 0.8,
@@ -229,7 +229,7 @@ class TestEnrichEscalationRecords:
         rec = enriched[0]
         assert rec["reason"] == eh._TRIGGER_LABELS["frustration_detected"]
         assert rec["student_username"] == "alice"
-        assert rec["active_module"] == "general-education"
+        assert rec["active_module"] == "general-business-ops"
         assert rec["evidence"]["frustration"] is True
         assert rec["evidence"]["drift_pct"] == 0.8
         assert rec["evidence"]["tier"] == "A2"
@@ -289,3 +289,4 @@ class TestRosterStatusRoleGating:
             persistence=None,
         ))
         assert result.get("__status") == 403
+

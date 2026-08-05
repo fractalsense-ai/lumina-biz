@@ -2,9 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+
+
+ConnectorExecutionActionClass = Literal[
+    "query",
+    "create_draft",
+    "update_draft",
+    "request_commit",
+]
+
+ConnectorExecutionCapabilityNamespace = Literal[
+    "service/work-order",
+    "inventory",
+    "warehouse/storage",
+    "logistics/dispatch",
+    "scheduling",
+]
 
 
 # ── Chat ─────────────────────────────────────────────────────
@@ -92,10 +108,17 @@ class DecisionPrecedentPreflightRequest(BaseModel):
     message: str = Field(min_length=1)
     risk_class: str = Field(min_length=1)
     session_id: str | None = None
+    entity_id: str | None = None
+    entity_type: str | None = None
+    from_state: str | None = None
+    to_state: str | None = None
+    related_record_ids: list[str] = Field(default_factory=list)
+    missing_information_fields: list[str] = Field(default_factory=list)
 
 
 class DecisionPrecedentPreflightResponse(BaseModel):
     confidence_record_id: str
+    decision_group_key: str
     organization_id: str
     site_id: str
     actor_id: str
@@ -112,6 +135,86 @@ class DecisionPrecedentConfirmationResponse(BaseModel):
     confirmation_id: str
     confidence_record_id: str
     tier: str
+
+
+# ── Connector routing ───────────────────────────────────────
+
+class ConnectorRoutingRegistryEntryRequest(BaseModel):
+    organization_id: str = Field(min_length=1)
+    site_id: str = Field(min_length=1)
+    connector_instance_id: str = Field(min_length=1)
+    capability_namespaces: list[str] = Field(min_length=1)
+    supported_action_classes: list[str] = Field(min_length=1)
+    enabled: bool = True
+    health_status: str
+    is_site_primary: bool = False
+
+
+class ConnectorRoutingCapabilityRouteRequest(BaseModel):
+    capability_namespace: str = Field(min_length=1)
+    connector_instance_id: str = Field(min_length=1)
+    supported_action_classes: list[str] = Field(default_factory=list)
+    priority: int = 100
+
+
+class ConnectorRoutingPreflightRequest(BaseModel):
+    request_id: str = Field(min_length=1)
+    action_class: str = Field(min_length=1)
+    capability_namespace: str = Field(min_length=1)
+    connector_registry_entries: list[ConnectorRoutingRegistryEntryRequest] = Field(min_length=1)
+    capability_routes: list[ConnectorRoutingCapabilityRouteRequest] = Field(default_factory=list)
+    policy_version: int = 1
+    organization_default_connector_id: str | None = None
+    operation_override_connector_id: str | None = None
+    idempotency_key: str | None = None
+    correlation_id: str | None = None
+    session_id: str | None = None
+
+
+class ConnectorRoutingPreflightResponse(BaseModel):
+    resolution_id: str
+    request_id: str
+    organization_id: str
+    site_id: str
+    actor_id: str
+    action_class: str
+    capability_namespace: str
+    status: str
+    source: str
+    reason_code: str
+    connector_instance_id: str | None = None
+    idempotency_key: str | None = None
+    correlation_id: str | None = None
+    policy_version: int
+    candidate_connector_ids: list[str]
+    evaluated_utc: str
+
+
+class ConnectorExecutionActorScopeRequest(BaseModel):
+    organization_id: str = Field(min_length=1)
+    site_id: str = Field(min_length=1)
+    actor_id: str = Field(min_length=1)
+
+
+class ConnectorExecutionFixtureRequest(BaseModel):
+    request_id: str = Field(min_length=1)
+    action_class: ConnectorExecutionActionClass
+    capability_namespace: ConnectorExecutionCapabilityNamespace
+    payload: dict[str, Any] = Field(default_factory=dict)
+    actor_scope: ConnectorExecutionActorScopeRequest
+    session_id: str | None = None
+
+
+class ConnectorExecutionFixtureResponse(BaseModel):
+    request_id: str
+    result_id: str
+    action_class: str
+    capability_namespace: str
+    status: str
+    occurred_utc: str
+    result_data: dict[str, Any] | None = None
+    errors: list[dict[str, Any]] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 # ── Holodeck Sandbox ─────────────────────────────────────────
@@ -145,6 +248,28 @@ class HolodeckSimulateResponse(BaseModel):
     live_physics_hash: str | None = None
     sandbox_physics_hash: str | None = None
     staged_id: str | None = None
+
+
+# ── Workflow (Business Ops Auto-Repair) ─────────────────────
+
+class AutoRepairWorkflowRequest(BaseModel):
+    session_id: str | None = None
+    message: str = Field(min_length=1)
+    domain_id: str | None = None
+    deterministic_response: bool = False
+    turn_data_override: dict[str, Any] | None = None
+
+
+class AutoRepairWorkflowResponse(BaseModel):
+    session_id: str
+    response: str
+    action: str
+    prompt_type: str
+    escalated: bool
+    domain_id: str | None = None
+    tool_results: list[dict[str, Any]] | None = None
+    structured_content: dict[str, Any] | None = None
+    workflow: dict[str, Any]
 
 
 # ── Tools ────────────────────────────────────────────────────
@@ -274,8 +399,8 @@ class SessionResumeRequest(BaseModel):
 class EscalationResolveRequest(BaseModel):
     decision: str  # "approve", "reject", "defer"
     reasoning: str
-    generate_pin: bool = False          # generate OTP so child can self-unlock
-    intervention_notes: str | None = None  # teacher's description of what they did
+    generate_pin: bool = False          # generate OTP so subject can self-unlock
+    intervention_notes: str | None = None  # reviewer's description of what they did
     generate_proposal: bool = False     # trigger domain-physics proposal from notes
 
 

@@ -21,7 +21,7 @@ This distinction is the core architecture:
 |------|---------|---------|
 | Framework | The domain-agnostic runtime, APIs, orchestration, persistence, logging, governance mechanisms, and signal instruments. | `src/lumina/` |
 | System | A real or simulated environment being modeled. | school, farm, assistant workspace |
-| Model-pack | The authored bundle that teaches Lumina how one class of system works. | education, agriculture, assistant |
+| Model-pack | The authored bundle that teaches Lumina how one class of system works. | business-ops, business-ops, assistant |
 | Module | A subsystem routine, workflow, or scenario within a model-pack. | pre-algebra, operations-level-1, weather |
 | Domain physics | The rules, invariants, standing orders, glossary, and constraints for a module or system. | `domain-physics.json` |
 | Actor | An evidence-producing participant or entity inside the modeled system. | student, teacher, field, sensor, operator |
@@ -70,17 +70,17 @@ system contract first, model-pack instance second, module routine third.
 
 ## Reference Model-Packs
 
-### Education
+### Business Ops
 
-The education model-pack is the reference vertical slice. It models a
+The business-ops model-pack is the reference vertical slice. It models a
 school / learning system with actors such as students, teachers,
 guardians, teaching assistants, and domain authorities. Its modules
 include learning routines such as pre-algebra and algebra, plus
 administrative/governance workflows.
 
-### Agriculture
+### Business Ops
 
-The agriculture model-pack proves that Lumina is not education-specific.
+The business-ops model-pack proves that Lumina is not business-ops-specific.
 It models a farm / agricultural operations system with field, sensor,
 and operations signals such as soil pH, moisture, air temperature, and
 motor vibration.
@@ -95,8 +95,8 @@ generalized into framework-level signal decomposition.
 
 ## Boundary Rules
 
-1. `src/lumina/` is framework code. It must not hardcode education,
-   agriculture, assistant, or any other model-pack-specific vocabulary.
+1. `src/lumina/` is framework code. It must not hardcode business-ops,
+   business-ops, assistant, or any other model-pack-specific vocabulary.
 2. `model-packs/` contains model-pack code, configuration, prompts,
    physics, tools, docs, and pack-owned UI contributions.
 3. A module belongs to a model-pack. It should be treated as a subsystem
@@ -114,3 +114,4 @@ generalized into framework-level signal decomposition.
 - [domain-pack-anatomy(7)](domain-pack-anatomy.md)
 - [authoring-a-domain-pack(7)](authoring-a-domain-pack.md)
 - [signal-decomposition-framework(7)](signal-decomposition-framework.md)
+

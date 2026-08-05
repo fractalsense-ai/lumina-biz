@@ -9,13 +9,20 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOMAIN_PACKS = REPO_ROOT / "model-packs"
 SYSTEM_PACK = DOMAIN_PACKS / "system"
-EDUCATION_PACK = DOMAIN_PACKS / "education"
-AGRICULTURE_PACK = DOMAIN_PACKS / "agriculture"
-ASSISTANT_PACK = DOMAIN_PACKS / "assistant"
-CODING_AGENT_PACK = DOMAIN_PACKS / "coding-agent"
 
-ALL_PACKS = [SYSTEM_PACK, EDUCATION_PACK, AGRICULTURE_PACK, ASSISTANT_PACK, CODING_AGENT_PACK]
-PACK_IDS = ["system", "education", "agriculture", "assistant", "coding-agent"]
+
+def _discover_domain_packs() -> list[Path]:
+    packs: list[Path] = []
+    for pack_dir in sorted(DOMAIN_PACKS.iterdir()):
+        if not pack_dir.is_dir():
+            continue
+        if (pack_dir / "pack.yaml").is_file():
+            packs.append(pack_dir)
+    return packs
+
+
+ALL_PACKS = _discover_domain_packs()
+PACK_IDS = [pack.name for pack in ALL_PACKS]
 
 
 class TestReferenceDirectoryExists:
@@ -40,29 +47,6 @@ class TestSystemCommandInterpreterSpec:
 class TestSensorsDirectory:
     def test_system_sensors(self):
         assert (SYSTEM_PACK / "domain-lib" / "sensors").is_dir()
-
-    def test_agriculture_sensors(self):
-        assert (AGRICULTURE_PACK / "domain-lib" / "sensors").is_dir()
-
-
-class TestEducationSpecsInReference:
-    """Education spec .md files must be in reference/, not domain-lib root."""
-
-    EXPECTED_SPECS = [
-        "compressed-state-estimators.md",
-        "zpd-monitor-spec-v1.md",
-        "fatigue-estimation-spec-v1.md",
-    ]
-
-    @pytest.mark.parametrize("spec_name", EXPECTED_SPECS)
-    def test_spec_in_reference(self, spec_name: str):
-        ref = EDUCATION_PACK / "domain-lib" / "reference" / spec_name
-        assert ref.is_file(), f"{spec_name} should be in domain-lib/reference/"
-
-    @pytest.mark.parametrize("spec_name", EXPECTED_SPECS)
-    def test_spec_not_at_root(self, spec_name: str):
-        root = EDUCATION_PACK / "domain-lib" / spec_name
-        assert not root.exists(), f"{spec_name} should NOT be at domain-lib root"
 
 
 class TestPromptsContainOnlyPersona:

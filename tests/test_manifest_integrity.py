@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import runpy
 import sys
 from pathlib import Path
 
@@ -311,6 +312,28 @@ def test_main_check_command_real_repo(monkeypatch: pytest.MonkeyPatch) -> None:
     result = main(["check"])
     # Real repo should pass (0) or have only pending/missing entries (0)
     assert result in (0, 1)
+
+
+@pytest.mark.unit
+def test_manifest_integrity_shim_binds_canonical_module() -> None:
+    assert "manifest_integrity" in getattr(mi_mod, "__name__", "")
+    assert hasattr(mi_mod, "main")
+
+
+@pytest.mark.unit
+def test_main_without_args_exits_with_usage_error() -> None:
+    with pytest.raises(SystemExit) as exc:
+        main([])
+    assert exc.value.code == 2
+
+
+@pytest.mark.unit
+def test_manifest_integrity_shim_main_guard_executes(monkeypatch: pytest.MonkeyPatch) -> None:
+    shim = REPO_ROOT / "src" / "lumina" / "systools" / "manifest_integrity.py"
+    monkeypatch.setattr(sys, "argv", ["manifest_integrity", "check"])
+    with pytest.raises(SystemExit) as exc:
+        runpy.run_path(str(shim), run_name="__main__")
+    assert exc.value.code in (0, 1)
 
 
 @pytest.mark.unit

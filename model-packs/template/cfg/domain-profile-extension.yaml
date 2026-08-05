@@ -29,6 +29,7 @@ session_history:
 
 # TODO: Add domain-wide fields below.  Examples from existing packs:
 #
-# teacher_notes: []           # Education: append-only timestamped notes
-# assigned_guardians: []      # Education: linked guardian user IDs
-# sensor_calibration: null    # Agriculture: last calibration timestamp
+# teacher_notes: []           # Business Ops: append-only timestamped notes
+# assigned_guardians: []      # Business Ops: linked guardian user IDs
+# sensor_calibration: null    # Business Ops: last calibration timestamp
+

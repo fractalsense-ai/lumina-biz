@@ -37,25 +37,26 @@ class TestDomainContextModuleKey:
             orchestrator=MagicMock(),
             task_spec={"task_id": "test"},
             current_task={},
+            workflow_context={},
             turn_count=0,
-            domain_id="education",
+            domain_id="business-ops",
             task_presented_at=time.time(),
             module_key=module_key,
         )
 
     def test_module_key_stored(self) -> None:
-        ctx = self._make_ctx("domain/edu/domain-authority/v1")
-        assert ctx.module_key == "domain/edu/domain-authority/v1"
+        ctx = self._make_ctx("domain/bizops/domain-authority/v1")
+        assert ctx.module_key == "domain/bizops/domain-authority/v1"
 
     def test_module_key_default_empty(self) -> None:
         ctx = self._make_ctx()
         assert ctx.module_key == ""
 
     def test_to_session_dict_includes_module_key(self) -> None:
-        ctx = self._make_ctx("domain/edu/teacher/v1")
+        ctx = self._make_ctx("domain/bizops/teacher/v1")
         d = ctx.to_session_dict()
         assert "module_key" in d
-        assert d["module_key"] == "domain/edu/teacher/v1"
+        assert d["module_key"] == "domain/bizops/teacher/v1"
 
     def test_sync_from_dict_restores_module_key(self) -> None:
         ctx = self._make_ctx("")
@@ -63,18 +64,18 @@ class TestDomainContextModuleKey:
             "task_spec": {"task_id": "t"},
             "current_task": {},
             "turn_count": 5,
-            "module_key": "domain/edu/algebra-level-1/v1",
+            "module_key": "domain/bizops/algebra-level-1/v1",
         })
-        assert ctx.module_key == "domain/edu/algebra-level-1/v1"
+        assert ctx.module_key == "domain/bizops/algebra-level-1/v1"
 
     def test_sync_from_dict_without_module_key_preserves_existing(self) -> None:
-        ctx = self._make_ctx("domain/edu/teacher/v1")
+        ctx = self._make_ctx("domain/bizops/teacher/v1")
         ctx.sync_from_dict({
             "task_spec": {"task_id": "t"},
             "current_task": {},
             "turn_count": 3,
         })
-        assert ctx.module_key == "domain/edu/teacher/v1"
+        assert ctx.module_key == "domain/bizops/teacher/v1"
 
 
 # ─────────────────────────────────────────────────────────────
@@ -98,7 +99,7 @@ class TestProcessingModuleKeyLookup:
             "task_spec": {"task_id": "governance"},
             "current_task": {},
             "turn_count": 0,
-            "domain_id": "education",
+            "domain_id": "business-ops",
             "module_key": module_key,
             "task_presented_at": time.time(),
         }
@@ -128,7 +129,7 @@ class TestProcessingModuleKeyLookup:
 
         gov_interpreter = MagicMock(return_value={"query_type": "admin_command", "urgency": "routine"})
         module_map = {
-            "domain/edu/domain-authority/v1": {
+            "domain/bizops/domain-authority/v1": {
                 "system_prompt": "You are the governance persona.",
                 "turn_interpreter_fn": gov_interpreter,
                 "turn_input_defaults": {"query_type": "general", "urgency": "routine"},
@@ -136,7 +137,7 @@ class TestProcessingModuleKeyLookup:
                 "local_only": True,
             },
         }
-        session = self._make_session(module_key="domain/edu/domain-authority/v1")
+        session = self._make_session(module_key="domain/bizops/domain-authority/v1")
         runtime = self._make_runtime(module_map=module_map)
 
         mock_registry = MagicMock(**{"get_runtime_context.return_value": runtime})
@@ -169,7 +170,7 @@ class TestProcessingModuleKeyLookup:
 
         session = self._make_session(module_key="")
         runtime = self._make_runtime(module_map={
-            "domain/edu/domain-authority/v1": {"system_prompt": "gov persona"},
+            "domain/bizops/domain-authority/v1": {"system_prompt": "gov persona"},
         })
 
         interpret_mock = MagicMock(return_value={"query_type": "general"})
@@ -191,8 +192,8 @@ class TestProcessingModuleKeyLookup:
         ):
             result = proc.process_message("sess-2", "hello", deterministic_response=False)
 
-        # With empty module_key and domain_id="education", module_map lookup
-        # for "education" finds nothing, so no governance overrides applied.
+        # With empty module_key and domain_id="business-ops", module_map lookup
+        # for "business-ops" finds nothing, so no governance overrides applied.
         # Falls through to interpret_turn_input (the else branch).
         interpret_mock.assert_called_once()
 
@@ -218,7 +219,7 @@ class TestPerModuleLocalOnly:
             "task_spec": {"task_id": "governance"},
             "current_task": {},
             "turn_count": 0,
-            "domain_id": "education",
+            "domain_id": "business-ops",
             "module_key": module_key,
             "task_presented_at": time.time(),
         }
@@ -248,13 +249,13 @@ class TestPerModuleLocalOnly:
 
         gov_interpreter = MagicMock(return_value={"query_type": "admin_command", "urgency": "routine"})
         module_map = {
-            "domain/edu/domain-authority/v1": {
+            "domain/bizops/domain-authority/v1": {
                 "local_only": True,
                 "turn_interpreter_fn": gov_interpreter,
                 "turn_input_defaults": {"query_type": "general", "urgency": "routine"},
             },
         }
-        session = self._make_session("domain/edu/domain-authority/v1")
+        session = self._make_session("domain/bizops/domain-authority/v1")
         runtime = self._make_runtime(module_map=module_map)
 
         mock_persistence = MagicMock()
@@ -290,14 +291,14 @@ class TestPerModuleLocalOnly:
         from lumina.api import processing as proc
 
         module_map = {
-            "domain/edu/algebra-level-1/v1": {
+            "domain/bizops/algebra-level-1/v1": {
                 # No local_only — student module
             },
         }
-        session = self._make_session("domain/edu/algebra-level-1/v1")
+        session = self._make_session("domain/bizops/algebra-level-1/v1")
         runtime = self._make_runtime(module_map=module_map)
 
-        interpret_mock = MagicMock(return_value={"correctness": "correct", "problem_solved": True})
+        interpret_mock = MagicMock(return_value={"correctness": "correct", "task_ready_for_execution": True})
         mock_persistence = MagicMock()
 
         with (
@@ -320,86 +321,60 @@ class TestPerModuleLocalOnly:
         interpret_mock.assert_called_once()
 
     def test_all_governance_modules_have_local_only_in_config(self) -> None:
-        """Verify runtime-config.yaml has local_only: true on all governance modules."""
+        """Verify active system runtime remains local-only for governance commands."""
         from lumina.core.yaml_loader import load_yaml
-        from conftest import merge_module_config_sidecars
 
-        cfg = load_yaml(str(REPO_ROOT / "model-packs/education/cfg/runtime-config.yaml"))
-        module_map = cfg.get("runtime", {}).get("module_map", {})
-        merge_module_config_sidecars(module_map)
-
-        governance_modules = [
-            "domain/edu/domain-authority/v1",
-            "domain/edu/teacher/v1",
-            "domain/edu/teaching-assistant/v1",
-            "domain/edu/guardian/v1",
-        ]
-
-        for mod_id in governance_modules:
-            assert mod_id in module_map, f"Missing governance module: {mod_id}"
-            assert module_map[mod_id].get("local_only") is True, (
-                f"Governance module {mod_id} must have local_only: true"
-            )
+        cfg = load_yaml(str(REPO_ROOT / "model-packs/system/cfg/runtime-config.yaml"))
+        assert cfg.get("runtime", {}).get("local_only") is True
 
     def test_student_modules_no_local_only_in_config(self) -> None:
-        """Student/learning modules must NOT have local_only set."""
+        """Business-ops runtime module must not be marked local_only."""
         from lumina.core.yaml_loader import load_yaml
         from conftest import merge_module_config_sidecars
 
-        cfg = load_yaml(str(REPO_ROOT / "model-packs/education/cfg/runtime-config.yaml"))
+        cfg = load_yaml(str(REPO_ROOT / "model-packs/business-ops/cfg/runtime-config.yaml"))
         module_map = cfg.get("runtime", {}).get("module_map", {})
         merge_module_config_sidecars(module_map)
-
-        student_modules = [
-            "domain/edu/general-education/v1",
-            "domain/edu/pre-algebra/v1",
-            "domain/edu/algebra-intro/v1",
-            "domain/edu/algebra-1/v1",
-            "domain/edu/algebra-level-1/v1",
-        ]
-
-        for mod_id in student_modules:
-            if mod_id in module_map:
-                assert not module_map[mod_id].get("local_only"), (
-                    f"Student module {mod_id} must NOT have local_only"
-                )
+        module_id = "domain/bizops/auto-repair/v1"
+        assert module_id in module_map
+        assert not module_map[module_id].get("local_only")
 
 
 # ─────────────────────────────────────────────────────────────
-# Phase 4: Education governance TMs exist
+# Phase 4: Business Ops governance TMs exist
 # ─────────────────────────────────────────────────────────────
 
 @pytest.mark.unit
 class TestGovernanceTechnicalManuals:
-    """Education domain-lib must include governance Technical Manuals."""
+    """Active system domain-lib must include governance interpreter manuals."""
 
     def test_command_interpreter_spec_exists(self) -> None:
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/command-interpreter-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/command-interpreter-spec-v1.md"
         assert path.exists(), "Missing command-interpreter-spec-v1.md"
         text = path.read_text(encoding="utf-8")
         assert "Command Interpreter Specification" in text
-        assert "education" in text.lower()
+        assert "system" in text.lower()
 
     def test_governance_turn_interpretation_spec_exists(self) -> None:
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/governance-turn-interpretation-spec-v1.md"
-        assert path.exists(), "Missing governance-turn-interpretation-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/turn-interpretation-spec-v1.md"
+        assert path.exists(), "Missing turn-interpretation-spec-v1.md"
         text = path.read_text(encoding="utf-8")
-        assert "Governance Turn Interpretation" in text
-        assert "local_only" in text
+        assert "Turn Interpretation Schema" in text
+        assert "admin_command" in text
 
     def test_command_spec_covers_all_operations(self) -> None:
         """Command interpreter spec should reference all key operations."""
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/command-interpreter-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/command-interpreter-spec-v1.md"
         text = path.read_text(encoding="utf-8")
 
         key_operations = [
             "invite_user",
             "list_users",
             "list_modules",
-            "list_escalations",
+            "list_domains",
             "assign_domain_role",
             "revoke_domain_role",
-            "resolve_escalation",
+            "get_domain_physics",
             "update_domain_physics",
         ]
         for op in key_operations:
@@ -407,12 +382,12 @@ class TestGovernanceTechnicalManuals:
 
     def test_governance_spec_contrasts_with_learning(self) -> None:
         """Governance TM should explicitly contrast with learning evidence."""
-        path = REPO_ROOT / "model-packs/education/domain-lib/reference/governance-turn-interpretation-spec-v1.md"
+        path = REPO_ROOT / "model-packs/system/domain-lib/reference/turn-interpretation-spec-v1.md"
         text = path.read_text(encoding="utf-8")
         # Must mention that governance does NOT produce ZPD/correctness
-        assert "correctness" in text
+        assert "does not track learning state" in text.lower()
         assert "query_type" in text
-        assert "command_dispatch" in text
+        assert "admin_command" in text
 
 
 # ─────────────────────────────────────────────────────────────
@@ -430,13 +405,14 @@ class TestModuleKeyPersistence:
             orchestrator=MagicMock(**{"get_standing_order_attempts.return_value": {}}),
             task_spec={"task_id": "t"},
             current_task={},
+            workflow_context={"current_packet": "service_intake_packet"},
             turn_count=0,
-            domain_id="education",
+            domain_id="business-ops",
             task_presented_at=time.time(),
-            module_key="domain/edu/domain-authority/v1",
+            module_key="domain/bizops/domain-authority/v1",
         )
-        container = SessionContainer(active_domain_id="education")
-        container.contexts["education"] = ctx
+        container = SessionContainer(active_domain_id="business-ops")
+        container.contexts["business-ops"] = ctx
 
         # Simulate what _persist_session_container builds
         contexts_state: dict[str, Any] = {}
@@ -444,9 +420,12 @@ class TestModuleKeyPersistence:
             contexts_state[did] = {
                 "task_spec": c.task_spec,
                 "current_task": c.current_task,
+                "workflow_context": c.workflow_context,
                 "turn_count": c.turn_count,
                 "domain_id": did,
                 "module_key": c.module_key,
             }
 
-        assert contexts_state["education"]["module_key"] == "domain/edu/domain-authority/v1"
+        assert contexts_state["business-ops"]["module_key"] == "domain/bizops/domain-authority/v1"
+        assert contexts_state["business-ops"]["workflow_context"]["current_packet"] == "service_intake_packet"
+

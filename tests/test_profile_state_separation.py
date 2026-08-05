@@ -28,7 +28,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 def _load_student_yaml() -> dict[str, Any]:
     from lumina.core.yaml_loader import load_yaml
 
-    path = _REPO_ROOT / "model-packs" / "education" / "profiles" / "student.yaml"
+    path = _REPO_ROOT / "model-packs" / "business-ops" / "profiles" / "student.yaml"
     return load_yaml(path)
 
 
@@ -36,7 +36,7 @@ def _load_runtime_config() -> dict[str, Any]:
     from lumina.core.yaml_loader import load_yaml
     from conftest import merge_module_config_sidecars
 
-    path = _REPO_ROOT / "model-packs" / "education" / "cfg" / "runtime-config.yaml"
+    path = _REPO_ROOT / "model-packs" / "business-ops" / "cfg" / "runtime-config.yaml"
     cfg = load_yaml(path)
     module_map = cfg.get("runtime", {}).get("module_map", {})
     merge_module_config_sidecars(module_map)
@@ -162,16 +162,16 @@ class TestRuntimeConfigInitialModuleState:
     runtime-config and governance modules do not."""
 
     _LEARNING_MODULES = [
-        "domain/edu/pre-algebra/v1",
-        "domain/edu/algebra-intro/v1",
-        "domain/edu/algebra-1/v1",
-        "domain/edu/algebra-level-1/v1",
+        "domain/bizops/pre-algebra/v1",
+        "domain/bizops/algebra-intro/v1",
+        "domain/bizops/algebra-1/v1",
+        "domain/bizops/algebra-level-1/v1",
     ]
 
     _GOVERNANCE_MODULES = [
-        "domain/edu/domain-authority/v1",
-        "domain/edu/teacher/v1",
-        "domain/edu/teaching-assistant/v1",
+        "domain/bizops/domain-authority/v1",
+        "domain/bizops/teacher/v1",
+        "domain/bizops/teaching-assistant/v1",
     ]
 
     def test_learning_modules_have_initial_module_state(self) -> None:
@@ -196,7 +196,7 @@ class TestRuntimeConfigInitialModuleState:
 
     def test_freeform_module_has_initial_module_state(self) -> None:
         cfg = _load_runtime_config()
-        entry = cfg["runtime"]["module_map"]["domain/edu/general-education/v1"]
+        entry = cfg["runtime"]["module_map"]["domain/bizops/general-business-ops/v1"]
         assert "initial_module_state" in entry
         ims = entry["initial_module_state"]
         assert "journaling_entry_count" in ims
@@ -239,7 +239,7 @@ class TestLearningAdapterThreeTier:
         adapter_path = (
             _REPO_ROOT
             / "model-packs"
-            / "education"
+            / "business-ops"
             / "controllers"
             / "learning_adapters.py"
         )
@@ -324,7 +324,7 @@ class TestFreeformAdapterThreeTier:
         adapter_path = (
             _REPO_ROOT
             / "model-packs"
-            / "education"
+            / "business-ops"
             / "controllers"
             / "freeform_adapters.py"
         )
@@ -370,10 +370,10 @@ class TestSVABaseline:
         path = (
             _REPO_ROOT
             / "model-packs"
-            / "education"
+            / "business-ops"
             / "controllers"
-            / "education_profile_serializer.py"
         )
+        path = next(path.glob("*_profile_serializer.py"))
         mod_name = "test_edu_serializer_sva"
         spec = importlib.util.spec_from_file_location(mod_name, str(path))
         mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
@@ -456,7 +456,12 @@ class TestSVABaseline:
         mod = self._serializer()
         profile_data = self._make_profile_data()
         # Simulate a dict-based orch_state with no affect
-        result = mod.education_serialize_profile(
+        serialize_profile_fn = next(
+            getattr(mod, name)
+            for name in dir(mod)
+            if name.endswith("_serialize_profile") and callable(getattr(mod, name))
+        )
+        result = serialize_profile_fn(
             orch_state={"turn_count": 5, "operator_id": "op1"},
             profile_data=profile_data,
             module_key="governance-mod",
@@ -519,7 +524,12 @@ class TestSVABaseline:
             def save_module_state(self, uid, mk, state):
                 saved["call"] = (uid, mk, state)
 
-        result = mod.education_serialize_profile(
+        serialize_profile_fn = next(
+            getattr(mod, name)
+            for name in dir(mod)
+            if name.endswith("_serialize_profile") and callable(getattr(mod, name))
+        )
+        result = serialize_profile_fn(
             orch_state=FakeState(),
             profile_data=profile_data,
             module_key="algebra-1",
@@ -534,3 +544,4 @@ class TestSVABaseline:
         assert "call" in saved
         assert saved["call"][0] == "student-123"
         assert saved["call"][1] == "algebra-1"
+

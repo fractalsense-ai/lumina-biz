@@ -32,7 +32,7 @@ class TestSystemDomainLibExists:
             assert (sensors_dir / name).is_file(), f"Missing: {name}"
 
     def test_environmental_sensors_not_in_system(self):
-        """Sanity: environmental_sensors belongs to agriculture, not system."""
+        """Sanity: environmental_sensors belongs to business-ops, not system."""
         assert not (SYSTEM_PACK / "domain-lib" / "environmental_sensors.py").exists()
 
 
@@ -71,3 +71,4 @@ class TestSystemPackIntegrity:
 
     def test_pack_yaml_exists(self):
         assert (SYSTEM_PACK / "pack.yaml").is_file()
+

@@ -1,13 +1,13 @@
 ---
-version: 1.2.1
-last_updated: 2026-07-26
+version: 1.2.6
+last_updated: 2026-08-03
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.1
+**Version:** 1.2.6
 **Status:** Active
-**Last updated:** 2026-07-26
+**Last updated:** 2026-08-03
 
 ---
 
@@ -56,12 +56,15 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [28](slices/28-semantic-thread-routing-and-forking.md) | Semantic Thread Routing and Context Forking | Delivered |
 | [29](slices/29-decision-precedent-confidence-and-escalation.md) | Decision Precedent, Confidence, and Escalation | Planned |
 | [30](slices/30-erpnext-adapter-foundation-and-fixtures.md) | Canonical Business-System Contracts and Capability Taxonomy | Delivered |
-| [31](slices/31-business-ops-pack-bootstrap.md) | Connector Registry and Capability Routing | Planned |
-| [32](slices/32-auto-repair-mvp-and-single-box-deployment.md) | Business Ops Pack Bootstrap | Planned |
-| [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Planned |
-| [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Planned |
-| [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Planned |
+| [31](slices/31-business-ops-pack-bootstrap.md) | Connector Registry and Capability Routing | Delivered |
+| [32](slices/32-auto-repair-mvp-and-single-box-deployment.md) | Business Ops Pack Bootstrap | Delivered |
+| [33](slices/33-erpnext-reference-connector-and-fixtures.md) | ERPNext Reference Connector and Deterministic Fixtures | Delivered |
+| [34](slices/34-secondary-provider-connector-and-conformance-harness.md) | Secondary Provider Connector and Conformance Harness | Delivered |
+| [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Delivered |
 | [36](slices/36-single-box-deployment-and-operational-hardening.md) | Single-Box Deployment and Operational Hardening | Planned |
+| [37](slices/37-erp-identity-authority-and-claim-contract.md) | ERP Identity Authority and Claim Contract | Active |
+| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Planned |
+| [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
 
 ---
 
@@ -72,6 +75,10 @@ time. This index is the active discoverability surface for the implementation
 sequence that actually followed. When the two differ, use this index for current
 slice ordering and use Slice 1 for the authoritative framework-boundary
 invariants it established.
+
+## Direction Lock
+
+Slice 39 hard-locks the ERP integration direction to a reusable generic service core with profile-layer variance. Until explicitly superseded, new vertical onboarding work should extend profile and mapping layers first rather than introducing core workflow forks.
 
 ---
 
@@ -84,7 +91,7 @@ base framework consists of exactly three model packs:
 - **Coding Agent Model Pack** — bounded artifact factory
 - **Template Model Pack** — reusable approved framework template shapes
 
-Domain packs currently in the repository (education, agriculture, assistant)
+Domain packs currently in the repository (business-ops, business-ops, assistant)
 are provisional scaffolding used while validating the framework shape. They
 will be extracted, moved, or removed in later PRs.
 
@@ -109,3 +116,4 @@ Each slice document uses the following structure:
 ## Ledger/Governance Impact
 ## Follow-Up Slices
 ```
+

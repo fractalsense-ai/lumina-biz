@@ -53,17 +53,38 @@ def parse_latest_changelog_version(changelog_path: Path) -> str:
 
 
 def check_runtime_config_paths(errors: list[str]) -> None:
-    runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "cfg" / "runtime-config.yaml"
+    registry_path = REPO_ROOT / "model-packs" / "system" / "cfg" / "domain-registry.yaml"
+    if not registry_path.exists():
+        errors.append("domain-registry.yaml missing at model-packs/system/cfg/domain-registry.yaml")
+        return
+
+    registry_cfg = load_yaml(registry_path)
+    default_domain = registry_cfg.get("default_domain")
+    domains = registry_cfg.get("domains")
+    if not isinstance(default_domain, str) or not default_domain.strip():
+        errors.append("domain-registry.yaml: default_domain missing or invalid")
+        return
+    if not isinstance(domains, dict):
+        errors.append("domain-registry.yaml: domains mapping missing or invalid")
+        return
+
+    domain_cfg = domains.get(default_domain)
+    if not isinstance(domain_cfg, dict):
+        errors.append(f"domain-registry.yaml: domains.{default_domain} missing or invalid")
+        return
+
+    runtime_rel = domain_cfg.get("runtime_config_path")
+    if not isinstance(runtime_rel, str) or not runtime_rel.strip():
+        errors.append(f"domain-registry.yaml: domains.{default_domain}.runtime_config_path missing or invalid")
+        return
+
+    runtime_cfg_path = REPO_ROOT / runtime_rel
     if not runtime_cfg_path.exists():
-        legacy_runtime_cfg_path = REPO_ROOT / "model-packs" / "education" / "runtime-config.yaml"
-        if legacy_runtime_cfg_path.exists():
-            runtime_cfg_path = legacy_runtime_cfg_path
-        else:
-            errors.append(
-                "runtime-config.yaml missing at model-packs/education/cfg/runtime-config.yaml "
-                "and model-packs/education/runtime-config.yaml"
-            )
-            return
+        errors.append(
+            "runtime-config.yaml missing at path declared by default domain "
+            f"'{default_domain}': {runtime_rel}"
+        )
+        return
 
     cfg = load_yaml(runtime_cfg_path)
 
@@ -115,10 +136,13 @@ def check_runtime_config_paths(errors: list[str]) -> None:
 
 
 def check_algebra_version_alignment(errors: list[str]) -> None:
-    json_path = REPO_ROOT / "model-packs" / "education" / "modules" / "algebra-level-1" / "domain-physics.json"
-    changelog_path = REPO_ROOT / "model-packs" / "education" / "modules" / "algebra-level-1" / "CHANGELOG.md"
+    json_path = REPO_ROOT / "model-packs" / "business-ops" / "modules" / "algebra-level-1" / "domain-physics.json"
+    changelog_path = REPO_ROOT / "model-packs" / "business-ops" / "modules" / "algebra-level-1" / "CHANGELOG.md"
     examples_path = REPO_ROOT / "examples" / "README.md"
     domain_packs_readme_path = REPO_ROOT / "model-packs" / "README.md"
+
+    if not json_path.exists() or not changelog_path.exists():
+        return
 
     json_version = ""
     try:
@@ -139,10 +163,10 @@ def check_algebra_version_alignment(errors: list[str]) -> None:
         errors.append(f"examples/README.md does not reference latest domain version string: {expected}")
 
     domain_packs_text = domain_packs_readme_path.read_text(encoding="utf-8")
-    expected_row = f"| Education — Algebra Level 1 | `education/modules/algebra-level-1` | {changelog_version} |"
+    expected_row = f"| Business Ops — Algebra Level 1 | `business-ops/modules/algebra-level-1` | {changelog_version} |"
     if expected_row not in domain_packs_text:
         errors.append(
-            "model-packs/README.md education version row is out of date; "
+            "model-packs/README.md business-ops version row is out of date; "
             f"expected: {expected_row}"
         )
 
@@ -301,22 +325,22 @@ def check_auth_infrastructure(errors: list[str]) -> None:
             errors.append(f"rbac-permission-schema-v1.json: invalid JSON — {exc}")
 
     # Verify domain-physics files include permissions block
-    edu_dp = REPO_ROOT / "model-packs" / "education" / "modules" / "algebra-level-1" / "domain-physics.json"
-    agr_dp = REPO_ROOT / "model-packs" / "agriculture" / "modules" / "operations-level-1" / "domain-physics.json"
+    edu_dp = REPO_ROOT / "model-packs" / "business-ops" / "modules" / "algebra-level-1" / "domain-physics.json"
+    agr_dp = REPO_ROOT / "model-packs" / "business-ops" / "modules" / "operations-level-1" / "domain-physics.json"
     if edu_dp.exists():
         try:
             edu_data = json.loads(edu_dp.read_text(encoding="utf-8"))
             if "permissions" not in edu_data:
-                errors.append("education domain-physics.json: missing permissions block")
+                errors.append("business-ops domain-physics.json: missing permissions block")
         except json.JSONDecodeError as exc:
-            errors.append(f"education domain-physics.json: invalid JSON — {exc}")
+            errors.append(f"business-ops domain-physics.json: invalid JSON — {exc}")
     if agr_dp.exists():
         try:
             agr_data = json.loads(agr_dp.read_text(encoding="utf-8"))
             if "permissions" not in agr_data:
-                errors.append("agriculture domain-physics.json: missing permissions block")
+                errors.append("business-ops domain-physics.json: missing permissions block")
         except json.JSONDecodeError as exc:
-            errors.append(f"agriculture domain-physics.json: invalid JSON — {exc}")
+            errors.append(f"business-ops domain-physics.json: invalid JSON — {exc}")
 
 
 def check_docs_structure(errors: list[str]) -> None:
@@ -371,3 +395,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

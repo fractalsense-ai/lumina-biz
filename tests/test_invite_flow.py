@@ -52,7 +52,7 @@ def clear_invite_store():
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     monkeypatch.delenv("LUMINA_SMTP_HOST", raising=False)  # SMTP off by default
     mod = _load_api_module()
@@ -195,14 +195,14 @@ class TestInviteEndpoint:
             json={
                 "username": "da-user",
                 "role": "admin",
-                "governed_modules": ["domain/edu/algebra-level-1/v1"],
+                "governed_modules": ["domain/bizops/algebra-level-1/v1"],
             },
             headers=_auth(root_token),
         )
         assert resp.status_code == 200
         data = resp.json()
         assert data["role"] == "admin"
-        assert "domain/edu/algebra-level-1/v1" in data["governed_modules"]
+        assert "domain/bizops/algebra-level-1/v1" in data["governed_modules"]
 
     def test_invite_rejects_invalid_role(self, client: TestClient) -> None:
         root_token = _register_root(client)
@@ -441,13 +441,13 @@ class TestInviteUserHITLCommand:
             _admin_mod._STAGED_COMMANDS[staged_id] = {
                 "staged_id": staged_id,
                 "actor_id": "root-inv",
-                "original_instruction": "invite user testda for domain/edu/algebra-level-1/v1",
+                "original_instruction": "invite user testda for domain/bizops/algebra-level-1/v1",
                 "parsed_command": {
                     "operation": "invite_user",
                     "params": {
                         "username": "testda-direct",
                         "role": "admin",
-                        "governed_modules": ["domain/edu/algebra-level-1/v1"],
+                        "governed_modules": ["domain/bizops/algebra-level-1/v1"],
                     },
                 },
                 "resolved": False,
@@ -465,7 +465,7 @@ class TestInviteUserHITLCommand:
         result = data["result"]
         assert result["operation"] == "invite_user"
         assert result["role"] == "admin"
-        assert "domain/edu/algebra-level-1/v1" in result["governed_modules"]
+        assert "domain/bizops/algebra-level-1/v1" in result["governed_modules"]
         assert "setup_url" in result
 
         # Verify user created as pending
@@ -508,3 +508,4 @@ class TestInviteUserHITLCommand:
         )
         assert resp.status_code == 400
         assert "governed_modules" in resp.json()["detail"].lower()
+

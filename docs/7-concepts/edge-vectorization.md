@@ -66,10 +66,10 @@ Each domain pack's embedded content is stored under a dedicated directory:
 data/retrieval-index/
 ├── _global/
 │   └── vectors.npz         ← root-level docs/specs/standards (routing index)
-├── education/
-│   └── vectors.npz         ← education domain pack content
-├── agriculture/
-│   └── vectors.npz         ← agriculture domain pack content
+├── business-ops/
+│   └── vectors.npz         ← business-ops domain pack content
+├── business-ops/
+│   └── vectors.npz         ← business-ops domain pack content
 └── system/
     └── vectors.npz         ← system domain pack content
 ```
@@ -150,13 +150,13 @@ domain pack:
 
 ```python
 rebuild_domain_index(
-    domain_id="agriculture",
+    domain_id="business-ops",
     registry=vector_registry,
     embedder=doc_embedder,
 )
 ```
 
-This rebuilds **only** the agriculture store — other domains are untouched.
+This rebuilds **only** the business-ops store — other domains are untouched.
 
 ---
 
@@ -263,3 +263,4 @@ when the global store is empty or the result is inconclusive.
 - `src/lumina/retrieval/housekeeper.py` — `rebuild_domain_index()`, `rebuild_group_library_dependents()`, `rebuild_all_domain_indexes()`, `rebuild_global_index()`
 - `src/lumina/retrieval/embedder.py` — `DocChunk`, `DocEmbedder`
 - `src/lumina/core/nlp.py` — `classify_domain()` Pass 1.5 implementation, `set_vector_registry()`
+

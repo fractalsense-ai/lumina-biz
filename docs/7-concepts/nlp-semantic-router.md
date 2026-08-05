@@ -71,7 +71,7 @@ When keyword matching does not produce a confident result and spaCy is available
 **Return value:**
 
 ```python
-{"domain_id": "education", "confidence": 0.8, "method": "keyword"}
+{"domain_id": "business-ops", "confidence": 0.8, "method": "keyword"}
 # or None — caller falls back to registry default_domain
 ```
 
@@ -79,7 +79,7 @@ When keyword matching does not produce a confident result and spaCy is available
 
 Once the domain is established, the domain pack's NLP pre-interpreter runs before the LLM prompt is assembled. This is **Phase A** of the domain adapter pipeline (see [`domain-adapter-pattern(7)`](domain-adapter-pattern.md) for the full Phase A/B lifecycle). Its job is to extract deterministic structured signals from the raw input and inject them as `_nlp_anchors` into the LLM context.
 
-The education pre-interpreter extracts four signal classes:
+An example domain pre-interpreter extracts four signal classes:
 
 | Extractor | Fields produced | Mechanism |
 |-----------|----------------|-----------|
@@ -131,7 +131,7 @@ Incoming message / signal
                  ▼
 ┌──────────────────────────────────────┐
 │ Stage 4: Global Default              │  default_domain in registry
-│ (cfg/domain-registry.yaml)           │  → education (masks system internals)
+│ (cfg/domain-registry.yaml)           │  → business-ops (masks system internals)
 └──────────────────────────────────────┘
 ```
 
@@ -149,10 +149,10 @@ role_defaults:
 **`module_prefix`** per domain entry — enables reverse-mapping a module path to a domain:
 ```yaml
 domains:
-  education:
-    module_prefix: edu
-  agriculture:
-    module_prefix: agri
+  business-ops:
+    module_prefix: biz
+  coding-agent:
+    module_prefix: ca
   system:
     module_prefix: sys
 ```
@@ -164,9 +164,9 @@ domains:
 3. `role == admin` and `governed_modules` non-empty → extract prefix from first module path (`domain/<prefix>/…`) and look up in `module_prefix` reverse map
 4. Fallthrough → Stage 4 global default
 
-**Design rationale:** The global `default_domain` is deliberately set to `education` (a domain-level domain) to ensure that system internals remain invisible to unauthenticated users and domain-level roles. System operators (`root`, `super_admin`) who send a message with no explicit domain receive the system domain, which is their natural working context. Domain authorities land in the domain they govern.
+**Design rationale:** The global `default_domain` is deliberately set to a domain-level domain (currently `business-ops`) to ensure that system internals remain invisible to unauthenticated users and domain-level roles. System operators (`root`, `super_admin`) who send a message with no explicit domain receive the system domain, which is their natural working context. Domain authorities land in the domain they govern.
 
-**Roles not in `role_defaults`:** `operator`, `half_operator`, and `user` are cross-cutting readers; they are not operators of any specific domain by default, so they fall through to the global default (education). They can reach any domain they have permission for by specifying `domain_id` explicitly.
+**Roles not in `role_defaults`:** `operator`, `half_operator`, and `user` are cross-cutting readers; they are not operators of any specific domain by default, so they fall through to the global default (`business-ops`). They can reach any domain they have permission for by specifying `domain_id` explicitly.
 
 ### Stage 2 + Stage 3 interaction: accessible domain filtering
 
@@ -226,23 +226,23 @@ The routing surface for domain classification is defined by the `keywords` list 
 ```yaml
 # cfg/domain-registry.yaml
 domains:
-  education:
+  business-ops:
     keywords:
-      - algebra
-      - equation
-      - math
-      - solve
-      - variable
-      - tutoring
+      - work order
+      - service ticket
+      - repair
+      - parts
+      - estimate
+      - operations
 
-  agriculture:
+  coding-agent:
     keywords:
-      - crop
-      - yield
-      - soil
-      - harvest
-      - irrigation
-      - agriculture
+      - coding agent
+      - code generation
+      - patch
+      - pull request
+      - repository
+      - validation
 ```
 
 **Current design:** Keywords are manually maintained by each domain's authority. They represent the minimum viable routing surface — enough to classify the most common unambiguous inputs.
@@ -276,7 +276,7 @@ The NLP layer influences the **quality of the LLM's input**. It does not influen
 - [`cfg/domain-registry.yaml`](../../cfg/domain-registry.yaml) — domain keyword lists; default domain configuration
 - [`docs/7-concepts/domain-adapter-pattern.md`](domain-adapter-pattern.md) — Phase A NLP pre-processing and Phase B signal synthesis lifecycle
 - [`docs/7-concepts/edge-vectorization.md`](edge-vectorization.md) — per-domain vector stores, global routing index, and Pass 1.5 detail
-- [`model-packs/education/controllers/nlp_pre_interpreter.py`](../../model-packs/education/controllers/nlp_pre_interpreter.py) — education domain pre-interpreter (reference implementation)
+- [`model-packs/business-ops/controllers/nlp_pre_interpreter.py`](../../model-packs/business-ops/controllers/nlp_pre_interpreter.py) — business-ops domain pre-interpreter (reference implementation)
 - [`specs/dsa-framework-v1.md`](../../specs/dsa-framework-v1.md) — D.S.A. structural schema and PPA orchestrator specification
 - [`standards/domain-registry-schema-v1.json`](../../standards/domain-registry-schema-v1.json) — schema for `cfg/domain-registry.yaml` including `keywords` field definition
-- [`model-packs/education/controllers/governance_adapters.py`](../../model-packs/education/controllers/governance_adapters.py) — `_deterministic_command_fallback()` — domain-specific verb/noun routing for admin commands (invite, modify, deactivate)
+- [`model-packs/business-ops/controllers/runtime_adapters.py`](../../model-packs/business-ops/controllers/runtime_adapters.py) — domain adapter runtime surface for deterministic command-routing hooks

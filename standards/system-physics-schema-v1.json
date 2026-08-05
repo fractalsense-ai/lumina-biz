@@ -168,7 +168,7 @@
             "domain_scoped_tool_required",
             "none"
           ],
-          "description": "Whether a deterministic tool must validate the proposal before it is presented for HITL review. 'domain_scoped_tool_required' means the applicable domain tool (e.g. algebra_checker for education) must pass before the proposal leaves the domain layer."
+          "description": "Whether a deterministic tool must validate the proposal before it is presented for HITL review. 'domain_scoped_tool_required' means the applicable domain tool (e.g. algebra_checker for business-ops) must pass before the proposal leaves the domain layer."
         },
         "proposal_approval_requirement": {
           "type": "string",
@@ -410,3 +410,4 @@
     }
   }
 }
+

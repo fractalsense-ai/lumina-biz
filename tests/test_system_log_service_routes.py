@@ -129,7 +129,7 @@ class TestQueryLogRecords:
             _patch_auth(_user("admin", governed=[])),
             patch("lumina.services.system_log.routes.run_in_threadpool", new=AsyncMock(return_value=records)),
         ):
-            result = _run(query_log_records(credentials=_fake_creds(), domain_id="education"))
+            result = _run(query_log_records(credentials=_fake_creds(), domain_id="business-ops"))
         assert result == records
 
     @pytest.mark.unit
@@ -137,11 +137,11 @@ class TestQueryLogRecords:
         """admin with governed list: top-level domain key (no '/') is not blocked."""
         records = [{"record_id": "r4"}]
         with (
-            _patch_auth(_user("admin", governed=["education"])),
+            _patch_auth(_user("admin", governed=["business-ops"])),
             patch("lumina.services.system_log.routes.run_in_threadpool", new=AsyncMock(return_value=records)),
         ):
-            # 'education' has no '/' so the module-level guard is skipped
-            result = _run(query_log_records(credentials=_fake_creds(), domain_id="education"))
+            # 'business-ops' has no '/' so the module-level guard is skipped
+            result = _run(query_log_records(credentials=_fake_creds(), domain_id="business-ops"))
         assert result == records
 
     @pytest.mark.unit
@@ -208,7 +208,7 @@ class TestGetLogRecord:
 
     @pytest.mark.unit
     def test_root_returns_record(self) -> None:
-        records = [{"record_id": "rec-1", "domain_id": "education"}]
+        records = [{"record_id": "rec-1", "domain_id": "business-ops"}]
         with (
             _patch_auth(_user("root")),
             patch("lumina.services.system_log.routes.run_in_threadpool", new=AsyncMock(return_value=records)),
@@ -223,29 +223,29 @@ class TestGetLogRecord:
         with (
             _patch_auth(_user("admin", governed=[])),
             patch("lumina.services.system_log.routes.run_in_threadpool", new=AsyncMock(return_value=records)),
-            patch("lumina.services.system_log.routes.get_model_pack_id", return_value="education"),
+            patch("lumina.services.system_log.routes.get_model_pack_id", return_value="business-ops"),
         ):
             result = _run(get_log_record("rec-2", credentials=_fake_creds()))
         assert result["record_id"] == "rec-2"
 
     @pytest.mark.unit
     def test_admin_governed_record_in_scope_returns_record(self) -> None:
-        records = [{"record_id": "rec-3", "domain_id": "education"}]
+        records = [{"record_id": "rec-3", "domain_id": "business-ops"}]
         with (
-            _patch_auth(_user("admin", governed=["education"])),
+            _patch_auth(_user("admin", governed=["business-ops"])),
             patch("lumina.services.system_log.routes.run_in_threadpool", new=AsyncMock(return_value=records)),
-            patch("lumina.services.system_log.routes.get_model_pack_id", return_value="education"),
+            patch("lumina.services.system_log.routes.get_model_pack_id", return_value="business-ops"),
         ):
             result = _run(get_log_record("rec-3", credentials=_fake_creds()))
         assert result["record_id"] == "rec-3"
 
     @pytest.mark.unit
     def test_admin_governed_record_outside_scope_raises_403(self) -> None:
-        records = [{"record_id": "rec-4", "domain_id": "agriculture"}]
+        records = [{"record_id": "rec-4", "domain_id": "other-domain"}]
         with (
-            _patch_auth(_user("admin", governed=["education"])),
+            _patch_auth(_user("admin", governed=["business-ops"])),
             patch("lumina.services.system_log.routes.run_in_threadpool", new=AsyncMock(return_value=records)),
-            patch("lumina.services.system_log.routes.get_model_pack_id", return_value="agriculture"),
+            patch("lumina.services.system_log.routes.get_model_pack_id", return_value="other-domain"),
         ):
             with pytest.raises(HTTPException) as exc:
                 _run(get_log_record("rec-4", credentials=_fake_creds()))
@@ -398,19 +398,19 @@ class TestEventVisibleToUser:
 
     @pytest.mark.unit
     def test_root_sees_everything(self) -> None:
-        event = _make_event(level=LogLevel.INFO, data={"domain_id": "education"})
+        event = _make_event(level=LogLevel.INFO, data={"domain_id": "business-ops"})
         assert _event_visible_to_user(event, _user("root")) is True
 
     @pytest.mark.unit
     def test_admin_no_governed_sees_all(self) -> None:
-        event = _make_event(data={"domain_id": "agriculture"})
+        event = _make_event(data={"domain_id": "business-ops"})
         assert _event_visible_to_user(event, _user("admin", governed=[])) is True
 
     @pytest.mark.unit
     def test_admin_governed_event_outside_scope_hidden(self) -> None:
-        event = _make_event(data={"domain_id": "agriculture"})
-        with patch("lumina.services.system_log.events_routes.get_model_pack_id", return_value="agriculture"):
-            result = _event_visible_to_user(event, _user("admin", governed=["education"]))
+        event = _make_event(data={"domain_id": "other-domain"})
+        with patch("lumina.services.system_log.events_routes.get_model_pack_id", return_value="other-domain"):
+            result = _event_visible_to_user(event, _user("admin", governed=["business-ops"]))
         assert result is False
 
     @pytest.mark.unit
@@ -423,15 +423,15 @@ class TestEventVisibleToUser:
 
     @pytest.mark.unit
     def test_domain_role_holder_sees_escalation_for_governed_domain(self) -> None:
-        event = _make_event(category="escalation", data={"domain_id": "education"})
-        user = _user("user", domain_roles={"education": "teacher"})
+        event = _make_event(category="escalation", data={"domain_id": "business-ops"})
+        user = _user("user", domain_roles={"business-ops": "teacher"})
         user["role"] = "user"
         assert _event_visible_to_user(event, user) is True
 
     @pytest.mark.unit
     def test_domain_role_holder_cannot_see_other_domains_escalation(self) -> None:
-        event = _make_event(category="escalation", data={"domain_id": "agriculture"})
-        user = _user("user", domain_roles={"education": "teacher"})
+        event = _make_event(category="escalation", data={"domain_id": "other-domain"})
+        user = _user("user", domain_roles={"business-ops": "teacher"})
         user["role"] = "user"
         assert _event_visible_to_user(event, user) is False
 
@@ -504,3 +504,4 @@ class TestGetSSEToken:
             result = _run(get_sse_token(credentials=_fake_creds()))
         assert "token" in result
         assert result["expires_in"] == _SSE_TOKEN_TTL
+

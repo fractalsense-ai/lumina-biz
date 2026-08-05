@@ -53,7 +53,7 @@ def _mock_scheduler() -> MagicMock:
     sched.get_status.return_value = {"active": False, "last_run_id": "run-001"}
     sched.get_report.return_value = {"run_id": "run-001", "tasks": [], "completed": True}
     sched.get_pending_proposals.return_value = [
-        {"proposal_id": "prop-1", "type": "physics_edit", "domain_id": "education"}
+        {"proposal_id": "prop-1", "type": "physics_edit", "domain_id": "business-ops"}
     ]
     sched.resolve_proposal.return_value = True
     return sched
@@ -109,7 +109,7 @@ class TestTriggerDaemonTask:
         sched = _mock_scheduler()
         result = _run(admin_daemon.execute(
             "trigger_daemon_task",
-            {"tasks": ["cleanup"], "domain_ids": ["education"]},
+            {"tasks": ["cleanup"], "domain_ids": ["business-ops"]},
             _root_user(),
             _make_ctx(),
             get_daemon_scheduler=lambda: sched,
@@ -117,7 +117,7 @@ class TestTriggerDaemonTask:
         assert result is not None
         call_kwargs = sched.trigger_async.call_args
         assert call_kwargs.kwargs.get("task_names") == ["cleanup"]
-        assert call_kwargs.kwargs.get("domain_ids") == ["education"]
+        assert call_kwargs.kwargs.get("domain_ids") == ["business-ops"]
 
     def test_regular_user_forbidden(self) -> None:
         sched = _mock_scheduler()
@@ -215,13 +215,13 @@ class TestReviewProposals:
         sched = _mock_scheduler()
         result = _run(admin_daemon.execute(
             "review_proposals",
-            {"domain_id": "education"},
+            {"domain_id": "business-ops"},
             _root_user(),
             _make_ctx(),
             get_daemon_scheduler=lambda: sched,
         ))
         assert result is not None
-        sched.get_pending_proposals.assert_called_once_with(domain_id="education")
+        sched.get_pending_proposals.assert_called_once_with(domain_id="business-ops")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -292,3 +292,4 @@ class TestResolveProposal:
                 get_daemon_scheduler=lambda: sched,
             ))
         assert exc_info.value.status_code == 403
+

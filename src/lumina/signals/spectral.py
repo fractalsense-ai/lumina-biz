@@ -205,7 +205,7 @@ def update_spectral_history(
 
     Identical EWMA recurrence to the previous ``rhythm_fft`` impl, with
     the tracked-band set derived from ``band_defs_days`` so per-signal
-    layouts (e.g. agriculture) stay consistent across runs.
+    layouts (e.g. manufacturing) stay consistent across runs.
     """
     if not today:
         return dict(prev_history or {})

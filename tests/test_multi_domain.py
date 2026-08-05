@@ -16,6 +16,8 @@ from lumina.core.domain_registry import DomainRegistry
 from lumina.core.runtime_loader import load_runtime_context
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
+_PRIMARY_DOMAIN = "business-ops"
+_ADMIN_DOMAIN = "system"
 
 
 def _load_api_module(module_name: str = "lumina.api.server"):
@@ -79,13 +81,13 @@ def test_domains_endpoint_lists_available_domains(multi_client: TestClient) -> N
     assert resp.status_code == 200
     domains = resp.json()
     domain_ids = [d["domain_id"] for d in domains]
-    assert "education" in domain_ids
-    assert "agriculture" in domain_ids
+    assert _PRIMARY_DOMAIN in domain_ids
+    assert _ADMIN_DOMAIN in domain_ids
 
 
 @pytest.mark.integration
 def test_domain_info_with_explicit_domain(multi_client: TestClient) -> None:
-    resp = multi_client.get("/api/domain-info", params={"domain_id": "education"})
+    resp = multi_client.get("/api/domain-info", params={"domain_id": _PRIMARY_DOMAIN})
     assert resp.status_code == 200
     body = resp.json()
     assert body["domain_id"]
@@ -105,15 +107,12 @@ def test_chat_with_explicit_domain_id(multi_client: TestClient) -> None:
     resp = multi_client.post(
         "/api/chat",
         json={
-            "message": "Hello from education domain",
+            "message": "Hello from business ops domain",
             "deterministic_response": True,
-            "domain_id": "education",
+            "domain_id": _PRIMARY_DOMAIN,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
@@ -121,23 +120,20 @@ def test_chat_with_explicit_domain_id(multi_client: TestClient) -> None:
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["domain_id"] == "education"
+    assert body["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
 def test_chat_uses_default_domain_when_omitted(multi_client: TestClient) -> None:
-    """Unauthenticated request with no domain_id falls back to global default (education)."""
+    """Unauthenticated request with no domain_id falls back to global default."""
     resp = multi_client.post(
         "/api/chat",
         json={
             "message": "Hello with no domain specified",
             "deterministic_response": True,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
@@ -145,8 +141,8 @@ def test_chat_uses_default_domain_when_omitted(multi_client: TestClient) -> None
     )
     assert resp.status_code == 200
     body = resp.json()
-    # Unauthenticated users → global default_domain in domain-registry.yaml = "education"
-    assert body["domain_id"] == "education"
+    # Unauthenticated users → global default_domain in domain-registry.yaml
+    assert body["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
@@ -165,134 +161,120 @@ def test_chat_invalid_domain_returns_400(multi_client: TestClient) -> None:
 
 @pytest.mark.integration
 def test_session_domain_switch(multi_client: TestClient) -> None:
-    """A session can switch domain_id to a different domain mid-session."""
-    # First turn: start in education domain
+    """A privileged session can switch between active domains mid-session."""
+    token = _make_token(None, "root")
+
+    # First turn: start in business-ops domain
     resp1 = multi_client.post(
         "/api/chat",
+        headers={"Authorization": f"Bearer {token}"},
         json={
             "session_id": "domain-switch-test",
-            "message": "First turn in education",
+            "message": "First turn in business-ops",
             "deterministic_response": True,
-            "domain_id": "education",
+            "domain_id": _PRIMARY_DOMAIN,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert resp1.status_code == 200
-    assert resp1.json()["domain_id"] == "education"
+    assert resp1.json()["domain_id"] == _PRIMARY_DOMAIN
 
-    # Second turn: switch to agriculture — should succeed
+    # Second turn: switch to system — should succeed for root
     resp2 = multi_client.post(
         "/api/chat",
+        headers={"Authorization": f"Bearer {token}"},
         json={
             "session_id": "domain-switch-test",
-            "message": "Switching to agriculture",
+            "message": "Switching to system",
             "deterministic_response": True,
-            "domain_id": "agriculture",
-            "turn_data_override": {
-                "within_tolerance": True,
-                "response_latency_sec": 5,
-                "off_task_ratio": 0.0,
-                "step_count": 1,
-            },
+            "domain_id": _ADMIN_DOMAIN,
         },
     )
     assert resp2.status_code == 200
-    assert resp2.json()["domain_id"] == "agriculture"
+    assert resp2.json()["domain_id"] == _ADMIN_DOMAIN
 
-    # Third turn: switch back to education — should resume
+    # Third turn: switch back to business-ops — should resume
     resp3 = multi_client.post(
         "/api/chat",
+        headers={"Authorization": f"Bearer {token}"},
         json={
             "session_id": "domain-switch-test",
-            "message": "Back to education",
+            "message": "Back to business-ops",
             "deterministic_response": True,
-            "domain_id": "education",
+            "domain_id": _PRIMARY_DOMAIN,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert resp3.status_code == 200
-    assert resp3.json()["domain_id"] == "education"
+    assert resp3.json()["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
 def test_parallel_sessions_different_domains(multi_client: TestClient) -> None:
-    """Two sessions can run concurrently on different domains."""
+    """Two sessions can run concurrently on different domains for root."""
+    token = _make_token(None, "root")
+
     edu_resp = multi_client.post(
         "/api/chat",
+        headers={"Authorization": f"Bearer {token}"},
         json={
             "session_id": "parallel-edu",
-            "message": "Education turn",
+            "message": "Business-ops turn",
             "deterministic_response": True,
-            "domain_id": "education",
+            "domain_id": _PRIMARY_DOMAIN,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert edu_resp.status_code == 200
-    assert edu_resp.json()["domain_id"] == "education"
+    assert edu_resp.json()["domain_id"] == _PRIMARY_DOMAIN
 
     agri_resp = multi_client.post(
         "/api/chat",
+        headers={"Authorization": f"Bearer {token}"},
         json={
             "session_id": "parallel-agri",
-            "message": "Agriculture turn",
+            "message": "System turn",
             "deterministic_response": True,
-            "domain_id": "agriculture",
-            "turn_data_override": {
-                "within_tolerance": True,
-                "response_latency_sec": 5,
-                "off_task_ratio": 0.0,
-                "step_count": 1,
-            },
+            "domain_id": _ADMIN_DOMAIN,
         },
     )
     assert agri_resp.status_code == 200
-    assert agri_resp.json()["domain_id"] == "agriculture"
+    assert agri_resp.json()["domain_id"] == _ADMIN_DOMAIN
 
     # Confirm each session is isolated (second turn still works on own domain)
     edu_resp2 = multi_client.post(
         "/api/chat",
+        headers={"Authorization": f"Bearer {token}"},
         json={
             "session_id": "parallel-edu",
-            "message": "Education turn 2",
+            "message": "Business-ops turn 2",
             "deterministic_response": True,
-            "domain_id": "education",
+            "domain_id": _PRIMARY_DOMAIN,
             "turn_data_override": {
-                "correctness": "partial",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert edu_resp2.status_code == 200
-    assert edu_resp2.json()["domain_id"] == "education"
+    assert edu_resp2.json()["domain_id"] == _PRIMARY_DOMAIN
 
 
 # ── Role-based default domain routing ────────────────────────
@@ -341,7 +323,7 @@ def test_it_support_defaults_to_system_domain(multi_client: TestClient) -> None:
 
 @pytest.mark.integration
 def test_qa_defaults_to_global_default_domain(multi_client: TestClient) -> None:
-    """Authenticated operator user with no domain_id falls back to global default (education)."""
+    """Authenticated operator user with no domain_id falls back to global default."""
     token = _make_token(None, "operator")
     resp = multi_client.post(
         "/api/chat",
@@ -350,23 +332,20 @@ def test_qa_defaults_to_global_default_domain(multi_client: TestClient) -> None:
             "message": "Run a test",
             "deterministic_response": True,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert resp.status_code == 200
-    assert resp.json()["domain_id"] == "education"
+    assert resp.json()["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
 def test_auditor_defaults_to_global_default_domain(multi_client: TestClient) -> None:
-    """Authenticated half_operator user with no domain_id falls back to global default (education)."""
+    """Authenticated half_operator user with no domain_id falls back to global default."""
     token = _make_token(None, "half_operator")
     resp = multi_client.post(
         "/api/chat",
@@ -375,24 +354,21 @@ def test_auditor_defaults_to_global_default_domain(multi_client: TestClient) -> 
             "message": "Audit something",
             "deterministic_response": True,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert resp.status_code == 200
-    assert resp.json()["domain_id"] == "education"
+    assert resp.json()["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
 def test_domain_authority_defaults_to_governed_domain(multi_client: TestClient) -> None:
     """admin user routes to the domain matching their governed_modules."""
-    token = _make_token(None, "admin", governed_modules=["domain/edu/algebra-level-1/v1"])
+    token = _make_token(None, "admin", governed_modules=["domain/bizops/auto-repair/v1"])
     resp = multi_client.post(
         "/api/chat",
         headers={"Authorization": f"Bearer {token}"},
@@ -400,18 +376,15 @@ def test_domain_authority_defaults_to_governed_domain(multi_client: TestClient) 
             "message": "Let me review my module",
             "deterministic_response": True,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert resp.status_code == 200
-    assert resp.json()["domain_id"] == "education"
+    assert resp.json()["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
@@ -425,22 +398,19 @@ def test_domain_authority_no_governed_modules_uses_global_default(multi_client: 
             "message": "Hello",
             "deterministic_response": True,
             "turn_data_override": {
-                "correctness": "correct",
-                "frustration_marker_count": 0,
-                "step_count": 1,
-                "hint_used": False,
-                "repeated_error": False,
+                "contains_high_risk_terms": False,
+                "explicit_approval_language": False,
                 "off_task_ratio": 0.0,
                 "response_latency_sec": 5,
             },
         },
     )
     assert resp.status_code == 200
-    assert resp.json()["domain_id"] == "education"
+    assert resp.json()["domain_id"] == _PRIMARY_DOMAIN
 
 
 @pytest.mark.integration
-def test_system_role_user_cannot_access_education_domain_turns_without_permission(
+def test_system_role_user_can_access_system_domain_when_explicit(
     multi_client: TestClient,
 ) -> None:
     """system domain explicit request from root user reaches system domain."""

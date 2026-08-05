@@ -12,7 +12,7 @@ import pytest
 _NLP_PATH = (
     Path(__file__).resolve().parent.parent
     / "model-packs"
-    / "education"
+    / "business-ops"
     / "controllers"
     / "nlp_pre_interpreter.py"
 )
@@ -240,3 +240,4 @@ class TestNlpPreprocess:
         task_context = {"current_task": {"equation": "x + 1 = 3", "expected_answer": "2"}}
         result = nlp_preprocess("I like pizza and video games", task_context)
         assert result["off_task_ratio"] > 0.5
+

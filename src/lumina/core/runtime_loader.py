@@ -178,7 +178,7 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
     if not runtime_config_path:
         raise RuntimeError(
             "No runtime config specified. Set LUMINA_RUNTIME_CONFIG_PATH "
-            "(e.g. 'model-packs/education/runtime-config.yaml')."
+            "(e.g. 'model-packs/business-ops/cfg/runtime-config.yaml')."
         )
     cfg_path = runtime_config_path
     cfg = load_yaml(str(repo_root / cfg_path))
@@ -284,8 +284,8 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
             repo_root, _ptr_cfg["module_path"], _ptr_cfg["callable"],
         )
 
-    # Optional post-turn processor adapter (education domain uses this for
-    # fluency-gated advancement, problem_solved override, etc.)
+    # Optional post-turn processor adapter (domain packs can use this for
+    # progression-gated advancement, task readiness override, etc.)
     post_turn_processor_fn: Callable[..., Any] | None = None
     _ptp_cfg = adapters_cfg.get("post_turn_processor")
     if _ptp_cfg is not None:
@@ -301,7 +301,7 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
             repo_root, _ptt_cfg["module_path"], _ptt_cfg["callable"],
         )
 
-    # Optional profile serializer (education domain extracts fluency/learning_state).
+    # Optional profile serializer (domain pack serializer hooks).
     profile_serializer_fn: Callable[..., Any] | None = None
     _ps_cfg = adapters_cfg.get("profile_serializer")
     if _ps_cfg is not None:
@@ -309,7 +309,7 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
             repo_root, _ps_cfg["module_path"], _ps_cfg["callable"],
         )
 
-    # Optional turn-0 presenter check (education domain presents equations).
+    # Optional turn-0 presenter check (domain-specific first-turn presenters).
     turn_0_presenter_fn: Callable[..., Any] | None = None
     _t0_cfg = adapters_cfg.get("turn_0_presenter")
     if _t0_cfg is not None:

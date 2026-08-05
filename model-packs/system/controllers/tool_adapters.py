@@ -8,7 +8,7 @@ server when the command-dispatch layer resolves to a tool call.
 Includes both read-only query tools and deterministic verification tools.
 Verification tools are called post-SLM by the system ``interpret_turn_input``
 to populate invariant-checkable evidence fields with ground truth — the same
-pattern used by the education domain's algebra parser override.
+pattern used by the business-ops domain's algebra parser override.
 
 No imports from ``lumina.api`` or ``lumina.core`` are allowed here —
 adapters must be self-contained so they can be loaded and tested
@@ -145,7 +145,7 @@ def list_modules(payload: dict[str, Any]) -> dict[str, Any]:
     """Return all modules registered for a given domain.
 
     Payload keys:
-        domain_id (str, required): e.g. "education", "agriculture", "system"
+        domain_id (str, required): e.g. "business-ops", "business-ops", "system"
 
     Returns:
         {
@@ -214,7 +214,7 @@ def show_domain_physics(payload: dict[str, Any]) -> dict[str, Any]:
     """Return a summary of domain-physics for *domain_id*.
 
     Payload keys:
-        domain_id (str, required): e.g. "education", "agriculture", "system"
+        domain_id (str, required): e.g. "business-ops", "business-ops", "system"
         include_glossary (bool): include full glossary list (default False)
         include_topics (bool): include topics list (default True)
 
@@ -285,7 +285,7 @@ def module_status(payload: dict[str, Any]) -> dict[str, Any]:
     it does not modify any state.
 
     Payload keys:
-        domain_id (str, required): e.g. "education", "system"
+        domain_id (str, required): e.g. "business-ops", "system"
 
     Returns:
         {
@@ -430,7 +430,7 @@ def list_log_records(payload: dict[str, Any]) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # These tools populate invariant-checkable evidence fields with ground truth.
 # Called by interpret_turn_input() after SLM extraction — same pattern as the
-# education domain's algebra parser override.
+# business-ops domain's algebra parser override.
 
 
 def validate_command_schema(payload: dict[str, Any]) -> dict[str, Any]:
@@ -620,3 +620,4 @@ def verify_no_disclosure(payload: dict[str, Any]) -> dict[str, Any]:
         "json_in_output": json_block and not user_requested_json,
         "matched_patterns": matched,
     }
+

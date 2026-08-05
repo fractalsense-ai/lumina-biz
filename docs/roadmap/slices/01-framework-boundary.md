@@ -36,8 +36,8 @@ must be documented clearly and unambiguously.
   separate required gate.
 - Document the ephemeral-environment invariant: evidence is harvested before
   teardown; teardown failure is a ledgered escalation event.
-- Warn clearly that all other packs currently in the repository (education,
-  agriculture, assistant) are provisional domain/testing/scaffolding material
+- Warn clearly that all other packs currently in the repository (business-ops,
+  business-ops, assistant) are provisional domain/testing/scaffolding material
   and are not part of the base framework contract.
 - Note that future PRs may extract, move, or remove non-base packs, but this
   PR does not perform that work.
@@ -160,7 +160,7 @@ docs/
       framework consists of exactly System Model Pack, Coding Agent Model Pack,
       and Template Model Pack.
 - [ ] The boundary document warns that other packs in the repository
-      (education, agriculture, assistant) are provisional/experimental/domain
+      (business-ops, business-ops, assistant) are provisional/experimental/domain
       material and are not part of the final base framework contract.
 - [ ] The boundary document explains that future PRs may extract/remove/move
       non-base packs, but this PR does not perform that work.
@@ -236,3 +236,4 @@ scope will be confirmed in each slice's planning document.
 | 20 | Registration Handshake — System Pack registration of new surfaces after authorization |
 | 21 | Post-Registration Evidence Harvest and Environment Teardown — log harvest, ledger commit, teardown, confirmation |
 | 22 | Framework-Level Vectorized Ledger — framework-scoped operational pattern indexing |
+

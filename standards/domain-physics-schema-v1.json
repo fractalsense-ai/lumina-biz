@@ -100,7 +100,7 @@
       "additionalProperties": {
         "type": "object"
       },
-      "description": "Optional subsystem configuration blocks, keyed by subsystem ID. Each value is a free-form object of parameters specific to that subsystem (e.g. {\"zpd_monitor\": {\"min_challenge\": 0.3, ...}} for education, or {\"soil_health_monitor\": {...}} for agriculture). Omit entirely for domains that use no configurable subsystems."
+      "description": "Optional subsystem configuration blocks, keyed by subsystem ID. Each value is a free-form object of parameters specific to that subsystem (e.g. {\"zpd_monitor\": {\"min_challenge\": 0.3, ...}} for business-ops, or {\"soil_health_monitor\": {...}} for business-ops). Omit entirely for domains that use no configurable subsystems."
     },
     "evidence_schema": {
       "type": "object",
@@ -327,7 +327,7 @@
         "schema_version",
         "roles"
       ],
-      "description": "Optional domain-scoped role hierarchy. Defines roles that exist only within this domain, beneath the Domain Authority ceiling. Each domain can define its own role tiers (e.g., teacher/teaching-assistant/student for education, site-manager/field-operator/observer for agriculture). The Domain Authority is always the implicit ceiling at hierarchy level 0. Omit entirely for domains that use only the 7 system-level roles."
+      "description": "Optional domain-scoped role hierarchy. Defines roles that exist only within this domain, beneath the Domain Authority ceiling. Each domain can define its own role tiers (e.g., teacher/teaching-assistant/student for business-ops, site-manager/field-operator/observer for business-ops). The Domain Authority is always the implicit ceiling at hierarchy level 0. Omit entirely for domains that use only the 7 system-level roles."
     },
     "groups": {
       "type": "object",
@@ -449,7 +449,7 @@
       "items": {
         "$ref": "#/$defs/actor_type"
       },
-      "description": "Declares the types of Actors recognised in this domain. An Actor is whatever changes the state of the system relative to this domain — a student in education, a sensor or farmer in agriculture, etc. The AI orchestrator is NOT an Actor. Omit for domains that do not need explicit Actor type declarations."
+      "description": "Declares the types of Actors recognised in this domain. An Actor is whatever changes the state of the system relative to this domain — a student in business-ops, a sensor or farmer in business-ops, etc. The AI orchestrator is NOT an Actor. Omit for domains that do not need explicit Actor type declarations."
     },
     "actor_groups": {
       "type": "object",
@@ -591,7 +591,7 @@
         },
         "handled_by": {
           "type": "string",
-          "description": "ID of the subsystem that evaluates this invariant (e.g. 'zpd_monitor' for education, 'soil_health_monitor' for agriculture). When present, the orchestrator skips its own check evaluation and defers entirely to the named subsystem. Enables domain-agnostic invariant delegation without hardcoding invariant IDs in the engine."
+          "description": "ID of the subsystem that evaluates this invariant (e.g. 'zpd_monitor' for business-ops, 'soil_health_monitor' for business-ops). When present, the orchestrator skips its own check evaluation and defers entirely to the named subsystem. Enables domain-agnostic invariant delegation without hardcoding invariant IDs in the engine."
         },
         "standing_order_on_violation": {
           "type": "string",
@@ -855,3 +855,4 @@
     }
   }
 }
+

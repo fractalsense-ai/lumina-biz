@@ -123,8 +123,8 @@ def can_govern_domain(
     any governed module or domain-role key matches.
 
     This handles the common case where ``governed_modules`` contains full
-    module IDs (e.g. ``domain/edu/algebra-level-1/v1``) while the caller
-    passes a domain name (e.g. ``education``), as well as DAs whose domain
+    module IDs (e.g. ``domain/bizops/auto-repair/v1``) while the caller
+    passes a domain name (e.g. ``business-ops``), as well as DAs whose domain
     affiliation is established via ``domain_roles`` rather than
     ``governed_modules`` (e.g. invited without explicit module list).
     """

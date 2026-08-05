@@ -18,7 +18,7 @@ function makeSummary(overrides: Partial<SessionSummary> = {}): SessionSummary {
     sessionId: `sess-${Date.now()}`,
     turnCount: 3,
     updatedAt: Date.now(),
-    domainId: 'domain/edu/pre-algebra/v1',
+    domainId: 'domain/bizops/auto-repair/v1',
     ...overrides,
   }
 }
@@ -28,12 +28,12 @@ describe('SessionPanel delete gating', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows delete button for Student Commons sessions', async () => {
+  it('shows delete button for Subject Commons sessions', async () => {
     const sessions = [
       makeSummary({
         sessionId: 'commons-1',
-        moduleId: 'domain/edu/general-education/v1',
-        label: 'Student Commons',
+        moduleId: 'domain/bizops/auto-repair/v1',
+        label: 'Operations Hub',
       }),
     ]
     const store = makeStore(sessions)
@@ -82,8 +82,8 @@ describe('SessionPanel delete gating', () => {
     const sessions = [
       makeSummary({
         sessionId: 'prealg-1',
-        moduleId: 'domain/edu/pre-algebra/v1',
-        label: 'Pre-Algebra',
+        moduleId: 'domain/bizops/field-audit/v1',
+        label: 'Field Audit',
       }),
     ]
     const store = makeStore(sessions)
@@ -98,7 +98,7 @@ describe('SessionPanel delete gating', () => {
       />,
     )
 
-    const lockIcon = await screen.findByTitle('Learning module — deletion requires teacher approval')
+    const lockIcon = await screen.findByTitle('Protected module — deletion requires reviewer approval')
     expect(lockIcon).toBeDefined()
 
     // Delete button should NOT be present
@@ -109,13 +109,13 @@ describe('SessionPanel delete gating', () => {
     const sessions = [
       makeSummary({
         sessionId: 'commons-2',
-        moduleId: 'domain/edu/general-education/v1',
-        label: 'Student Commons',
+        moduleId: 'domain/bizops/auto-repair/v1',
+        label: 'Operations Hub',
       }),
       makeSummary({
         sessionId: 'alg-1',
-        moduleId: 'domain/edu/algebra-intro/v1',
-        label: 'Algebra — Introduction',
+        moduleId: 'domain/bizops/field-audit/v1',
+        label: 'Field Audit',
       }),
     ]
     const store = makeStore(sessions)
@@ -134,7 +134,7 @@ describe('SessionPanel delete gating', () => {
     const deleteBtn = await screen.findByTitle('Delete conversation')
     expect(deleteBtn).toBeDefined()
 
-    const lockIcon = await screen.findByTitle('Learning module — deletion requires teacher approval')
+    const lockIcon = await screen.findByTitle('Protected module — deletion requires reviewer approval')
     expect(lockIcon).toBeDefined()
   })
 })

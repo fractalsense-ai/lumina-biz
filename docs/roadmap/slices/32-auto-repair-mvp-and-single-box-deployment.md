@@ -1,9 +1,9 @@
 ---
 title: "Slice 32 — Auto Repair MVP and Single-Box Deployment Topology"
 slice: 32
-status: planned
-version: 0.1.0
-last_updated: 2026-07-11
+status: delivered
+version: 1.0.0
+last_updated: 2026-08-01
 ---
 
 # Slice 32 — Business Ops Pack Bootstrap
@@ -76,3 +76,49 @@ Bootstrap a reusable business-operations model pack (from template patterns) tha
 
 - Operational hardening slices (performance, backup/restore, disaster recovery).
 - Additional vertical module slices (restaurant/POS, light manufacturing, service ops).
+
+## Implementation-Ready PR Description Template
+
+### Title
+
+Slice 32: Business Ops pack bootstrap and auto-repair MVP boundaries
+
+### PR Scope
+
+- Bootstrap a reusable `business-ops` model pack scaffold aligned with template pack anatomy.
+- Define bounded auto-repair module workflows (recommendation, escalation, staged mutation).
+- Define actor/role/profile extension contracts for SMB operating contexts.
+- Define local-first single-box deployment assumptions and boundaries.
+
+### Acceptance Criteria
+
+- Pack scaffold matches framework HMVC/runtime conventions and validates structurally.
+- Actor, role, and profile contracts merge deterministically across base/domain/role layers.
+- Auto-repair bounded flow is represented in fixtures and replayable without side effects.
+- Governance boundaries remain unchanged: no direct commit authority is introduced.
+
+### Test Checklist
+
+- [x] Structural pack tests for manifest/runtime/domain-physics shapes.
+- [x] Role and permission contract tests for business-ops actors.
+- [x] Profile merge/composition tests for base/domain/role overlays.
+- [x] Deterministic fixture replay tests for recommendation, escalation, and staged ERP mutation.
+- [x] Governance regression checks ensuring no authority-boundary drift.
+
+### Out of Scope Confirmations
+
+- No production UI polish or commercial packaging logic.
+- No provider-specific execution client beyond bounded staging interfaces.
+- No distributed transaction orchestration.
+
+## Delivery Evidence
+
+- Pack scaffold delivered under `model-packs/business-ops/` with runtime config, role map, profile extension, adapters, and auto-repair module contracts.
+- Structural and contract validation tests delivered in `tests/test_business_ops_pack.py`.
+- Verification run:
+
+```bash
+python -m pytest tests/test_business_ops_pack.py -q
+```
+
+- Result on 2026-08-01: `14 passed`.

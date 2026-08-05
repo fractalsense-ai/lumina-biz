@@ -60,8 +60,8 @@ operation first, then use the returned values in subsequent commands.
 ## Domain ID rules
 
 Domain IDs are plain registry keys — NOT path-style prefixes.
-Correct: `"education"`, `"agriculture"`, `"system"`.
-WRONG: `"domain/edu"`, `"edu"`, `"domain/education"`.
+Correct: `"business-ops"`, `"business-ops"`, `"system"`.
+WRONG: `"domain/bizops"`, `"edu"`, `"domain/bizopscation"`.
 Use `list_domains` to discover valid domain IDs if unsure.
 
 ## invite_user param rules
@@ -93,8 +93,8 @@ When the operation is `invite_user`, use this exact structure:
   Example: user says "as a student" → `"intended_domain_role": "student"`.
   If no domain-specific role is mentioned, omit or set to null.
 - `domain_id` — MUST be set whenever the user mentions a target domain
-  (e.g. "in the education domain", "for agriculture").
-  Use the plain registry key: `"education"`, `"agriculture"`, `"system"`.
+  (e.g. "in the business-ops domain", "for business-ops").
+  Use the plain registry key: `"business-ops"`, `"business-ops"`, `"system"`.
   The system uses it to auto-resolve `governed_modules` for the user.
   If no domain is mentioned, omit or set to null.
 - `governed_modules` is ONLY needed when `role` is "admin".
@@ -114,11 +114,11 @@ admin is a system role, not a domain role.
 
 | User instruction | Correct params |
 |---|---|
-| "create user Clanker4 as a student in the education domain" | `{"username": "Clanker4", "role": "user", "intended_domain_role": "student", "domain_id": "education"}` |
-| "invite Alice as a teacher in edu" | `{"username": "Alice", "role": "user", "intended_domain_role": "teacher", "domain_id": "education"}` |
+| "create user Clanker4 as a student in the business-ops domain" | `{"username": "Clanker4", "role": "user", "intended_domain_role": "student", "domain_id": "business-ops"}` |
+| "invite Alice as a teacher in edu" | `{"username": "Alice", "role": "user", "intended_domain_role": "teacher", "domain_id": "business-ops"}` |
 | "add a new user Bob" | `{"username": "Bob", "role": "user"}` |
-| "create a domain authority for agriculture" | `{"username": "...", "role": "admin", "domain_id": "agriculture"}` |
-| "create TestAuthority as a domain authority in education" | `{"username": "TestAuthority", "role": "admin", "domain_id": "education"}` |
+| "create a domain authority for business-ops" | `{"username": "...", "role": "admin", "domain_id": "business-ops"}` |
+| "create TestAuthority as a domain authority in business-ops" | `{"username": "TestAuthority", "role": "admin", "domain_id": "business-ops"}` |
 
 ## governed_modules resolution
 
@@ -132,7 +132,7 @@ When creating or promoting a user to admin:
 For NON-authority roles (user, guest): omit `governed_modules` entirely.
 The system auto-assigns the domain's default staging module.
 
-Do NOT use wildcards like `domain/edu/*` — always use full module IDs
+Do NOT use wildcards like `domain/bizops/*` — always use full module IDs
 returned by `list_modules`.
 
 ## User discovery
@@ -153,8 +153,8 @@ field names.
 - `role` (or `new_role`) is always a SYSTEM role: root, admin,
   super_admin, operator, half_operator, user, guest.
 - `intended_domain_role` is a DOMAIN-SPECIFIC role name. It is NOT a
-  domain name like "education" or "agriculture".
-- When the user mentions a DOMAIN NAME (e.g. "education", "agriculture"),
+  domain name like "business-ops" or "business-ops".
+- When the user mentions a DOMAIN NAME (e.g. "business-ops", "business-ops"),
   that goes into `governed_modules` — NOT `intended_domain_role`.
 
 ## Role mapping
@@ -176,3 +176,4 @@ Use this structure:
   "params": { ... }
 }
 ```
+

@@ -1,13 +1,13 @@
 ---
-version: 1.1.0
-last_updated: 2026-04-16
+version: 1.1.1
+last_updated: 2026-08-04
 ---
 
 # Prompt Packet Assembly
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Status:** Active
-**Last updated:** 2026-04-16
+**Last updated:** 2026-08-04
 
 ---
 
@@ -75,8 +75,12 @@ Each layer in the assembly pipeline has a distinct role, a distinct owner, and a
 | ═ | **Assembled Prompt Contract** | Core engine | — | The complete packet serialized for LLM consumption |
 | 6 | **LLM** | External LLM provider | — | Probabilistic response — never trusted as sole authority |
 | 7 | **Tool-Adapter Verification** | Domain pack (policy-driven) | Per-turn | Deterministic override of specific LLM-produced fields (e.g., algebra parser replaces `correctness`) |
-| 8 | **Domain Adapter B — Signal Synthesis** | Domain pack | Per-turn | Engine contract fields (`problem_solved`, `problem_status`); final `evidence` dict |
+| 8 | **Domain Adapter B — Signal Synthesis** | Domain pack | Per-turn | Engine contract fields (for example `task_status`) plus domain-owned readiness signals; final `evidence` dict |
 | 9 | **System Log** | Core engine | Append-only | Hash-chained trace event logging the decision, provenance hashes, and outcome. Events are emitted to the [System Log Micro-Router](system-log-micro-router.md) which routes them by level (AUDIT → immutable ledger, WARNING → dashboard, etc.). |
+
+**DAG boundary note:** In DAG-driven domains, dependency evaluation and ready-node scheduling remain inside the domain pack. The host consumes only the generic synthesized signals and does not require DAG internals.
+
+**Missing-information rule:** When prerequisites are missing, the domain should route to bounded information acquisition (ask actor, ERP lookup, scoped institutional retrieval) before escalating or deferring the node.
 
 ### What "immutable per session" means
 
@@ -98,9 +102,9 @@ Lumina is designed to receive any structured event stream as input — not only 
 
 No matter the source, by the time the payload reaches Layer 3 (Global Base Prompt assembly), it has been normalized to a structured evidence dict. The LLM never receives raw telemetry — it receives structured, labeled signals.
 
-### Education example: the student as telemetry
+### Business Ops example: the student as telemetry
 
-In the education domain the "sensor" is the student. They are attempting to learn algebra. Everything the student says is the input signal. Everything else — the domain physics, the module state, the NLP anchors — exists to convert that raw signal into a form the LLM can reason over accurately.
+In the business-ops domain the "sensor" is the student. They are attempting to learn algebra. Everything the student says is the input signal. Everything else — the domain physics, the module state, the NLP anchors — exists to convert that raw signal into a form the LLM can reason over accurately.
 
 The domain's job is to filter. Algebra is what is being measured. If the student sends a message about football, that is `off_task_ratio: 1.0` — noise, measured and classified, not a domain expansion. The orchestrator sees a high off-task ratio in the NLP anchors and applies the appropriate standing order (redirect, log, do not comply). The student never sees the standing order logic.
 
@@ -120,10 +124,10 @@ Tool adapters are called by the orchestrator's policy system when a specific res
 
 | Domain | Tool | What it does |
 |--------|------|-------------|
-| Education | Algebra parser | Parses the student's expression and validates structural form |
-| Education | Substitution checker | Substitutes the student's answer into the original equation and confirms equality |
+| Business Ops | Algebra parser | Parses the student's expression and validates structural form |
+| Business Ops | Substitution checker | Substitutes the student's answer into the original equation and confirms equality |
 | Lab automation | Pipette volume verifier | Checks commanded volume against protocol spec; returns `volume_ok: bool` |
-| Agriculture | Soil moisture comparator | Compares sensor reading to domain threshold; returns `deficit_severity: str` |
+| Business Ops | Soil moisture comparator | Compares sensor reading to domain threshold; returns `deficit_severity: str` |
 | Robotics | Arm position validator | Confirms end-effector position is within tolerance for current step; returns `position_valid: bool` |
 
 The LLM sees the result (`substitution_check: true`, `volume_ok: true`) in the evidence presented in its prompt context. It never sees the tool call itself, its parameters, or its dispatch logic.
@@ -134,10 +138,10 @@ Domain library functions track entity state across turns. They are called by the
 
 | Domain | Library function | What it tracks |
 |--------|-----------------|---------------|
-| Education | ZPD monitor | Whether the current task is inside, above, or below the learning zone |
-| Education | Fluency tracker | Vocabulary and problem-type fluency across the session |
-| Education | Fatigue estimator | Engagement and response-quality degradation signal |
-| Agriculture | Variance tracker | Rolling deviation from expected yield or moisture baselines |
+| Business Ops | Workflow progression monitor | Whether the current task is on-track, blocked, or escalation-prone |
+| Business Ops | Response consistency tracker | Terminology and decision consistency across the session |
+| Business Ops | Fatigue estimator | Engagement and response-quality degradation signal |
+| Business Ops | Variance tracker | Rolling deviation from expected yield or moisture baselines |
 
 These produce fields like `zpd_zone: "within"`, `fluency_advanced: true`, `fatigue_signal: 0.3` that flow into Module State. The LLM sees them as session context when they are relevant to the current action.
 
@@ -202,3 +206,4 @@ This boundary is not an accident. The domain authority does not want the student
 - [`specs/global-system-prompt-v1.md`](../../specs/global-system-prompt-v1.md) — Global Base Prompt specification (rendered view; source of truth is `cfg/system-physics.yaml`)
 - [`cfg/system-physics.yaml`](../../cfg/system-physics.yaml) — system physics: source of truth for global-layer rules and hash
 - [`standards/lumina-core-v1.md`](../../standards/lumina-core-v1.md) — provenance metadata fields in System Log TraceEvents; system physics hash injection
+

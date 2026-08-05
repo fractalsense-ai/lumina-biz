@@ -19,13 +19,13 @@ last_updated: 2026-03-20
 
 ```
 POST /api/admin/command
-{ "instruction": "list modules for education" }
+{ "instruction": "list modules for business-ops" }
 ```
 
 Or via the system domain chat interface:
 
 ```
-> list modules for education
+> list modules for business-ops
 ```
 
 ## DESCRIPTION
@@ -45,7 +45,7 @@ or approval.
 
 | Parameter    | Required | Description                              |
 |-------------|----------|------------------------------------------|
-| `domain_id` | Yes      | Domain identifier (e.g. `education`)     |
+| `domain_id` | Yes      | Domain identifier (e.g. `business-ops`)     |
 
 ## RBAC
 
@@ -61,18 +61,14 @@ A `admin` can only list modules for domains they govern.
   "hitl_exempt": true,
   "result": {
     "operation": "list_modules",
-    "domain_id": "education",
+    "domain_id": "business-ops",
     "modules": [
       {
-        "module_id": "domain/edu/pre-algebra/v1",
-        "domain_physics_path": "model-packs/education/modules/pre-algebra/domain-physics.json"
-      },
-      {
-        "module_id": "domain/edu/algebra-intro/v1",
-        "domain_physics_path": "model-packs/education/modules/algebra-intro/domain-physics.json"
+        "module_id": "domain/bizops/auto-repair/v1",
+        "domain_physics_path": "model-packs/business-ops/modules/auto-repair/domain-physics.json"
       }
     ],
-    "count": 4
+    "count": 1
   }
 }
 ```
@@ -88,3 +84,4 @@ A `admin` can only list modules for domains they govern.
 ## SEE ALSO
 
 list-domains(1), domain-registry-schema-v1(4), rbac-spec-v1(5)
+

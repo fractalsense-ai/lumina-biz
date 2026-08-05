@@ -108,7 +108,7 @@ class TestCreateScopedJwt:
         assert payload["governed_modules"] == ["m1"]
 
     def test_domain_roles_persisted(self):
-        dr = {"domain/edu/algebra/v1": "ta"}
+        dr = {"domain/bizops/algebra/v1": "ta"}
         token = create_scoped_jwt(user_id="u", role="root", domain_roles=dr)
         payload = verify_scoped_jwt(token)
         assert payload["domain_roles"] == dr
@@ -321,3 +321,4 @@ class TestRoleConstants:
     def test_all_three_tracks_cover_all_roles(self):
         from lumina.auth.auth import VALID_ROLES
         assert ADMIN_ROLES | DOMAIN_ADMIN_ROLES | USER_ROLES == VALID_ROLES
+

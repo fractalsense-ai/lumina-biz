@@ -1,0 +1,47 @@
+# version: 1.0.0
+# last_updated: 2026-08-03
+schema_version: "1.0.0"
+last_updated: "2026-08-03"
+
+# Slice 39 profile-layer contract scaffold.
+# Canonical action graph and payload envelopes remain shared;
+# these profile entries define bounded presentation/config variation.
+profiles:
+  towing:
+    profile_id: "service.towing.v1"
+    display_name: "Towing Service"
+    canonical_capability_namespace: "service/work-order"
+    canonical_action_classes:
+      - "query"
+      - "create_draft"
+      - "update_draft"
+      - "request_commit"
+    presentation_overrides:
+      intake_label: "Tow Request"
+      draft_label: "Tow Work Order Draft"
+    optional_profile_metadata_fields:
+      - "vehicle_type"
+      - "pickup_zone"
+      - "dropoff_zone"
+
+  retail_delivery:
+    profile_id: "service.retail-delivery.v1"
+    display_name: "Retail Delivery Service"
+    canonical_capability_namespace: "service/work-order"
+    canonical_action_classes:
+      - "query"
+      - "create_draft"
+      - "update_draft"
+      - "request_commit"
+    presentation_overrides:
+      intake_label: "Delivery Request"
+      draft_label: "Delivery Work Order Draft"
+    optional_profile_metadata_fields:
+      - "delivery_window"
+      - "dropoff_zone"
+      - "proof_of_delivery_required"
+
+mapping_boundary_rules:
+  reject_profile_keys_from_canonical_payload: true
+  allow_provider_custom_mapping_hook: true
+  provider_custom_mapping_hook_contract: "provider_custom_mapping_hook_v1"

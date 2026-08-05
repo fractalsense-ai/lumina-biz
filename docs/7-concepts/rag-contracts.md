@@ -172,9 +172,9 @@ independently and stored with its content SHA-256 hash for dedup.
 ### Scope enforcement
 
 Vector search results are filtered by the same scope rules as structured
-retrieval. A session in the `education` domain may only receive chunks whose
+retrieval. A session in the `business-ops` domain may only receive chunks whose
 `source_path` falls within `docs/` (system-wide) or
-`model-packs/education/docs/` (domain-scoped). Cross-domain doc chunks are
+`model-packs/business-ops/docs/` (domain-scoped). Cross-domain doc chunks are
 excluded.
 
 ### Artifact type

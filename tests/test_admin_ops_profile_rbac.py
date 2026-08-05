@@ -30,14 +30,14 @@ def _make_ctx() -> AdminOperationContext:
     persistence.get_domain_ledger_path.return_value = "/tmp/domain.jsonl"
     persistence.get_user.return_value = {
         "sub": "user-target", "username": "target", "role": "user",
-        "domain_roles": {"education/algebra-v1": "student"},
+        "domain_roles": {"business-ops/algebra-v1": "student"},
     }
     persistence.update_user_role.return_value = None
     persistence.deactivate_user.return_value = None
     persistence.update_user_domain_roles.return_value = None
 
     domain_registry = MagicMock()
-    domain_registry.resolve_default_for_user.return_value = "education"
+    domain_registry.resolve_default_for_user.return_value = "business-ops"
 
     return AdminOperationContext(
         persistence=persistence,
@@ -101,7 +101,7 @@ class TestViewMyProfile:
         ctx = _make_ctx()
         result = _run(admin_profile.execute(
             "view_my_profile",
-            {"domain_id": "education"},
+            {"domain_id": "business-ops"},
             _student_user(),
             ctx,
         ))
@@ -135,7 +135,7 @@ class TestUpdateUserPreferences:
         ctx = _make_ctx()
         result = _run(admin_profile.execute(
             "update_user_preferences",
-            {"updates": {"theme": "dark"}, "domain_id": "education"},
+            {"updates": {"theme": "dark"}, "domain_id": "business-ops"},
             _student_user(),
             ctx,
         ))
@@ -239,12 +239,12 @@ class TestUpdateUserRole:
         result = _run(admin_rbac.execute(
             "update_user_role",
             {"user_id": "user-target", "new_role": "admin",
-             "governed_modules": ["education/algebra-v1"]},
+             "governed_modules": ["business-ops/algebra-v1"]},
             _root_user(),
             ctx,
         ))
         assert result is not None
-        assert result["governed_modules"] == ["education/algebra-v1"]
+        assert result["governed_modules"] == ["business-ops/algebra-v1"]
 
 
 @pytest.mark.unit
@@ -303,14 +303,14 @@ class TestAssignDomainRole:
             "assign_domain_role",
             {
                 "user_id": "user-target",
-                "module_id": "education/algebra-v1",
+                "module_id": "business-ops/algebra-v1",
                 "domain_role": "student",
             },
             _root_user(),
             ctx,
         ))
         assert result is not None
-        assert result["module_id"] == "education/algebra-v1"
+        assert result["module_id"] == "business-ops/algebra-v1"
         assert result["domain_role"] == "student"
 
     def test_missing_params_raises_422(self) -> None:
@@ -355,12 +355,12 @@ class TestRevokeDomainRole:
         ctx = _make_ctx()
         result = _run(admin_rbac.execute(
             "revoke_domain_role",
-            {"user_id": "user-target", "module_id": "education/algebra-v1"},
+            {"user_id": "user-target", "module_id": "business-ops/algebra-v1"},
             _root_user(),
             ctx,
         ))
         assert result is not None
-        assert result["module_id"] == "education/algebra-v1"
+        assert result["module_id"] == "business-ops/algebra-v1"
 
     def test_missing_params_raises_422(self) -> None:
         ctx = _make_ctx()
@@ -402,3 +402,4 @@ class TestRevokeDomainRole:
             "unknown_op", {}, _root_user(), ctx,
         ))
         assert result is None
+

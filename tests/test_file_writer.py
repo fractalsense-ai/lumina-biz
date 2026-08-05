@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import builtins
 import json
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,7 @@ from typing import Any
 import pytest
 
 from lumina.staging.file_writer import write_from_template, _deep_merge
+from lumina.staging import file_writer as _file_writer
 
 
 # ------------------------------------------------------------------
@@ -125,3 +127,47 @@ class TestWriteFromTemplate:
         data = json.loads(target.read_text(encoding="utf-8"))
         assert data["hint_id"] == "hint-001"
         assert data["source_task"] == "context_crawler"  # from default_structure
+
+    def test_atomic_cleanup_when_replace_fails(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        target = tmp_path / "cleanup" / "out.json"
+
+        monkeypatch.setattr(_file_writer.os, "replace", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("replace failed")))
+
+        with pytest.raises(OSError, match="replace failed"):
+            write_from_template("domain-physics", _PHYSICS_PAYLOAD, target)
+
+        tmp_files = list(target.parent.glob(".lumina_stage_*.tmp"))
+        assert tmp_files == []
+
+    def test_replace_failure_still_raises_when_unlink_fails(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        target = tmp_path / "cleanup-unlink-fails" / "out.json"
+
+        monkeypatch.setattr(_file_writer.os, "replace", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("replace failed")))
+        monkeypatch.setattr(_file_writer.os, "unlink", lambda *_args, **_kwargs: (_ for _ in ()).throw(OSError("unlink failed")))
+
+        with pytest.raises(OSError, match="replace failed"):
+            write_from_template("domain-physics", _PHYSICS_PAYLOAD, target)
+
+        tmp_files = list(target.parent.glob(".lumina_stage_*.tmp"))
+        assert len(tmp_files) == 1
+
+
+class TestYamlFallback:
+    def test_to_yaml_falls_back_to_json_when_yaml_is_missing(self, monkeypatch: pytest.MonkeyPatch):
+        real_import = builtins.__import__
+
+        def _fake_import(name, *args, **kwargs):
+            if name == "yaml":
+                raise ImportError("yaml unavailable")
+            return real_import(name, *args, **kwargs)
+
+        monkeypatch.setattr(builtins, "__import__", _fake_import)
+
+        rendered = _file_writer._to_yaml({"alpha": 1, "nested": {"beta": True}})
+        parsed = json.loads(rendered)
+        assert parsed["alpha"] == 1
+        assert parsed["nested"]["beta"] is True

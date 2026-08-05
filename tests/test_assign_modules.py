@@ -25,9 +25,9 @@ import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# ── Load education helpers via importlib ──────────────────────
+# ── Load business-ops helpers via importlib ──────────────────────
 # _helpers.py has no relative imports so it loads standalone.
-_HELPERS_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "ops" / "_helpers.py"
+_HELPERS_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "ops" / "_helpers.py"
 _helpers_spec = importlib.util.spec_from_file_location("edu_helpers_am", str(_HELPERS_PATH))
 _helpers_mod = importlib.util.module_from_spec(_helpers_spec)  # type: ignore[arg-type]
 sys.modules["edu_helpers_am"] = _helpers_mod
@@ -49,7 +49,7 @@ sys.modules[_OPS_PKG_NAME] = _ops_pkg
 # Register _helpers under the fake package so relative import works
 sys.modules[f"{_OPS_PKG_NAME}._helpers"] = _helpers_mod
 
-_MODULES_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "ops" / "modules.py"
+_MODULES_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "ops" / "modules.py"
 _modules_spec = importlib.util.spec_from_file_location(
     f"{_OPS_PKG_NAME}.modules", str(_MODULES_PATH),
 )
@@ -62,7 +62,7 @@ assign_modules_handler = _modules_mod.assign_modules
 switch_active_module_handler = _modules_mod.switch_active_module
 
 # ── Load governance adapters for NLP tests ────────────────────
-_GOV_PATH = _REPO_ROOT / "model-packs" / "education" / "controllers" / "governance_adapters.py"
+_GOV_PATH = _REPO_ROOT / "model-packs" / "business-ops" / "controllers" / "governance_adapters.py"
 _gov_spec = importlib.util.spec_from_file_location("gov_adapters_am", str(_GOV_PATH))
 _gov_mod = importlib.util.module_from_spec(_gov_spec)  # type: ignore[arg-type]
 sys.modules["gov_adapters_am"] = _gov_mod
@@ -75,11 +75,11 @@ _edu_fallback = _gov_mod._deterministic_command_fallback
 # ── Test data ─────────────────────────────────────────────────
 
 _SAMPLE_MODULES = [
-    {"module_id": "domain/edu/general-education/v1", "domain_physics_path": "dp/ge.json", "local_only": False},
-    {"module_id": "domain/edu/pre-algebra/v1", "domain_physics_path": "dp/pa.json", "local_only": False},
-    {"module_id": "domain/edu/algebra-intro/v1", "domain_physics_path": "dp/ai.json", "local_only": False},
-    {"module_id": "domain/edu/teacher/v1", "domain_physics_path": "dp/t.json", "local_only": True},
-    {"module_id": "domain/edu/domain-authority/v1", "domain_physics_path": "dp/da.json", "local_only": True},
+    {"module_id": "domain/bizops/general-business-ops/v1", "domain_physics_path": "dp/ge.json", "local_only": False},
+    {"module_id": "domain/bizops/pre-algebra/v1", "domain_physics_path": "dp/pa.json", "local_only": False},
+    {"module_id": "domain/bizops/algebra-intro/v1", "domain_physics_path": "dp/ai.json", "local_only": False},
+    {"module_id": "domain/bizops/teacher/v1", "domain_physics_path": "dp/t.json", "local_only": True},
+    {"module_id": "domain/bizops/domain-authority/v1", "domain_physics_path": "dp/da.json", "local_only": True},
 ]
 
 
@@ -126,7 +126,7 @@ def _teacher_user(sub: str = "teacher1") -> dict[str, Any]:
     return {
         "sub": sub,
         "role": "user",
-        "domain_roles": {"domain/edu/teacher/v1": "teacher"},
+        "domain_roles": {"domain/bizops/teacher/v1": "teacher"},
         "scoped_capabilities": {},
     }
 
@@ -136,7 +136,7 @@ def _da_user(sub: str = "da1") -> dict[str, Any]:
         "sub": sub,
         "role": "admin",
         "domain_roles": {},
-        "governed_modules": ["domain/edu/general-education/v1"],
+        "governed_modules": ["domain/bizops/general-business-ops/v1"],
     }
 
 
@@ -144,7 +144,7 @@ def _student_user(sub: str = "student1") -> dict[str, Any]:
     return {
         "sub": sub,
         "role": "user",
-        "domain_roles": {"domain/edu/pre-algebra/v1": "student"},
+        "domain_roles": {"domain/bizops/pre-algebra/v1": "student"},
     }
 
 
@@ -156,13 +156,13 @@ def _student_user(sub: str = "student1") -> dict[str, Any]:
 class TestExtractShortName:
 
     def test_standard_module_id(self) -> None:
-        assert extract_short_name("domain/edu/pre-algebra/v1") == "pre-algebra"
+        assert extract_short_name("domain/bizops/pre-algebra/v1") == "pre-algebra"
 
-    def test_general_education(self) -> None:
-        assert extract_short_name("domain/edu/general-education/v1") == "general-education"
+    def test_general_operations_module(self) -> None:
+        assert extract_short_name("domain/bizops/general-business-ops/v1") == "general-business-ops"
 
     def test_role_module(self) -> None:
-        assert extract_short_name("domain/edu/teacher/v1") == "teacher"
+        assert extract_short_name("domain/bizops/teacher/v1") == "teacher"
 
     def test_short_id_passthrough(self) -> None:
         assert extract_short_name("pre-algebra") == "pre-algebra"
@@ -176,11 +176,11 @@ class TestResolveModuleShortname:
 
     def test_short_name_resolved(self) -> None:
         ctx = _make_ctx()
-        assert resolve_module_shortname(ctx, "pre-algebra") == "domain/edu/pre-algebra/v1"
+        assert resolve_module_shortname(ctx, "pre-algebra") == "domain/bizops/pre-algebra/v1"
 
     def test_full_path_passthrough(self) -> None:
         ctx = _make_ctx()
-        assert resolve_module_shortname(ctx, "domain/edu/pre-algebra/v1") == "domain/edu/pre-algebra/v1"
+        assert resolve_module_shortname(ctx, "domain/bizops/pre-algebra/v1") == "domain/bizops/pre-algebra/v1"
 
     def test_unknown_name_raises_422(self) -> None:
         ctx = _make_ctx()
@@ -191,7 +191,7 @@ class TestResolveModuleShortname:
 
     def test_role_module_resolvable(self) -> None:
         ctx = _make_ctx()
-        assert resolve_module_shortname(ctx, "teacher") == "domain/edu/teacher/v1"
+        assert resolve_module_shortname(ctx, "teacher") == "domain/bizops/teacher/v1"
 
 
 @pytest.mark.unit
@@ -201,16 +201,16 @@ class TestListLearningModules:
         ctx = _make_ctx()
         result = list_learning_modules(ctx)
         ids = [m["module_id"] for m in result]
-        assert "domain/edu/pre-algebra/v1" in ids
-        assert "domain/edu/teacher/v1" not in ids
-        assert "domain/edu/domain-authority/v1" not in ids
+        assert "domain/bizops/pre-algebra/v1" in ids
+        assert "domain/bizops/teacher/v1" not in ids
+        assert "domain/bizops/domain-authority/v1" not in ids
 
     def test_includes_short_names(self) -> None:
         ctx = _make_ctx()
         result = list_learning_modules(ctx)
         shorts = {m["short_name"] for m in result}
         assert "pre-algebra" in shorts
-        assert "general-education" in shorts
+        assert "general-business-ops" in shorts
 
     def test_count(self) -> None:
         ctx = _make_ctx()
@@ -238,7 +238,7 @@ class TestAssignModulesHandler:
         assert result["status"] == "assigned"
         assert result["count"] == 1
         assert result["assignments"][0]["user_id"] == "student1"
-        assert "domain/edu/pre-algebra/v1" in result["assignments"][0]["module_ids"]
+        assert "domain/bizops/pre-algebra/v1" in result["assignments"][0]["module_ids"]
 
     def test_multi_module_single_student(self) -> None:
         ctx = _make_ctx()
@@ -252,8 +252,8 @@ class TestAssignModulesHandler:
         )
         assert result["count"] == 1
         mods = result["assignments"][0]["module_ids"]
-        assert "domain/edu/pre-algebra/v1" in mods
-        assert "domain/edu/algebra-intro/v1" in mods
+        assert "domain/bizops/pre-algebra/v1" in mods
+        assert "domain/bizops/algebra-intro/v1" in mods
 
     def test_classroom_target(self) -> None:
         ctx = _make_ctx(
@@ -345,12 +345,12 @@ class TestAssignModulesHandler:
         result = asyncio.run(
             assign_modules_handler(
                 "assign_modules",
-                {"module_ids": "domain/edu/pre-algebra/v1", "target": "student1"},
+                {"module_ids": "domain/bizops/pre-algebra/v1", "target": "student1"},
                 teacher, ctx,
             )
         )
         assert result["status"] == "assigned"
-        assert "domain/edu/pre-algebra/v1" in result["assignments"][0]["module_ids"]
+        assert "domain/bizops/pre-algebra/v1" in result["assignments"][0]["module_ids"]
 
 
 # ═════════════════════════════════════════════════════════════
@@ -410,10 +410,10 @@ class TestSwitchModuleShortName:
         student = _student_user()
         # Set up profile with governed modules using full path
         ctx.persistence.get_user = MagicMock(
-            return_value={"user_id": "student1", "governed_modules": ["domain/edu/pre-algebra/v1"]},
+            return_value={"user_id": "student1", "governed_modules": ["domain/bizops/pre-algebra/v1"]},
         )
         ctx.persistence.load_subject_profile = MagicMock(return_value={
-            "modules": {"domain/edu/pre-algebra/v1": {}},
+            "modules": {"domain/bizops/pre-algebra/v1": {}},
         })
         result = asyncio.run(
             switch_active_module_handler(
@@ -423,26 +423,26 @@ class TestSwitchModuleShortName:
             )
         )
         assert result["status"] == "switched"
-        assert result["module_id"] == "domain/edu/pre-algebra/v1"
+        assert result["module_id"] == "domain/bizops/pre-algebra/v1"
 
     def test_switch_with_full_path(self) -> None:
         ctx = _make_ctx()
         student = _student_user()
         ctx.persistence.get_user = MagicMock(
-            return_value={"user_id": "student1", "governed_modules": ["domain/edu/pre-algebra/v1"]},
+            return_value={"user_id": "student1", "governed_modules": ["domain/bizops/pre-algebra/v1"]},
         )
         ctx.persistence.load_subject_profile = MagicMock(return_value={
-            "modules": {"domain/edu/pre-algebra/v1": {}},
+            "modules": {"domain/bizops/pre-algebra/v1": {}},
         })
         result = asyncio.run(
             switch_active_module_handler(
                 "switch_active_module",
-                {"module_id": "domain/edu/pre-algebra/v1"},
+                {"module_id": "domain/bizops/pre-algebra/v1"},
                 student, ctx,
             )
         )
         assert result["status"] == "switched"
-        assert result["module_id"] == "domain/edu/pre-algebra/v1"
+        assert result["module_id"] == "domain/bizops/pre-algebra/v1"
 
 
 # ═════════════════════════════════════════════════════════════
@@ -502,3 +502,4 @@ class TestAssignModulesSelfKeyword:
         )
         assert result["status"] == "assigned"
         assert result["assignments"][0]["user_id"] == "teacher1"
+

@@ -291,7 +291,7 @@ def create_jwt(
         Module IDs this user governs (only meaningful for ``admin``).
     domain_roles:
         Mapping of domain module IDs to domain-scoped role IDs
-        (e.g. ``{"domain/edu/algebra-level-1/v1": "teaching_assistant"}``).
+        (e.g. ``{"domain/bizops/auto-repair/v1": "operator"}``).
         Omit or pass ``None`` for users with no domain-scoped roles.
     ttl_minutes:
         Token lifetime override.  Falls back to ``LUMINA_JWT_TTL_MINUTES``.
@@ -377,7 +377,7 @@ def verify_jwt(token: str) -> dict[str, Any]:
         raise TokenInvalidError("Payload is not a JSON object")
 
     exp = payload.get("exp")
-    if isinstance(exp, (int, float)) and time.time() > exp:
+    if isinstance(exp, (int, float)) and time.time() >= exp:
         raise TokenExpiredError("Token has expired")
 
     if payload.get("iss") != JWT_ISSUER:

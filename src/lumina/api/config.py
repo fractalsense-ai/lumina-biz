@@ -196,9 +196,23 @@ def _ensure_user_profile(
     # Check key-based store first (DB backend)
     existing = PERSISTENCE.load_profile(user_id, domain_key)
     if existing is not None:
+        _subject_id_injected = False
+        _existing_subject_id = existing.get("subject_id")
+        if not isinstance(_existing_subject_id, str) or not _existing_subject_id.strip():
+            existing["subject_id"] = user_id
+            _subject_id_injected = True
+            try:
+                PERSISTENCE.save_profile(user_id, domain_key, existing)
+            except Exception:
+                log.debug("Could not persist subject_id for existing profile user=%s", user_id)
         # Ensure the filesystem copy also exists for path-based callers
         if not target.exists():
             target.parent.mkdir(parents=True, exist_ok=True)
+            import yaml
+            with open(target, "w", encoding="utf-8") as fh:
+                yaml.safe_dump(existing, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        elif _subject_id_injected:
+            # Keep file copy in sync when legacy profiles lacked subject_id.
             import yaml
             with open(target, "w", encoding="utf-8") as fh:
                 yaml.safe_dump(existing, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
@@ -240,6 +254,12 @@ def _ensure_user_profile(
             from lumina.core.yaml_loader import load_yaml
             fresh = load_yaml(str(target))
             if isinstance(fresh, dict):
+                _fresh_subject_id = fresh.get("subject_id")
+                if not isinstance(_fresh_subject_id, str) or not _fresh_subject_id.strip():
+                    fresh["subject_id"] = user_id
+                    import yaml
+                    with open(target, "w", encoding="utf-8") as fh:
+                        yaml.safe_dump(fresh, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
                 PERSISTENCE.save_profile(user_id, domain_key, fresh)
         except Exception:
             log.debug("Could not save new profile to key-based store for user=%s", user_id)

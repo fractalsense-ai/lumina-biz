@@ -1,0 +1,30 @@
+# version: 0.1.0
+# last_updated: 2026-07-30
+pack_id: business-ops
+version: "0.1.0"
+description: "Business operations domain pack bootstrap for auto repair MVP workflows."
+
+layers:
+  model:
+    - modules/*/domain-physics.json
+    - domain-lib/
+  controller:
+    - controllers/runtime_adapters.py
+    - controllers/nlp_pre_interpreter.py
+    - modules/*/tool-adapters/*.yaml
+  domain_lib:
+    - domain-lib/reference/turn-interpretation-spec-v1.md
+  view:
+    - prompts/domain-persona-v1.md
+  docs:
+    - docs/
+
+modules:
+  - auto-repair
+
+default_module: auto-repair
+
+entry_points:
+  runtime_config: cfg/runtime-config.yaml
+  runtime_adapter: controllers/runtime_adapters.py
+  nlp_pre_interpreter: controllers/nlp_pre_interpreter.py

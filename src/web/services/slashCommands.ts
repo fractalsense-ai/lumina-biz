@@ -36,7 +36,7 @@ export interface SlashCommandDef {
   defaultParams?: Record<string, string>
   /** Domain roles that may see/execute this command. Empty = all roles. */
   allowedRoles: string[]
-  /** Restrict this command to a specific domain key (e.g. 'education'). */
+  /** Restrict this command to a specific domain key (e.g. 'business-ops'). */
   domainScope?: string
   /** Aliases that also trigger this command. */
   aliases?: string[]
@@ -371,9 +371,9 @@ function buildMergedMap(): Map<string, SlashCommandDef> {
  * addRoleEquivalences(), keeping domain-specific role knowledge
  * out of the framework.
  *
- * @param effectiveRole  The domain-specific role (e.g. 'student', 'system_admin')
+ * @param effectiveRole  The domain-specific role (e.g. 'service_writer', 'system_admin')
  * @param platformRole   Optional platform-level role from auth (e.g. 'root')
- * @param domainKey      Optional current domain key (e.g. 'education', 'system')
+ * @param domainKey      Optional current domain key (e.g. 'business-ops', 'system')
  */
 export function getCommandsForRole(effectiveRole: string, platformRole?: string, domainKey?: string): SlashCommandDef[] {
   const all = getAllCommands()

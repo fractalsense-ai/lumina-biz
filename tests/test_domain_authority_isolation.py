@@ -65,7 +65,7 @@ class TestDomainAuthorityTokenScope:
         assert "admin" in DOMAIN_ADMIN_ROLES
 
     def test_da_governed_modules_in_token(self):
-        modules = ["domain/edu/algebra/v1", "domain/edu/geometry/v1"]
+        modules = ["domain/bizops/algebra/v1", "domain/bizops/geometry/v1"]
         token = create_scoped_jwt(
             user_id="da1", role="admin", governed_modules=modules,
         )
@@ -151,8 +151,8 @@ class TestGovernedModulesBoundary:
             user_role="admin",
             module_permissions=self._make_perms(),
             operation=Operation.READ,
-            governed_modules=["domain/edu/algebra/v1"],
-            module_id="domain/edu/algebra/v1",
+            governed_modules=["domain/bizops/algebra/v1"],
+            module_id="domain/bizops/algebra/v1",
         )
         assert result is True
 
@@ -162,8 +162,8 @@ class TestGovernedModulesBoundary:
             user_role="admin",
             module_permissions=self._make_perms(),
             operation=Operation.READ,
-            governed_modules=["domain/edu/algebra/v1"],
-            module_id="domain/edu/geometry/v1",
+            governed_modules=["domain/bizops/algebra/v1"],
+            module_id="domain/bizops/geometry/v1",
         )
         assert result is False
 
@@ -174,7 +174,7 @@ class TestGovernedModulesBoundary:
             module_permissions=self._make_perms(),
             operation=Operation.READ,
             governed_modules=[],
-            module_id="domain/edu/algebra/v1",
+            module_id="domain/bizops/algebra/v1",
         )
         assert result is False
 
@@ -186,12 +186,12 @@ class TestGovernedModulesBoundary:
             module_permissions=self._make_perms(),
             operation=Operation.READ,
             governed_modules=[],
-            module_id="domain/edu/algebra/v1",
+            module_id="domain/bizops/algebra/v1",
         )
         assert result is True
 
     def test_da_multiple_governed_modules(self):
-        modules = ["domain/edu/algebra/v1", "domain/edu/geometry/v1"]
+        modules = ["domain/bizops/algebra/v1", "domain/bizops/geometry/v1"]
         for mod in modules:
             result = check_permission(
                 user_id="da1",
@@ -242,3 +242,4 @@ class TestNoEscalationPath:
             verify_scoped_jwt(user_token)["token_scope"],
         }
         assert scopes == {"admin", "domain", "user"}
+

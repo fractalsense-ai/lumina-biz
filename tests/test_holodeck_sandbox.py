@@ -52,7 +52,7 @@ def _auth_header(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
-# Correct evidence fields for the education algebra domain invariants:
+# Correct evidence fields for the business-ops algebra domain invariants:
 #   solution_verifies → check: "substitution_check"
 #   standard_method_preferred → check: "method_recognized"
 #   no_illegal_operations → check: "illegal_operations == []"
@@ -63,21 +63,21 @@ _VALID_TURN_DATA = {
     "equivalence_preserved": True,
     "step_count": 3,
     "min_steps": 1,
-    "problem_solved": True,
+    "task_ready_for_execution": True,
     "student_answer": "x = 5",
 }
 
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/education/cfg/runtime-config.yaml")
+    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
     monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
     mod = _load_api_module()
     mod.PERSISTENCE = NullPersistenceAdapter()
     mod.BOOTSTRAP_MODE = True
     mod.DOMAIN_REGISTRY = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/education/cfg/runtime-config.yaml",
+        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
         load_runtime_context_fn=load_runtime_context,
     )
     mod._session_containers.clear()
@@ -408,3 +408,4 @@ class TestHolodeckSandbox:
         finally:
             with _STAGED_COMMANDS_LOCK:
                 _STAGED_COMMANDS.pop(staged_id, None)
+

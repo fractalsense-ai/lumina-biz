@@ -62,12 +62,12 @@ def test_escalation_card_includes_session_context() -> None:
         "target_role": "admin",
     }
     ctx = {
-        "domain_id": "education/pre-algebra",
+        "domain_id": "business-ops/pre-algebra",
         "turn_count": 12,
         "actor_pseudonym": "Student A",
     }
     card = build_escalation_card(record, session_context=ctx)
-    assert card["context"]["domain_id"] == "education/pre-algebra"
+    assert card["context"]["domain_id"] == "business-ops/pre-algebra"
     assert card["context"]["turn_count"] == 12
     assert card["context"]["actor_pseudonym"] == "Student A"
 
@@ -109,7 +109,7 @@ def test_command_card_has_required_fields() -> None:
         "parsed_command": {
             "operation": "update_physics",
             "params": {"key": "value"},
-            "target": "education/pre-algebra",
+            "target": "business-ops/pre-algebra",
         },
         "original_instruction": "Update the physics config",
         "actor_id": "admin-user",
@@ -151,7 +151,7 @@ def test_command_card_context_fields() -> None:
         "staged_id": "cmd-004",
         "parsed_command": {
             "operation": "register_domain",
-            "params": {"domain_id": "agriculture/wheat"},
+            "params": {"domain_id": "business-ops/wheat"},
             "target": "system",
         },
         "original_instruction": "Register wheat domain",
@@ -318,7 +318,7 @@ def test_ingestion_review_card_basic_fields() -> None:
         "document_id": "doc-001",
         "original_filename": "lesson.pdf",
         "status": "review_pending",
-        "domain_id": "education",
+        "domain_id": "business-ops",
     }
     card = build_ingestion_review_card(record)
 
@@ -420,3 +420,4 @@ def test_command_list_card_empty_commands() -> None:
 def test_command_list_card_missing_commands_key() -> None:
     card = build_command_list_card({})
     assert card["total_count"] == 0
+

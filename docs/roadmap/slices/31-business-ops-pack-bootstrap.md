@@ -1,9 +1,9 @@
 ---
 title: "Slice 31 — Connector Registry and Capability Routing"
 slice: 31
-status: planned
-version: 0.1.0
-last_updated: 2026-07-11
+status: delivered
+version: 1.0.0
+last_updated: 2026-07-31
 ---
 
 ## Purpose
@@ -60,6 +60,13 @@ Define deterministic connector registration and capability routing so each site 
 - Deterministic routing tests for precedence and fallback.
 - Connector capability/health validation tests.
 - Negative tests for ambiguous routes and missing idempotency keys.
+
+## Delivery Evidence
+
+- `pytest tests/test_connector_routing.py tests/test_connector_routing_contracts.py tests/test_connector_routing_api.py -q`
+  - Result: `21 passed`
+- Connector-routing contracts delivered under `standards/` and validated by contract tests.
+- Scoped preflight route and transcript-free routing-decision evidence wiring delivered.
 
 ## Ledger/Governance Impact
 

@@ -4,7 +4,7 @@ Factory functions that populate ``ChatResponse.structured_content``
 (historically always ``None``).  Card types supported:
 
 - **escalation** — surfaces an EscalationRecord to the session
-  supervisor (teacher) or domain authority so they can approve / reject /
+    supervisor (assigned reviewer) or domain authority so they can approve / reject /
   defer directly in the chat interface.
 - **command_proposal** — surfaces a staged HITL admin command so the
   authority can accept / reject / modify it inline.
@@ -53,7 +53,7 @@ def build_escalation_card(
     Args:
         escalation_record: The EscalationRecord dict from the System Log.
         session_context:   Optional dict with session summary info
-                           (domain, student pseudonym, turn count).
+                           (domain, subject pseudonym, turn count).
 
     Returns:
         A dict conforming to the action-card-schema-v1 JSON Schema.
@@ -167,7 +167,7 @@ def build_physics_edit_card(
                               ``affected_ids``, ``confidence``.
         domain_physics:       Current domain-physics.json snapshot.
         requires_escalation:  Whether the proposing actor is below DA level.
-        escalation_record_id: EscalationRecord ID for teacher/TA proposals.
+        escalation_record_id: EscalationRecord ID for reviewer proposals.
 
     Returns:
         A dict conforming to the physics-edit-proposal-schema-v1 JSON Schema.

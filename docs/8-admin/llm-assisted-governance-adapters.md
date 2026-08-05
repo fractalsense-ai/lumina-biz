@@ -84,7 +84,7 @@ Governance adapters prevent context bleed at four distinct layers:
 
 | Layer | Mechanism | Purpose |
 |-------|-----------|---------|
-| **1. Persona** | `governance-persona-v1.md` | Replaces content persona (algebra, agriculture, etc.) with administrative rendering rules |
+| **1. Persona** | `governance-persona-v1.md` | Replaces content persona (algebra, business-ops, etc.) with administrative rendering rules |
 | **2. Turn Interpretation** | `governance-turn-interpretation-spec-v1.md` | SLM evidence schema shaped for commands/status queries instead of learning metrics |
 | **3. Task Weight** | `governance_*` weight types in `TaskWeight` | Routes low-weight governance turns (status, progress) to SLM; reserves LLM for `governance_command` |
 | **4. Command Dispatch** | `interpret_turn_input()` + deterministic fallback | Classifies governance intents, routes to admin operations, builds structured action cards |
@@ -347,12 +347,13 @@ To add governance adapters to a new domain pack:
 
 | File | Role |
 |------|------|
-| `model-packs/education/controllers/governance_adapters.py` | Reference implementation: state builder, turn interpreter, physics patch extraction, novel synthesis |
-| `model-packs/education/prompts/governance-persona-v1.md` | Education governance persona |
-| `model-packs/education/prompts/governance-turn-interpretation-spec-v1.md` | Governance SLM evidence schema |
-| `model-packs/education/cfg/runtime-config.yaml` | Module_map entries with per-module overrides |
+| `model-packs/business-ops/controllers/runtime_adapters.py` | Reference implementation: state builder, turn interpreter, and deterministic policy hooks |
+| `model-packs/business-ops/prompts/domain-persona-v1.md` | Domain governance persona baseline |
+| `model-packs/business-ops/domain-lib/reference/turn-interpretation-spec-v1.md` | Turn interpretation evidence schema |
+| `model-packs/business-ops/cfg/runtime-config.yaml` | Module_map entries with per-module overrides |
 | `src/lumina/core/runtime_loader.py` | Pre-compiles per-module system prompts and turn interpretation specs |
 | `src/lumina/api/processing.py` | LLM-assisted physics editing orchestration |
 | `src/lumina/api/structured_content.py` | Action card builders for physics edits and ingestion review |
 | `src/lumina/core/slm.py` | TaskWeight enum with governance_* classifications |
 | `standards/physics-edit-proposal-schema-v1.json` | Schema for physics edit proposal action cards |
+

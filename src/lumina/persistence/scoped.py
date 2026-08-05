@@ -55,7 +55,7 @@ class ScopedPersistenceAdapter:
     inner:
         The underlying ``PersistenceAdapter`` (filesystem or sqlite).
     domain_id:
-        The domain this adapter is scoped to (e.g. ``"education"``).
+        The domain this adapter is scoped to (e.g. ``"business-ops"``).
     module_id:
         Optional module ID for module-tier scoping.
     """
@@ -142,7 +142,7 @@ class ScopedPersistenceAdapter:
 
     # ── Safe user reads (password_hash stripped) ─────────────
     # Domain-pack handlers may need to resolve user info for
-    # operations like "assign teacher to module".  Read access is
+    # operations like "assign reviewer to module".  Read access is
     # allowed but password hashes are always stripped.
 
     def get_user(self, user_id: str) -> dict[str, Any] | None:
@@ -162,8 +162,8 @@ class ScopedPersistenceAdapter:
         """Return True if the identifier belongs to this domain.
 
         Accepts:
-        - The domain_id itself (``"education"``)
-        - Hierarchical IDs prefixed with the domain_id (``"education/algebra-v1"``)
+        - The domain_id itself (``"business-ops"``)
+        - Hierarchical IDs prefixed with the domain_id (``"business-ops/auto-repair-v1"``)
         - Simple names without ``/`` (implicitly belong to the current domain)
 
         Rejects hierarchical IDs that start with a *different* domain prefix.

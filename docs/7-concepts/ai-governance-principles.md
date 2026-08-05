@@ -127,7 +127,7 @@ These principles are technology-agnostic. They apply equally to text-based assis
 
 **Principle:** A well-governed system enforces domain boundaries through the structure of context assembly, not through instructions to the language model. The model cannot access what was never loaded.
 
-**The failure mode:** A system that tells a language model "you are operating in the education domain, do not discuss system administration" is relying on the model to honor an instruction under adversarial conditions. Instructions can be overridden by prompt injection, by sufficiently persistent conversation, or by model reasoning that concludes the instruction is no longer applicable. Structural isolation cannot be overridden because there is nothing to override — the out-of-scope context was never loaded.
+**The failure mode:** A system that tells a language model "you are operating in the business-ops domain, do not discuss system administration" is relying on the model to honor an instruction under adversarial conditions. Instructions can be overridden by prompt injection, by sufficiently persistent conversation, or by model reasoning that concludes the instruction is no longer applicable. Structural isolation cannot be overridden because there is nothing to override — the out-of-scope context was never loaded.
 
 **What this requires:**
 - Domain-specific knowledge, tools, and rules are stored in domain-scoped structures that are loaded only when that domain is active for the current interaction.
@@ -156,3 +156,4 @@ These principles are technology-agnostic. They apply equally to text-based assis
 - [`domain-pack-anatomy(7)`](domain-pack-anatomy.md) — principle 9 implemented: structural domain isolation
 - [`command-execution-pipeline(7)`](command-execution-pipeline.md) — principle 8 implemented: HITL as the universal gate for real-world action
 - [`dsa-framework(7)`](dsa-framework.md) — the structural schema (Domain, State, Actor) that these principles produce when applied together
+

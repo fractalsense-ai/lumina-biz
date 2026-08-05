@@ -136,6 +136,7 @@ from lumina.api.routes.admin import (  # noqa: E402
 )
 from lumina.api.routes.auth import router as auth_router  # noqa: E402
 from lumina.api.routes.chat import router as chat_router  # noqa: E402
+from lumina.api.routes.connector_routing import router as connector_routing_router  # noqa: E402
 from lumina.api.routes.thread_routing import router as thread_routing_router  # noqa: E402
 from lumina.api.routes.decision_precedent import router as decision_precedent_router  # noqa: E402
 from lumina.api.routes.system_log import router as system_log_router  # noqa: E402
@@ -153,6 +154,7 @@ from lumina.api.routes.system import router as system_router  # noqa: E402
 from lumina.api.routes.consent import router as consent_router  # noqa: E402
 from lumina.api.routes.holodeck import router as holodeck_router  # noqa: E402
 from lumina.api.routes.panels import router as panels_router  # noqa: E402
+from lumina.api.routes.workflow import router as workflow_router  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────
 # FastAPI Application
@@ -211,6 +213,7 @@ app.add_middleware(_InFlightCounterMiddleware)
 
 # Register route groups
 app.include_router(chat_router)
+app.include_router(connector_routing_router)
 app.include_router(thread_routing_router)
 app.include_router(decision_precedent_router)
 app.include_router(auth_router)
@@ -227,6 +230,7 @@ app.include_router(events_router)
 app.include_router(consent_router)
 app.include_router(holodeck_router)
 app.include_router(panels_router)
+app.include_router(workflow_router)
 
 
 # ─────────────────────────────────────────────────────────────

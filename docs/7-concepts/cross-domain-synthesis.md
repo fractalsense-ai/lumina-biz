@@ -19,7 +19,7 @@ This document defines how Project Lumina enables controlled, opt-in structural a
 
 A **cross-domain synthesis** occurs when the system identifies structural similarities between two or more domains — not at the content level (the domains remain independently authoritative) but at the *physics* level: the shape of their invariants, the topology of their standing order chains, and the vocabulary overlaps in their glossaries.
 
-Example:  An education domain and an agriculture domain may both define a "tolerance threshold" invariant that delegates to a subsystem monitor, chains to a "reduce challenge" standing order, and escalates after three attempts.  The **domains** are unrelated, but the **governance patterns** are homomorphic.  Identifying this allows domain authorities to:
+Example:  An business-ops domain and an business-ops domain may both define a "tolerance threshold" invariant that delegates to a subsystem monitor, chains to a "reduce challenge" standing order, and escalates after three attempts.  The **domains** are unrelated, but the **governance patterns** are homomorphic.  Identifying this allows domain authorities to:
 
 - Share proven governance structures without sharing content.
 - Discover that a standing order pattern successful in one domain may apply in another.
@@ -60,7 +60,7 @@ Cross-domain synthesis is configured in each domain's `domain-physics.json`:
 cross_domain_synthesis:
   enabled: true                   # opt in to cross-domain analysis
   peer_domains:                   # which domains to compare with
-    - agriculture                 # must be mutual — agriculture must also list education
+    - business-ops                 # must be mutual — business-ops must also list business-ops
   share_glossary: true            # include glossary terms in structural comparison
   share_invariant_structure: true # include invariant patterns in physics comparison
 ```
@@ -84,7 +84,7 @@ The first pass compares the **glossary index** of each domain pair:
 3. Score: `|shared_terms| / min(|terms_a|, |terms_b|)`.
 4. Threshold: 0.15 (at least 15% term overlap to proceed).
 
-This pass identifies **vocabulary bridges** — domains that share conceptual language even if their physics are different.  For example, both an education domain and a project management domain might share terms like "milestone", "assessment", and "progress".
+This pass identifies **vocabulary bridges** — domains that share conceptual language even if their physics are different.  For example, both an business-ops domain and a project management domain might share terms like "milestone", "assessment", and "progress".
 
 ### Pass 2 — Invariant Structure Comparison
 
@@ -107,7 +107,7 @@ This pass identifies **invariant homomorphisms** — invariants that serve the s
 
 Cross-domain synthesis findings produce `Proposal` objects with `required_approvers` set to both domain IDs.  Approval follows a dual-key pattern:
 
-1. The daemon generates a proposal: `"Cross-domain similarity between education and agriculture: glossary overlap (3 shared terms); invariant structure match (2 pairs)"`
+1. The daemon generates a proposal: `"Cross-domain similarity between business-ops and business-ops: glossary overlap (3 shared terms); invariant structure match (2 pairs)"`
 2. The proposal is visible in the governance dashboard for **both** domain authorities.
 3. Each DA independently reviews and approves or rejects.
 4. **Both must approve** for the proposal to be recorded as `cross_domain_synthesis_verified` in the System Logs.
@@ -152,3 +152,4 @@ Cross-domain synthesis is an extension of the [Novel Synthesis Framework](novel-
 | Single domain authority approves | Both domain authorities must approve |
 
 The system treats cross-domain findings as novel synthesis candidates — they enter the same verification pipeline but with the additional constraint of dual approval.
+

@@ -31,7 +31,7 @@ Session execution is restricted to principals with `root` or `super_admin` roles
 
 ## Role-Based Default Routing
 
-See `cfg/domain-registry.yaml` (`role_defaults`) and `src/lumina/core/domain_registry.py` (`resolve_default_for_user`).  The global `default_domain: education` is intentionally kept to mask system internals from domain-level users.
+See `cfg/domain-registry.yaml` (`role_defaults`) and `src/lumina/core/domain_registry.py` (`resolve_default_for_user`).  The global `default_domain` should point to the active non-system domain (currently `business-ops`) so domain-level users are not routed into system internals.
 
 ## What system domain sessions support
 

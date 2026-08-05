@@ -2,8 +2,8 @@
 title: "Slice 36 — Single-Box Deployment and Operational Hardening"
 slice: 36
 status: planned
-version: 0.1.0
-last_updated: 2026-07-11
+version: 0.2.0
+last_updated: 2026-08-03
 ---
 
 ## Purpose
@@ -16,6 +16,7 @@ Define and validate the single-box deployment profile for pilot rollout, includi
 - Define connector/runtime operational health checks and startup ordering.
 - Define backup/restore and local retention controls for institutional memory artifacts.
 - Define operator runbooks for route failures, connector degradation, and escalation backlog handling.
+- Preserve Slice 39 generic service-core invariants so vertical variation remains profile/presentation-level during hardening work.
 
 ## Out of Scope
 
@@ -49,6 +50,7 @@ Define and validate the single-box deployment profile for pilot rollout, includi
 - Degraded-mode behaviors are deterministic and auditable.
 - Operator runbooks cover the top failure and recovery paths.
 - Readiness checklist is complete and executable.
+- Hardening changes do not fork canonical service workflow semantics by vertical (for example towing vs retail-delivery).
 
 ## Tests
 
@@ -63,4 +65,5 @@ Define and validate the single-box deployment profile for pilot rollout, includi
 
 ## Follow-Up Slices
 
+- Slice 39: generic ERP service core and vertical profile layer (contract anchor that hardening must preserve).
 - Next roadmap phase: broaden vertical coverage and multi-site operational tooling.
