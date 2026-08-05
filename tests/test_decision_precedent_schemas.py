@@ -63,7 +63,8 @@ def test_confidence_contract_rejects_raw_message_field() -> None:
 @pytest.mark.unit
 def test_escalation_packet_contract_rejects_provider_mutation_data() -> None:
     packet = {
-        "packet_id": "packet-a", "organization_id": "org-a", "site_id": "site-a",
+        "packet_id": "packet-a", "decision_group_key": "org-a:site-a:actor-a:financial",
+        "organization_id": "org-a", "site_id": "site-a",
         "actor_id": "actor-a", "confidence_record_id": "confidence-a", "policy_version": 1,
         "risk_class": "financial", "tier": "mandatory_escalation",
         "target_role": "business-ops:owner-manager", "status": "pending",
