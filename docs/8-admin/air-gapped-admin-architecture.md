@@ -1,13 +1,13 @@
 ---
-version: 1.0.0
-last_updated: 2026-03-20
+version: 1.1.0
+last_updated: 2026-08-05
 ---
 
 # Air-Gapped Admin Architecture
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Active  
-**Last updated:** 2026-06-15  
+**Last updated:** 2026-08-05  
 
 ---
 
@@ -23,7 +23,12 @@ Project Lumina separates authentication into three parallel tracks:
 
 Tokens from one track are cryptographically invalid on the others — each track uses a separate signing secret. This architectural separation is designed to evolve into full physical isolation (separate auth services per track, network boundaries) without application-level changes.
 
+In Slice 37 authority terms, ERP is the single source of truth for non-system actor identity
+and membership context. Lumina system-track credentials (`root`, `super_admin`) remain
+Lumina-issued and are not delegated to ERP.
+
 For the full design rationale and escalation prevention analysis, see [parallel-authority-tracks](../7-concepts/parallel-authority-tracks.md).
+For the normative boundary contract, see [erp-identity-authority-v1](../5-standards/erp-identity-authority-v1.md).
 
 ## Token Structure
 

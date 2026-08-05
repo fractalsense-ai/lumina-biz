@@ -2,8 +2,8 @@
 title: "Slice 37 — ERP Identity Authority and Claim Contract"
 slice: 37
 status: active
-version: 0.1.0
-last_updated: 2026-08-03
+version: 0.1.1
+last_updated: 2026-08-05
 ---
 
 ## Purpose
@@ -17,7 +17,6 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 - Define canonical ERP-issued JWT claim schema used by Lumina runtime.
 - Define issuer, audience, expiry, and key-rotation contract requirements.
 - Define required role/context mapping from ERP claims into Lumina authorization checks.
-- Define break-glass and outage posture for temporary fallback and audit requirements.
 
 ## Out of Scope
 
@@ -30,7 +29,6 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 - Add new concept/standards documentation for ERP identity authority boundaries.
 - Add canonical claim contract with required and optional fields.
 - Add rejection rules for malformed or unauthorized ERP claims.
-- Add migration notes describing legacy Lumina domain/user auth compatibility window.
 
 ## New/Changed Contracts
 
@@ -38,7 +36,6 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 - New contract: `erp_jwt_claim_contract_v1` including:
   - Required: `iss`, `aud`, `sub`, `exp`, `iat`, `jti`, `role`, `organization_id`, `site_id`
   - Optional: `domain_roles`, `governed_modules`, `device_id`, `site_role`
-- New contract: `erp_auth_fallback_policy_v1` (time-bound fallback and audit constraints).
 
 ## Files Likely Touched
 
@@ -55,7 +52,6 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 - System/developer control-plane authentication remains on a distinct Lumina-issued JWT track.
 - Canonical ERP JWT claim schema is complete and unambiguous.
 - Issuer/audience/expiry requirements and deny behavior are documented.
-- Break-glass behavior is explicitly bounded, auditable, and non-default.
 
 ## Tests
 
@@ -70,12 +66,16 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 
 ## Ledger/Governance Impact
 
-- Auth denials and fallback activations become explicit governance/audit events.
+- Auth denials become explicit governance/audit events.
 - Identity truth moves to ERP for non-system actors; Lumina remains policy enforcement runtime and retains system-track token authority.
 
 ## Follow-Up Slices
 
 - Slice 38: ERP JWT verification gateway and auth endpoint transition.
+
+## Delivery Notes
+
+- 2026-08-05: PR1 started. Added ERP versus Lumina identity authority boundary standard and aligned concept/admin docs to declare ERP as SSOT for non-system identity context while preserving Lumina-owned system-track auth.
 
 ## Implementation-Ready PR Description Template
 
@@ -87,7 +87,7 @@ Slice 37: ERP identity authority and JWT claim contract
 
 - Define ERP as SSOT for domain/user identities.
 - Define canonical JWT claim contract and validation rules.
-- Define bounded fallback posture and audit obligations.
+- Define deterministic deny-path behavior for invalid or unauthorized claims.
 
 ### Acceptance Criteria
 
@@ -98,7 +98,7 @@ Slice 37: ERP identity authority and JWT claim contract
 ### Test Checklist
 
 - [ ] Contract validation scenarios documented (valid/invalid issuer, audience, required claims, expiry).
-- [ ] Deny-path and fallback governance behavior documented.
+- [ ] Deny-path behavior documented.
 - [ ] Repo integrity checks pass.
 
 ### Out of Scope Confirmations

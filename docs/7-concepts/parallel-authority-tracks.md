@@ -1,15 +1,15 @@
 ---
 section: 7
 title: Parallel Authority Tracks
-version: 1.0.0
-last_updated: 2026-04-11
+version: 1.1.0
+last_updated: 2026-08-05
 ---
 
 # Parallel Authority Tracks
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Active
-**Last updated:** 2026-04-11
+**Last updated:** 2026-08-05
 
 ---
 
@@ -18,6 +18,10 @@ last_updated: 2026-04-11
 Root owns the system. Domain Authority owns their domain. Equal privilege within their
 respective scope. The API is the only crossing point. No escalation path exists because
 the tracks never merge.
+
+For non-system actors, identity and organization/site membership context is ERP-owned.
+Lumina remains authoritative only for system-track control-plane identities (`root`,
+`super_admin`) and policy enforcement.
 
 ## Problem
 
@@ -185,4 +189,5 @@ falls back to `LUMINA_JWT_SECRET` for that track. Production deployments should 
 - [domain-role-hierarchy](domain-role-hierarchy.md) — Domain-scoped role hierarchy
 - [domain-authority-roles](../8-admin/domain-authority-roles.md) — DA rights and obligations
 - [auth(3)](../3-functions/auth.md) — JWT authentication module
+- [erp-identity-authority-v1](../5-standards/erp-identity-authority-v1.md) — normative ERP versus Lumina identity authority contract
 
