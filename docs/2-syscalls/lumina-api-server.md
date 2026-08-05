@@ -250,14 +250,14 @@ Resolve an open escalation with a decision.
 | `decision` | `string` | required | `"approve"`, `"reject"`, or `"defer"` |
 | `reasoning` | `string` | required | Free-text rationale recorded in the System Logs |
 | `generate_pin` | `bool` | `false` | When `true`, generates a 6-digit OTP, freezes the session, and returns `unlock_pin` in the response |
-| `intervention_notes` | `string \| null` | `null` | Free-text intervention notes appended to the student's `intervention_history` in their profile |
+| `intervention_notes` | `string \| null` | `null` | Free-text intervention notes appended to the subject `intervention_history` in profile state |
 | `generate_proposal` | `bool` | `false` | Marks the intervention notes entry for daemon batch proposal generation |
 
 **Response:** `{record_id, escalation_id, decision}` plus `unlock_pin` (6-digit string) when `generate_pin=true`.
 
 **Auth:** Bearer token required. Roles: `root`, `admin`.
 
-**Notes:** Setting `generate_pin=true` both generates the PIN (stored in memory, TTL from `LUMINA_UNLOCK_PIN_TTL_SECONDS`) and atomically sets `SessionContainer.frozen=True` for the session. The teacher delivers the PIN to the student out-of-band. See [escalation-pin-unlock](../8-admin/escalation-pin-unlock.md) for the full workflow.
+**Notes:** Setting `generate_pin=true` both generates the PIN (stored in memory, TTL from `LUMINA_UNLOCK_PIN_TTL_SECONDS`) and atomically sets `SessionContainer.frozen=True` for the session. The reviewer delivers the PIN to the subject out-of-band. See [escalation-pin-unlock](../8-admin/escalation-pin-unlock.md) for the full workflow.
 
 ---
 

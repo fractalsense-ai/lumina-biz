@@ -52,7 +52,7 @@
         },
         "intended_domain_role": {
           "type": "string",
-          "description": "Original domain-specific role from SLM output (e.g. student, teacher) before mapping to system role."
+          "description": "Original domain-specific role from SLM output (e.g. subject, reviewer) before mapping to system role."
         }
       }
     }

@@ -90,8 +90,8 @@ _register(Template(
 ))
 
 _register(Template(
-    template_id="student-profile",
-    description="New student/entity profile YAML",
+    template_id="subject-profile",
+    description="New subject/entity profile YAML",
     required_fields=("profile_id", "entity_name", "domain_id"),
     default_structure={
         "mastery": {},

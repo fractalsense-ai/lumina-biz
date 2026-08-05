@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "lumina://standards/admin-command-schemas/assign-guardian.json",
   "schema_version": "1.0.0",
-  "last_updated": "2026-06-19",
+  "last_updated": "2026-08-03",
   "title": "assign_guardian",
-  "description": "Assign a guardian/parent to a student. Students can self-assign (student_id inferred from caller). Teachers and domain authorities must provide both IDs. Supports multiple guardians per student.",
+  "description": "Assign a guardian/sponsor to a subject entity. Subject callers can self-assign (legacy student_id inferred from caller). Reviewers and domain authorities must provide both IDs. Supports multiple guardians per subject.",
   "type": "object",
   "required": [
     "operation",
@@ -33,7 +33,7 @@
         "student_id": {
           "type": "string",
           "minLength": 1,
-          "description": "User ID or display name of the student. Optional for student callers (defaults to self), required for teacher/DA callers."
+          "description": "Legacy field name for subject ID. Optional for self-service callers (defaults to self), required for reviewer/DA callers."
         }
       }
     }

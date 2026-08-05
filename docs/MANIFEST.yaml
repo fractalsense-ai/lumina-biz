@@ -343,7 +343,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-06-15
-  sha256: af29dc66b87edceaa135e6b7da69091387ac79ef7db4bd33b7385706011fc741
+  sha256: 2420b52dcdbb7ee90be6cd4eede40bb77d2647bcd40f4c0b71a4886c12ea6432
 - path: docs/3-functions/README.md
   type: doc
   section: 3
@@ -791,7 +791,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-19
-  sha256: 0d9b8a40f9315dc645dd8ace309960c260b9e18225e3e41b9ea2af7420c8fcd8
+  sha256: 4824d5596471c81b797bda70de61a599131f4071c740cd564fea97a34e77999d
 - path: docs/8-admin/rbac-administration.md
   type: doc
   section: 8
@@ -1202,13 +1202,13 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-06-14
-  sha256: 7e57d924d48dce994c818988cc839aab0f1d5844c52e9177ba4cb3d163d84377
+  sha256: 8166ab0b6127e2b54a3e3c65472cf9f4c9c5c0af7559d3b3cc854c81f263abe7
 - path: standards/admin-command-schemas/assign-ta.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-06-14
-  sha256: d99090d7cd028fcbcc926588d50d8a8f495954d1e2858803463e503a734699e9
+  sha256: 322094066e1482755688aefd2e23f633c7db24283001f5356ae843820fa65ed8
 - path: standards/admin-command-schemas/commit-domain-physics.json
   type: schema
   doc_version: 1.0.0
@@ -1232,7 +1232,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: dd0123494b3929f016f9b55149289f857019cdef1b52859c6ae41606a0267fbe
+  sha256: 46b80b6b8537c7f7573f207469460cb69956a61a787966f2be9d03c78053420a
 - path: standards/admin-command-schemas/list-commands.json
   type: schema
   doc_version: 1.0.0
@@ -1370,7 +1370,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-23
-  sha256: 0a375473e96b2f528e8859a5eeb57d1476db295f1c6be8be5b2174232d79b211
+  sha256: 188f4cd1ee0d2b3456f114ba55661f8bc94081c104f7ca192595118e328dd6a7
 - path: standards/system-log-schema-v1.json
   type: schema
   doc_version: 1.0.0

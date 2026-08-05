@@ -227,6 +227,7 @@ class TestEnsureUserProfile:
             runtime=runtime, domain_role="student",
         )
         profile = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        assert profile["subject_id"] == "user_001"
         assert profile["entity_id"] is None
         assert profile["consent"]["magic_circle_accepted"] is False
         assert profile["learning_state"]["challenge"] == 0.3
@@ -248,6 +249,7 @@ class TestEnsureUserProfile:
             runtime=runtime, domain_role="teacher",
         )
         profile = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        assert profile["subject_id"] == "user_002"
         assert profile["educator_state"]["assigned_students"] == []
         assert "learning_state" not in profile
         assert profile["consent"]["magic_circle_accepted"] is False
@@ -281,6 +283,7 @@ class TestEnsureUserProfile:
             template_path=profile_env["flat_template"],
         )
         profile = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        assert profile["subject_id"] == "user_flat"
         assert profile["domain_id"] == "domain/bizops/auto-repair/v1"
         assert profile["learning_state"]["challenge"] == 0.3
 

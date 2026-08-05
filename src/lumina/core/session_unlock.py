@@ -1,8 +1,8 @@
 """Session unlock via one-time PIN.
 
-A teacher resolves an escalation event and optionally requests a 6-digit PIN
+A reviewer resolves an escalation event and optionally requests a 6-digit PIN
 (``generate_pin=True`` on the resolve request).  The PIN is delivered to the
-responsible adult out-of-band and then entered by the child into the chat
+assigned supervisor out-of-band and then entered by the subject into the chat
 input.  Entering the correct, unexpired PIN lifts the session freeze.
 
 Storage is intentionally in-memory (same pattern as ``_STAGED_COMMANDS``):

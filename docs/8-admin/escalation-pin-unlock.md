@@ -1,46 +1,48 @@
 ---
-version: 1.0.0
-last_updated: 2026-03-20
+version: 1.1.0
+last_updated: 2026-08-04
 ---
 
 # Escalation PIN Unlock
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Active
-**Last updated:** 2026-03-19
+**Last updated:** 2026-08-04
 
 ---
 
 ## Overview
 
-Session freeze/unlock is an business-ops-domain safety mechanism that allows a teacher (or Domain Authority) to temporarily pause a student's active session while a pending escalation is under review. The session is "frozen" — the student cannot continue interacting with the tutor — until a teacher-issued one-time PIN is entered, either in the chat interface or via the dedicated unlock endpoint.
+Session freeze/unlock is a business-ops domain safety mechanism that allows a reviewer (or Domain Authority) to temporarily pause a subject's active session while a pending escalation is under review. The session is "frozen" and cannot continue until a reviewer-issued one-time PIN is entered, either in the chat interface or via the dedicated unlock endpoint.
 
-This mechanism is triggered during escalation resolution: when a teacher resolves an escalation with `generate_pin: true`, the system simultaneously records the resolution, generates a 6-digit OTP, freezes the session, and returns the PIN to the teacher. The teacher delivers the PIN to the student out-of-band (verbally, on paper, or via a classroom communication channel), and the student enters it to resume.
+This mechanism is triggered during escalation resolution: when a reviewer resolves an escalation with `generate_pin: true`, the system simultaneously records the resolution, generates a 6-digit OTP, freezes the session, and returns the PIN to the reviewer. The reviewer delivers the PIN to the subject out-of-band, and the subject enters it to resume.
 
 ---
 
 ## Smart Escalation Routing
 
-When the orchestrator writes an escalation record, it automatically populates two routing fields from the student's profile:
+When the orchestrator writes an escalation record, it automatically populates routing fields from the subject profile:
 
 | Field | Source | Purpose |
 |-------|--------|---------|
-| `escalation_target_id` | `student_profile.assigned_teacher_id` | Routes the escalation directly to the assigned teacher |
-| `assigned_room_id` | `student_profile.assigned_room_id` | Carries classroom context for multi-room deployments |
+| `escalation_target_id` | `subject_profile.assigned_assignee_id` or `subject_profile.assigned_operator_id` (legacy fallback: `assigned_teacher_id`) | Routes the escalation directly to the assigned reviewer/operator |
+| `assigned_room_id` | `subject_profile.assigned_room_id` | Carries operational context for multi-room or multi-site deployments |
 
-These fields allow dashboards, notification systems, and governance tooling to deliver the escalation to the correct teacher without manual routing. When `assigned_teacher_id` is absent from the profile, `escalation_target_id` is `null` and the escalation falls through to general domain-authority review.
+These fields allow dashboards, notification systems, and governance tooling to deliver the escalation to the correct reviewer without manual routing. When no assignee/operator/legacy teacher key is present, `escalation_target_id` is `null` and the escalation falls through to general domain-authority review.
 
 ---
 
-## Student Profile Assignment Fields
+## Subject Profile Assignment Fields
 
 Assignment fields are stored in the active domain entity profile document (for
 business-ops, `model-packs/business-ops/profiles/entity.yaml`):
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `assigned_teacher_id` | `string` | Actor ID of the teacher responsible for this student. Matched to `escalation_target_id` during escalation routing. |
-| `assigned_room_id` | `string` | Classroom or cohort identifier. Carried into escalation records for context. |
+| `assigned_assignee_id` | `string` | Preferred actor ID for assigned reviewer/assignee routing. |
+| `assigned_operator_id` | `string` | Alternate actor ID used by operational modules for escalation routing. |
+| `assigned_teacher_id` | `string` | Legacy compatibility key still accepted as fallback routing input. |
+| `assigned_room_id` | `string` | Room, cohort, or operational group identifier carried into escalation records. |
 | `intervention_history` | `array` | Ordered list of `intervention_record` entries written at escalation resolve time. |
 
 ### `intervention_record` shape
@@ -48,8 +50,8 @@ business-ops, `model-packs/business-ops/profiles/entity.yaml`):
 ```json
 {
   "escalation_id": "esc-abc123",
-  "teacher_id": "teacher_pseudonymous_id",
-  "notes": "Student struggled with distributive property steps 2–3. Suggested worked example.",
+   "reviewer_id": "reviewer_pseudonymous_id",
+   "notes": "Subject required escalation review before execution unlock.",
   "recorded_utc": "2026-03-19T14:22:00+00:00",
   "generated_proposal": false
 }
@@ -58,7 +60,7 @@ business-ops, `model-packs/business-ops/profiles/entity.yaml`):
 | Field | Required | Description |
 |-------|----------|-------------|
 | `escalation_id` | yes | ID of the escalation that triggered the intervention |
-| `teacher_id` | yes | `sub` claim of the JWT used to resolve the escalation |
+| `reviewer_id` | yes | `sub` claim of the JWT used to resolve the escalation |
 | `notes` | yes | Free-text notes from the resolution request |
 | `recorded_utc` | yes | ISO 8601 UTC timestamp of when the record was written |
 | `generated_proposal` | yes | `true` when `generate_proposal` was set in the resolve request — marks this entry for daemon batch proposal generation |
@@ -68,15 +70,15 @@ business-ops, `model-packs/business-ops/profiles/entity.yaml`):
 ## End-to-End Workflow
 
 ```
-1. Student session → escalation trigger
+1. Subject session -> escalation trigger
    ─ PPA orchestrator writes escalation record
-   ─ escalation_target_id ← student_profile.assigned_teacher_id
-   ─ assigned_room_id ← student_profile.assigned_room_id
+   ─ escalation_target_id <- subject_profile.assigned_assignee_id (or fallback keys)
+   ─ assigned_room_id <- subject_profile.assigned_room_id
 
-2. Teacher reviews escalation
+2. Reviewer reviews escalation
    ─ GET /api/escalations?status=open
 
-3. Teacher resolves with PIN generation
+3. Reviewer resolves with PIN generation
    ─ POST /api/escalations/{escalation_id}/resolve
      {"decision": "approve", "reasoning": "...", "generate_pin": true,
       "intervention_notes": "...", "generate_proposal": false}
@@ -84,25 +86,25 @@ business-ops, `model-packs/business-ops/profiles/entity.yaml`):
        "decision": "approve", "unlock_pin": "042817"}
    ─ Session container: frozen = True
    ─ PIN stored in memory (TTL: LUMINA_UNLOCK_PIN_TTL_SECONDS, default 900 s)
-   ─ Intervention notes appended to student profile intervention_history
+   ─ Intervention notes appended to subject profile intervention_history
 
-4. Teacher delivers PIN to student out-of-band
+4. Reviewer delivers PIN to subject out-of-band
    ─ Verbally, on paper, or via classroom system
 
-5a. Student enters PIN in chat
+5a. Subject enters PIN in chat
     ─ POST /api/chat {"session_id": "...", "message": "042817", ...}
     ← {"action": "session_unlocked", "escalated": false,
         "response": "Session unlocked. You may continue."}
     ─ Session container: frozen = False
     ─ PIN consumed (single-use)
 
-5b. Teacher unlocks via API (alternative to 5a)
+5b. Reviewer unlocks via API (alternative to 5a)
     ─ POST /api/sessions/{session_id}/unlock {"pin": "042817"}
     ← {"session_id": "...", "unlocked": true}
     ─ Session container: frozen = False
     ─ PIN consumed (single-use)
 
-6. Student continues session normally
+6. Subject continues session normally
 ```
 
 ---
@@ -141,7 +143,7 @@ HTTP status is `200` in all cases. The `escalated` flag mirrors whether the sess
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `generate_pin` | `bool` | `false` | Generate OTP, freeze session, include `unlock_pin` in response |
-| `intervention_notes` | `string \| null` | `null` | Appended to student profile `intervention_history` |
+| `intervention_notes` | `string \| null` | `null` | Appended to subject profile `intervention_history` |
 | `generate_proposal` | `bool` | `false` | Mark the intervention notes entry for daemon batch proposal generation |
 
 Full endpoint documentation: [`POST /api/escalations/{escalation_id}/resolve`](../2-syscalls/lumina-api-server.md#post-apiscalationssescalation_idresolve)

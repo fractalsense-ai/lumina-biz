@@ -206,7 +206,7 @@ class DomainPersistence(ABC):
 
     @abstractmethod
     def get_module_ledger_path(self, domain_id: str, module_id: str) -> str:
-        """Return the ledger path for a module-tier log (student ops, assignments).
+        """Return the ledger path for a module-tier log (subject ops, assignments).
 
         Layout: ``domains/{domain}/modules/{module_id}.jsonl``
         """
