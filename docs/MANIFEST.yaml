@@ -223,8 +223,13 @@ artifacts:
   section: 0
   doc_version: 0.1.1
   status: active
+<<<<<<< HEAD
   last_updated: 2026-08-05
   sha256: 07d2ba7180d49f48b419045a7197d97c46a7fb248a46230140fd08cf90598d50
+=======
+  last_updated: 2026-08-03
+  sha256: 4f17740458cd8408addb0ac0439b7fab75097840100f1c5a3d5486bb4b777e3c
+>>>>>>> 73e1314 (feat(slice37): add ERP JWT claim and fallback policy contracts)
 - path: docs/roadmap/slices/38-erp-jwt-verification-gateway-and-auth-transition.md
   type: doc
   section: 0
@@ -357,7 +362,7 @@ artifacts:
   doc_version: 1.2.0
   status: active
   last_updated: 2026-03-15
-  sha256: afb06395349bcb4c389087341b3335f83624801753e96563fe2242fa430afe48
+  sha256: 64ab87b8177360afff581d0eb6f86131823b4a228d37521c75dbf464e5e19454
 - path: docs/3-functions/permissions.md
   type: doc
   section: 3
@@ -398,8 +403,13 @@ artifacts:
   section: 5
   doc_version: 1.1.0
   status: active
+<<<<<<< HEAD
   last_updated: 2026-08-05
   sha256: d48132921383a4d7c86c8c925d012d73256216c9fc8a374cac36cc4983eb157e
+=======
+  last_updated: 2026-03-12
+  sha256: 01c846e173a790f83665cec7ba303688522f617515b848f8cafdb066d604b7b0
+>>>>>>> 73e1314 (feat(slice37): add ERP JWT claim and fallback policy contracts)
 - path: docs/5-standards/adapter-naming-convention.md
   type: doc
   section: 5
@@ -805,7 +815,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-15
-  sha256: 3b1fbd2708f2090133a4ce767c30cd2d6399d60c9841b5945bbce1495c247240
+  sha256: 4a263d3144923a846d30afd34b6abf7a4ecd9b93c6a20f14a209f351bc758904
 - path: docs/8-admin/system-domain-operations.md
   type: doc
   section: 8
@@ -886,6 +896,18 @@ artifacts:
   status: active
   last_updated: 2026-08-05
   sha256: 16bbe14b5a605238ce2161efcc690f2f50a9769061d21d84217e661343f46719
+- path: docs/5-standards/erp-jwt-claim-contract-v1.md
+  type: standard
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: 8ad1007559ce3ec919810aed378926cec409605439019c1ed586dd6c1fbbae92
+- path: docs/5-standards/erp-auth-fallback-policy-v1.md
+  type: standard
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: 5c1f1ecbd84340955559a8b0be602cb88f5678f5f58ab83366d789a9ee88a656
 - path: docs/8-admin/reports-spec.md
   type: spec
   doc_version: 1.0.0

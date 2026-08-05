@@ -29,5 +29,7 @@ Core specifications and protocol standards.
 | [document-versioning-policy](document-versioning-policy.md) | Version control standards for all Project Lumina artifacts |
 | [domain-library-lifecycle](domain-library-lifecycle.md) | Version lifecycle for domain packs and domain libraries |
 | [erp-identity-authority-v1](erp-identity-authority-v1.md) | Authority boundary contract: ERP SSOT for non-system identity, Lumina-owned system track |
+| [erp-jwt-claim-contract-v1](erp-jwt-claim-contract-v1.md) | Canonical required/optional ERP JWT claim schema and deterministic deny semantics |
+| [erp-auth-fallback-policy-v1](erp-auth-fallback-policy-v1.md) | Time-bounded and auditable break-glass fallback policy for ERP auth outages |
 
 All specifications are stored under [`../specs/`](../../specs/) and [`../standards/`](../../standards/).
