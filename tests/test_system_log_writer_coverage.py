@@ -238,7 +238,7 @@ def test_write_escalation_record_default_target_role(tmp_path: Path) -> None:
         trigger="frustration_repeated",
         provenance_metadata=None,
     )
-    assert appended[0]["target_role"] == "manager"
+    assert appended[0]["target_role"] == "teacher"
     assert appended[0]["sla_minutes"] == 30
 
 
@@ -284,7 +284,7 @@ def test_write_escalation_record_unmatched_trigger_uses_defaults(tmp_path: Path)
         provenance_metadata=None,
         domain_physics=domain_physics,
     )
-    assert appended[0]["target_role"] == "manager"  # default
+    assert appended[0]["target_role"] == "teacher"  # default
     assert appended[0]["sla_minutes"] == 30  # default
 
 
