@@ -770,7 +770,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-04-16
-  sha256: dfc2d869512cd9a7d3cfedec24e9e17f6902ecb1e0895043d01fbb6997a3ae86
+  sha256: 377f3901fe2942e94a29a0350592e5c31c4afac3aa755da2a30285352b7a8da3
 - path: docs/8-admin/admin-command-schemas.md
   type: doc
   section: 8
@@ -914,6 +914,13 @@ artifacts:
   status: active
   last_updated: 2026-08-05
   sha256: a553893ee37e66cec45104ec4947e3c5f3f406001d976b999c8c38d3e8e2f397
+- path: docs/8-admin/single-box-backup-restore-retention.md
+  type: doc
+  section: 8
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: b0cafbb2e40f7b1fd66ae23fde4b7a4c283a82354301e0c004494613dba43f3f
 - path: docs/5-standards/system-log.md
   type: standard
   doc_version: 1.1.0
