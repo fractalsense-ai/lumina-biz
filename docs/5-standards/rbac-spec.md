@@ -1,13 +1,13 @@
 ---
-version: "2.0.0"
-last_updated: "2026-04-21"
+version: "2.1.0"
+last_updated: "2026-08-05"
 ---
 
 # Role-Based Access Control (RBAC) Specification — V2
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Status:** Active
-**Last updated:** 2026-04-21
+**Last updated:** 2026-08-05
 
 ---
 
@@ -389,6 +389,33 @@ The framework tiers map to the existing four-level governance hierarchy. Domain 
 | 3b — Support | Operations Support | `half_operator` | `dispatcher`, `field_operator` | Support staff with elevated visibility |
 | 4 — Subject | Operational User | `user` | `service_writer`, `observer` | Session participant |
 | 4b — Visitor | Guest / Prospective | `guest` | `guest` | Read-only visitor |
+
+---
+
+## ERP Claim-to-RBAC Context Mapping (Slice 37)
+
+For non-system actors, ERP-issued claim context is mapped into Lumina RBAC posture via
+[erp-rbac-mapping-v1](erp-rbac-mapping-v1.md).
+
+### Canonical mapping outcomes
+
+| ERP role | Lumina tier posture | Result |
+|----------|---------------------|--------|
+| `manager` | `admin` | Elevated domain-scoped governance posture |
+| `operator` | `operator` | Operational execution posture |
+| `reviewer` | `half_operator` | Audit/read-focused posture |
+| `participant` | `user` | Standard participant posture |
+| `guest` | `guest` | Minimal bounded posture |
+
+Unknown `role` values MUST be denied (`INVALID_ROLE_VALUE`).
+
+### Organization and site binding
+
+1. `organization_id` and `site_id` claims bind effective authorization context.
+2. Request context mismatch MUST be denied:
+  - org mismatch -> `ORGANIZATION_MISMATCH`
+  - site mismatch -> `SITE_MISMATCH`
+3. Optional claims (`domain_roles`, `governed_modules`) may further constrain scope but must not bypass required claim checks.
 
 ---
 

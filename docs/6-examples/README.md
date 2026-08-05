@@ -18,6 +18,7 @@ Worked examples, traces, and reference scenarios.
 | [causal-learning-trace](../../examples/causal-learning-trace-example.json) | Full System Log trace for an business-ops session |
 | [escalation-example](../../examples/escalation-example-packet.yaml) | Escalation packet with System Log context |
 | [invite-onboarding](../../examples/invite-onboarding-example.yaml) | Full invite → setup-password → login onboarding flow |
+| [erp-rbac-mapping-scenarios](erp-rbac-mapping-scenarios.md) | Documentation-level scenarios for ERP claim to RBAC/context mapping |
 | [examples index](../../examples/README.md) | Full examples directory listing |
 
 See also the domain pack worked examples:

@@ -77,6 +77,7 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 
 - 2026-08-05: PR1 started. Added ERP versus Lumina identity authority boundary standard and aligned concept/admin docs to declare ERP as SSOT for non-system identity context while preserving Lumina-owned system-track auth.
 - 2026-08-05: PR2 started. Added canonical ERP JWT claim contract and auth/runtime documentation references for deterministic deny posture.
+- 2026-08-05: PR3 started. Added ERP claim-to-RBAC mapping semantics and organization/site context mismatch denials while keeping no legacy fallback for ERP-governed non-system profiles and allowing admin/system continuity fallback.
 
 ## Implementation-Ready PR Description Template
 
