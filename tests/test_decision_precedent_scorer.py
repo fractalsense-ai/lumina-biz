@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from lumina.decision_precedent.policy import DecisionPrecedentPolicy
-from lumina.decision_precedent.scorer import PrecedentCandidate, score_decision_precedent
+from lumina.decision_precedent.scorer import EntityStateLink, PrecedentCandidate, score_decision_precedent
 
 NOW = datetime(2026, 7, 20, tzinfo=UTC)
 
@@ -76,3 +76,93 @@ def test_score_record_is_transcript_free_and_schema_ready() -> None:
     assert record["record_id"] == "score-a"
     assert "summary" not in record
     assert "message" not in record
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("summary_record_id", "thread_id", "similarity", "created_utc"),
+    [
+        ("", "thread-a", 0.9, NOW),
+        ("summary-a", "", 0.9, NOW),
+        ("summary-a", "thread-a", True, NOW),
+        ("summary-a", "thread-a", 1.2, NOW),
+        ("summary-a", "thread-a", 0.9, datetime(2026, 7, 20)),
+    ],
+)
+def test_candidate_validation_rejects_invalid_inputs(
+    summary_record_id: str,
+    thread_id: str,
+    similarity: float | bool,
+    created_utc: datetime,
+) -> None:
+    with pytest.raises(ValueError):
+        PrecedentCandidate(
+            summary_record_id=summary_record_id,
+            thread_id=thread_id,
+            similarity=similarity,
+            created_utc=created_utc,
+        )
+
+
+@pytest.mark.unit
+def test_missing_information_elevates_suggest_only_to_confirmation() -> None:
+    score = score_decision_precedent(
+        [_candidate(0.95)],
+        _policy(),
+        actor_id="actor-a",
+        risk_class="routine",
+        evaluated_utc=NOW,
+        missing_information_fields=("required.photo",),
+    )
+
+    assert score.tier == "require_confirmation"
+    assert "missing_information_required" in score.rationale_codes
+
+
+@pytest.mark.unit
+def test_entity_state_links_are_serialized_when_present() -> None:
+    score = score_decision_precedent(
+        [_candidate(0.91)],
+        _policy(),
+        actor_id="actor-a",
+        risk_class="routine",
+        evaluated_utc=NOW,
+        entity_state_links=(
+            EntityStateLink(
+                entity_id="wo-1",
+                entity_type="work_order",
+                transition_id="t-1",
+                from_state="open",
+                to_state="closed",
+                related_record_ids=("r-1", "r-2"),
+            ),
+        ),
+    )
+    record = score.as_record(created_utc=NOW)
+
+    assert record["entity_state_links"] == [
+        {
+            "entity_id": "wo-1",
+            "entity_type": "work_order",
+            "transition_id": "t-1",
+            "from_state": "open",
+            "to_state": "closed",
+            "related_record_ids": ["r-1", "r-2"],
+        }
+    ]
+
+
+@pytest.mark.unit
+def test_score_requires_identifiers_and_timezone_aware_evaluation_time() -> None:
+    with pytest.raises(ValueError):
+        score_decision_precedent([_candidate(0.9)], _policy(), actor_id="", risk_class="routine", evaluated_utc=NOW)
+    with pytest.raises(ValueError):
+        score_decision_precedent([_candidate(0.9)], _policy(), actor_id="actor-a", risk_class="", evaluated_utc=NOW)
+    with pytest.raises(ValueError):
+        score_decision_precedent(
+            [_candidate(0.9)],
+            _policy(),
+            actor_id="actor-a",
+            risk_class="routine",
+            evaluated_utc=datetime(2026, 7, 20),
+        )
