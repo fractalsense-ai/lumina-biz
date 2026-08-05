@@ -32,3 +32,4 @@ Governance, RBAC configuration, audit policy, and operational procedures.
 | [governance-dashboard](governance-dashboard.md) | DA governance dashboard: overview telemetry, escalation queue, ingestion review, daemon batch panel *(moved from Section 7)* |
 | [logic-scraping](logic-scraping.md) | Logic scraping: iterative LLM probing for novel synthesis discovery, yield rate tracking *(moved from Section 7)* |
 | [llm-assisted-governance-adapters](llm-assisted-governance-adapters.md) | LLM-assisted governance adapter pattern: persona separation, physics editing, ingestion integration *(moved from Section 7)* |
+| [single-box-deployment-profile](single-box-deployment-profile.md) | Single-box deployment profile, deterministic health checks, and smoke-gate usage for pilot operations |

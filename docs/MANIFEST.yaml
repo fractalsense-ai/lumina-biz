@@ -770,7 +770,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-04-16
-  sha256: 1759bd2391ac21328dbc55a7a3dd842a440718192c402bfc273b001d9e24b7e8
+  sha256: dfc2d869512cd9a7d3cfedec24e9e17f6902ecb1e0895043d01fbb6997a3ae86
 - path: docs/8-admin/admin-command-schemas.md
   type: doc
   section: 8
@@ -907,6 +907,13 @@ artifacts:
   status: active
   last_updated: 2026-03-09
   sha256: fc7fe9b4b3a15879418a58267c004ba6ee081bd50e4408621ae79fb30a2b3e18
+- path: docs/8-admin/single-box-deployment-profile.md
+  type: doc
+  section: 8
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: a553893ee37e66cec45104ec4947e3c5f3f406001d976b999c8c38d3e8e2f397
 - path: docs/5-standards/system-log.md
   type: standard
   doc_version: 1.1.0

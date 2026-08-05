@@ -4,7 +4,8 @@ param(
     [switch]$SkipOrchestratorDemo,
     [switch]$SkipFrontend,
     [switch]$SkipApiScenarios,
-    [switch]$SkipBusinessOpsReplay
+    [switch]$SkipBusinessOpsReplay,
+    [switch]$SkipSingleBoxSmoke
 )
 
 $ErrorActionPreference = "Stop"
@@ -111,6 +112,17 @@ if (-not $SkipBusinessOpsReplay) {
     & $PythonExe "scripts/run_business_ops_replay.py" --out "data/staging/business-ops-replay-report.json"
     if ($LASTEXITCODE -ne 0) {
         throw "run_business_ops_replay.py failed"
+    }
+}
+
+if (-not $SkipSingleBoxSmoke) {
+    Write-Section "Single-Box Smoke"
+    & $PythonExe "scripts/single_box_health_check.py" `
+        --runtime-config "model-packs/business-ops/cfg/runtime-config.yaml" `
+        --json-out "data/staging/single-box-health-report.json" `
+        --fail-on-degraded
+    if ($LASTEXITCODE -ne 0) {
+        throw "single_box_health_check.py failed"
     }
 }
 
