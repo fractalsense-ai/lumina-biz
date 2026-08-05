@@ -1,11 +1,11 @@
 ---
-version: 1.0.0
+version: 1.1.0
 last_updated: 2026-08-05
 ---
 
 # ERP Identity Authority V1
 
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Status:** Active  
 **Last updated:** 2026-08-05
 
@@ -48,7 +48,6 @@ Lumina remains authoritative for system-level administration, including:
 1. System-track authentication for `root` and `super_admin`.
 2. Framework-level control-plane operations.
 3. Runtime policy enforcement of accepted identity claims.
-4. Safety and governance controls over break-glass operation.
 
 ### Non-Override Rules
 
@@ -63,17 +62,7 @@ Lumina remains authoritative for system-level administration, including:
 1. ERP is the SSOT for non-system identity context consumed by Lumina.
 2. Lumina system-track credentials remain separate from ERP-issued context.
 3. Lumina is the policy-enforcement runtime and does not become the source of truth for ERP-governed identity records.
-4. Any temporary fallback posture for ERP outages must be explicitly time-bounded, non-default, and auditable.
-
----
-
-## Migration Compatibility Window
-
-To support transition, legacy Lumina-issued domain/user identity behavior may coexist temporarily with ERP authority adoption. During coexistence:
-
-1. The boundary model in this document remains normative.
-2. Legacy behavior is compatibility-only, not target-state architecture.
-3. Transition completion moves all non-system identity truth to ERP-governed authority contracts.
+4. For this first vertical rollout, there is no legacy profile coexistence path for non-system identity.
 
 ---
 
