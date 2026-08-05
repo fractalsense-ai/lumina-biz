@@ -19,6 +19,10 @@ Root owns the system. Domain Authority owns their domain. Equal privilege within
 respective scope. The API is the only crossing point. No escalation path exists because
 the tracks never merge.
 
+For non-system actors, identity and organization or site membership truth is ERP-owned.
+Lumina remains authoritative only for system-track control-plane identities (`root`,
+`super_admin`) and policy enforcement.
+
 ## Problem
 
 A hierarchical role ladder (root → admin → super_admin → user) creates an
@@ -185,4 +189,5 @@ falls back to `LUMINA_JWT_SECRET` for that track. Production deployments should 
 - [domain-role-hierarchy](domain-role-hierarchy.md) — Domain-scoped role hierarchy
 - [domain-authority-roles](../8-admin/domain-authority-roles.md) — DA rights and obligations
 - [auth(3)](../3-functions/auth.md) — JWT authentication module
+- [erp-identity-authority-v1](../5-standards/erp-identity-authority-v1.md) — normative ERP versus Lumina identity authority contract
 

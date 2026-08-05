@@ -1,9 +1,9 @@
 ---
 title: "Slice 37 — ERP Identity Authority and Claim Contract"
 slice: 37
-status: active
-version: 0.1.0
-last_updated: 2026-08-03
+status: in-progress
+version: 0.1.1
+last_updated: 2026-08-05
 ---
 
 ## Purpose
@@ -76,6 +76,10 @@ Establish ERP as the single source of truth (SSOT) for non-system identity and a
 ## Follow-Up Slices
 
 - Slice 38: ERP JWT verification gateway and auth endpoint transition.
+
+## Delivery Notes
+
+- 2026-08-05: PR1 started. Added ERP versus Lumina identity authority boundary standard and aligned concept/admin docs to declare ERP as SSOT for non-system identity context while preserving Lumina-owned system-track auth.
 
 ## Implementation-Ready PR Description Template
 

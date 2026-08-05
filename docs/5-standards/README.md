@@ -28,5 +28,6 @@ Core specifications and protocol standards.
 | [orchestrator-system-prompt-v1](../../specs/orchestrator-system-prompt-v1.md) | Orchestrator prompt specification |
 | [document-versioning-policy](document-versioning-policy.md) | Version control standards for all Project Lumina artifacts |
 | [domain-library-lifecycle](domain-library-lifecycle.md) | Version lifecycle for domain packs and domain libraries |
+| [erp-identity-authority-v1](erp-identity-authority-v1.md) | Authority boundary contract: ERP SSOT for non-system identity, Lumina-owned system track |
 
 All specifications are stored under [`../specs/`](../../specs/) and [`../standards/`](../../standards/).
