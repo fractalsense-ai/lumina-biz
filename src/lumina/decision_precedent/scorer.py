@@ -13,6 +13,20 @@ DecisionTier = Literal["suggest_only", "require_confirmation", "mandatory_escala
 RecencyBand = Literal["current", "stale"]
 
 
+def _unique_nonempty(items: tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    cleaned: list[str] = []
+    for item in items:
+        if not isinstance(item, str):
+            continue
+        value = item.strip()
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        cleaned.append(value)
+    return tuple(cleaned)
+
+
 @dataclass(frozen=True)
 class EntityStateLink:
     """Stable linkage metadata for one entity state transition context."""
@@ -23,6 +37,18 @@ class EntityStateLink:
     from_state: str | None = None
     to_state: str | None = None
     related_record_ids: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.entity_id or not self.entity_id.strip():
+            raise ValueError("entity_state_link requires entity_id")
+        if not self.entity_type or not self.entity_type.strip():
+            raise ValueError("entity_state_link requires entity_type")
+        if not self.transition_id or not self.transition_id.strip():
+            raise ValueError("entity_state_link requires transition_id")
+        object.__setattr__(self, "entity_id", self.entity_id.strip())
+        object.__setattr__(self, "entity_type", self.entity_type.strip())
+        object.__setattr__(self, "transition_id", self.transition_id.strip())
+        object.__setattr__(self, "related_record_ids", _unique_nonempty(self.related_record_ids))
 
     def as_record(self) -> dict[str, object]:
         record: dict[str, object] = {
@@ -160,12 +186,14 @@ def _decision_group_key(
     *,
     organization_id: str,
     site_id: str,
+    actor_id: str,
     risk_class: str,
     top_summary_record_id: str | None,
 ) -> str:
     scope_seed = "|".join([
         organization_id,
         site_id,
+        actor_id,
         risk_class,
         top_summary_record_id or "no_precedent",
     ])
@@ -223,6 +251,7 @@ def score_decision_precedent(
     decision_group_key = _decision_group_key(
         organization_id=policy.organization_id,
         site_id=policy.site_id,
+        actor_id=actor_id,
         risk_class=risk_class,
         top_summary_record_id=best.summary_record_id if best else None,
     )
@@ -242,5 +271,5 @@ def score_decision_precedent(
         precedent_matches=matches,
         decision_group_key=decision_group_key,
         entity_state_links=entity_state_links,
-        missing_information_fields=missing_information_fields,
+        missing_information_fields=_unique_nonempty(missing_information_fields),
     )

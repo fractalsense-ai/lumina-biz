@@ -44,6 +44,20 @@ _pending_confirmations: dict[str, _PendingConfirmation] = {}
 _consumed_confirmation_ids: dict[str, float] = {}
 
 
+def _unique_nonempty(values: list[str]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    cleaned: list[str] = []
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        item = value.strip()
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        cleaned.append(item)
+    return tuple(cleaned)
+
+
 def _entity_state_links_from_request(req: DecisionPrecedentPreflightRequest) -> tuple[EntityStateLink, ...]:
     entity_id = (req.entity_id or "").strip()
     entity_type = (req.entity_type or "").strip()
@@ -51,7 +65,7 @@ def _entity_state_links_from_request(req: DecisionPrecedentPreflightRequest) -> 
         return ()
     transition_seed = f"{entity_type}:{entity_id}:{(req.from_state or '').strip()}:{(req.to_state or '').strip()}"
     transition_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"entity-transition:{transition_seed}"))
-    related = tuple(record_id.strip() for record_id in req.related_record_ids if isinstance(record_id, str) and record_id.strip())
+    related = _unique_nonempty(req.related_record_ids)
     return (
         EntityStateLink(
             entity_id=entity_id,
@@ -155,9 +169,7 @@ async def preflight(
             actor_id=str(user["sub"]),
             risk_class=req.risk_class,
             entity_state_links=_entity_state_links_from_request(req),
-            missing_information_fields=tuple(
-                field.strip() for field in req.missing_information_fields if isinstance(field, str) and field.strip()
-            ),
+            missing_information_fields=_unique_nonempty(req.missing_information_fields),
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
