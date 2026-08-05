@@ -35,7 +35,7 @@ export function SessionPanel({
   refreshKey,
 }: SessionPanelProps) {
   const [sessions, setSessions] = useState<SessionSummary[]>([])
-  const learningModuleLockLabel = 'Protected module — deletion requires reviewer approval'
+  const protectedModuleLockLabel = 'Protected module — deletion requires reviewer approval'
 
   const refresh = useCallback(async () => {
     try {
@@ -102,8 +102,8 @@ export function SessionPanel({
                 {s.moduleId && s.moduleId !== 'domain/bizops/auto-repair/v1' ? (
                   <span
                     role="img"
-                    aria-label={learningModuleLockLabel}
-                    title={learningModuleLockLabel}
+                    aria-label={protectedModuleLockLabel}
+                    title={protectedModuleLockLabel}
                     className="flex-shrink-0 text-muted-foreground"
                   >
                     <Lock size={14} aria-hidden="true" />
