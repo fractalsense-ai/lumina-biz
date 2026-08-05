@@ -128,3 +128,44 @@ def test_report_unhealthy_when_connector_health_status_is_unhealthy(tmp_path: Pa
     )
 
     assert report["status"] == "unhealthy"
+
+
+def test_report_unhealthy_when_runtime_config_file_missing(tmp_path: Path, checker_module):
+    runtime_path = tmp_path / "missing-runtime.yaml"
+
+    report = checker_module.build_single_box_health_report(
+        repo_root=tmp_path,
+        runtime_config_path=runtime_path,
+        connector_registry_path=None,
+    )
+
+    assert report["status"] == "unhealthy"
+    assert "config_error" in report["runtime"]
+
+
+def test_report_unhealthy_when_runtime_config_yaml_invalid(tmp_path: Path, checker_module):
+    runtime_path = tmp_path / "runtime-config.yaml"
+    runtime_path.write_text("runtime: [unclosed\n", encoding="utf-8")
+
+    report = checker_module.build_single_box_health_report(
+        repo_root=tmp_path,
+        runtime_config_path=runtime_path,
+        connector_registry_path=None,
+    )
+
+    assert report["status"] == "unhealthy"
+    assert "config_error" in report["runtime"]
+
+
+def test_report_unhealthy_when_runtime_config_root_not_mapping(tmp_path: Path, checker_module):
+    runtime_path = tmp_path / "runtime-config.yaml"
+    runtime_path.write_text("- just\n- a\n- list\n", encoding="utf-8")
+
+    report = checker_module.build_single_box_health_report(
+        repo_root=tmp_path,
+        runtime_config_path=runtime_path,
+        connector_registry_path=None,
+    )
+
+    assert report["status"] == "unhealthy"
+    assert "config_error" in report["runtime"]

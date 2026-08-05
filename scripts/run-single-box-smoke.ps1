@@ -12,3 +12,7 @@ if (-not (Test-Path $PythonExe)) {
     --runtime-config "model-packs/business-ops/cfg/runtime-config.yaml" `
     --json-out "data/staging/single-box-health-report.json" `
     --fail-on-degraded
+
+if ($LASTEXITCODE -ne 0) {
+    throw "single_box_health_check.py failed with exit code $LASTEXITCODE"
+}

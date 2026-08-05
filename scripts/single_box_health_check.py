@@ -76,9 +76,19 @@ def build_single_box_health_report(
 
     statuses: list[str] = []
 
-    with open(runtime_config_path, encoding="utf-8") as fh:
-        runtime_config = yaml.safe_load(fh) or {}
-    runtime = runtime_config.get("runtime") or {}
+    runtime: dict[str, Any] = {}
+    try:
+        with open(runtime_config_path, encoding="utf-8") as fh:
+            runtime_config = yaml.safe_load(fh) or {}
+        if not isinstance(runtime_config, dict):
+            raise TypeError("runtime config must deserialize to a mapping")
+        runtime_obj = runtime_config.get("runtime") or {}
+        if not isinstance(runtime_obj, dict):
+            raise TypeError("runtime config field 'runtime' must be a mapping")
+        runtime = runtime_obj
+    except Exception as exc:
+        report["runtime"]["config_error"] = str(exc)
+        statuses.append("unhealthy")
 
     for key in _REQUIRED_RUNTIME_KEYS:
         raw_path = runtime.get(key)
@@ -110,9 +120,13 @@ def build_single_box_health_report(
 
     connector_entries: list[dict[str, Any]] = []
     if connector_registry_path is not None and connector_registry_path.exists():
-        with open(connector_registry_path, encoding="utf-8") as fh:
-            payload = json.load(fh)
-        connector_entries = _normalize_connector_entries(payload)
+        try:
+            with open(connector_registry_path, encoding="utf-8") as fh:
+                payload = json.load(fh)
+            connector_entries = _normalize_connector_entries(payload)
+        except Exception as exc:
+            report["connectors"]["parse_error"] = str(exc)
+            statuses.append("degraded")
 
     for entry in connector_entries:
         raw_status = str(entry.get("health_status", "unhealthy")).strip().lower()
@@ -178,11 +192,23 @@ def main() -> int:
     if args.connector_registry is not None:
         connector_registry_path = _abs(repo_root, str(args.connector_registry)).resolve()
 
-    report = build_single_box_health_report(
-        repo_root=repo_root,
-        runtime_config_path=runtime_config_path,
-        connector_registry_path=connector_registry_path,
-    )
+    try:
+        report = build_single_box_health_report(
+            repo_root=repo_root,
+            runtime_config_path=runtime_config_path,
+            connector_registry_path=connector_registry_path,
+        )
+    except Exception as exc:
+        report = {
+            "profile": "single-box-v1",
+            "checked_utc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "status": "unhealthy",
+            "runtime": {"runtime_config_path": str(runtime_config_path), "checks": []},
+            "memory": {"checks": []},
+            "connectors": {"source": str(connector_registry_path) if connector_registry_path else None, "checks": []},
+            "error": str(exc),
+            "summary": {"runtime_checks": 0, "memory_checks": 0, "connector_checks": 0},
+        }
 
     rendered = json.dumps(report, indent=2, ensure_ascii=True)
     if args.json_out is not None:
