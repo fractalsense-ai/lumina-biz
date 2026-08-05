@@ -306,7 +306,9 @@ function ResultBody({ operation, result }: { operation: string; result: Record<s
   const mutationOps = [
     'invite_user', 'update_user_role', 'deactivate_user',
     'assign_domain_role', 'revoke_domain_role',
-    'assign_student', 'remove_student', 'assign_module', 'remove_module',
+    'assign_subject', 'remove_subject', 'assign_assistant', 'remove_assistant',
+    'assign_student', 'remove_student', 'assign_ta', 'remove_ta',
+    'assign_module', 'remove_module',
     'approve_interpretation', 'reject_ingestion', 'resolve_escalation',
   ]
   if (mutationOps.includes(operation))

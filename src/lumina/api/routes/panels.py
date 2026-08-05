@@ -34,6 +34,8 @@ _Resolver = Callable[
 
 # Domain-role categories used by generic panel aggregates.
 _STAFF_DOMAIN_ROLES = {
+    "reviewer",
+    "assistant",
     "teacher",
     "teaching_assistant",
     "domain_authority",
@@ -183,7 +185,7 @@ async def _resolve_self_modules(
     """Caller's module list with state summaries.
 
     Merges modules from two sources so newly-assigned modules appear
-    even before the student has interacted with them:
+    even before the subject has interacted with them:
 
     1. ``profile["modules"]`` — modules with session state (turn history).
     2. ``user_rec["governed_modules"]`` — modules assigned via /assign.
@@ -432,7 +434,7 @@ async def _resolve_escalation_queue(
 ) -> dict[str, Any]:
     """Escalation queue — pending escalations scoped by caller's domain role.
 
-    Business Ops-domain escalations route to teachers (via
+    Business Ops-domain escalations route to reviewers (via
     ``receive_escalations`` in domain-physics), not to system-level roles.
     This resolver delegates to the domain's own API route at
     ``/api/escalations`` when available, but provides a direct persistence
@@ -441,7 +443,7 @@ async def _resolve_escalation_queue(
     domain_id = _cfg.DOMAIN_REGISTRY.resolve_default_for_user(user_data)
 
     # Determine which modules the caller can receive escalations for.
-    # Domain-role holders (teacher, admin) see escalations for
+    # Domain-role holders (reviewer/admin) see escalations for
     # their assigned modules; system admins see everything.
     domain_roles_map = user_data.get("domain_roles") or {}
     governed = _resolve_da_governed(user_data)
@@ -458,7 +460,7 @@ async def _resolve_escalation_queue(
         offset=0,
     )
 
-    # Scope by governed modules (DA) or assigned domain roles (teacher)
+    # Scope by governed modules (DA) or assigned domain roles (reviewer)
     if governed is not None:
         records = [r for r in records if get_model_pack_id(r) in governed]
     elif not system_admin:

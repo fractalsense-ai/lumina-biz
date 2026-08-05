@@ -103,7 +103,7 @@ const systemPlugin: DomainPlugin = {
     ])
     reg.addRoleEquivalences({
       system_admin: 'admin',
-      system_operator: 'teacher',
+      system_operator: 'operator',
     })
   },
 }
@@ -433,7 +433,7 @@ describe('getCommandsForRole', () => {
     expect(names).toContain('modules')
   })
 
-  it('system_operator maps to teacher via plugin role equivalences', () => {
+  it('system_operator maps to operator via plugin role equivalences', () => {
     const cmds = getCommandsForRole('system_operator')
     const names = cmds.map((c) => c.name)
     // Without a domainKey, business-ops-scoped commands (including escalations) are excluded

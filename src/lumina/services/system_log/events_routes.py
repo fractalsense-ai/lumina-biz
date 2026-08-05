@@ -60,7 +60,7 @@ async def get_sse_token(
     current = await get_current_user(credentials)
     user_data = require_auth(current)
 
-    # Governance roles always allowed; domain-role holders (e.g. teachers)
+    # Governance roles always allowed; domain-role holders (e.g. reviewers)
     # are allowed so they can receive real-time escalation events.
     _governance_roles = {"root", "admin", "half_operator", "super_admin", "operator"}
     if user_data.get("role") not in _governance_roles:
@@ -146,7 +146,7 @@ def _event_visible_to_user(event: LogEvent, user: dict[str, Any]) -> bool:
             LogLevel.CRITICAL,
         )
 
-    # Domain-role holders (e.g. teachers) see only escalation events
+    # Domain-role holders (e.g. reviewers) see only escalation events
     # for modules they hold a role in.
     domain_roles = user.get("domain_roles") or {}
     if domain_roles and event.category == "escalation":

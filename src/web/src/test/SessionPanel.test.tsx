@@ -98,7 +98,7 @@ describe('SessionPanel delete gating', () => {
       />,
     )
 
-    const lockIcon = await screen.findByTitle('Learning module — deletion requires teacher approval')
+    const lockIcon = await screen.findByTitle('Protected module — deletion requires reviewer approval')
     expect(lockIcon).toBeDefined()
 
     // Delete button should NOT be present
@@ -134,7 +134,7 @@ describe('SessionPanel delete gating', () => {
     const deleteBtn = await screen.findByTitle('Delete conversation')
     expect(deleteBtn).toBeDefined()
 
-    const lockIcon = await screen.findByTitle('Learning module — deletion requires teacher approval')
+    const lockIcon = await screen.findByTitle('Protected module — deletion requires reviewer approval')
     expect(lockIcon).toBeDefined()
   })
 })
