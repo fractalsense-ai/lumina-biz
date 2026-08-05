@@ -883,10 +883,10 @@ artifacts:
   sha256: 5f06311bfe85df4e61be4324778d1a681c82fc5a05cd004be733b0cfc8cd7226
 - path: docs/5-standards/rbac-spec.md
   type: spec
-  doc_version: 1.1.0
+  doc_version: 2.1.0
   status: active
-  last_updated: 2026-03-15
-  sha256: 6b7b8cf52c0660dcd19e02b548bab218abef13094cb9b585ef921b8c7b399ca8
+  last_updated: 2026-08-05
+  sha256: 45c09e40008c9dec5fac10d7319dfed766586a4c5afcc052f26dbde609d40a03
 - path: docs/5-standards/erp-identity-authority-v1.md
   type: standard
   doc_version: 1.1.0
