@@ -43,6 +43,12 @@ ADMIN_JWT_ISSUER: str = "lumina-admin"
 DOMAIN_JWT_ISSUER: str = "lumina-domain"
 USER_JWT_ISSUER: str = "lumina-user"
 
+# ERP verification inputs for domain/user transition (Slice 38 PR1).
+ERP_TRUSTED_ISSUER: str = os.environ.get("LUMINA_ERP_TRUSTED_ISSUER", "")
+ERP_EXPECTED_AUDIENCE: str = os.environ.get("LUMINA_ERP_EXPECTED_AUDIENCE", "")
+ERP_JWT_SECRET: str = os.environ.get("LUMINA_ERP_JWT_SECRET", "")
+ERP_CLOCK_SKEW_SECONDS: int = int(os.environ.get("LUMINA_ERP_CLOCK_SKEW_SECONDS", "30"))
+
 # Roles on the system (admin) track — signed with ADMIN_JWT_SECRET.
 ADMIN_ROLES: frozenset[str] = frozenset({"root", "super_admin"})
 # Roles on the domain track — signed with DOMAIN_JWT_SECRET.
@@ -68,6 +74,18 @@ VALID_ROLES: frozenset[str] = frozenset(
 # In-memory set of revoked token JTIs.  Cleared on server restart
 # (tokens have a TTL so this is acceptable for the reference impl).
 _REVOKED_JTIS: set[str] = set()
+
+_ERP_REQUIRED_CLAIMS: tuple[str, ...] = (
+    "iss",
+    "aud",
+    "sub",
+    "exp",
+    "iat",
+    "jti",
+    "role",
+    "organization_id",
+    "site_id",
+)
 
 
 def revoke_token_jti(jti: str) -> None:
@@ -599,6 +617,90 @@ def verify_scoped_jwt(token: str, required_scope: str | None = None) -> dict[str
     # Ensure the payload carries the scope for downstream code
     raw_payload["token_scope"] = token_scope
     return raw_payload
+
+
+def verify_erp_jwt(token: str) -> dict[str, Any]:
+    """Verify and decode an ERP-issued JWT for non-system auth paths.
+
+    Denial reason values follow the deterministic identifiers defined by the
+    ERP claim and gateway contracts.
+    """
+    if not ERP_TRUSTED_ISSUER:
+        raise AuthError("LUMINA_ERP_TRUSTED_ISSUER is not configured")
+    if not ERP_EXPECTED_AUDIENCE:
+        raise AuthError("LUMINA_ERP_EXPECTED_AUDIENCE is not configured")
+    if not ERP_JWT_SECRET:
+        raise AuthError("LUMINA_ERP_JWT_SECRET is not configured")
+
+    parts = token.split(".")
+    if len(parts) != 3:
+        raise TokenInvalidError("MALFORMED_CLAIM")
+
+    h_part, p_part, s_part = parts
+
+    try:
+        header = json.loads(_b64url_decode(h_part))
+        payload = json.loads(_b64url_decode(p_part))
+    except Exception as exc:
+        raise TokenInvalidError("MALFORMED_CLAIM") from exc
+
+    if not isinstance(header, dict) or not isinstance(payload, dict):
+        raise TokenInvalidError("MALFORMED_CLAIM")
+
+    if header.get("alg") != "HS256":
+        raise TokenInvalidError("MALFORMED_CLAIM")
+
+    for claim in _ERP_REQUIRED_CLAIMS:
+        if claim not in payload:
+            raise TokenInvalidError(f"MISSING_REQUIRED_CLAIM:{claim}")
+
+    if payload.get("iss") != ERP_TRUSTED_ISSUER:
+        raise TokenInvalidError("INVALID_ISSUER")
+
+    aud = payload.get("aud")
+    if isinstance(aud, str):
+        audience_ok = aud == ERP_EXPECTED_AUDIENCE
+    elif isinstance(aud, list):
+        audience_ok = ERP_EXPECTED_AUDIENCE in aud and all(isinstance(v, str) for v in aud)
+    else:
+        raise TokenInvalidError("MALFORMED_CLAIM:aud")
+    if not audience_ok:
+        raise TokenInvalidError("INVALID_AUDIENCE")
+
+    for claim in ("sub", "jti", "role", "organization_id", "site_id"):
+        value = payload.get(claim)
+        if not isinstance(value, str) or not value.strip():
+            raise TokenInvalidError(f"MALFORMED_CLAIM:{claim}")
+
+    iat = payload.get("iat")
+    exp = payload.get("exp")
+    if not isinstance(iat, (int, float)):
+        raise TokenInvalidError("MALFORMED_CLAIM:iat")
+    if not isinstance(exp, (int, float)):
+        raise TokenInvalidError("MALFORMED_CLAIM:exp")
+
+    now = time.time()
+    skew = max(0, ERP_CLOCK_SKEW_SECONDS)
+
+    if iat > exp:
+        raise TokenInvalidError("INVALID_TIME_CLAIMS")
+    if (now - skew) >= exp:
+        raise TokenExpiredError("TOKEN_EXPIRED")
+    if iat > (now + skew):
+        raise TokenInvalidError("INVALID_TIME_CLAIMS")
+
+    jti = str(payload.get("jti"))
+    if is_token_revoked(jti):
+        raise TokenInvalidError("TOKEN_REVOKED")
+
+    message = f"{h_part}.{p_part}".encode("ascii")
+    expected_sig = _sign_hs256(message, ERP_JWT_SECRET)
+    actual_sig = _b64url_decode(s_part)
+    if not hmac.compare_digest(expected_sig, actual_sig):
+        raise TokenInvalidError("INVALID_SIGNATURE")
+
+    payload["token_scope"] = "erp"
+    return payload
 
 
 # ---------------------------------------------------------------------------

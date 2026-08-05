@@ -1,11 +1,11 @@
 ---
-version: 1.3.0
+version: 1.4.0
 last_updated: 2026-08-05
 ---
 
 # secrets-and-runtime-config
 
-**Version:** 1.3.0
+**Version:** 1.4.0
 **Status:** Active
 **Last updated:** 2026-08-05
 
@@ -100,8 +100,10 @@ For Slice 37 ERP non-system identity posture, configure:
 |----------|-------------|
 | `LUMINA_ERP_TRUSTED_ISSUER` | Expected ERP token issuer (`iss`) value |
 | `LUMINA_ERP_EXPECTED_AUDIENCE` | Expected Lumina audience (`aud`) value for ERP tokens |
+| `LUMINA_ERP_JWT_SECRET` | HMAC verification secret for ERP token signatures |
+| `LUMINA_ERP_CLOCK_SKEW_SECONDS` | Allowed temporal skew in seconds for `iat`/`exp` checks |
 
-These values are normative inputs to [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md).
+These values are normative inputs to [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md) and [erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md).
 
 ## Local development setup
 

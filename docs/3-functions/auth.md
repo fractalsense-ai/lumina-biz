@@ -1,11 +1,11 @@
 ---
-version: 1.4.0
+version: 1.5.0
 last_updated: 2026-08-05
 ---
 
 # auth(3)
 
-**Version:** 1.4.0
+**Version:** 1.5.0
 **Status:** Active
 **Last updated:** 2026-08-05
 
@@ -37,6 +37,16 @@ Create a signed JWT containing user identity and RBAC claims.
 Decode and verify a JWT. Returns the payload dict.
 
 **Raises:** `TokenExpiredError`, `TokenInvalidError`
+
+### `verify_erp_jwt(token) → dict`
+
+Decode and verify an ERP-issued JWT for non-system actor paths.
+
+Deterministic denial reasons include: `MISSING_REQUIRED_CLAIM`,
+`INVALID_ISSUER`, `INVALID_AUDIENCE`, `INVALID_SIGNATURE`, `TOKEN_EXPIRED`,
+`INVALID_TIME_CLAIMS`, `MALFORMED_CLAIM`, and `TOKEN_REVOKED`.
+
+**Raises:** `TokenExpiredError`, `TokenInvalidError`, `AuthError`
 
 ### `hash_password(password) → str`
 
@@ -75,6 +85,10 @@ algorithm from the stored format — no configuration needed for verification.
 | `LUMINA_JWT_TTL_MINUTES` | `60` | Token time-to-live in minutes |
 | `LUMINA_JWT_ALGORITHM` | `HS256` | JWT signing algorithm |
 | `LUMINA_PASSWORD_HASH_ALGORITHM` | `argon2id` | Password hashing algorithm: `argon2id`, `bcrypt`, or `sha256` |
+| `LUMINA_ERP_TRUSTED_ISSUER` | — | Required trusted ERP issuer for ERP token verification |
+| `LUMINA_ERP_EXPECTED_AUDIENCE` | — | Required audience for ERP token verification |
+| `LUMINA_ERP_JWT_SECRET` | — | Required HMAC secret for ERP token signatures |
+| `LUMINA_ERP_CLOCK_SKEW_SECONDS` | `30` | Allowed clock skew tolerance during ERP temporal validation |
 
 ## NOTES
 
@@ -133,5 +147,5 @@ Deterministic context-mismatch denials:
 
 ## SEE ALSO
 
-[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)
+[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md), [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)
 
