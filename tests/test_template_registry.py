@@ -15,7 +15,7 @@ class TestListIds:
     def test_contains_all_builtin_templates(self):
         ids = TemplateRegistry.list_ids()
         expected = {"domain-physics", "evidence-schema", "tool-adapter",
-                    "student-profile", "context-hint"}
+                    "subject-profile", "context-hint"}
         assert expected <= ids
 
 
