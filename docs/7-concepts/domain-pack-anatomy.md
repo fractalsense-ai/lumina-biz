@@ -1,13 +1,13 @@
 ---
-version: 1.4.0
-last_updated: 2026-04-12
+version: 1.5.0
+last_updated: 2026-08-03
 ---
 
 # Domain Pack Anatomy
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Status:** Active  
-**Last updated:** 2026-04-12  
+**Last updated:** 2026-08-03  
 
 ---
 
@@ -23,7 +23,7 @@ is the domain's law rather than its executor.
 
 A domain pack is the **D pillar** of the D.S.A. Framework (Domain, State, Actor). It is a
 self-contained unit of domain knowledge, behavioural constraints, and processing tools that
-brings a specific subject area — business-ops, business-ops, industrial operations, system
+brings a specific subject area — service operations, industrial operations, or system
 administration — into the Lumina engine as a bounded authority.
 
 The word *bounded* is deliberate. A domain pack does not integrate loosely with the engine;
@@ -38,7 +38,7 @@ it declares a closed cognitive sub-system that:
 - optionally owns its own **narrative framing** — a world-sim persona for human-facing contexts
 
 The engine (`src/lumina/`) knows nothing about what a domain pack contains. It reads only
-the two engine contract fields (`problem_solved`, `problem_status`) that the pack's runtime
+the two engine contract fields (`task_ready_for_execution`, `task_status`) that the pack's runtime
 adapter emits. Every domain-specific field name, vocabulary term, and computation lives
 entirely inside the pack. This is the **self-containment contract** (see §E).
 
@@ -68,22 +68,22 @@ authoring a new domain pack.
 
 ### Interpreter pairing by module type
 
-A single domain pack may contain modules of different *types*: learning modules (algebra,
-pre-algebra), free-form modules (Student Commons), governance modules (domain-authority,
-teacher, TA, guardian). Each type requires a paired **turn interpreter** and **domain
-step** that match its pedagogical mode.
+A single domain pack may contain modules of different *types*: workflow modules (intake,
+diagnostics, commit staging), free-form collaboration modules (operations commons), and
+governance modules (domain-authority, reviewer, assignee, observer). Each type requires a
+paired **turn interpreter** and **domain step** that match its operational mode.
 
 | Module type | Turn interpreter | Domain step | Tool usage mode |
 |---|---|---|---|
-| **Learning** | `interpret_turn_input` — builds algebra context hints, calls `algebra_parser` proactively 7×, produces `correctness`, `step_count`, `equivalence_preserved` | `domain_step` — progression monitor + consistency tracker | **Evaluation** (proactive): tools fire on every turn to verify structured work evidence |
-| **Free-form** | `freeform_interpret_turn_input` — SLM classification of intent, deterministic student-command detection, no proactive tool calls | `freeform_domain_step` — neutral passthrough, no monitoring | **Assistance** (on-demand): tools available through `apply_tool_call_policy()` when conversation needs them |
+| **Workflow** | `interpret_turn_input` — builds workflow context hints, runs deterministic checks proactively, and produces fields such as `intake_complete`, `explicit_approval_language`, and `confidence_score` | `domain_step` — workflow progression monitor + risk tracker | **Verification** (proactive): tools fire on every turn to verify structured workflow evidence |
+| **Free-form** | `freeform_interpret_turn_input` — SLM classification of intent, deterministic command detection, no proactive tool calls | `freeform_domain_step` — neutral passthrough, no monitoring | **Assistance** (on-demand): tools available through `apply_tool_call_policy()` when conversation needs them |
 | **Governance** | `interpret_turn_input` (governance) — SLM classification of operator intent, structured command dispatch via `slm_parse_admin_command` | *(governance modules use the admin pipeline, not domain_step)* | **Command dispatch**: SLM parses operator commands into structured operation dicts |
 
 **Rule:** When a module overrides `domain_step`, it MUST also override `turn_interpreter`.
 The domain-level default adapters (registered in `cfg/runtime-config.yaml` §adapters) are
-designed for the domain's primary learning modules. Non-learning modules that inherit the
-learning turn interpreter will produce meaningless evidence (algebra scores applied to
-journal entries, proactive parser calls with no equation context).
+designed for the domain's primary workflow modules. Non-workflow modules that inherit the
+workflow interpreter will produce meaningless evidence (workflow compliance scores applied to
+journal entries, proactive checks with no operational context).
 
 Module-level overrides are declared in the `module_map` entry:
 
@@ -112,9 +112,9 @@ LLM inference begins*.
 ### The rationale
 
 An LLM receiving raw unstructured text will compute its own implicit representations of
-that text. If the domain has authoritative prior knowledge about what matters — "in an algebra
-session, whether the student's answer is numerically correct is a deterministic fact, not an
-inference" — that knowledge must be asserted before the LLM constructs its interpretation.
+that text. If the domain has authoritative prior knowledge about what matters — for example,
+"in a service workflow, whether required intake fields are complete is a deterministic fact,
+not an inference" — that knowledge must be asserted before the LLM constructs its interpretation.
 Otherwise the LLM's representation may diverge from the domain's authoritative view, and
 there is no mechanism to detect or correct that divergence.
 
@@ -134,8 +134,8 @@ the LLM is guessing at information the domain already knows.
 The pre-interpreter's entry point (`nlp_preprocess(input_text, task_context) -> dict`)
 returns a dict containing:
 
-- Zero or more domain-specific evidence fields (e.g., `correctness`, `extracted_answer`,
-  `intent_type`)
+- Zero or more domain-specific evidence fields (e.g., `intake_complete`,
+  `explicit_approval_language`, `intent_type`)
 - A `_nlp_anchors` list: structured records of each extracted signal, each with `field`,
   `value`, `confidence`, and an optional `detail` string
 
@@ -143,22 +143,22 @@ The anchors are formatted by the runtime adapter into the LLM context hint:
 
 ```
 NLP pre-analysis (deterministic):
-- correctness: correct (confidence: 0.95) — matched answer "4" to expected "x = 4"
-- frustration_marker_count: 0
-- off_task_ratio: 0.1
+- intake_complete: true
+- explicit_approval_language: true
+- off_workflow_ratio: 0.1
 Use these as starting values. Override if your analysis disagrees.
 ```
 
 ### Each domain owns its own gate
 
 The NLP pre-interpreter is intentionally per-domain, not shared. The signals meaningful in
-an algebra business-ops session (answer correctness, frustration markers, hint requests,
-off-task ratio) are entirely different from those meaningful in a system administration
+a service workflow session (intake completeness, risk markers, approval language,
+off-workflow ratio) are entirely different from those meaningful in a system administration
 session (mutation vs read intent, target user, target role, compound command detection).
 There is no universal pre-interpreter, and there should not be one.
 
 This design ensures that domain boundary violations are structurally impossible at the NLP
-layer: a student message cannot accidentally activate system administration signal
+layer: an operations request cannot accidentally activate system administration signal
 extraction, because the pre-interpreter loaded at session start is the business-ops domain's —
 registered in `cfg/runtime-config.yaml` as the `nlp_pre_interpreter` adapter for that
 session's domain.
@@ -203,16 +203,16 @@ current turn before acting.
 **Business Ops domain example:**
 
 ```yaml
-id: reduce_challenge_on_exhaustion
-trigger: max_attempts.attempts_remaining == 0
-action: reduce_challenge_tier
+id: defer_autonomous_commit_on_risk
+trigger: risk_threshold.breached == true
+action: escalate_for_review
 parameters:
-  reduction_amount: 1
+    target_role: manager
   notify_subject: true
 ```
 
-This authorises the orchestrator to reduce the challenge tier when attempts are exhausted.
-It does not specify the new problem content — that remains a proposal subject to invariant
+This authorises the orchestrator to escalate for review when risk is breached.
+It does not specify the next task payload — that remains a proposal subject to invariant
 checking, not an automatic bypass of the normal proposal-validation pipeline.
 
 ### Hash commitment
@@ -262,7 +262,7 @@ domain adding zero-impact on the engine:
 All domain logic, domain field names, domain computations, and domain vocabulary live
 exclusively inside the domain pack. The core engine never references `correctness`,
 `frustration_marker_count`, `intent_type`, `moisture_level`, or any other domain-specific
-name. It reads only `problem_solved` and `problem_status` from the evidence dict returned
+name. It reads only `task_ready_for_execution` and `task_status` from the evidence dict returned
 by the runtime adapter.
 
 This is what makes it possible to add a new domain pack — radiology, autonomous vehicle
@@ -295,7 +295,7 @@ tool adapters + domain library — domain-owned
 runtime adapter synthesis — assembles evidence dict
     │
     ▼
-engine reads: problem_solved, problem_status
+engine reads: task_ready_for_execution, task_status
 ```
 
 At no point does the engine inspect the intermediate stages. Domain-specific field names
@@ -311,23 +311,23 @@ business-ops and hypothetical scientific domains, see [`domain-adapter-pattern(7
 The domain pack pattern is universal. What varies between packs is content, not structure.
 The three currently active domain packs illustrate this:
 
-| Dimension | `business-ops` | `system` | `business-ops` |
+| Dimension | `business-ops` | `system` | `industrial-ops` |
 |---|---|---|---|
-| **Pre-interpreter extractors** | answer_match, frustration_markers, hint_request, off_task_ratio | admin_verb (mutation/read), target_user, target_role, compound_command, glossary_match | soil sensor thresholds, pest signal keywords, moisture anomaly detection |
-| **Physics invariant type** | Pedagogical (max_consecutive_incorrect, zpd_drift_limit, session_fatigue) | Operational security (privilege escalation gates, unauthorised access paths) | Environmental (moisture_low, pest_pressure_critical, yield_at_risk) |
-| **Tool adapters** | algebra-parser, substitution-checker, calculator | system ctl tools | operations tool adapters |
-| **Domain library components** | progression monitor, consistency tracker, stability estimator | Turn interpretation spec, command interpreter spec, sensor probes | Turn interpretation spec, sensor normalisation |
-| **World-sim enabled** | Yes (space, nature, sports, general_math themes) | No | No |
+| **Pre-interpreter extractors** | intake completeness, risk markers, approval language, off-workflow ratio | admin_verb (mutation/read), target_user, target_role, compound_command, glossary_match | sensor thresholds, anomaly keywords, utilization drift detection |
+| **Physics invariant type** | Workflow safety (commit gating, escalation readiness, SLA drift) | Operational security (privilege escalation gates, unauthorised access paths) | Operational quality (sensor floor, anomaly pressure, throughput at risk) |
+| **Tool adapters** | ERP draft staging, labor lookup, knowledge-hub retrieval | system ctl tools | diagnostics and telemetry tool adapters |
+| **Domain library components** | workflow progression monitor, risk tracker, confidence estimator | turn interpretation spec, command interpreter spec, sensor probes | turn interpretation spec, signal normalization |
+| **World-sim enabled** | Optional | No | No |
 | **Access roles** | user, admin, super_admin, operator, root | super_admin, root | domain-specific |
 | **LLM vs SLM routing** | LLM (external permitted) | SLM-only (`local_only: true`) | LLM (external permitted) |
-| **Module structure** | Multiple algebra modules; module_map routes by student domain_id | Single system-core module | Single operations-level-1 module |
+| **Module structure** | Multiple service modules; module_map routes by domain_id | Single system-core module | Single operations-level-1 module |
 
 The system domain's `local_only: true` is a security boundary, not an architectural
 exception — it reflects the domain's threat model (no operator command should leave the
 trust boundary). Every other structural pattern is identical across all three packs.
 
-The absence of a domain library in the system and business-ops packs is not a deficiency;
-those domains have no multi-turn entity state to track at the depth business-ops requires.
+The absence of a domain library in some packs is not a deficiency; those domains may rely on
+deterministic adapter logic and short-lived workflow state rather than deep multi-turn models.
 Every domain pack includes exactly as much structure as its subject area demands.
 
 ---
@@ -350,8 +350,8 @@ The command dispatch pipeline (`_dispatch_command`) supports two entry modes:
    request body. The SLM is bypassed entirely.
 
 Direct dispatch is the same code path the frontend's slash command parser uses: when a user
-types `/assign TestStudent16`, the frontend resolves this to
-`{ operation: "assign_student", params: { ... } }` and POSTs it to the appropriate tier
+types `/assign_role user-789 bay-intake reviewer`, the frontend resolves this to
+`{ operation: "assign_domain_role", params: { ... } }` and POSTs it to the appropriate tier
 endpoint. No SLM is involved.
 
 This means every domain-pack operation handler can be integration-tested end-to-end — from
@@ -364,7 +364,7 @@ Commands route through one of three endpoints based on the caller's required acc
 
 | Endpoint | Gate | Who can reach it |
 |---|---|---|
-| `POST /api/command` | Any authenticated user | Students, teachers, all roles |
+| `POST /api/command` | Any authenticated user | Operators, reviewers, all roles |
 | `POST /api/domain/command` | `admin`, `root`, `super_admin` | Domain administrators and above |
 | `POST /api/admin/command` | `root`, `super_admin` | System-level operators only |
 
@@ -423,20 +423,20 @@ The deterministic parts of the pipeline that **should** be covered by direct-dis
 
 | Area | What to assert | Example |
 |---|---|---|
-| **Operation routing** | Known operation returns 200; unknown returns 422 | `"operation": "assign_student"` → 200 |
+| **Operation routing** | Known operation returns 200; unknown returns 422 | `"operation": "assign_domain_role"` → 200 |
 | **HITL exemption** | Exempt ops execute immediately (`staged_id: null`); non-exempt ops return a `staged_id` | `hitl_exempt: true` in runtime-config → `resp.json()["staged_id"] is None` |
 | **Tier gate enforcement** | Wrong role at wrong endpoint returns 403 | User token at `/api/domain/command` → 403 |
 | **min_role enforcement** | Operation rejects callers below its declared min_role | `min_role: admin` + user token → 403 |
 | **domain_id injection** | `domain_id` from request body propagates into `params` | Send `"domain_id": "business-ops"` in body, verify handler receives it |
 | **Parameter normalisation** | `_normalize_slm_command` coerces types correctly | `governed_modules: "single"` → `["single"]` |
-| **Handler return value** | The operation's result dict contains expected fields | `resp.json()["result"]["students"]` is a list |
+| **Handler return value** | The operation's result dict contains expected fields | `resp.json()["result"]["assigned_entities"]` is a list |
 
 ### What still needs the SLM
 
 Only two things require a live SLM:
 
 1. **Natural-language parsing accuracy** — does the SLM correctly translate
-   `"assign TestStudent16 to algebra"` into `{ operation: "assign_student", params: ... }`?
+    `"assign reviewer role to user-789 in bay-intake"` into `{ operation: "assign_domain_role", params: ... }`?
 2. **Ambiguous instruction disambiguation** — does the SLM pick the right operation when
    the instruction is vague?
 
@@ -488,7 +488,7 @@ considering the operation complete:
 ## H. Quick Reference — File Layout
 
 The canonical domain pack directory layout. Pack-level items apply to the whole domain;
-module-level items apply to one specific subject area (algebra-level-1, operations-level-1,
+module-level items apply to one specific subject area (intake-workflow-v1, operations-level-1,
 system-core, etc.) within the domain.
 
 ```

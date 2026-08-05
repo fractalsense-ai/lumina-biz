@@ -42,7 +42,7 @@ Entity memory is the entity profile. It persists between sessions and is updated
 ### What Is Stored
 
 ```yaml
-# Stored in entity-profile (the business-ops domain names this "student-profile"
+# Stored in entity-profile (some domains may name this "subject-profile"
 # as a domain convention; other domains use names appropriate to their context)
 entity_state:
   affect:                     # affect state from last session end

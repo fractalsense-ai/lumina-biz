@@ -497,7 +497,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: ade03cb47be15ed1755d493520a6e9cb7c127926f92f2c84805327ce98955ddb
+  sha256: 73d06a2fb4493d6a76afa9ff739a4ba2c83764e02c368b823c40d5193dfc2190
 - path: docs/8-admin/governance-dashboard.md
   type: doc
   section: 8
@@ -707,7 +707,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-21
-  sha256: b8c123e6efde5a9eb6fa95eb71af4738d61c63552dc258ef118a04478a41567a
+  sha256: 03ac4f291add12cc123219374cd2af702d2154945380af0346a92aa1d7b982b9
 - path: docs/7-concepts/hmvc-heritage.md
   type: doc
   section: 7
@@ -854,7 +854,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-08
-  sha256: b76c332090a4e23bfcc9a4921c83bce4c4f469d89e8de178d7a8767ca2bd0c2d
+  sha256: e4702f37b2ea96ebb252d6da3e4fb5353bd29775aea4460546e1b92225a38acb
 - path: docs/5-standards/orchestrator-system-prompt.md
   type: spec
   doc_version: 1.0.0
