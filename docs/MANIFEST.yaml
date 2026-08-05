@@ -707,7 +707,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-21
-  sha256: cd1373f4042fb1568a21be66b18c3cf97f5159d577fe331e3877ace43faa63cf
+  sha256: 03ac4f291add12cc123219374cd2af702d2154945380af0346a92aa1d7b982b9
 - path: docs/7-concepts/hmvc-heritage.md
   type: doc
   section: 7

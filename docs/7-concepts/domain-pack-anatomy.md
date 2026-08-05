@@ -350,8 +350,8 @@ The command dispatch pipeline (`_dispatch_command`) supports two entry modes:
    request body. The SLM is bypassed entirely.
 
 Direct dispatch is the same code path the frontend's slash command parser uses: when a user
-types `/assign tech-16`, the frontend resolves this to
-`{ operation: "assign_operator", params: { ... } }` and POSTs it to the appropriate tier
+types `/assign_role user-789 bay-intake reviewer`, the frontend resolves this to
+`{ operation: "assign_domain_role", params: { ... } }` and POSTs it to the appropriate tier
 endpoint. No SLM is involved.
 
 This means every domain-pack operation handler can be integration-tested end-to-end — from
@@ -423,7 +423,7 @@ The deterministic parts of the pipeline that **should** be covered by direct-dis
 
 | Area | What to assert | Example |
 |---|---|---|
-| **Operation routing** | Known operation returns 200; unknown returns 422 | `"operation": "assign_operator"` → 200 |
+| **Operation routing** | Known operation returns 200; unknown returns 422 | `"operation": "assign_domain_role"` → 200 |
 | **HITL exemption** | Exempt ops execute immediately (`staged_id: null`); non-exempt ops return a `staged_id` | `hitl_exempt: true` in runtime-config → `resp.json()["staged_id"] is None` |
 | **Tier gate enforcement** | Wrong role at wrong endpoint returns 403 | User token at `/api/domain/command` → 403 |
 | **min_role enforcement** | Operation rejects callers below its declared min_role | `min_role: admin` + user token → 403 |
@@ -436,7 +436,7 @@ The deterministic parts of the pipeline that **should** be covered by direct-dis
 Only two things require a live SLM:
 
 1. **Natural-language parsing accuracy** — does the SLM correctly translate
-    `"assign tech-16 to bay-intake"` into `{ operation: "assign_operator", params: ... }`?
+    `"assign reviewer role to user-789 in bay-intake"` into `{ operation: "assign_domain_role", params: ... }`?
 2. **Ambiguous instruction disambiguation** — does the SLM pick the right operation when
    the instruction is vague?
 

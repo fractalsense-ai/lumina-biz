@@ -6,9 +6,9 @@ Project Lumina operates on a strict **Accountability by Design** philosophy. We 
 
 - [ ] **Tests Passed:** I have successfully run `run-preintegration-scenarios.ps1` and all deterministic tests passed.
 - [ ] **CTL Integrity:** My changes do not break the append-only hash-chain. Every new decision path correctly generates a `TraceEvent` or `EscalationRecord`.
-- [x] **Domain Separation:** If modifying the core engine (`reference-implementations/`), I have ensured my code contains zero domain-specific logic or hardcoded subjects.
-- [x] **Pseudonymity:** My changes do not introduce the storage of raw chat transcripts or personally identifiable information (PII) at rest.
-- [x] **Traceability Proof:** I have attached a sample `trace-event-schema.json` output below that demonstrates my feature logging correctly.
+- [ ] **Domain Separation:** If modifying the core engine (`reference-implementations/`), I have ensured my code contains zero domain-specific logic or hardcoded subjects.
+- [ ] **Pseudonymity:** My changes do not introduce the storage of raw chat transcripts or personally identifiable information (PII) at rest.
+- [ ] **Traceability Proof:** I have attached a sample `trace-event-schema.json` output below that demonstrates my feature logging correctly.
 
 ---
 
