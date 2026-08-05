@@ -10,7 +10,7 @@ function makeCard(overrides: Partial<ActionCardData> = {}): ActionCardData {
     id: 'esc-001',
     title: 'Escalation Alert',
     body: 'Escalation triggered: frustration_repeated (SLA: 30 min)',
-    context: { trigger: 'frustration_repeated', sla_minutes: 30, target_role: 'teacher' },
+    context: { trigger: 'frustration_repeated', sla_minutes: 30, target_role: 'reviewer' },
     actions: [
       { id: 'approve', label: 'Approve', style: 'primary' },
       { id: 'reject', label: 'Reject', style: 'destructive' },

@@ -86,13 +86,30 @@ def _token(
 @pytest.mark.integration
 def test_preflight_uses_same_site_evidence_without_retaining_message(client) -> None:
     test_client, persistence = client
-    response = test_client.post("/api/decision-precedent/preflight", headers={"Authorization": f"Bearer {_token()}"}, json={"message": "brake update", "risk_class": "routine", "session_id": "session-1"})
+    response = test_client.post(
+        "/api/decision-precedent/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={
+            "message": "brake update",
+            "risk_class": "routine",
+            "session_id": "session-1",
+            "entity_id": "wo-123",
+            "entity_type": "work_order",
+            "from_state": "intake",
+            "to_state": "review",
+            "related_record_ids": ["trace-a"],
+            "missing_information_fields": ["equipment_serial"],
+        },
+    )
 
     assert response.status_code == 200
-    assert response.json()["tier"] == "suggest_only"
+    assert response.json()["tier"] == "require_confirmation"
+    assert response.json()["decision_group_key"].startswith("dgrp:")
     trace = persistence.records[0]
     evidence = trace["evidence_summary"]["decision_confidence_score"]
     assert evidence["precedent_matches"][0]["summary_record_id"] == "same-site"
+    assert evidence["entity_state_links"][0]["entity_id"] == "wo-123"
+    assert evidence["missing_information_fields"] == ["equipment_serial"]
     assert "message" not in evidence
     assert "brake update" not in str(evidence)
 

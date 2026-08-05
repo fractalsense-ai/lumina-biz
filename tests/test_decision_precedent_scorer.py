@@ -74,6 +74,7 @@ def test_score_record_is_transcript_free_and_schema_ready() -> None:
     record = score_decision_precedent([_candidate(0.91)], _policy(), actor_id="actor-a", risk_class="routine", evaluated_utc=NOW, record_id="score-a").as_record(created_utc=NOW)
 
     assert record["record_id"] == "score-a"
+    assert record["decision_group_key"].startswith("dgrp:")
     assert "summary" not in record
     assert "message" not in record
 

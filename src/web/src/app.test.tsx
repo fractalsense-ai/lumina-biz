@@ -21,7 +21,7 @@ const AUTH_STATE = {
   token: 'test-token',
   userId: 'user1',
   username: 'testuser',
-  role: 'student',
+  role: 'subject',
 }
 
 /** Create a scoped auth token with organization_id and site_id */

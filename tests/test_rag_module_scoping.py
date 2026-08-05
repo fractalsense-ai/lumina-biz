@@ -15,27 +15,35 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import pytest
+import yaml
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-_EDU_CONTROLLERS = _REPO_ROOT / "model-packs" / "business-ops" / "controllers"
+_RUNTIME_CONFIG = _REPO_ROOT / "model-packs" / "business-ops" / "cfg" / "runtime-config.yaml"
 
 
 def _load_post_turn():
-    post_turn_file = next(_EDU_CONTROLLERS.glob("*_post_turn.py"))
+    config = yaml.safe_load(_RUNTIME_CONFIG.read_text(encoding="utf-8")) or {}
+    adapters = ((config.get("adapters") or {}).get("post_turn") or {})
+    module_path = adapters.get("module_path")
+    callable_name = adapters.get("callable")
+    if not module_path or not callable_name:
+        return None
+
+    post_turn_file = _REPO_ROOT / str(module_path)
+    if not post_turn_file.exists():
+        return None
+
     spec = importlib.util.spec_from_file_location(
         "edu_post_turn_rag_test",
         str(post_turn_file),
     )
     mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
     spec.loader.exec_module(mod)  # type: ignore[union-attr]
-    return mod
+    return getattr(mod, str(callable_name), None)
 
 
-_pt_mod = _load_post_turn()
-_post_turn_fn = next(
-    getattr(_pt_mod, name)
-    for name in dir(_pt_mod)
-    if name.endswith("_post_turn") and callable(getattr(_pt_mod, name))
-)
+_post_turn_fn = _load_post_turn()
 
 
 # ── RAG module-scoping tests ─────────────────────────────────
@@ -90,13 +98,13 @@ class TestRagModuleScoping:
         """Chunks from /modules/<other>/ must not appear in results."""
         hits = [
             _FakeHit("model-packs/business-ops/modules/algebra-level-1/domain-physics.json"),
-            _FakeHit("model-packs/business-ops/modules/pre-algebra/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/auto-repair/domain-physics.json"),
             _FakeHit("model-packs/business-ops/docs/README.md"),
         ]
-        td = self._call_enrich(hits, module_key="pre-algebra")
+        td = self._call_enrich(hits, module_key="auto-repair")
         sources = [r["source"] for r in td["_rag_context"]]
         assert "model-packs/business-ops/modules/algebra-level-1/domain-physics.json" not in sources
-        assert "model-packs/business-ops/modules/pre-algebra/domain-physics.json" in sources
+        assert "model-packs/business-ops/modules/auto-repair/domain-physics.json" in sources
         assert "model-packs/business-ops/docs/README.md" in sources
 
     def test_domain_level_docs_always_pass_through(self):
@@ -105,7 +113,7 @@ class TestRagModuleScoping:
             _FakeHit("model-packs/business-ops/cfg/runtime-config.yaml"),
             _FakeHit("model-packs/business-ops/docs/7-concepts/student-commons.md"),
         ]
-        td = self._call_enrich(hits, module_key="pre-algebra")
+        td = self._call_enrich(hits, module_key="auto-repair")
         assert len(td["_rag_context"]) == 2
 
     def test_only_active_module_chunks_survive(self):
@@ -113,11 +121,11 @@ class TestRagModuleScoping:
         hits = [
             _FakeHit("model-packs/business-ops/modules/algebra-1/domain-physics.json"),
             _FakeHit("model-packs/business-ops/modules/algebra-intro/domain-physics.json"),
-            _FakeHit("model-packs/business-ops/modules/pre-algebra/domain-physics.json"),
+            _FakeHit("model-packs/business-ops/modules/auto-repair/domain-physics.json"),
         ]
-        td = self._call_enrich(hits, module_key="pre-algebra")
+        td = self._call_enrich(hits, module_key="auto-repair")
         sources = [r["source"] for r in td["_rag_context"]]
-        assert sources == ["model-packs/business-ops/modules/pre-algebra/domain-physics.json"]
+        assert sources == ["model-packs/business-ops/modules/auto-repair/domain-physics.json"]
 
     def test_processing_passes_module_key(self):
         """processing.py must pass session module_key to enrich_turn_data."""
@@ -137,6 +145,10 @@ class TestRagModuleScoping:
 # ── Standing-order counter reset on task transition ──────────
 
 
+@pytest.mark.skipif(
+    _post_turn_fn is None,
+    reason="business-ops pack does not define a post_turn adapter in runtime-config",
+)
 class TestStandingOrderCounterResetOnTaskTransition:
     """Domain post-turn hook must clear standing-order counters on new task."""
 
@@ -164,7 +176,7 @@ class TestStandingOrderCounterResetOnTaskTransition:
         runtime = {"tool_fns": {"generate_problem": gen_fn}}
 
         result = _post_turn_fn(
-            turn_data={"problem_solved": True},
+            turn_data={"task_ready_for_execution": True},
             prompt_contract={"prompt_type": "continue"},
             resolved_action="continue",
             session={"module_key": "pre-algebra"},
