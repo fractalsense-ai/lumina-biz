@@ -428,6 +428,13 @@ artifacts:
   status: active
   last_updated: 2026-03-12
   sha256: 399b7810f13507a08982630c8d7ae3ad66e6c02a78b5cc2997cb60f41c1f2be2
+- path: docs/6-examples/erp-rbac-mapping-scenarios.md
+  type: doc
+  section: 6
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: 4007d588c9b067716958335206c5d41f88ba8d2ecd8f7755870c79b15244f922
 - path: docs/7-concepts/README.md
   type: doc
   section: 7
@@ -892,6 +899,12 @@ artifacts:
   status: active
   last_updated: 2026-08-05
   sha256: edec22d36431d4be505b51949276d34ae80e1f5d9c3c3a26381e28fa0891484b
+- path: docs/5-standards/erp-rbac-mapping-v1.md
+  type: standard
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: ceadccd5513b58a5363dd90dde72728a56c0f3263d7ae8466667c3d34fa874a5
 - path: docs/8-admin/reports-spec.md
   type: spec
   doc_version: 1.0.0
