@@ -110,3 +110,35 @@ def test_readiness_fails_when_backup_missing(tmp_path: Path, readiness_mod):
     assert report["status"] == "fail"
     gate = next(c for c in report["checks"] if c["id"] == "backup_archive_present")
     assert gate["passed"] is False
+
+
+def test_readiness_fails_when_health_profile_mismatch(tmp_path: Path, readiness_mod):
+    health_report = tmp_path / "data" / "staging" / "single-box-health-report.json"
+    backups_dir = tmp_path / "data" / "staging" / "backups"
+    _write_health_report(health_report, "healthy")
+    _touch_backup(backups_dir)
+
+    payload = json.loads(health_report.read_text(encoding="utf-8"))
+    payload["profile"] = "not-single-box"
+    health_report.write_text(json.dumps(payload), encoding="utf-8")
+
+    docs_dir = tmp_path / "docs" / "8-admin"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    for name in (
+        "single-box-deployment-profile.md",
+        "single-box-backup-restore-retention.md",
+        "single-box-operator-runbooks.md",
+    ):
+        (docs_dir / name).write_text("ok\n", encoding="utf-8")
+
+    report = readiness_mod.evaluate_readiness(
+        repo_root=tmp_path,
+        health_report_path=health_report,
+        backups_dir=backups_dir,
+    )
+
+    assert report["status"] == "fail"
+    profile_gate = next(c for c in report["checks"] if c["id"] == "health_profile_single_box")
+    assert profile_gate["passed"] is False
+    status_gate = next(c for c in report["checks"] if c["id"] == "health_status_healthy")
+    assert status_gate["passed"] is False

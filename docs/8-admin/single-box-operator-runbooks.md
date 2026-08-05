@@ -18,8 +18,10 @@ This document defines top-priority failure and recovery runbooks for single-box 
 2. Run smoke check:
 
 ```bash
-python scripts/single_box_health_check.py --runtime-config model-packs/business-ops/cfg/runtime-config.yaml
+./scripts/run-single-box-smoke.sh
 ```
+
+This wrapper writes the health artifact to `data/staging/single-box-health-report.json` and fails when status is degraded/unhealthy.
 
 3. Validate command/schema registration state using normal admin tooling.
 

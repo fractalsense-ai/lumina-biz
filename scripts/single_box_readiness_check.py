@@ -35,15 +35,22 @@ def evaluate_readiness(
 
     health_payload: dict[str, Any] | None = None
     health_status = "missing"
+    health_profile = "missing"
     if health_report_path.exists():
         try:
             health_payload = json.loads(health_report_path.read_text(encoding="utf-8"))
             if isinstance(health_payload, dict):
-                health_status = str(health_payload.get("status", "missing")).strip().lower()
+                health_profile = str(health_payload.get("profile", "missing")).strip().lower()
+                if health_profile == "single-box-v1":
+                    health_status = str(health_payload.get("status", "missing")).strip().lower()
+                else:
+                    health_status = "invalid"
             else:
                 health_status = "invalid"
+                health_profile = "invalid"
         except Exception:
             health_status = "invalid"
+            health_profile = "invalid"
 
     checks.append(
         {
@@ -51,6 +58,15 @@ def evaluate_readiness(
             "description": "single-box smoke report exists",
             "passed": health_report_path.exists(),
             "details": str(health_report_path),
+        }
+    )
+
+    checks.append(
+        {
+            "id": "health_profile_single_box",
+            "description": "health report profile is single-box-v1",
+            "passed": health_profile == "single-box-v1",
+            "details": health_profile,
         }
     )
 

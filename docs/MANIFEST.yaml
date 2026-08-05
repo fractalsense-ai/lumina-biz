@@ -927,7 +927,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-08-05
-  sha256: 637c5b43464042c5ba08ab603d229588e3b1513d1326fb4c0d0194acbc3e1dbd
+  sha256: 8c6a46655ce501667c16ef033d04ce0cdbbeb1a7a7157e153b3ccb0967ba2ce9
 - path: docs/8-admin/single-box-pilot-readiness-checklist.md
   type: doc
   section: 8
