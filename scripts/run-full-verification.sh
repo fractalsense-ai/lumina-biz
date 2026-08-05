@@ -27,6 +27,7 @@ SKIP_ORCHESTRATOR_DEMO=false
 SKIP_FRONTEND=false
 SKIP_API_SCENARIOS=false
 SKIP_BUSINESS_OPS_REPLAY=false
+SKIP_SINGLE_BOX_SMOKE=false
 
 # ── Parse arguments ───────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -37,6 +38,7 @@ while [[ $# -gt 0 ]]; do
         --skip-frontend)          SKIP_FRONTEND=true; shift;;
         --skip-api-scenarios)     SKIP_API_SCENARIOS=true; shift;;
         --skip-business-ops-replay) SKIP_BUSINESS_OPS_REPLAY=true; shift;;
+        --skip-single-box-smoke)  SKIP_SINGLE_BOX_SMOKE=true; shift;;
         *) echo "Unknown argument: $1" >&2; exit 1;;
     esac
 done
@@ -124,6 +126,14 @@ fi
 if [ "$SKIP_BUSINESS_OPS_REPLAY" = "false" ]; then
     section "Business Ops Replay Evidence"
     "$PYTHON" "scripts/run_business_ops_replay.py" --out "data/staging/business-ops-replay-report.json"
+fi
+
+if [ "$SKIP_SINGLE_BOX_SMOKE" = "false" ]; then
+    section "Single-Box Smoke"
+    "$PYTHON" "scripts/single_box_health_check.py" \
+        --runtime-config "model-packs/business-ops/cfg/runtime-config.yaml" \
+        --json-out "data/staging/single-box-health-report.json" \
+        --fail-on-degraded
 fi
 
 # ── Front-End Build (optional) ────────────────────────────────────────────────
