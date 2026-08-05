@@ -109,10 +109,10 @@ artifacts:
 - path: docs/roadmap/slices/25-b2b-workstream-boundary-and-task-graph.md
   type: doc
   section: 0
-  doc_version: 1.0.0
+  doc_version: 0.1.1
   status: planned
-  last_updated: 2026-07-11
-  sha256: d1269972f25d580c3615c71bb084b56cf34b992eee8386cbfab9a6002c4c9a04
+  last_updated: 2026-08-04
+  sha256: d342c930ab6e4ec6aaed925b2c2eab4fef0c104fe2b9fb4fddf4a8026ce47714
 - path: docs/roadmap/slices/26-tenant-site-actor-memory-contracts.md
   type: doc
   section: 0
@@ -137,10 +137,10 @@ artifacts:
 - path: docs/roadmap/slices/29-decision-precedent-confidence-and-escalation.md
   type: doc
   section: 0
-  doc_version: 0.2.0
+  doc_version: 0.2.1
   status: planned
-  last_updated: 2026-07-20
-  sha256: 9b5a025494cc1f9a008960ed95e53af3f6b87b8f174b427c3e7a1f7a1f78944d
+  last_updated: 2026-08-04
+  sha256: 43b18fd2c7f84b01f7f7de44ba9e792418b53062edc433dbf13b41bd09fba42a
 - path: docs/roadmap/slices/29-decision-precedent-frontend-handoff.md
   type: doc
   section: 0
@@ -214,31 +214,31 @@ artifacts:
 - path: docs/roadmap/slices/36-single-box-deployment-and-operational-hardening.md
   type: doc
   section: 0
-  doc_version: 0.2.0
+  doc_version: 0.2.1
   status: planned
-  last_updated: 2026-08-03
-  sha256: e7880035350ff9d04a40b5881ddb798174dd15e4d5451025812c2b78b3040297
+  last_updated: 2026-08-04
+  sha256: b4a1b678d14d7388075cb19a038209478571745149b467e0519ddd423faac145
 - path: docs/roadmap/slices/37-erp-identity-authority-and-claim-contract.md
   type: doc
   section: 0
-  doc_version: 0.1.0
+  doc_version: 0.1.1
   status: active
-  last_updated: 2026-08-03
-  sha256: 6429dbcfffa62336d895c125c5abe5f197264a335049d7a3a26e09158159eecf
+  last_updated: 2026-08-04
+  sha256: ee4f88891da80f30cb780b4a19d40378a3a37fadc88266d710d2494e1008b8cc
 - path: docs/roadmap/slices/38-erp-jwt-verification-gateway-and-auth-transition.md
   type: doc
   section: 0
-  doc_version: 0.1.0
+  doc_version: 0.1.1
   status: planned
-  last_updated: 2026-08-03
-  sha256: a496c594ca4458fae830184970e1eaac3623f604b581db37ef580398ce688eb7
+  last_updated: 2026-08-04
+  sha256: 4f778b2dc413ea62668d0916a87b625ca89b989bb952fbe0d471536cd27ca336
 - path: docs/roadmap/slices/39-generic-erp-service-core-and-vertical-profile-layer.md
   type: doc
   section: 0
-  doc_version: 0.1.0
+  doc_version: 0.1.1
   status: planned
-  last_updated: 2026-08-03
-  sha256: f4e051b0f05a142173de8d96552128425b24d1eecdee567748abde9ab8f33b84
+  last_updated: 2026-08-04
+  sha256: 391a1f4f92140a59c8bdbfb08e4313c2f4e4ab1cae12c5634bbbcfb8ae4389a6
 - path: docs/1-commands/README.md
   type: doc
   section: 1
@@ -1756,46 +1756,46 @@ artifacts:
   sha256: e16c0e65fe3537678a6b8393065104bafa128972bf7bd7dc954ec977320caab2
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.0.0
+  doc_version: 1.2.7
   status: active
-  last_updated: 2026-07-19
-  sha256: 02570d79f895f337fc01d81860c4a263bfbae729ccde4d29651b80dd56f103c3
+  last_updated: 2026-08-04
+  sha256: 854c73b86fa9f9119bf2a0db2d0a96ca1b232cc1872be40698f94ee54dbbb3eb
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
-  doc_version: 1.0.0
+  doc_version: 1.0.1
   status: active
-  last_updated: 2026-05-05
-  sha256: 3503dd27223590be03e09146d7394926c1247490532847735e047a03bf3d5ade
+  last_updated: 2026-08-04
+  sha256: 9cfee37766b560ed619dc1df16fb97ef414fafd225e4c83dc249486acff1d62e
 - path: docs/roadmap/slices/02-system-update-vocabulary.md
   type: doc
   doc_version: 1.0.1
   status: active
   last_updated: 2026-08-04
-  sha256: a935ab92d6d38be419d896bab120c7b6ece990ae62c349d26e4f4b3e4dae2ca7
+  sha256: 2624ae8fa0acda9bbd9f75428eba03896c479e11afc1fb868a79738f3f784b1c
 - path: docs/roadmap/slices/03-request-intake-and-classification.md
   type: doc
-  doc_version: 1.0.0
+  doc_version: 1.0.1
   status: active
-  last_updated: 2026-05-07
-  sha256: 5ce678ff95bd77b136161cf34153d692b64727f334c3a71b828aa4b4427bff56
+  last_updated: 2026-08-04
+  sha256: 81da7218f5ab70326203bf93e7d566c61a94b473fa12252d1da92e43c463fbca
 - path: docs/roadmap/slices/04-system-pack-authority-gate.md
   type: doc
-  doc_version: 1.0.0
+  doc_version: 1.0.1
   status: active
-  last_updated: 2026-05-07
-  sha256: b8d741c8da0a8a97a2e7ab5668e347c4d16cee73c025041d256a1b3e6fc05b11
+  last_updated: 2026-08-04
+  sha256: 91333c93cdc21b9541b5b15f3889eb268aca9e9eb85fb19d8538cb3ba2baa833
 - path: docs/roadmap/slices/05-system-pack-sole-coding-agent-ingress.md
   type: doc
-  doc_version: 1.0.0
+  doc_version: 1.0.1
   status: active
-  last_updated: 2026-05-07
-  sha256: 286f74731642165f7f630a68e044162a0b11a6b2b4ec9be90c1a3ca100c3d454
+  last_updated: 2026-08-04
+  sha256: 3926a87879353b78edee0d1b4bf8d212cfe613fa1a14b912a02cfa32edb6e449
 - path: docs/roadmap/slices/06-coding-agent-model-pack-architecture-v2.md
   type: doc
-  doc_version: 1.0.0
+  doc_version: 1.0.1
   status: active
-  last_updated: 2026-06-19
-  sha256: 183f1f7db4a902937e6067c5607cefb3e7a972c66970d14633cb700a88606976
+  last_updated: 2026-08-04
+  sha256: c86e99fc7a70d5249a150eb240a4a33de9b8309023808cebc40fe71a4ef66a28
 - path: docs/roadmap/slices/07-coding-agent-pack-skeleton.md
   type: doc
   doc_version: 1.0.0
