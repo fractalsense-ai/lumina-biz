@@ -5,7 +5,7 @@ last_updated: 2026-08-05
 
 # Single-Box Backup, Restore, and Retention Controls
 
-This runbook defines deterministic backup and restore controls for single-box pilot operations.
+This runbook defines deterministic retention and safe-restore controls for single-box pilot operations.
 
 ## Scope
 
@@ -51,7 +51,7 @@ python scripts/single_box_backup_restore.py prune --keep 5
 
 ## Retention Semantics
 
-- `backup --retention-limit N` creates one new archive, then prunes oldest backups so only the newest `N` remain.
+- `backup --retention-limit N` creates one timestamped archive, then prunes oldest backups so only the newest `N` remain.
 - `prune --keep N` prunes without creating a new backup.
 - `N=0` removes all matching backup archives.
 

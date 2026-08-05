@@ -104,3 +104,26 @@ def test_restore_rejects_unsafe_archive_member(tmp_path: Path, backup_mod):
 
     with pytest.raises(RuntimeError):
         backup_mod.restore_backup(repo_root=tmp_path, archive_path=archive, dry_run=False)
+
+
+def test_create_backup_rejects_include_dir_outside_repo_root(tmp_path: Path, backup_mod):
+    _seed_artifacts(tmp_path)
+    output_dir = tmp_path / "data" / "staging" / "backups"
+    outside_dir = tmp_path.parent
+
+    with pytest.raises(ValueError):
+        backup_mod.create_backup(
+            repo_root=tmp_path,
+            output_dir=output_dir,
+            include_dirs=(str(outside_dir),),
+            retention_limit=5,
+        )
+
+
+def test_restore_rejects_member_resolving_to_repo_root(tmp_path: Path, backup_mod):
+    archive = tmp_path / "bad-root.zip"
+    with ZipFile(archive, "w") as zf:
+        zf.writestr(".", "bad")
+
+    with pytest.raises(RuntimeError):
+        backup_mod.restore_backup(repo_root=tmp_path, archive_path=archive, dry_run=False)

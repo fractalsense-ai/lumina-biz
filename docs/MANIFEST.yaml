@@ -920,7 +920,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-08-05
-  sha256: ac0ef13a4e766ba68ca3a8dae9eba65ff1608329255fde87820d6d961f140f6c
+  sha256: b0cafbb2e40f7b1fd66ae23fde4b7a4c283a82354301e0c004494613dba43f3f
 - path: docs/5-standards/system-log.md
   type: standard
   doc_version: 1.1.0

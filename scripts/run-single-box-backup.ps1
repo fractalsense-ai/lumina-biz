@@ -13,24 +13,24 @@ if (-not (Test-Path $PythonExe)) {
     $PythonExe = "python"
 }
 
-$args = @("scripts/single_box_backup_restore.py", $Action)
+$cmdArgs = @("scripts/single_box_backup_restore.py", $Action)
 
 if ($Action -eq "restore") {
     if ([string]::IsNullOrWhiteSpace($Archive)) {
         throw "-Archive is required when Action=restore"
     }
-    $args += @("--archive", $Archive)
+    $cmdArgs += @("--archive", $Archive)
     if ($DryRun) {
-        $args += "--dry-run"
+        $cmdArgs += "--dry-run"
     }
 }
 
 if ($Action -eq "prune") {
-    $args += @("--keep", "$Keep")
+    $cmdArgs += @("--keep", "$Keep")
 }
 
 if ($Action -eq "backup") {
-    $args += @("--retention-limit", "$Keep")
+    $cmdArgs += @("--retention-limit", "$Keep")
 }
 
-& $PythonExe @args
+& $PythonExe @cmdArgs

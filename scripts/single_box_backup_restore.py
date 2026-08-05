@@ -40,6 +40,16 @@ def _safe_rel(path: Path, root: Path) -> str:
     return str(path.resolve().relative_to(root.resolve())).replace("\\", "/")
 
 
+def _ensure_under_repo(repo_root: Path, path: Path, *, field_name: str) -> Path:
+    repo_resolved = repo_root.resolve()
+    path_resolved = path.resolve()
+    if repo_resolved in path_resolved.parents:
+        return path_resolved
+    raise ValueError(
+        f"{field_name} must be under repo root '{repo_resolved}': '{path_resolved}'"
+    )
+
+
 def list_backups(output_dir: Path) -> list[Path]:
     backups = [p for p in output_dir.glob(f"{BACKUP_PREFIX}-*.zip") if p.is_file()]
     backups.sort(key=lambda p: p.name)
@@ -64,7 +74,11 @@ def _collect_files(repo_root: Path, include_dirs: tuple[str, ...]) -> tuple[list
     files: list[Path] = []
     included_dirs: list[str] = []
     for rel_dir in include_dirs:
-        abs_dir = _to_abs(repo_root, rel_dir)
+        abs_dir = _ensure_under_repo(
+            repo_root,
+            _to_abs(repo_root, rel_dir),
+            field_name="include-dir",
+        )
         if not abs_dir.exists():
             continue
         included_dirs.append(_safe_rel(abs_dir, repo_root))
@@ -98,7 +112,6 @@ def create_backup(
         "schema_version": "1.0.0",
         "profile": "single-box-v1",
         "created_utc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        "repo_root": str(repo_root),
         "included_dirs": included_dirs,
         "file_count": len(files),
         "archive_name": archive_name,
@@ -123,7 +136,7 @@ def create_backup(
 def _safe_extract_member(repo_root: Path, member_name: str) -> Path:
     target = (repo_root / member_name).resolve()
     repo_resolved = repo_root.resolve()
-    if repo_resolved == target or repo_resolved in target.parents:
+    if repo_resolved in target.parents:
         return target
     raise RuntimeError(f"Unsafe archive member path: {member_name}")
 
