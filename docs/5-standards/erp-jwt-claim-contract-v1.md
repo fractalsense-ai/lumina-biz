@@ -104,5 +104,4 @@ Those are implemented in Slice 38 using this contract unchanged.
 ## Related Contracts
 
 1. [erp-identity-authority-v1](erp-identity-authority-v1.md)
-2. [erp-auth-fallback-policy-v1](erp-auth-fallback-policy-v1.md)
-3. [auth(3)](../3-functions/auth.md)
+2. [auth(3)](../3-functions/auth.md)

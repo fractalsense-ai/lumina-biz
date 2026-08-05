@@ -1,11 +1,11 @@
 ---
-version: 1.0.0
+version: 1.4.0
 last_updated: 2026-08-05
 ---
 
 # auth(3)
 
-**Version:** 1.3.0
+**Version:** 1.4.0
 **Status:** Active
 **Last updated:** 2026-08-05
 
@@ -85,7 +85,6 @@ This module uses zero external dependencies for JWT — implemented using the st
 For non-system actors, Lumina accepts ERP-issued identity context according to:
 
 1. [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
-2. [erp-auth-fallback-policy-v1](../5-standards/erp-auth-fallback-policy-v1.md)
 
 ### Required ERP Claims
 
@@ -117,5 +116,5 @@ Runtime middleware implementation of these checks is out of scope for this slice
 
 ## SEE ALSO
 
-[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-auth-fallback-policy-v1](../5-standards/erp-auth-fallback-policy-v1.md)
+[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
 

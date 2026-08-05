@@ -100,14 +100,6 @@ For Slice 37 ERP non-system identity posture, configure:
 
 These values are normative inputs to [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md).
 
-### Fallback governance posture
-
-Fallback for ERP auth outages is non-default and must be bounded and auditable per [erp-auth-fallback-policy-v1](../5-standards/erp-auth-fallback-policy-v1.md):
-
-1. Explicit operator activation only.
-2. Time-bounded fallback window.
-3. Governance event evidence for activation and closure.
-
 ## Local development setup
 
 1. Copy template:
@@ -244,4 +236,3 @@ Full setup instructions including Ollama install steps and end-to-end verificati
 - [air-gapped-admin-architecture(8)](air-gapped-admin-architecture.md)
 - [rbac-administration](rbac-administration.md)
 - [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
-- [erp-auth-fallback-policy-v1](../5-standards/erp-auth-fallback-policy-v1.md)
