@@ -63,11 +63,19 @@ def test_confidence_contract_rejects_raw_message_field() -> None:
 @pytest.mark.unit
 def test_escalation_packet_contract_rejects_provider_mutation_data() -> None:
     packet = {
-        "packet_id": "packet-a", "decision_group_key": "dgrp:abc123", "organization_id": "org-a", "site_id": "site-a",
-        "actor_id": "actor-a", "confidence_record_id": "confidence-a", "policy_version": 1,
-        "risk_class": "financial", "tier": "mandatory_escalation",
-        "target_role": "business-ops:owner-manager", "status": "pending",
-        "precedent_summary_record_ids": ["summary-a"], "created_utc": "2026-07-20T00:00:00Z",
+        "packet_id": "packet-a",
+        "decision_group_key": "dgrp:abc123",
+        "organization_id": "org-a",
+        "site_id": "site-a",
+        "actor_id": "actor-a",
+        "confidence_record_id": "confidence-a",
+        "policy_version": 1,
+        "risk_class": "financial",
+        "tier": "mandatory_escalation",
+        "target_role": "business-ops:owner-manager",
+        "status": "pending",
+        "precedent_summary_record_ids": ["summary-a"],
+        "created_utc": "2026-07-20T00:00:00Z",
     }
     schema = _schema("business-escalation-packet-schema-v1.json")
     jsonschema.validate(packet, schema, format_checker=jsonschema.FormatChecker())
