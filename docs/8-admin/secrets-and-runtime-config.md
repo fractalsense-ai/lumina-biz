@@ -56,6 +56,9 @@ A compromised secret on one track cannot be used to forge tokens for another tra
 When only `LUMINA_JWT_SECRET` is set all tokens share one secret (development
 mode only — not recommended for production).
 
+This shared-secret fallback is an admin/system continuity mechanism only. It does
+not reintroduce legacy non-system profile coexistence for ERP-governed actors.
+
 See [air-gapped-admin-architecture(8)](air-gapped-admin-architecture.md) for
 the full three-tier model, token lifecycle, and rotation guidance.
 
@@ -236,3 +239,4 @@ Full setup instructions including Ollama install steps and end-to-end verificati
 - [air-gapped-admin-architecture(8)](air-gapped-admin-architecture.md)
 - [rbac-administration](rbac-administration.md)
 - [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
+- [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)

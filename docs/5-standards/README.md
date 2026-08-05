@@ -30,5 +30,6 @@ Core specifications and protocol standards.
 | [domain-library-lifecycle](domain-library-lifecycle.md) | Version lifecycle for domain packs and domain libraries |
 | [erp-identity-authority-v1](erp-identity-authority-v1.md) | Authority boundary contract: ERP SSOT for non-system identity, Lumina-owned system track |
 | [erp-jwt-claim-contract-v1](erp-jwt-claim-contract-v1.md) | Canonical required/optional ERP JWT claim schema and deterministic deny semantics |
+| [erp-rbac-mapping-v1](erp-rbac-mapping-v1.md) | Canonical ERP claim-to-RBAC role/context mapping and denial semantics |
 
 All specifications are stored under [`../specs/`](../../specs/) and [`../standards/`](../../standards/).

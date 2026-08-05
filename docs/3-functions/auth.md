@@ -114,7 +114,24 @@ For non-system actors, Lumina accepts ERP-issued identity context according to:
 
 Runtime middleware implementation of these checks is out of scope for this slice and is delivered in Slice 38.
 
+## ERP Claim-to-RBAC Mapping (Slice 37 PR3)
+
+After claim validation, non-system actor context is translated using
+[erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md):
+
+1. `role` -> Lumina tier posture mapping.
+2. `organization_id` and `site_id` -> effective authorization scope binding.
+3. Optional claim context (`domain_roles`, `governed_modules`) -> additional bounded scope constraints.
+
+Deterministic context-mismatch denials:
+
+| Condition | Denial reason |
+|----------|---------------|
+| Unmapped role value | `INVALID_ROLE_VALUE` |
+| Organization mismatch | `ORGANIZATION_MISMATCH` |
+| Site mismatch | `SITE_MISMATCH` |
+
 ## SEE ALSO
 
-[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
+[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)
 

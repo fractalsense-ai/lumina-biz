@@ -224,7 +224,7 @@ artifacts:
   doc_version: 0.1.2
   status: active
   last_updated: 2026-08-05
-  sha256: 328cb2d2e03abce019a67a394959602b8aeccffd961344be9994f94b3e6fa8bf
+  sha256: ee0c15a98f59ea5fce15dfa5fbf77f61eb282992ea248c93f2826e2e3f5489b2
 - path: docs/roadmap/slices/38-erp-jwt-verification-gateway-and-auth-transition.md
   type: doc
   section: 0
@@ -357,7 +357,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-08-05
-  sha256: 949e717758e509b298534de5a2936fdef3c59821927e35720fb441fa094bb219
+  sha256: 65c00b413ddbb8f2e6fba92fb4598060d8ba583d6b2fe42f2404d02320541eb5
 - path: docs/3-functions/permissions.md
   type: doc
   section: 3
@@ -399,7 +399,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-08-05
-  sha256: a8c0cd83d44a7fb63a22565f0710b092f6f0b93cf56cb9a0cf85513294637001
+  sha256: 85ddba57c229cfc57603f50005c783716da1a71525924154889d72745f97309b
 - path: docs/5-standards/adapter-naming-convention.md
   type: doc
   section: 5
@@ -427,7 +427,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-12
-  sha256: d9b005f671c700f1d4fbca013cc76c356365752efbd14ca7ff46776c70815034
+  sha256: 399b7810f13507a08982630c8d7ae3ad66e6c02a78b5cc2997cb60f41c1f2be2
 - path: docs/7-concepts/README.md
   type: doc
   section: 7
@@ -805,7 +805,7 @@ artifacts:
   doc_version: 1.3.0
   status: active
   last_updated: 2026-08-05
-  sha256: ec4c7ea4c4587de427b92c0eece8703b8717f98e993930f95c749eb58f4daf57
+  sha256: 05f79bb4e6f46307ae2dfd647beace2a80c9120c0788016b98bffb0332f3924c
 - path: docs/8-admin/system-domain-operations.md
   type: doc
   section: 8
@@ -879,7 +879,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-03-15
-  sha256: 7ccf358c3d3bb0721558df336a2d34707ce87feafc6dfea6a666576e26973673
+  sha256: 6b7b8cf52c0660dcd19e02b548bab218abef13094cb9b585ef921b8c7b399ca8
 - path: docs/5-standards/erp-identity-authority-v1.md
   type: standard
   doc_version: 1.1.0
