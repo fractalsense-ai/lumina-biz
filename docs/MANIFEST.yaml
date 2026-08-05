@@ -221,10 +221,10 @@ artifacts:
 - path: docs/roadmap/slices/37-erp-identity-authority-and-claim-contract.md
   type: doc
   section: 0
-  doc_version: 0.1.1
+  doc_version: 0.1.2
   status: active
   last_updated: 2026-08-05
-  sha256: 07d2ba7180d49f48b419045a7197d97c46a7fb248a46230140fd08cf90598d50
+  sha256: 328cb2d2e03abce019a67a394959602b8aeccffd961344be9994f94b3e6fa8bf
 - path: docs/roadmap/slices/38-erp-jwt-verification-gateway-and-auth-transition.md
   type: doc
   section: 0
@@ -354,10 +354,10 @@ artifacts:
 - path: docs/3-functions/auth.md
   type: doc
   section: 3
-  doc_version: 1.2.0
+  doc_version: 1.4.0
   status: active
-  last_updated: 2026-03-15
-  sha256: afb06395349bcb4c389087341b3335f83624801753e96563fe2242fa430afe48
+  last_updated: 2026-08-05
+  sha256: 949e717758e509b298534de5a2936fdef3c59821927e35720fb441fa094bb219
 - path: docs/3-functions/permissions.md
   type: doc
   section: 3
@@ -399,7 +399,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-08-05
-  sha256: d48132921383a4d7c86c8c925d012d73256216c9fc8a374cac36cc4983eb157e
+  sha256: a8c0cd83d44a7fb63a22565f0710b092f6f0b93cf56cb9a0cf85513294637001
 - path: docs/5-standards/adapter-naming-convention.md
   type: doc
   section: 5
@@ -802,10 +802,10 @@ artifacts:
 - path: docs/8-admin/secrets-and-runtime-config.md
   type: doc
   section: 8
-  doc_version: 1.1.0
+  doc_version: 1.3.0
   status: active
-  last_updated: 2026-03-15
-  sha256: 3b1fbd2708f2090133a4ce767c30cd2d6399d60c9841b5945bbce1495c247240
+  last_updated: 2026-08-05
+  sha256: ec4c7ea4c4587de427b92c0eece8703b8717f98e993930f95c749eb58f4daf57
 - path: docs/8-admin/system-domain-operations.md
   type: doc
   section: 8
@@ -886,6 +886,12 @@ artifacts:
   status: active
   last_updated: 2026-08-05
   sha256: 16bbe14b5a605238ce2161efcc690f2f50a9769061d21d84217e661343f46719
+- path: docs/5-standards/erp-jwt-claim-contract-v1.md
+  type: standard
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: edec22d36431d4be505b51949276d34ae80e1f5d9c3c3a26381e28fa0891484b
 - path: docs/8-admin/reports-spec.md
   type: spec
   doc_version: 1.0.0

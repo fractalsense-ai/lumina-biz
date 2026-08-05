@@ -1,13 +1,13 @@
 ---
-version: 1.2.0
-last_updated: 2026-03-21
+version: 1.3.0
+last_updated: 2026-08-05
 ---
 
 # secrets-and-runtime-config
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 **Status:** Active
-**Last updated:** 2026-03-21
+**Last updated:** 2026-08-05
 
 ---
 
@@ -88,6 +88,17 @@ Conditionally required:
 |----------|-------------|
 | `LUMINA_LOG_DIR` | Primary System Log root; auto-created at startup. **Set this in production.** |
 | `LUMINA_CTL_DIR` | Backward-compatible fallback (deprecated — prefer `LUMINA_LOG_DIR`; still accepted) |
+
+### ERP claim-contract variables
+
+For Slice 37 ERP non-system identity posture, configure:
+
+| Variable | Description |
+|----------|-------------|
+| `LUMINA_ERP_TRUSTED_ISSUER` | Expected ERP token issuer (`iss`) value |
+| `LUMINA_ERP_EXPECTED_AUDIENCE` | Expected Lumina audience (`aud`) value for ERP tokens |
+
+These values are normative inputs to [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md).
 
 ## Local development setup
 
@@ -224,3 +235,4 @@ Full setup instructions including Ollama install steps and end-to-end verificati
 - [lumina-api-server(2)](../2-syscalls/lumina-api-server.md)
 - [air-gapped-admin-architecture(8)](air-gapped-admin-architecture.md)
 - [rbac-administration](rbac-administration.md)
+- [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
