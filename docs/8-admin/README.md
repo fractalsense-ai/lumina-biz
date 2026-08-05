@@ -34,3 +34,5 @@ Governance, RBAC configuration, audit policy, and operational procedures.
 | [llm-assisted-governance-adapters](llm-assisted-governance-adapters.md) | LLM-assisted governance adapter pattern: persona separation, physics editing, ingestion integration *(moved from Section 7)* |
 | [single-box-deployment-profile](single-box-deployment-profile.md) | Single-box deployment profile, deterministic health checks, and smoke-gate usage for pilot operations |
 | [single-box-backup-restore-retention](single-box-backup-restore-retention.md) | Deterministic backup, restore, and retention controls for single-box institutional-memory artifacts |
+| [single-box-operator-runbooks](single-box-operator-runbooks.md) | Route-failure, connector-degradation, and escalation-backlog runbooks for single-box operations |
+| [single-box-pilot-readiness-checklist](single-box-pilot-readiness-checklist.md) | Pilot go/no-go checklist backed by deterministic readiness report gating |

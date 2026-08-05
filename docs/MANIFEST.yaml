@@ -770,7 +770,7 @@ artifacts:
   doc_version: 1.1.0
   status: active
   last_updated: 2026-04-16
-  sha256: 377f3901fe2942e94a29a0350592e5c31c4afac3aa755da2a30285352b7a8da3
+  sha256: 99d13f5ba6fc5645c4eeea4dac10a0fd5c6e361f5fb6a6944a2e19d09682e990
 - path: docs/8-admin/admin-command-schemas.md
   type: doc
   section: 8
@@ -921,6 +921,20 @@ artifacts:
   status: active
   last_updated: 2026-08-05
   sha256: b0cafbb2e40f7b1fd66ae23fde4b7a4c283a82354301e0c004494613dba43f3f
+- path: docs/8-admin/single-box-operator-runbooks.md
+  type: doc
+  section: 8
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: 637c5b43464042c5ba08ab603d229588e3b1513d1326fb4c0d0194acbc3e1dbd
+- path: docs/8-admin/single-box-pilot-readiness-checklist.md
+  type: doc
+  section: 8
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-08-05
+  sha256: a09cfe3c4977eb1a5b3c207df15b1c57fba264b75f9926bf376e664d501819d2
 - path: docs/5-standards/system-log.md
   type: standard
   doc_version: 1.1.0
