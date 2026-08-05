@@ -125,7 +125,7 @@ Model-packs use three distinct component types. They are different in how the co
 | **Runtime adapter** | `controllers/runtime_adapters.py` | Core engine (`interpret_turn_input`) | Synthesis layer — runs NLP pre-processing (Phase A) and signal synthesis (Phase B), calls domain-lib internally, writes engine contract fields |
 | **World-sim persona** | `world-sim/` (optional) | Domain runtime adapter — selected once at session start in `build_initial_learning_state`; theme hint injected on every turn via `interpret_turn_input` | Narrative framing layer — cosmetic only; domain physics and invariants are unchanged. Three files: spec (parameters), consent (activation gate), mastery (reward surface). |
 
-See [`docs/7-concepts/domain-adapter-pattern.md`](../docs/7-concepts/domain-adapter-pattern.md) for the full authoring guide including the engine contract field reference and the `problem_solved` / `problem_status` pattern.
+See [`docs/7-concepts/domain-adapter-pattern.md`](../docs/7-concepts/domain-adapter-pattern.md) for the full authoring guide including the engine contract field reference and the `task_ready_for_execution` / `task_status` pattern.
 
 See [`docs/7-concepts/world-sim-persona-pattern.md`](../docs/7-concepts/world-sim-persona-pattern.md) for the full persona pattern reference, including static vs. dynamic theme selection, configuration layout, and the implementation checklist for adding a world-sim to a new domain.
 
@@ -153,7 +153,7 @@ python ../reference-implementations/yaml-to-json-converter.py \
 
 ### 4. Write the entity profile template
 
-Use the profile template from an existing pack as a base (for example, `student-profile-template.yaml` in the business-ops pack, or a domain-equivalent name in your pack). The template defines the initial state for new entities.
+Use the profile template from an existing pack as a base (for example, `subject-profile-template.yaml` in a domain pack, or a domain-equivalent name in your pack). The template defines the initial state for new entities.
 
 ### 5. Write tool adapters (if needed)
 
@@ -181,7 +181,7 @@ Every material module policy change requires:
 
 Create `controllers/runtime_adapters.py` with an `interpret_turn_input` function. This is the synthesis layer where:
 - **Phase A** — an optional NLP pre-interpreter extracts deterministic signals from raw input before the LLM prompt is assembled
-- **Phase B** — at the end of the function, engine contract fields (`problem_solved`, `problem_status`) are computed from domain-owned evidence
+- **Phase B** — at the end of the function, engine contract fields (`task_ready_for_execution`, `task_status`) are computed from domain-owned evidence
 
 See [`docs/7-concepts/domain-adapter-pattern.md`](../docs/7-concepts/domain-adapter-pattern.md) for the step-by-step template, engine contract field catalogue, and worked examples for both single-step and multi-step task domains.
 

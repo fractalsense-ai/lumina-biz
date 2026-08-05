@@ -46,7 +46,7 @@ routes to it. This is exactly how Lumina works.
 | **Module routes / config** | **Runtime Config** | `cfg/runtime-config.yaml` | Adapter bindings, access control, module routing, world-sim config |
 | **Module API endpoints** | **Domain API Route Handlers** | `controllers/api_handlers.py` + `cfg/runtime-config.yaml` §adapters.api_routes | Domain-owned HTTP endpoints dynamically mounted by the core server at startup — the domain declares routes, the framework provides auth/role middleware |
 | **Framework router** | **Domain Registry** | `cfg/domain-registry.yaml` + `src/lumina/core/domain_registry.py` | Maps domain_id → runtime context; role-based defaults; NLP routing |
-| **Framework core** | **Core Engine** | `src/lumina/` | Zero domain-specific names — reads only `problem_solved` and `problem_status` |
+| **Framework core** | **Core Engine** | `src/lumina/` | Zero domain-specific names — consumes generic synthesized turn signals (for example `task_status`) |
 | **Sub-request** (module→module) | **Cross-Domain Synthesis** | Opt-in, dual-key DA approval | See [`cross-domain-synthesis(7)`](cross-domain-synthesis.md) |
 
 ---
@@ -91,7 +91,7 @@ The controllers directory contains three distinct responsibilities:
 
 | File | HMVC Role | What It Does |
 |---|---|---|
-| `runtime_adapters.py` | **Primary controller** | Synthesis layer — runs Phase A (NLP pre-processing) and Phase B (signal synthesis after tools); emits engine contract fields `problem_solved` and `problem_status` |
+| `runtime_adapters.py` | **Primary controller** | Synthesis layer — runs Phase A (NLP pre-processing) and Phase B (signal synthesis after tools); emits generic turn/task lifecycle signals (for example `task_status`) and domain-owned readiness signals |
 | `nlp_pre_interpreter.py` | **Input filter / front controller** | Information gate — deterministic extraction of domain-meaningful signals before any LLM inference; produces `_nlp_anchors` |
 | `tool_adapters.py` | **Action controller** | Active verifier dispatch — wraps tool-adapter YAML specs as callable Python functions for the orchestrator |
 

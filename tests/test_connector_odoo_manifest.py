@@ -68,6 +68,18 @@ def test_mapping_unsupported_pair_raises() -> None:
 
 
 @pytest.mark.unit
+def test_mapping_rejects_unexpected_query_payload_keys() -> None:
+    with pytest.raises(ValueError):
+        map_operation_to_odoo(
+            {
+                "action_class": "query",
+                "capability_namespace": "inventory",
+                "payload": {"vertical_specific": "tow-truck"},
+            }
+        )
+
+
+@pytest.mark.unit
 def test_error_normalization_for_rate_limit() -> None:
     err = normalize_odoo_error(
         status_code=429,

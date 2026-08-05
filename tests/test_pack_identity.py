@@ -40,3 +40,20 @@ def test_pack_commitment_type_aliases() -> None:
     assert is_model_pack_commitment_type("domain_pack_activation") is True
     assert is_model_pack_commitment_type(MODEL_PACK_ROLLBACK) is True
     assert is_model_pack_commitment_type("policy_change") is False
+
+
+def test_pack_identity_handles_non_mapping_inputs() -> None:
+    assert get_model_pack_id(None) == ""
+    assert get_model_pack_version(None) == ""
+    assert get_model_pack_id("not-a-dict") == ""
+    assert get_model_pack_version(["not", "a", "dict"]) == ""
+
+
+def test_pack_identity_ignores_non_mapping_metadata() -> None:
+    record = {
+        "metadata": "not-a-mapping",
+        "domain_pack_id": "legacy/id",
+        "domain_pack_version": "9.9.9",
+    }
+    assert get_model_pack_id(record) == "legacy/id"
+    assert get_model_pack_version(record) == "9.9.9"
