@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-08-04
+last_updated: 2026-08-05
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -132,21 +132,21 @@ artifacts:
   section: 0
   doc_version: 1.0.0
   status: delivered
-  last_updated: 2026-07-20
+  last_updated: 2026-08-04
   sha256: 053a73f6f10a9431e845b2d20f383fec5151dd0cc3317f6855f41bbfdbf8a91e
 - path: docs/roadmap/slices/29-decision-precedent-confidence-and-escalation.md
   type: doc
   section: 0
   doc_version: 0.2.0
   status: planned
-  last_updated: 2026-07-20
+  last_updated: 2026-08-04
   sha256: 9b5a025494cc1f9a008960ed95e53af3f6b87b8f174b427c3e7a1f7a1f78944d
 - path: docs/roadmap/slices/29-decision-precedent-frontend-handoff.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: delivered
-  last_updated: 2026-07-20
+  last_updated: 2026-08-04
   sha256: a2680d9227372a2fda699bebdde32819a5e20a5a0ed4ce582619b82ccafa563d
 - path: docs/roadmap/slices/30-erpnext-adapter-foundation-and-fixtures.md
   type: doc
@@ -1412,19 +1412,19 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-20
-  sha256: 949a32f06142c0cb7f3943fcd6a5e058db531f05e82ef31b061f5ab071e8973c
+  sha256: 15a50e12e95574907885783104c435d4e8795e1d3b13316e3d902ead4c61b3ff
 - path: standards/decision-confidence-score-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-20
-  sha256: f1e69ab3cefc4d3a5ab2aa780f307ad59836305208ef7de0d748fb70ca0292e1
+  sha256: 2367c7caaa16328d2002bd8b9175213813d16bb011c49e312b9e7bff315479dd
 - path: standards/business-escalation-packet-schema-v1.json
   type: schema
   doc_version: 1.0.0
   status: active
   last_updated: 2026-07-20
-  sha256: d512b3a966472acc8545394bfa8a808fdee262df210d7d77a41efff723148c50
+  sha256: bdb0ccdb71c9869554216ac3dd1bacdac915b897aeaf4bca5ea17b8e87865332
 - path: standards/decision-precedent-policy-schema-v1.json
   type: schema
   doc_version: 1.0.0
