@@ -1,13 +1,13 @@
 ---
-version: 1.0.0
-last_updated: 2026-03-20
+version: 1.5.1
+last_updated: 2026-08-05
 ---
 
 # auth(3)
 
-**Version:** 1.2.0
+**Version:** 1.5.1
 **Status:** Active
-**Last updated:** 2026-03-15
+**Last updated:** 2026-08-05
 
 ---
 
@@ -37,6 +37,16 @@ Create a signed JWT containing user identity and RBAC claims.
 Decode and verify a JWT. Returns the payload dict.
 
 **Raises:** `TokenExpiredError`, `TokenInvalidError`
+
+### `verify_erp_jwt(token) → dict`
+
+Decode and verify an ERP-issued JWT for non-system actor paths.
+
+Deterministic denial reasons include: `MISSING_REQUIRED_CLAIM`,
+`INVALID_ISSUER`, `INVALID_AUDIENCE`, `INVALID_SIGNATURE`, `TOKEN_EXPIRED`,
+`INVALID_TIME_CLAIMS`, `MALFORMED_CLAIM`, and `TOKEN_REVOKED`.
+
+**Raises:** `TokenExpiredError`, `TokenInvalidError`, `AuthError`
 
 ### `hash_password(password) → str`
 
@@ -75,12 +85,67 @@ algorithm from the stored format — no configuration needed for verification.
 | `LUMINA_JWT_TTL_MINUTES` | `60` | Token time-to-live in minutes |
 | `LUMINA_JWT_ALGORITHM` | `HS256` | JWT signing algorithm |
 | `LUMINA_PASSWORD_HASH_ALGORITHM` | `argon2id` | Password hashing algorithm: `argon2id`, `bcrypt`, or `sha256` |
+| `LUMINA_ERP_TRUSTED_ISSUER` | — | Required trusted ERP issuer for ERP token verification |
+| `LUMINA_ERP_EXPECTED_AUDIENCE` | — | Required audience for ERP token verification |
+| `LUMINA_ERP_JWT_SECRET` | — | Required HMAC secret for ERP token signatures |
+| `LUMINA_ERP_CLOCK_SKEW_SECONDS` | `30` | Allowed clock skew tolerance during ERP temporal validation |
 
 ## NOTES
 
 This module uses zero external dependencies for JWT — implemented using the standard library (`hmac`, `hashlib`, `base64`). Password hashing supports optional external libraries (`argon2-cffi`, `bcrypt`) for production-grade security; install via `pip install project-lumina[passwords]`. When neither is installed, SHA-256 with per-user salt is used as a fallback. Production deployments should evaluate an external IdP.
 
+## ERP Claim Contract (Slice 37)
+
+For non-system actors, Lumina accepts ERP-issued identity context according to:
+
+1. [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md)
+
+### Required ERP Claims
+
+`iss`, `aud`, `sub`, `exp`, `iat`, `jti`, `role`, `organization_id`, `site_id`
+
+### Optional ERP Claims
+
+`domain_roles`, `governed_modules`, `device_id`, `site_role`
+
+### Deterministic Denial Conditions
+
+| Condition | Denial reason |
+|----------|---------------|
+| Missing required claim | `MISSING_REQUIRED_CLAIM` |
+| Invalid issuer | `INVALID_ISSUER` |
+| Invalid audience | `INVALID_AUDIENCE` |
+| Expired token | `TOKEN_EXPIRED` |
+| Invalid temporal claims | `INVALID_TIME_CLAIMS` |
+| Malformed claim payload | `MALFORMED_CLAIM` |
+
+### Scenario Coverage (Documentation-Level)
+
+1. Valid token with all required claims and trusted issuer/audience is accepted.
+2. Missing required claims (`organization_id`, `site_id`, `role`, `jti`) are denied.
+3. Invalid issuer or audience is denied.
+4. Expired or invalid time claim relationships are denied.
+
+Runtime middleware implementation of these checks is out of scope for this slice and is delivered in Slice 38.
+
+## ERP Claim-to-RBAC Mapping (Slice 37 PR3)
+
+After claim validation, non-system actor context is translated using
+[erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md):
+
+1. `role` -> Lumina tier posture mapping.
+2. `organization_id` and `site_id` -> effective authorization scope binding.
+3. Optional claim context (`domain_roles`, `governed_modules`) -> additional bounded scope constraints.
+
+Deterministic context-mismatch denials:
+
+| Condition | Denial reason |
+|----------|---------------|
+| Unmapped role value | `INVALID_ROLE_VALUE` |
+| Organization mismatch | `ORGANIZATION_MISMATCH` |
+| Site mismatch | `SITE_MISMATCH` |
+
 ## SEE ALSO
 
-[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md)
+[permissions(3)](permissions.md), [rbac-spec](../5-standards/rbac-spec.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md), [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)
 

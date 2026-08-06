@@ -1,11 +1,11 @@
 ---
-version: 1.1.0
+version: 1.2.0
 last_updated: 2026-08-05
 ---
 
 # Section 5 — Standards
 
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Status:** Active  
 **Last updated:** 2026-08-05  
 
@@ -29,5 +29,9 @@ Core specifications and protocol standards.
 | [document-versioning-policy](document-versioning-policy.md) | Version control standards for all Project Lumina artifacts |
 | [domain-library-lifecycle](domain-library-lifecycle.md) | Version lifecycle for domain packs and domain libraries |
 | [erp-identity-authority-v1](erp-identity-authority-v1.md) | Authority boundary contract: ERP SSOT for non-system identity, Lumina-owned system track |
+| [erp-jwt-claim-contract-v1](erp-jwt-claim-contract-v1.md) | Canonical required/optional ERP JWT claim schema and deterministic deny semantics |
+| [erp-jwt-verification-gateway-v1](erp-jwt-verification-gateway-v1.md) | Runtime verification contract for ERP token issuer, audience, signature, temporal, and replay checks |
+| [auth-endpoint-transition-policy-v1](auth-endpoint-transition-policy-v1.md) | Hard-cutover transition policy for non-system auth endpoints in Slice 38 |
+| [erp-rbac-mapping-v1](erp-rbac-mapping-v1.md) | Canonical ERP claim-to-RBAC role/context mapping and denial semantics |
 
 All specifications are stored under [`../specs/`](../../specs/) and [`../standards/`](../../standards/).
