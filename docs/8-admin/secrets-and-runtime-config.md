@@ -1,13 +1,13 @@
 ---
-version: 1.4.0
-last_updated: 2026-08-05
+version: 1.5.0
+last_updated: 2026-08-06
 ---
 
 # secrets-and-runtime-config
 
-**Version:** 1.4.0
+**Version:** 1.5.0
 **Status:** Active
-**Last updated:** 2026-08-05
+**Last updated:** 2026-08-06
 
 ---
 
@@ -104,6 +104,16 @@ For Slice 37 ERP non-system identity posture, configure:
 | `LUMINA_ERP_CLOCK_SKEW_SECONDS` | Allowed temporal skew in seconds for `iat`/`exp` checks |
 
 These values are normative inputs to [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md) and [erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md).
+
+### ERP verification observability
+
+Runtime emits deterministic `token_verification` observations for ERP JWT
+gateway outcomes (`allow`/`deny`) using the fields defined in
+[erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md).
+
+To preserve pseudonymity, raw `sub`, `jti`, `organization_id`, and `site_id`
+values are not logged in plaintext in those observations; stable hash fragments
+are emitted instead.
 
 ## Local development setup
 

@@ -619,6 +619,54 @@ def verify_scoped_jwt(token: str, required_scope: str | None = None) -> dict[str
     return raw_payload
 
 
+def _hash_audit_identifier(value: str | None) -> str | None:
+    """Return a stable, non-reversible hash fragment for audit correlation."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    digest = hashlib.sha256(value.strip().encode("utf-8")).hexdigest()
+    return digest[:16]
+
+
+def build_token_verification_observation(
+    *,
+    outcome: str,
+    reason: str,
+    verification_source: str,
+    issuer: str | None,
+    audience: str | None,
+    token_scope: str | None,
+    jti: str | None,
+    subject: str | None,
+    organization_id: str | None,
+    site_id: str | None,
+) -> dict[str, Any]:
+    """Build deterministic audit fields for token verification outcomes."""
+    if outcome not in {"allow", "deny"}:
+        raise ValueError("outcome must be 'allow' or 'deny'")
+    return {
+        "event_type": "token_verification",
+        "verification_source": verification_source,
+        "outcome": outcome,
+        "reason": reason,
+        "issuer": issuer,
+        "audience": audience,
+        "token_scope": token_scope,
+        "jti_hash": _hash_audit_identifier(jti),
+        "subject_hash": _hash_audit_identifier(subject),
+        "organization_hash": _hash_audit_identifier(organization_id),
+        "site_hash": _hash_audit_identifier(site_id),
+        "clock_skew_seconds": max(0, ERP_CLOCK_SKEW_SECONDS),
+    }
+
+
+def _emit_token_verification_observation(observation: dict[str, Any]) -> None:
+    """Emit a compact structured log record for token verification observability."""
+    log.info(
+        "token_verification_observation %s",
+        json.dumps(observation, separators=(",", ":"), sort_keys=True),
+    )
+
+
 def verify_erp_jwt(token: str) -> dict[str, Any]:
     """Verify and decode an ERP-issued JWT for non-system auth paths.
 
@@ -632,80 +680,112 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
     if not ERP_JWT_SECRET:
         raise AuthError("LUMINA_ERP_JWT_SECRET is not configured")
 
+    payload_for_observation: dict[str, Any] | None = None
+
+    def _observation_for(reason: str, *, outcome: str) -> dict[str, Any]:
+        payload = payload_for_observation or {}
+        return build_token_verification_observation(
+            outcome=outcome,
+            reason=reason,
+            verification_source="erp_jwt_gateway_v1",
+            issuer=payload.get("iss") if isinstance(payload.get("iss"), str) else None,
+            audience=payload.get("aud") if isinstance(payload.get("aud"), str) else None,
+            token_scope="erp",
+            jti=payload.get("jti") if isinstance(payload.get("jti"), str) else None,
+            subject=payload.get("sub") if isinstance(payload.get("sub"), str) else None,
+            organization_id=(
+                payload.get("organization_id")
+                if isinstance(payload.get("organization_id"), str)
+                else None
+            ),
+            site_id=payload.get("site_id") if isinstance(payload.get("site_id"), str) else None,
+        )
+
+    def _deny(reason: str) -> None:
+        _emit_token_verification_observation(_observation_for(reason, outcome="deny"))
+        raise TokenInvalidError(reason)
+
+    def _deny_expired(reason: str) -> None:
+        _emit_token_verification_observation(_observation_for(reason, outcome="deny"))
+        raise TokenExpiredError(reason)
+
     parts = token.split(".")
     if len(parts) != 3:
-        raise TokenInvalidError("MALFORMED_CLAIM")
+        _deny("MALFORMED_CLAIM")
 
     h_part, p_part, s_part = parts
 
     try:
         header = json.loads(_b64url_decode(h_part))
         payload = json.loads(_b64url_decode(p_part))
-    except Exception as exc:
-        raise TokenInvalidError("MALFORMED_CLAIM") from exc
+    except Exception:
+        _deny("MALFORMED_CLAIM")
 
     if not isinstance(header, dict) or not isinstance(payload, dict):
-        raise TokenInvalidError("MALFORMED_CLAIM")
+        _deny("MALFORMED_CLAIM")
+
+    payload_for_observation = payload
 
     if header.get("alg") != "HS256":
-        raise TokenInvalidError("MALFORMED_CLAIM")
+        _deny("MALFORMED_CLAIM")
 
     for claim in _ERP_REQUIRED_CLAIMS:
         if claim not in payload:
-            raise TokenInvalidError(f"MISSING_REQUIRED_CLAIM:{claim}")
+            _deny(f"MISSING_REQUIRED_CLAIM:{claim}")
 
     iss = payload.get("iss")
     if not isinstance(iss, str) or not iss.strip():
-        raise TokenInvalidError("MALFORMED_CLAIM:iss")
+        _deny("MALFORMED_CLAIM:iss")
     if iss != ERP_TRUSTED_ISSUER:
-        raise TokenInvalidError("INVALID_ISSUER")
+        _deny("INVALID_ISSUER")
 
     aud = payload.get("aud")
     if not isinstance(aud, str) or not aud.strip():
-        raise TokenInvalidError("MALFORMED_CLAIM:aud")
+        _deny("MALFORMED_CLAIM:aud")
     audience_ok = aud == ERP_EXPECTED_AUDIENCE
     if not audience_ok:
-        raise TokenInvalidError("INVALID_AUDIENCE")
+        _deny("INVALID_AUDIENCE")
 
     for claim in ("sub", "jti", "role", "organization_id", "site_id"):
         value = payload.get(claim)
         if not isinstance(value, str) or not value.strip():
-            raise TokenInvalidError(f"MALFORMED_CLAIM:{claim}")
+            _deny(f"MALFORMED_CLAIM:{claim}")
 
     iat = payload.get("iat")
     exp = payload.get("exp")
     if not isinstance(iat, (int, float)):
-        raise TokenInvalidError("MALFORMED_CLAIM:iat")
+        _deny("MALFORMED_CLAIM:iat")
     if not isinstance(exp, (int, float)):
-        raise TokenInvalidError("MALFORMED_CLAIM:exp")
+        _deny("MALFORMED_CLAIM:exp")
 
     if not s_part or any(ch not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for ch in s_part):
-        raise TokenInvalidError("MALFORMED_CLAIM")
+        _deny("MALFORMED_CLAIM")
 
     message = f"{h_part}.{p_part}".encode("ascii")
     expected_sig = _sign_hs256(message, ERP_JWT_SECRET)
     try:
         actual_sig = _b64url_decode(s_part)
-    except Exception as exc:
-        raise TokenInvalidError("MALFORMED_CLAIM") from exc
+    except Exception:
+        _deny("MALFORMED_CLAIM")
     if not hmac.compare_digest(expected_sig, actual_sig):
-        raise TokenInvalidError("INVALID_SIGNATURE")
+        _deny("INVALID_SIGNATURE")
 
     now = time.time()
     skew = max(0, ERP_CLOCK_SKEW_SECONDS)
 
     if iat > exp:
-        raise TokenInvalidError("INVALID_TIME_CLAIMS")
+        _deny("INVALID_TIME_CLAIMS")
     if (now - skew) >= exp:
-        raise TokenExpiredError("TOKEN_EXPIRED")
+        _deny_expired("TOKEN_EXPIRED")
     if iat > (now + skew):
-        raise TokenInvalidError("INVALID_TIME_CLAIMS")
+        _deny("INVALID_TIME_CLAIMS")
 
     jti = str(payload.get("jti"))
     if is_token_revoked(jti):
-        raise TokenInvalidError("TOKEN_REVOKED")
+        _deny("TOKEN_REVOKED")
 
     payload["token_scope"] = "erp"
+    _emit_token_verification_observation(_observation_for("VERIFIED", outcome="allow"))
     return payload
 
 

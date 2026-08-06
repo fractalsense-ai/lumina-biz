@@ -1,13 +1,13 @@
 ---
-version: 1.5.1
-last_updated: 2026-08-05
+version: 1.6.0
+last_updated: 2026-08-06
 ---
 
 # auth(3)
 
-**Version:** 1.5.1
+**Version:** 1.6.0
 **Status:** Active
-**Last updated:** 2026-08-05
+**Last updated:** 2026-08-06
 
 ---
 
@@ -47,6 +47,14 @@ Deterministic denial reasons include: `MISSING_REQUIRED_CLAIM`,
 `INVALID_TIME_CLAIMS`, `MALFORMED_CLAIM`, and `TOKEN_REVOKED`.
 
 **Raises:** `TokenExpiredError`, `TokenInvalidError`, `AuthError`
+
+### `build_token_verification_observation(...) → dict`
+
+Build deterministic audit fields for token verification outcomes.
+
+For ERP verification paths, observations include non-reversible hashes for
+`sub`, `jti`, `organization_id`, and `site_id`, plus `outcome`, `reason`,
+`issuer`, `audience`, and `clock_skew_seconds`.
 
 ### `hash_password(password) → str`
 
