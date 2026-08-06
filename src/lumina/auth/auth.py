@@ -716,7 +716,7 @@ def verify_non_system_jwt(token: str, required_scope: str) -> dict[str, Any]:
     Lumina non-system tokens are no longer accepted on those paths.
     """
     if required_scope not in {"domain", "user"}:
-        raise ValueError("required_scope must be 'domain' or 'user'")
+        raise TokenInvalidError("MALFORMED_CLAIM:required_scope")
 
     payload = verify_erp_jwt(token)
     role = payload.get("role")

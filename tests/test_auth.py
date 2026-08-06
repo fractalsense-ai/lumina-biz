@@ -551,3 +551,27 @@ def test_verify_non_system_jwt_rejects_legacy_lumina_token(monkeypatch: pytest.M
 
     with pytest.raises(auth.TokenInvalidError, match="MISSING_REQUIRED_CLAIM:aud"):
         auth.verify_non_system_jwt(legacy, required_scope="user")
+
+
+@pytest.mark.unit
+def test_verify_non_system_jwt_rejects_invalid_required_scope(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "admin",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="MALFORMED_CLAIM:required_scope"):
+        auth.verify_non_system_jwt(token, required_scope="admin")
