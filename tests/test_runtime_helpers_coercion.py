@@ -337,6 +337,40 @@ class TestInvokeRuntimeTool:
         assert result["score"] == 42
         tool_fn.assert_called_once_with({"question": "q1"})
 
+    @pytest.mark.unit
+    def test_denies_tool_when_not_in_caller_allowlist(self) -> None:
+        runtime = {"tool_fns": {"scorer": lambda p: {"ok": True}}}
+        with pytest.raises(RuntimeError, match="not authorized"):
+            invoke_runtime_tool(
+                "scorer",
+                {},
+                runtime,
+                allowed_tool_ids=["other_tool"],
+            )
+
+    @pytest.mark.unit
+    def test_intersects_runtime_and_caller_allowlists(self) -> None:
+        tool_fn = MagicMock(return_value={"ok": True})
+        runtime = {
+            "tool_fns": {"scorer": tool_fn},
+            "tool_allowlist": ["scorer", "secondary"],
+        }
+        result = invoke_runtime_tool(
+            "scorer",
+            {},
+            runtime,
+            allowed_tool_ids=["scorer"],
+        )
+        assert result["ok"] is True
+
+        with pytest.raises(RuntimeError, match="not authorized"):
+            invoke_runtime_tool(
+                "scorer",
+                {},
+                runtime,
+                allowed_tool_ids=["secondary"],
+            )
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # runtime_helpers — apply_tool_call_policy
@@ -407,3 +441,21 @@ class TestApplyToolCallPolicy:
         tool_ids = [r["tool_id"] for r in result]
         assert "tool_a" in tool_ids
         assert "tool_b" in tool_ids
+
+    @pytest.mark.unit
+    def test_policy_respects_allowed_tool_ids(self) -> None:
+        runtime = {
+            "tool_call_policies": {
+                "inference": [{"tool_id": "checker", "payload": {}}]
+            },
+            "tool_fns": {"checker": lambda payload: {"seen": True}},
+        }
+        with pytest.raises(RuntimeError, match="not authorized"):
+            apply_tool_call_policy(
+                "inference",
+                {},
+                {},
+                {},
+                runtime=runtime,
+                allowed_tool_ids=["different_tool"],
+            )

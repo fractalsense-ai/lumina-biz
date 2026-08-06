@@ -761,12 +761,15 @@ def process_message(
             call_llm_fn=call_llm,
         )
 
+    _allowed_tool_ids = user.get("allowed_tools") if isinstance(user, dict) else None
+
     tool_results = apply_tool_call_policy(
         resolved_action=resolved_action,
         prompt_contract=prompt_contract,
         turn_data=turn_data,
         task_spec=task_spec,
         runtime=runtime,
+        allowed_tool_ids=_allowed_tool_ids,
     )
 
     # Aggregate tool results from secondary tasks in the multi-task graph walk
@@ -779,6 +782,7 @@ def process_message(
                 turn_data=_sec_td,
                 task_spec=task_spec,
                 runtime=runtime,
+                allowed_tool_ids=_allowed_tool_ids,
             ))
         if _extra_tools:
             tool_results = list(tool_results) + _extra_tools

@@ -9,11 +9,53 @@ from __future__ import annotations
 
 import functools
 import inspect
+from collections.abc import Iterable
 from typing import Any
 
 from lumina.api.llm import call_llm
 from lumina.api.utils.templates import render_template_value
 from lumina.core.slm import SLM_TURN_MAX_TOKENS, TaskWeight, call_slm, classify_task_weight, slm_available
+
+
+def _normalize_allowed_tool_ids(value: Any) -> set[str] | None:
+    """Normalize optional tool allowlist values to a comparable set.
+
+    ``None`` means no allowlist is applied by that source. Empty iterables are
+    valid and represent an explicit deny-all policy.
+    """
+    if value is None:
+        return None
+    if isinstance(value, str):
+        text = value.strip()
+        return {text} if text else set()
+    if isinstance(value, Iterable):
+        out: set[str] = set()
+        for item in value:
+            if not isinstance(item, str):
+                continue
+            item = item.strip()
+            if item:
+                out.add(item)
+        return out
+    raise RuntimeError("allowed tool IDs must be a string, iterable, or None")
+
+
+def _is_tool_allowed(tool_id: str, runtime: dict[str, Any], allowed_tool_ids: Any) -> bool:
+    """Return True when the tool is allowed by runtime and optional caller scope."""
+    runtime_allow = _normalize_allowed_tool_ids(runtime.get("tool_allowlist"))
+    caller_allow = _normalize_allowed_tool_ids(allowed_tool_ids)
+
+    effective_allow: set[str] | None = None
+    if runtime_allow is not None and caller_allow is not None:
+        effective_allow = runtime_allow & caller_allow
+    elif runtime_allow is not None:
+        effective_allow = runtime_allow
+    elif caller_allow is not None:
+        effective_allow = caller_allow
+
+    if effective_allow is None:
+        return True
+    return tool_id in effective_allow
 
 
 def render_contract_response(
@@ -105,11 +147,19 @@ def interpret_turn_input(
         raise
 
 
-def invoke_runtime_tool(tool_id: str, payload: dict[str, Any], runtime: dict[str, Any]) -> dict[str, Any]:
+def invoke_runtime_tool(
+    tool_id: str,
+    payload: dict[str, Any],
+    runtime: dict[str, Any],
+    *,
+    allowed_tool_ids: Any = None,
+) -> dict[str, Any]:
     tool_fns: dict[str, Any] = runtime.get("tool_fns") or {}
     tool_fn = tool_fns.get(tool_id)
     if tool_fn is None:
         raise RuntimeError(f"Unknown tool adapter: {tool_id}")
+    if not _is_tool_allowed(tool_id, runtime, allowed_tool_ids):
+        raise RuntimeError(f"Tool adapter not authorized: {tool_id}")
     result = tool_fn(payload)
     if not isinstance(result, dict):
         raise RuntimeError(f"Tool adapter '{tool_id}' must return a dict result")
@@ -122,6 +172,8 @@ def apply_tool_call_policy(
     turn_data: dict[str, Any],
     task_spec: dict[str, Any],
     runtime: dict[str, Any],
+    *,
+    allowed_tool_ids: Any = None,
 ) -> list[dict[str, Any]]:
     policies: dict[str, Any] = runtime.get("tool_call_policies") or {}
     entries = policies.get(resolved_action) or []
@@ -145,6 +197,11 @@ def apply_tool_call_policy(
         payload = render_template_value(entry.get("payload") or {}, context)
         if not isinstance(payload, dict):
             payload = {}
-        tool_result = invoke_runtime_tool(tool_id, payload, runtime)
+        tool_result = invoke_runtime_tool(
+            tool_id,
+            payload,
+            runtime,
+            allowed_tool_ids=allowed_tool_ids,
+        )
         results.append({"tool_id": tool_id, "payload": payload, "result": tool_result})
     return results
