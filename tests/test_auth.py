@@ -249,7 +249,8 @@ def test_verify_erp_jwt_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.unit
-def test_build_token_verification_observation_hashes_identifiers() -> None:
+def test_build_token_verification_observation_hashes_identifiers(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "audit-secret")
     observation = auth.build_token_verification_observation(
         outcome="deny",
         reason="INVALID_AUDIENCE",
@@ -273,7 +274,19 @@ def test_build_token_verification_observation_hashes_identifiers() -> None:
     assert observation["subject_hash"] is not None
     assert observation["organization_hash"] is not None
     assert observation["site_hash"] is not None
-    assert len(observation["jti_hash"]) == 16
+    assert len(observation["jti_hash"]) == 24
+
+
+@pytest.mark.unit
+def test_hash_audit_identifier_changes_with_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "secret-a")
+    first = auth._hash_audit_identifier("org-1")
+    second = auth._hash_audit_identifier("org-1")
+    assert first == second
+
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "secret-b")
+    third = auth._hash_audit_identifier("org-1")
+    assert third != first
 
 
 @pytest.mark.unit
@@ -282,6 +295,7 @@ def test_verify_erp_jwt_emits_observation_logs(monkeypatch: pytest.MonkeyPatch, 
     monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
     monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
     monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "audit-secret")
 
     good_payload = {
         "iss": "erp.example",

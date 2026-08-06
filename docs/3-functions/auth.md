@@ -1,11 +1,11 @@
 ---
-version: 1.6.0
+version: 1.6.1
 last_updated: 2026-08-06
 ---
 
 # auth(3)
 
-**Version:** 1.6.0
+**Version:** 1.6.1
 **Status:** Active
 **Last updated:** 2026-08-06
 
@@ -52,7 +52,7 @@ Deterministic denial reasons include: `MISSING_REQUIRED_CLAIM`,
 
 Build deterministic audit fields for token verification outcomes.
 
-For ERP verification paths, observations include non-reversible hashes for
+For ERP verification paths, observations include keyed pseudonymous hashes for
 `sub`, `jti`, `organization_id`, and `site_id`, plus `outcome`, `reason`,
 `issuer`, `audience`, and `clock_skew_seconds`.
 
@@ -97,6 +97,7 @@ algorithm from the stored format — no configuration needed for verification.
 | `LUMINA_ERP_EXPECTED_AUDIENCE` | — | Required audience for ERP token verification |
 | `LUMINA_ERP_JWT_SECRET` | — | Required HMAC secret for ERP token signatures |
 | `LUMINA_ERP_CLOCK_SKEW_SECONDS` | `30` | Allowed clock skew tolerance during ERP temporal validation |
+| `LUMINA_AUDIT_HASH_SECRET` | — | Dedicated keyed-hash secret for token verification observability identifiers |
 
 ## NOTES
 

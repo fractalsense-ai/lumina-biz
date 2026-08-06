@@ -48,6 +48,7 @@ ERP_TRUSTED_ISSUER: str = os.environ.get("LUMINA_ERP_TRUSTED_ISSUER", "")
 ERP_EXPECTED_AUDIENCE: str = os.environ.get("LUMINA_ERP_EXPECTED_AUDIENCE", "")
 ERP_JWT_SECRET: str = os.environ.get("LUMINA_ERP_JWT_SECRET", "")
 ERP_CLOCK_SKEW_SECONDS: int = int(os.environ.get("LUMINA_ERP_CLOCK_SKEW_SECONDS", "30"))
+AUDIT_HASH_SECRET: str = os.environ.get("LUMINA_AUDIT_HASH_SECRET", "")
 
 # Roles on the system (admin) track — signed with ADMIN_JWT_SECRET.
 ADMIN_ROLES: frozenset[str] = frozenset({"root", "super_admin"})
@@ -619,12 +620,29 @@ def verify_scoped_jwt(token: str, required_scope: str | None = None) -> dict[str
     return raw_payload
 
 
+def _get_audit_hash_secret() -> str:
+    """Return the secret used for keyed audit identifier hashing."""
+    secret = AUDIT_HASH_SECRET or ERP_JWT_SECRET or TRANSCRIPT_HMAC_SECRET
+    if not secret:
+        raise AuthError(
+            "LUMINA_AUDIT_HASH_SECRET (or LUMINA_ERP_JWT_SECRET / "
+            "LUMINA_TRANSCRIPT_HMAC_SECRET fallback) "
+            "must be configured for audit hashing"
+        )
+    return secret
+
+
 def _hash_audit_identifier(value: str | None) -> str | None:
-    """Return a stable, non-reversible hash fragment for audit correlation."""
+    """Return a stable keyed pseudonymous hash fragment for audit correlation."""
     if not isinstance(value, str) or not value.strip():
         return None
-    digest = hashlib.sha256(value.strip().encode("utf-8")).hexdigest()
-    return digest[:16]
+    secret = _get_audit_hash_secret()
+    digest = hmac.new(
+        secret.encode("utf-8"),
+        value.strip().encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    return digest[:24]
 
 
 def build_token_verification_observation(
@@ -701,13 +719,19 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
             site_id=payload.get("site_id") if isinstance(payload.get("site_id"), str) else None,
         )
 
-    def _deny(reason: str) -> None:
+    def _deny(reason: str, *, exc: Exception | None = None) -> None:
         _emit_token_verification_observation(_observation_for(reason, outcome="deny"))
-        raise TokenInvalidError(reason)
+        err = TokenInvalidError(reason)
+        if exc is not None:
+            raise err from exc
+        raise err
 
-    def _deny_expired(reason: str) -> None:
+    def _deny_expired(reason: str, *, exc: Exception | None = None) -> None:
         _emit_token_verification_observation(_observation_for(reason, outcome="deny"))
-        raise TokenExpiredError(reason)
+        err = TokenExpiredError(reason)
+        if exc is not None:
+            raise err from exc
+        raise err
 
     parts = token.split(".")
     if len(parts) != 3:
@@ -718,8 +742,8 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
     try:
         header = json.loads(_b64url_decode(h_part))
         payload = json.loads(_b64url_decode(p_part))
-    except Exception:
-        _deny("MALFORMED_CLAIM")
+    except Exception as exc:
+        _deny("MALFORMED_CLAIM", exc=exc)
 
     if not isinstance(header, dict) or not isinstance(payload, dict):
         _deny("MALFORMED_CLAIM")
@@ -765,8 +789,8 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
     expected_sig = _sign_hs256(message, ERP_JWT_SECRET)
     try:
         actual_sig = _b64url_decode(s_part)
-    except Exception:
-        _deny("MALFORMED_CLAIM")
+    except Exception as exc:
+        _deny("MALFORMED_CLAIM", exc=exc)
     if not hmac.compare_digest(expected_sig, actual_sig):
         _deny("INVALID_SIGNATURE")
 

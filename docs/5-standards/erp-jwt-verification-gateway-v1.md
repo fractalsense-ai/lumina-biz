@@ -1,11 +1,11 @@
 ---
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-08-06
 ---
 
 # ERP JWT Verification Gateway V1
 
-**Version:** 1.1.0  
+**Version:** 1.1.1
 **Status:** Active  
 **Last updated:** 2026-08-06
 
@@ -81,10 +81,10 @@ record with these fields:
 | `issuer` | string/null | Parsed `iss` value when present |
 | `audience` | string/null | Parsed `aud` value when present |
 | `token_scope` | string | Effective scope (`erp`) |
-| `jti_hash` | string/null | Stable hash fragment of `jti` (no raw JTI in logs) |
-| `subject_hash` | string/null | Stable hash fragment of `sub` (no raw actor ID in logs) |
-| `organization_hash` | string/null | Stable hash fragment of `organization_id` |
-| `site_hash` | string/null | Stable hash fragment of `site_id` |
+| `jti_hash` | string/null | Stable keyed pseudonymous hash fragment of `jti` (no raw JTI in logs) |
+| `subject_hash` | string/null | Stable keyed pseudonymous hash fragment of `sub` (no raw actor ID in logs) |
+| `organization_hash` | string/null | Stable keyed pseudonymous hash fragment of `organization_id` |
+| `site_hash` | string/null | Stable keyed pseudonymous hash fragment of `site_id` |
 | `clock_skew_seconds` | number | Effective skew tolerance applied at verification time |
 
 Raw JWT payload values for `sub`, `jti`, `organization_id`, and `site_id` MUST NOT be

@@ -2,7 +2,7 @@
 title: "Slice 38 — ERP JWT Verification Gateway and Auth Transition"
 slice: 38
 status: active
-version: 0.1.2
+version: 0.1.3
 last_updated: 2026-08-06
 ---
 
