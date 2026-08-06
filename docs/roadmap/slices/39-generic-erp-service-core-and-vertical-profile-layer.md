@@ -2,8 +2,8 @@
 title: "Slice 39 — Generic ERP Service Core and Vertical Profile Layer"
 slice: 39
 status: planned
-version: 0.1.0
-last_updated: 2026-08-03
+version: 0.2.0
+last_updated: 2026-08-06
 ---
 
 ## Purpose
@@ -30,6 +30,7 @@ Lock the reusable ERP integration direction by defining one canonical service wo
 - Add mapping-boundary guidance for provider-specific object translation.
 - Add portability/conformance scenarios for at least towing and retail-delivery profiles.
 - Add evidence requirements showing cross-provider canonical parity.
+- Define temporary delivery protocol requiring local full-workflow CI parity checks before merge while hosted GitHub CI is unstable.
 
 ## New/Changed Contracts
 
@@ -60,7 +61,48 @@ Lock the reusable ERP integration direction by defining one canonical service wo
 - Cross-profile conformance suite for canonical service actions.
 - Cross-provider replay parity suite for towing and retail-delivery profiles.
 - Negative tests proving profile-specific fields are rejected from canonical payload keys.
-- Compose CI parity validation before push.
+- Temporary local CI-fallback parity validation before merge.
+
+## Delivery Protocol (Temporary CI Fallback)
+
+Until hosted GitHub CI stability is restored, every Slice 39 PR MUST run a local
+full-workflow gate before merge.
+
+Required command sequence:
+
+- Optional local services (when scenario coverage needs compose-backed stack):
+	- `docker compose -f hermesport/docker-compose.yml up -d`
+- Full verification harness:
+	- `./scripts/run-full-verification.ps1`
+- Backend CI-parity coverage gate:
+	- `.venv/Scripts/python.exe -m pytest tests -q --cov=lumina --cov-report=term-missing --cov-fail-under=85`
+- Frontend CI-parity gates:
+	- `cd src/web`
+	- `npm ci`
+	- `npm run test:unit`
+	- `npm run test:coverage`
+	- `npm exec playwright install chromium`
+	- `npm run test:e2e`
+
+Required PR evidence while this protocol is active:
+
+- Commands executed (exact command lines).
+- Pass/fail outcomes for each gate.
+- Runtime note indicating whether compose-backed services were used.
+
+### Sunset Rule
+
+This temporary fallback protocol is removed only after GitHub Actions CI shows
+5 consecutive green runs on `main` for the core `CI Tests` workflow.
+
+Sunset proof requirements:
+
+- Link the 5 consecutive successful workflow runs.
+- Include run timestamps.
+- Record the sunset note in roadmap docs before removing protocol language.
+
+If CI regresses after sunset, this protocol can be re-enabled with a roadmap
+note update.
 
 ## Ledger/Governance Impact
 
@@ -92,10 +134,11 @@ Slice 39: generic ERP service core with profile-layer variance
 
 ### Test Checklist
 
-- [ ] `./scripts/compose-ci.ps1 -Target backend`
-- [ ] `pytest tests/test_connector_erpnext_manifest.py tests/test_connector_odoo_manifest.py tests/test_business_ops_replay_service.py -q`
-- [ ] `python -m lumina.systools.verify_repo`
-- [ ] `python -m lumina.systools.manifest_integrity check`
+- [ ] `./scripts/run-full-verification.ps1`
+- [ ] `.venv/Scripts/python.exe -m pytest tests -q --cov=lumina --cov-report=term-missing --cov-fail-under=85`
+- [ ] `cd src/web && npm ci && npm run test:unit && npm run test:coverage && npm exec playwright install chromium && npm run test:e2e`
+- [ ] `.venv/Scripts/python.exe -m lumina.systools.verify_repo`
+- [ ] `.venv/Scripts/python.exe -m lumina.systools.manifest_integrity check`
 
 ### Out of Scope Confirmations
 

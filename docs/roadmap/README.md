@@ -1,13 +1,13 @@
 ---
-version: 1.2.6
-last_updated: 2026-08-03
+version: 1.2.7
+last_updated: 2026-08-06
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.6
+**Version:** 1.2.7
 **Status:** Active
-**Last updated:** 2026-08-03
+**Last updated:** 2026-08-06
 
 ---
 
@@ -63,7 +63,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Delivered |
 | [36](slices/36-single-box-deployment-and-operational-hardening.md) | Single-Box Deployment and Operational Hardening | Planned |
 | [37](slices/37-erp-identity-authority-and-claim-contract.md) | ERP Identity Authority and Claim Contract | Active |
-| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Planned |
+| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Delivered |
 | [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
 
 ---
@@ -79,6 +79,21 @@ invariants it established.
 ## Direction Lock
 
 Slice 39 hard-locks the ERP integration direction to a reusable generic service core with profile-layer variance. Until explicitly superseded, new vertical onboarding work should extend profile and mapping layers first rather than introducing core workflow forks.
+
+## Operational Note (Temporary CI Fallback)
+
+While GitHub-hosted CI is unstable, Slice 39 delivery uses a local full-workflow
+pre-merge gate that mirrors the `CI Tests` workflow intent.
+
+Required baseline before merge:
+
+- `./scripts/run-full-verification.ps1`
+- backend coverage gate: `pytest ... --cov-fail-under=85`
+- frontend unit/coverage/e2e sequence from workflow
+
+This temporary fallback remains active until 5 consecutive green `CI Tests`
+workflow runs are observed on `main`. Sunset and re-enable procedures are
+defined in Slice 39.
 
 ---
 

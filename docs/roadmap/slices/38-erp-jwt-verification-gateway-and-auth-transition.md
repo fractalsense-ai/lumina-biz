@@ -1,8 +1,8 @@
 ---
 title: "Slice 38 — ERP JWT Verification Gateway and Auth Transition"
 slice: 38
-status: active
-version: 0.1.3
+status: delivered
+version: 0.1.4
 last_updated: 2026-08-06
 ---
 
@@ -87,7 +87,7 @@ Implement Lumina runtime verification of ERP-issued JWTs for domain/user tracks 
 
 ## Follow-Up Slices
 
-- Slice 39 (candidate): legacy domain/user token issuance removal and endpoint hard-cut.
+- Slice 39: generic ERP service core with profile-layer variance and local CI fallback execution protocol while hosted CI is unstable.
 
 ## Delivery Notes
 
