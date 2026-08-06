@@ -1,11 +1,11 @@
 ---
-version: 1.5.0
+version: 1.5.1
 last_updated: 2026-08-05
 ---
 
 # auth(3)
 
-**Version:** 1.5.0
+**Version:** 1.5.1
 **Status:** Active
 **Last updated:** 2026-08-05
 
@@ -147,5 +147,5 @@ Deterministic context-mismatch denials:
 
 ## SEE ALSO
 
-[permissions(3)](permissions.md), [rbac-spec](../../specs/rbac-spec-v1.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md), [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)
+[permissions(3)](permissions.md), [rbac-spec](../5-standards/rbac-spec.md), [erp-jwt-claim-contract-v1](../5-standards/erp-jwt-claim-contract-v1.md), [erp-jwt-verification-gateway-v1](../5-standards/erp-jwt-verification-gateway-v1.md), [erp-rbac-mapping-v1](../5-standards/erp-rbac-mapping-v1.md)
 

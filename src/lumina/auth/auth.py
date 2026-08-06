@@ -654,16 +654,16 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
         if claim not in payload:
             raise TokenInvalidError(f"MISSING_REQUIRED_CLAIM:{claim}")
 
-    if payload.get("iss") != ERP_TRUSTED_ISSUER:
+    iss = payload.get("iss")
+    if not isinstance(iss, str) or not iss.strip():
+        raise TokenInvalidError("MALFORMED_CLAIM:iss")
+    if iss != ERP_TRUSTED_ISSUER:
         raise TokenInvalidError("INVALID_ISSUER")
 
     aud = payload.get("aud")
-    if isinstance(aud, str):
-        audience_ok = aud == ERP_EXPECTED_AUDIENCE
-    elif isinstance(aud, list):
-        audience_ok = ERP_EXPECTED_AUDIENCE in aud and all(isinstance(v, str) for v in aud)
-    else:
+    if not isinstance(aud, str) or not aud.strip():
         raise TokenInvalidError("MALFORMED_CLAIM:aud")
+    audience_ok = aud == ERP_EXPECTED_AUDIENCE
     if not audience_ok:
         raise TokenInvalidError("INVALID_AUDIENCE")
 
@@ -679,6 +679,18 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
     if not isinstance(exp, (int, float)):
         raise TokenInvalidError("MALFORMED_CLAIM:exp")
 
+    if not s_part or any(ch not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for ch in s_part):
+        raise TokenInvalidError("MALFORMED_CLAIM")
+
+    message = f"{h_part}.{p_part}".encode("ascii")
+    expected_sig = _sign_hs256(message, ERP_JWT_SECRET)
+    try:
+        actual_sig = _b64url_decode(s_part)
+    except Exception as exc:
+        raise TokenInvalidError("MALFORMED_CLAIM") from exc
+    if not hmac.compare_digest(expected_sig, actual_sig):
+        raise TokenInvalidError("INVALID_SIGNATURE")
+
     now = time.time()
     skew = max(0, ERP_CLOCK_SKEW_SECONDS)
 
@@ -692,12 +704,6 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
     jti = str(payload.get("jti"))
     if is_token_revoked(jti):
         raise TokenInvalidError("TOKEN_REVOKED")
-
-    message = f"{h_part}.{p_part}".encode("ascii")
-    expected_sig = _sign_hs256(message, ERP_JWT_SECRET)
-    actual_sig = _b64url_decode(s_part)
-    if not hmac.compare_digest(expected_sig, actual_sig):
-        raise TokenInvalidError("INVALID_SIGNATURE")
 
     payload["token_scope"] = "erp"
     return payload
