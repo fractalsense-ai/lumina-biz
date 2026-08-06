@@ -371,6 +371,17 @@ class TestInvokeRuntimeTool:
                 allowed_tool_ids=["secondary"],
             )
 
+    @pytest.mark.unit
+    def test_mapping_allowlist_is_rejected(self) -> None:
+        runtime = {"tool_fns": {"scorer": lambda p: {"ok": True}}}
+        with pytest.raises(RuntimeError, match="cannot be a mapping"):
+            invoke_runtime_tool(
+                "scorer",
+                {},
+                runtime,
+                allowed_tool_ids={"scorer": True},
+            )
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # runtime_helpers — apply_tool_call_policy
@@ -458,4 +469,22 @@ class TestApplyToolCallPolicy:
                 {},
                 runtime=runtime,
                 allowed_tool_ids=["different_tool"],
+            )
+
+    @pytest.mark.unit
+    def test_policy_rejects_mapping_allowlist(self) -> None:
+        runtime = {
+            "tool_call_policies": {
+                "inference": [{"tool_id": "checker", "payload": {}}]
+            },
+            "tool_fns": {"checker": lambda payload: {"seen": True}},
+        }
+        with pytest.raises(RuntimeError, match="cannot be a mapping"):
+            apply_tool_call_policy(
+                "inference",
+                {},
+                {},
+                {},
+                runtime=runtime,
+                allowed_tool_ids={"checker": True},
             )

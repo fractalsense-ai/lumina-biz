@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import functools
 import inspect
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from typing import Any
 
 from lumina.api.llm import call_llm
@@ -28,6 +28,8 @@ def _normalize_allowed_tool_ids(value: Any) -> set[str] | None:
     if isinstance(value, str):
         text = value.strip()
         return {text} if text else set()
+    if isinstance(value, Mapping):
+        raise RuntimeError("allowed tool IDs cannot be a mapping")
     if isinstance(value, Iterable):
         out: set[str] = set()
         for item in value:

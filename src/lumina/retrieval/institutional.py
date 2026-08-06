@@ -20,7 +20,6 @@ _PROHIBITED_CONVERSATION_MARKERS = (
     "conversation",
     "dialog",
     "transcript",
-    "message",
 )
 
 
