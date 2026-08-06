@@ -245,8 +245,10 @@ async def confirm(
     score = pending.score
     if score.actor_id != user["sub"]:
         raise HTTPException(status_code=403, detail="Decision precedent confirmation belongs to another actor")
-    if score.organization_id != context["organization_id"] or score.site_id != context["site_id"]:
-        raise HTTPException(status_code=403, detail="Decision precedent confirmation is outside the active context")
+    if score.organization_id != context["organization_id"]:
+        raise HTTPException(status_code=403, detail="ORGANIZATION_MISMATCH")
+    if score.site_id != context["site_id"]:
+        raise HTTPException(status_code=403, detail="SITE_MISMATCH")
     confirmation_id = str(uuid.uuid4())
     event = build_trace_event(
         session_id=pending.session_id,
