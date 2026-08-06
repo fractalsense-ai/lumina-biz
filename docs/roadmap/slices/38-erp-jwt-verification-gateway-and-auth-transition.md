@@ -2,8 +2,8 @@
 title: "Slice 38 — ERP JWT Verification Gateway and Auth Transition"
 slice: 38
 status: active
-version: 0.1.1
-last_updated: 2026-08-05
+version: 0.1.3
+last_updated: 2026-08-06
 ---
 
 ## Purpose
@@ -93,6 +93,7 @@ Implement Lumina runtime verification of ERP-issued JWTs for domain/user tracks 
 
 - 2026-08-05: PR1 started. Added ERP JWT verification gateway and auth transition policy contracts, plus runtime verification primitive and test coverage for deterministic denial semantics.
 - 2026-08-05: Policy baseline set to hard cutover for non-system domain/user actor verification in Slice 38 implementation path, while preserving system/admin continuity boundaries.
+- 2026-08-06: PR4 closeout added deterministic token-verification observability fields (hashed actor/context identifiers), emitted structured allow/deny gateway observations, and updated standards/admin documentation.
 
 ## Implementation-Ready PR Description Template
 

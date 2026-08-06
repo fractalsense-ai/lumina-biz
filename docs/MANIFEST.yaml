@@ -231,7 +231,7 @@ artifacts:
   doc_version: 0.1.1
   status: active
   last_updated: 2026-08-05
-  sha256: f7b353ecd5e47d8758033d29fb02eb16ce1e0aa04c603381b03053b2ea6bd952
+  sha256: f924e729d84ed7dca795c1e2d40636c983c66e8f418b06d5a6a2d31d2a733315
 - path: docs/roadmap/slices/39-generic-erp-service-core-and-vertical-profile-layer.md
   type: doc
   section: 0
@@ -357,7 +357,7 @@ artifacts:
   doc_version: 1.5.1
   status: active
   last_updated: 2026-08-05
-  sha256: 08d18bd131ffd4db2baef98418e91b31e2a2e4dfc58ec81dd821731732be7213
+  sha256: 7b639c7b59021174f87315d6d68c0bdd7a882a6ce1fbb0857adc371e90a6280a
 - path: docs/3-functions/permissions.md
   type: doc
   section: 3
@@ -812,7 +812,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-08-05
-  sha256: ea3f079c86994a3a2fa504a30ac174bf0b2c529a55032afcdb6645a7c2ff6715
+  sha256: 04638b3f764dd56c5ca8944764acad4041950e2a516f3d244893e0eae09d3129
 - path: docs/8-admin/system-domain-operations.md
   type: doc
   section: 8
@@ -904,7 +904,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-08-05
-  sha256: f57c76cb4b210d5a965cec5d1e0f3eb2966a223953f7c7387c83e55b7dc145c3
+  sha256: 0db796da23369016ba508a63b1169fe63210dfde8c9d2544dcefa00ff55ef939
 - path: docs/5-standards/auth-endpoint-transition-policy-v1.md
   type: standard
   doc_version: 1.0.0

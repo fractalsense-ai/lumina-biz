@@ -1,13 +1,13 @@
 ---
-version: 1.0.0
-last_updated: 2026-08-05
+version: 1.1.1
+last_updated: 2026-08-06
 ---
 
 # ERP JWT Verification Gateway V1
 
-**Version:** 1.0.0  
+**Version:** 1.1.1
 **Status:** Active  
-**Last updated:** 2026-08-05
+**Last updated:** 2026-08-06
 
 ---
 
@@ -64,6 +64,31 @@ A verification failure at any step MUST deny the token.
 1. This gateway applies to ERP-governed non-system actors only.
 2. It does not grant or expand system admin authority.
 3. Admin or system continuity fallback behavior remains a separate control-plane concern.
+
+---
+
+## Observability and Audit Fields
+
+Each verification attempt MUST emit a deterministic `token_verification` observation
+record with these fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event_type` | string | Constant: `token_verification` |
+| `verification_source` | string | Constant source ID (for this contract: `erp_jwt_gateway_v1`) |
+| `outcome` | string | `allow` or `deny` |
+| `reason` | string | Deterministic allow/deny reason (`VERIFIED`, `INVALID_AUDIENCE`, etc.) |
+| `issuer` | string/null | Parsed `iss` value when present |
+| `audience` | string/null | Parsed `aud` value when present |
+| `token_scope` | string | Effective scope (`erp`) |
+| `jti_hash` | string/null | Stable keyed pseudonymous hash fragment of `jti` (no raw JTI in logs) |
+| `subject_hash` | string/null | Stable keyed pseudonymous hash fragment of `sub` (no raw actor ID in logs) |
+| `organization_hash` | string/null | Stable keyed pseudonymous hash fragment of `organization_id` |
+| `site_hash` | string/null | Stable keyed pseudonymous hash fragment of `site_id` |
+| `clock_skew_seconds` | number | Effective skew tolerance applied at verification time |
+
+Raw JWT payload values for `sub`, `jti`, `organization_id`, and `site_id` MUST NOT be
+persisted in plaintext in these observations.
 
 ---
 
