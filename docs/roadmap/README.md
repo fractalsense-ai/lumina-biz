@@ -1,11 +1,11 @@
 ---
-version: 1.2.7
+version: 1.2.8
 last_updated: 2026-08-06
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.7
+**Version:** 1.2.8
 **Status:** Active
 **Last updated:** 2026-08-06
 
@@ -65,6 +65,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [37](slices/37-erp-identity-authority-and-claim-contract.md) | ERP Identity Authority and Claim Contract | Active |
 | [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Delivered |
 | [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
+| [40](slices/40-architecture-coherence-enforcement-hardening.md) | Architecture Coherence Enforcement Hardening | Planned |
 
 ---
 
@@ -94,6 +95,39 @@ Required baseline before merge:
 This temporary fallback remains active until 5 consecutive green `CI Tests`
 workflow runs are observed on `main`. Sunset and re-enable procedures are
 defined in Slice 39.
+
+## Dependency Graph (Architecture Coherence)
+
+Lumina tracks two graph categories:
+
+- Runtime execution DAG lineage (Slices 12 and 14).
+- Delivery dependency DAG for post-Slice 38 enforcement closure.
+
+Architecture coherence DAG nodes:
+
+- N1 Tool-token boundary enforcement.
+- N2 Institutional-memory ingest guardrails.
+- N3 Pipeline order enforcement (actor auth -> NLP -> semantic routing -> PPA).
+- N4 Cross-domain API-only execution boundary.
+- N5 Daemon audit-commit parity.
+- N6 Active SoR actor-liveness verification.
+
+Dependency edges:
+
+- N1 -> N4
+- N1 -> N5
+- N1 -> N6
+- N2 -> N6
+- N3 -> N5
+
+Unblock criteria:
+
+- N1 complete when unauthorized tool calls are structurally excluded and tested.
+- N2 complete when chat/conversation payload classes are rejected at ingest.
+- N3 complete when strict ordering checks are enforced or explicit degraded-mode telemetry is emitted.
+- N4 complete when cross-domain direct state access is blocked outside API paths.
+- N5 complete when daemon operations require the same audit commitment guarantees as API paths.
+- N6 complete when SoR liveness check policy is implemented with deterministic fallback behavior.
 
 ---
 

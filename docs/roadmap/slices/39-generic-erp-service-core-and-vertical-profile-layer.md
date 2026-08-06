@@ -2,7 +2,7 @@
 title: "Slice 39 — Generic ERP Service Core and Vertical Profile Layer"
 slice: 39
 status: planned
-version: 0.2.0
+version: 0.2.1
 last_updated: 2026-08-06
 ---
 
@@ -104,6 +104,16 @@ Sunset proof requirements:
 If CI regresses after sunset, this protocol can be re-enabled with a roadmap
 note update.
 
+## Architecture Coherence Link
+
+Slice 39 remains the functional direction lock for reusable service-core and
+profile-layer variance.
+
+Enforcement-hardening dependencies are tracked in the roadmap dependency graph
+and gap register. Any Slice 39 implementation PR that touches auth, memory, or
+cross-domain execution paths must reference impacted DAG node IDs and closure
+evidence.
+
 ## Ledger/Governance Impact
 
 - Keeps multi-vertical ERP integration decisions auditable and contract-driven.
@@ -113,6 +123,7 @@ note update.
 
 - Slice 36 execution and hardening must preserve this slice's invariants.
 - Future vertical slices should extend profile overlays before proposing core workflow changes.
+- Slice 40 applies architecture coherence enforcement hardening over auth, memory, and boundary controls.
 
 ## Implementation-Ready PR Description Template
 

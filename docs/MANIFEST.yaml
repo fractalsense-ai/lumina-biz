@@ -235,10 +235,17 @@ artifacts:
 - path: docs/roadmap/slices/39-generic-erp-service-core-and-vertical-profile-layer.md
   type: doc
   section: 0
-  doc_version: 0.2.0
+  doc_version: 0.2.1
   status: planned
   last_updated: 2026-08-06
-  sha256: 0591d30014183794459461258aa355f5060fdc157cfb1ccd5353026dbb22d9fc
+  sha256: e81913fea601e0d158fc250627525bcee9cf1bfc44c5d1258f812cccf8f25750
+- path: docs/roadmap/slices/40-architecture-coherence-enforcement-hardening.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-08-06
+  sha256: 9d6789b24bcbcb47b635d89b9e00f7bf1500260044ced4b6d3e4bdf9f10f893d
 - path: docs/1-commands/README.md
   type: doc
   section: 1
@@ -1800,10 +1807,16 @@ artifacts:
   sha256: e16c0e65fe3537678a6b8393065104bafa128972bf7bd7dc954ec977320caab2
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.2.7
+  doc_version: 1.2.8
   status: active
   last_updated: 2026-08-06
-  sha256: a7703c99b81cb41b630c925c0540de75de0b5d6c112987ef25d7e7ae2708b6f4
+  sha256: 7276bd45923da880d1d5df93af4d5c961770babe21c6f817013f26659222cd0c
+- path: docs/roadmap/architecture-coherence-gap-register.md
+  type: doc
+  doc_version: 0.1.0
+  status: active
+  last_updated: 2026-08-06
+  sha256: 5008541c52bc6c689a73d7c3a512288a21a6858c57c5a2123a8115a0d96fb4f0
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
