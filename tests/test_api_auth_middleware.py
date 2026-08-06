@@ -115,14 +115,14 @@ class TestGetUserUser:
     @pytest.mark.unit
     def test_returns_user_dict_on_valid_token(self) -> None:
         fake_user = {"sub": "user-1", "token_scope": "user"}
-        with patch("lumina.api.admin_middleware.verify_scoped_jwt", return_value=fake_user):
+        with patch("lumina.api.admin_middleware.verify_non_system_jwt", return_value=fake_user):
             result = _run(get_user_user(credentials=_creds("good")))
         assert result == fake_user
 
     @pytest.mark.unit
     def test_raises_401_on_expired_token(self) -> None:
         with patch(
-            "lumina.api.admin_middleware.verify_scoped_jwt",
+            "lumina.api.admin_middleware.verify_non_system_jwt",
             side_effect=TokenExpiredError("expired"),
         ):
             with pytest.raises(HTTPException) as exc:
@@ -133,7 +133,7 @@ class TestGetUserUser:
     @pytest.mark.unit
     def test_raises_401_on_invalid_token(self) -> None:
         with patch(
-            "lumina.api.admin_middleware.verify_scoped_jwt",
+            "lumina.api.admin_middleware.verify_non_system_jwt",
             side_effect=TokenInvalidError("bad"),
         ):
             with pytest.raises(HTTPException) as exc:
@@ -143,7 +143,7 @@ class TestGetUserUser:
     @pytest.mark.unit
     def test_raises_401_on_auth_error(self) -> None:
         with patch(
-            "lumina.api.admin_middleware.verify_scoped_jwt",
+            "lumina.api.admin_middleware.verify_non_system_jwt",
             side_effect=AuthError("scope"),
         ):
             with pytest.raises(HTTPException) as exc:
@@ -227,14 +227,14 @@ class TestGetDomainUser:
     @pytest.mark.unit
     def test_returns_user_dict_on_valid_token(self) -> None:
         fake_user = {"sub": "da-1", "token_scope": "domain", "governed_modules": ["edu/algebra"]}
-        with patch("lumina.api.domain_middleware.verify_scoped_jwt", return_value=fake_user):
+        with patch("lumina.api.domain_middleware.verify_non_system_jwt", return_value=fake_user):
             result = _run(get_domain_user(credentials=_creds("domain-tok")))
         assert result == fake_user
 
     @pytest.mark.unit
     def test_raises_401_on_expired_token(self) -> None:
         with patch(
-            "lumina.api.domain_middleware.verify_scoped_jwt",
+            "lumina.api.domain_middleware.verify_non_system_jwt",
             side_effect=TokenExpiredError("expired"),
         ):
             with pytest.raises(HTTPException) as exc:
@@ -245,7 +245,7 @@ class TestGetDomainUser:
     @pytest.mark.unit
     def test_raises_401_on_invalid_token(self) -> None:
         with patch(
-            "lumina.api.domain_middleware.verify_scoped_jwt",
+            "lumina.api.domain_middleware.verify_non_system_jwt",
             side_effect=TokenInvalidError("bad"),
         ):
             with pytest.raises(HTTPException) as exc:
@@ -255,7 +255,7 @@ class TestGetDomainUser:
     @pytest.mark.unit
     def test_raises_401_on_auth_error(self) -> None:
         with patch(
-            "lumina.api.domain_middleware.verify_scoped_jwt",
+            "lumina.api.domain_middleware.verify_non_system_jwt",
             side_effect=AuthError("scope"),
         ):
             with pytest.raises(HTTPException) as exc:

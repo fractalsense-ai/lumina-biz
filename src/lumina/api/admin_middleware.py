@@ -21,6 +21,7 @@ from lumina.auth.auth import (
     AuthError,
     TokenExpiredError,
     TokenInvalidError,
+    verify_non_system_jwt,
     verify_scoped_jwt,
 )
 
@@ -49,7 +50,7 @@ async def get_user_user(
     if credentials is None:
         return None
     try:
-        return verify_scoped_jwt(credentials.credentials, required_scope="user")
+        return verify_non_system_jwt(credentials.credentials, required_scope="user")
     except TokenExpiredError:
         raise HTTPException(status_code=401, detail="Token expired")
     except (TokenInvalidError, AuthError):

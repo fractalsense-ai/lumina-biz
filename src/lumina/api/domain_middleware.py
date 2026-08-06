@@ -21,7 +21,7 @@ from lumina.auth.auth import (
     AuthError,
     TokenExpiredError,
     TokenInvalidError,
-    verify_scoped_jwt,
+    verify_non_system_jwt,
 )
 
 _domain_bearer = HTTPBearer(auto_error=False)
@@ -34,7 +34,7 @@ async def get_domain_user(
     if credentials is None:
         return None
     try:
-        return verify_scoped_jwt(credentials.credentials, required_scope="domain")
+        return verify_non_system_jwt(credentials.credentials, required_scope="domain")
     except TokenExpiredError:
         raise HTTPException(status_code=401, detail="Token expired")
     except (TokenInvalidError, AuthError):

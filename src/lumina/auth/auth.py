@@ -709,6 +709,34 @@ def verify_erp_jwt(token: str) -> dict[str, Any]:
     return payload
 
 
+def verify_non_system_jwt(token: str, required_scope: str) -> dict[str, Any]:
+    """Verify ERP JWTs for non-system tracks and enforce target scope.
+
+    Domain/user middleware uses this during Slice 38 hard-cutover so legacy
+    Lumina non-system tokens are no longer accepted on those paths.
+    """
+    if required_scope not in {"domain", "user"}:
+        raise TokenInvalidError("MALFORMED_CLAIM:required_scope")
+
+    payload = verify_erp_jwt(token)
+    role = payload.get("role")
+    if role in DOMAIN_ADMIN_ROLES:
+        token_scope = "domain"
+    elif role in USER_ROLES:
+        token_scope = "user"
+    else:
+        raise TokenInvalidError("INVALID_ROLE_VALUE")
+
+    if token_scope != required_scope:
+        raise TokenInvalidError(
+            f"Token scope mismatch: expected {required_scope!r}, "
+            f"got {token_scope!r}"
+        )
+
+    payload["token_scope"] = token_scope
+    return payload
+
+
 # ---------------------------------------------------------------------------
 # Transcript HMAC seal — client-side transcript integrity
 # ---------------------------------------------------------------------------
