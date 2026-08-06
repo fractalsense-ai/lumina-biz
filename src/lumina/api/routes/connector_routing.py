@@ -235,8 +235,10 @@ async def preflight(
 
     entries: list[ConnectorRegistryEntry] = []
     for entry in req.connector_registry_entries:
-        if entry.organization_id != organization_id or entry.site_id != site_id:
-            raise HTTPException(status_code=403, detail="Connector registry entry is outside active context")
+        if entry.organization_id != organization_id:
+            raise HTTPException(status_code=403, detail="ORGANIZATION_MISMATCH")
+        if entry.site_id != site_id:
+            raise HTTPException(status_code=403, detail="SITE_MISMATCH")
         connector_instance_id = _normalize_required(
             entry.connector_instance_id,
             field_name="connector_registry_entries.connector_instance_id",
@@ -350,9 +352,9 @@ async def execute_fixture(
     site_id = str(context["site_id"])
 
     if req.actor_scope.organization_id != organization_id:
-        raise HTTPException(status_code=403, detail="actor_scope.organization_id is outside active context")
+        raise HTTPException(status_code=403, detail="ORGANIZATION_MISMATCH")
     if req.actor_scope.site_id != site_id:
-        raise HTTPException(status_code=403, detail="actor_scope.site_id is outside active context")
+        raise HTTPException(status_code=403, detail="SITE_MISMATCH")
     if req.actor_scope.actor_id != str(user.get("sub") or ""):
         raise HTTPException(status_code=403, detail="actor_scope.actor_id must match authenticated actor")
 

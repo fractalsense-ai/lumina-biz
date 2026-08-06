@@ -300,6 +300,7 @@ def test_confirmation_rejects_different_actor_or_active_context(client) -> None:
         json={"action": "accept"},
     )
     assert forbidden_context.status_code == 403
+    assert forbidden_context.json()["detail"] == "SITE_MISMATCH"
 
 
 @pytest.mark.integration

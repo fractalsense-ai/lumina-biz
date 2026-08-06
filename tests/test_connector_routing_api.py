@@ -221,6 +221,7 @@ def test_preflight_rejects_cross_scope_registry_entry(client) -> None:
     )
 
     assert response.status_code == 403
+    assert response.json()["detail"] == "SITE_MISMATCH"
 
 
 @pytest.mark.integration
