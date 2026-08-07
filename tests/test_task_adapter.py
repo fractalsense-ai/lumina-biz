@@ -146,13 +146,33 @@ def _failing_cross_domain_task(domains, **kw):
 
 @pytest.mark.unit
 @pytest.mark.anyio
+async def test_run_cross_domain_task_denied_without_api_execution_path() -> None:
+    token = PreemptionToken()
+    with patch("lumina.daemon.task_adapter.get_cross_domain_task",
+               return_value=_cross_domain_task):
+        result = await run_cross_domain_task_preemptible("cross_domain", token)
+
+    assert result["preempted"] is False
+    assert result["denied"] is True
+    assert result["denial_reason"] == "cross_domain_api_only_boundary"
+    assert result["boundary"]["contract"] == "cross_domain_api_only_enforcement_v1"
+    assert result["boundary"]["status"] == "denied"
+
+
+@pytest.mark.unit
+@pytest.mark.anyio
 async def test_run_cross_domain_task_unknown() -> None:
     token = PreemptionToken()
     with patch("lumina.daemon.task_adapter.get_cross_domain_task", return_value=None):
-        result = await run_cross_domain_task_preemptible("unknown_cross", token)
+        result = await run_cross_domain_task_preemptible(
+            "unknown_cross",
+            token,
+            execution_path="daemon_api",
+        )
 
     assert "error" in result
     assert result["preempted"] is False
+    assert result["boundary"]["status"] == "allowed"
 
 
 @pytest.mark.unit
@@ -161,10 +181,15 @@ async def test_run_cross_domain_task_success() -> None:
     token = PreemptionToken()
     with patch("lumina.daemon.task_adapter.get_cross_domain_task",
                return_value=_cross_domain_task):
-        result = await run_cross_domain_task_preemptible("cross_domain", token)
+        result = await run_cross_domain_task_preemptible(
+            "cross_domain",
+            token,
+            execution_path="daemon_api",
+        )
 
     assert result["preempted"] is False
     assert result["results"] is not None
+    assert result["boundary"]["status"] == "allowed"
 
 
 @pytest.mark.unit
@@ -173,10 +198,15 @@ async def test_run_cross_domain_task_task_result_wrapping() -> None:
     token = PreemptionToken()
     with patch("lumina.daemon.task_adapter.get_cross_domain_task",
                return_value=_cross_domain_task_result):
-        result = await run_cross_domain_task_preemptible("cross_domain", token)
+        result = await run_cross_domain_task_preemptible(
+            "cross_domain",
+            token,
+            execution_path="daemon_api",
+        )
 
     assert result["preempted"] is False
     assert len(result["results"]) == 1
+    assert result["boundary"]["status"] == "allowed"
 
 
 @pytest.mark.unit
@@ -190,9 +220,14 @@ async def test_run_cross_domain_task_preempted() -> None:
     token.checkpoint_sync = _preempting_checkpoint  # type: ignore[assignment]
     with patch("lumina.daemon.task_adapter.get_cross_domain_task",
                return_value=_cross_domain_task):
-        result = await run_cross_domain_task_preemptible("cross_domain", token)
+        result = await run_cross_domain_task_preemptible(
+            "cross_domain",
+            token,
+            execution_path="daemon_api",
+        )
 
     assert result["preempted"] is True
+    assert result["boundary"]["status"] == "allowed"
 
 
 @pytest.mark.unit
@@ -201,10 +236,15 @@ async def test_run_cross_domain_task_failure() -> None:
     token = PreemptionToken()
     with patch("lumina.daemon.task_adapter.get_cross_domain_task",
                return_value=_failing_cross_domain_task):
-        result = await run_cross_domain_task_preemptible("cross_domain", token)
+        result = await run_cross_domain_task_preemptible(
+            "cross_domain",
+            token,
+            execution_path="daemon_api",
+        )
 
     assert result["preempted"] is False
     assert "error" in result
+    assert result["boundary"]["status"] == "allowed"
 
 
 @pytest.mark.unit
@@ -218,9 +258,14 @@ async def test_run_cross_domain_task_task_preempted_internally() -> None:
 
     with patch("lumina.daemon.task_adapter.get_cross_domain_task",
                return_value=_task_raises_preempted):
-        result = await run_cross_domain_task_preemptible("cross_domain", token)
+        result = await run_cross_domain_task_preemptible(
+            "cross_domain",
+            token,
+            execution_path="daemon_api",
+        )
 
     assert result["preempted"] is True
+    assert result["boundary"]["status"] == "allowed"
 
 
 @pytest.mark.unit
