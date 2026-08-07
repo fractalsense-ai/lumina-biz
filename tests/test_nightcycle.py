@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from unittest.mock import MagicMock
 from lumina.daemon.report import DaemonReport, Proposal, TaskResult
 from lumina.daemon.scheduler import DaemonScheduler
 from lumina.daemon.tasks import (
@@ -374,6 +375,47 @@ class TestDaemonScheduler:
         assert len(all_proposals) == 1
         assert all_proposals[0].proposal_type == "slm_hint"
         assert all_proposals[0].detail["standing_order_id"] == "irrigate"
+
+    def test_audit_commit_parity_committed_when_persistence_available(self):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "ledger-path"
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["glossary_pruning"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {"glossary": []}}],
+            persistence=persistence,
+        )
+
+        report = sched.trigger_manual(actor_id="user1", domain_ids=["edu"])
+        assert report.status == "completed"
+        assert len(report.task_results) == 1
+        parity = report.task_results[0].metadata.get("audit_commit_parity") or {}
+        assert parity.get("contract") == "daemon_audit_commit_parity_v1"
+        assert parity.get("status") == "committed"
+        assert report.task_results[0].success is True
+
+    def test_audit_commit_parity_fails_successful_task_when_commit_missing(self):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "ledger-path"
+        persistence.append_log_record.side_effect = RuntimeError("disk unavailable")
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["glossary_pruning"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {"glossary": []}}],
+            persistence=persistence,
+        )
+
+        report = sched.trigger_manual(actor_id="user1", domain_ids=["edu"])
+        assert report.status == "failed"
+        assert len(report.task_results) == 1
+        result = report.task_results[0]
+        parity = result.metadata.get("audit_commit_parity") or {}
+        assert parity.get("contract") == "daemon_audit_commit_parity_v1"
+        assert parity.get("status") == "missing"
+        assert parity.get("denied") is True
+        assert parity.get("denial_reason") == "daemon_audit_commit_missing"
+        assert result.success is False
+        assert result.error == "Daemon task completed without audit commitment"
 
     def test_cross_domain_scheduler_path_enforces_api_only_boundary(self, monkeypatch):
         domains = [{"domain_id": "edu", "physics": {}}]

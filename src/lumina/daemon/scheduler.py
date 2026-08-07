@@ -11,6 +11,8 @@ from __future__ import annotations
 import logging
 import threading
 import time
+import uuid
+from datetime import datetime, timezone
 from typing import Any, Callable
 
 from lumina.daemon.report import DaemonReport, TaskResult
@@ -18,6 +20,10 @@ from lumina.daemon.task_adapter import cross_domain_execution_path_allowed
 from lumina.daemon.tasks import get_task, get_cross_domain_task, list_tasks, list_cross_domain_tasks
 
 log = logging.getLogger("lumina-daemon")
+
+
+_DAEMON_AUDIT_COMMIT_PARITY_CONTRACT = "daemon_audit_commit_parity_v1"
+_DAEMON_AUDIT_COMMIT_MISSING_REASON = "daemon_audit_commit_missing"
 
 
 class DaemonScheduler:
@@ -209,6 +215,11 @@ class DaemonScheduler:
                             persistence=self._persistence,
                             call_slm_fn=self._call_slm_fn,
                         )
+                        self._enforce_audit_commit_parity(
+                            result,
+                            triggered_by=triggered_by,
+                            scope_domain_id=domain_id,
+                        )
                         report.task_results.append(result)
                     except Exception as exc:
                         log.error("Task %s failed for %s: %s", task_name, domain_id, exc)
@@ -260,6 +271,11 @@ class DaemonScheduler:
                         result = cd_task_fn(
                             domains=domains,
                             persistence=self._persistence,
+                        )
+                        self._enforce_audit_commit_parity(
+                            result,
+                            triggered_by=triggered_by,
+                            scope_domain_id="cross_domain",
                         )
                         report.task_results.append(result)
                     except Exception as exc:
@@ -319,3 +335,89 @@ class DaemonScheduler:
             task_names=[task_name],
             domain_ids=domain_ids,
         )
+
+    # ── N5 audit-commit parity enforcement ───────────────────
+
+    def _build_daemon_audit_trace_event(
+        self,
+        *,
+        task_result: TaskResult,
+        triggered_by: str,
+        scope_domain_id: str,
+    ) -> dict[str, Any]:
+        return {
+            "record_type": "TraceEvent",
+            "record_id": str(uuid.uuid4()),
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "session_id": "daemon",
+            "event_type": "daemon_task_completed",
+            "actor_id": triggered_by,
+            "actor_role": "daemon",
+            "decision": task_result.task,
+            "decision_rationale": {
+                "domain_id": scope_domain_id,
+                "success": task_result.success,
+                "error": task_result.error,
+            },
+            "metadata": {
+                "task": task_result.task,
+                "domain_id": scope_domain_id,
+                "duration_seconds": task_result.duration_seconds,
+                "parity_contract": _DAEMON_AUDIT_COMMIT_PARITY_CONTRACT,
+            },
+        }
+
+    def _append_daemon_audit_record(self, scope_domain_id: str, record: dict[str, Any]) -> bool | None:
+        if self._persistence is None:
+            return None
+
+        append_fn = getattr(self._persistence, "append_log_record", None)
+        if not callable(append_fn):
+            return None
+
+        try:
+            ledger_path: Any = None
+            ledger_getter = getattr(self._persistence, "get_system_ledger_path", None)
+            if callable(ledger_getter):
+                ledger_path = ledger_getter(scope_domain_id)
+            append_fn(scope_domain_id, record, ledger_path=ledger_path)
+            return True
+        except Exception:
+            log.warning("daemon audit parity: failed to append audit record", exc_info=True)
+            return False
+
+    def _enforce_audit_commit_parity(
+        self,
+        task_result: TaskResult,
+        *,
+        triggered_by: str,
+        scope_domain_id: str,
+    ) -> None:
+        audit_event = self._build_daemon_audit_trace_event(
+            task_result=task_result,
+            triggered_by=triggered_by,
+            scope_domain_id=scope_domain_id,
+        )
+        committed = self._append_daemon_audit_record(scope_domain_id, audit_event)
+
+        task_result.metadata.setdefault("audit_commit_parity", {})
+        task_result.metadata["audit_commit_parity"].update({
+            "contract": _DAEMON_AUDIT_COMMIT_PARITY_CONTRACT,
+            "status": (
+                "committed"
+                if committed is True
+                else "missing"
+                if committed is False
+                else "unavailable"
+            ),
+        })
+
+        # Parity rule mirrors API commit guard semantics: successful operations
+        # must leave an audit commitment.
+        if task_result.success and committed is False:
+            task_result.success = False
+            task_result.error = "Daemon task completed without audit commitment"
+            task_result.metadata["audit_commit_parity"].update({
+                "denied": True,
+                "denial_reason": _DAEMON_AUDIT_COMMIT_MISSING_REASON,
+            })
