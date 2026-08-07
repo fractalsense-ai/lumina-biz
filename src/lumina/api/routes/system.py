@@ -234,8 +234,15 @@ async def run_tool(
                 groups_config=domain.get("groups"),
             ):
                 raise HTTPException(status_code=403, detail="Module access denied")
+    _allowed_tool_ids = user.get("allowed_tools") if isinstance(user, dict) else None
     try:
-        result = await run_in_threadpool(invoke_runtime_tool, tool_id, req.payload, runtime)
+        result = await run_in_threadpool(
+            invoke_runtime_tool,
+            tool_id,
+            req.payload,
+            runtime,
+            allowed_tool_ids=_allowed_tool_ids,
+        )
     except Exception as exc:
         log.exception("Tool invocation failed for %s", tool_id)
         raise HTTPException(status_code=400, detail=str(exc))
