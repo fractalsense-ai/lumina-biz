@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from unittest.mock import MagicMock
 from lumina.daemon.report import DaemonReport, Proposal, TaskResult
 from lumina.daemon.scheduler import DaemonScheduler
 from lumina.daemon.tasks import (
@@ -374,6 +375,127 @@ class TestDaemonScheduler:
         assert len(all_proposals) == 1
         assert all_proposals[0].proposal_type == "slm_hint"
         assert all_proposals[0].detail["standing_order_id"] == "irrigate"
+
+    def test_audit_commit_parity_committed_when_persistence_available(self):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "ledger-path"
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["glossary_pruning"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {"glossary": []}}],
+            persistence=persistence,
+        )
+
+        report = sched.trigger_manual(actor_id="user1", domain_ids=["edu"])
+        assert report.status == "completed"
+        assert len(report.task_results) == 1
+        parity = report.task_results[0].metadata.get("audit_commit_parity") or {}
+        assert parity.get("contract") == "daemon_audit_commit_parity_v1"
+        assert parity.get("status") == "committed"
+        assert report.task_results[0].success is True
+
+    def test_audit_commit_parity_fails_successful_task_when_commit_missing(self):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "ledger-path"
+        persistence.append_log_record.side_effect = RuntimeError("disk unavailable")
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["glossary_pruning"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {"glossary": []}}],
+            persistence=persistence,
+        )
+
+        report = sched.trigger_manual(actor_id="user1", domain_ids=["edu"])
+        assert report.status == "failed"
+        assert len(report.task_results) == 1
+        result = report.task_results[0]
+        parity = result.metadata.get("audit_commit_parity") or {}
+        assert parity.get("contract") == "daemon_audit_commit_parity_v1"
+        assert parity.get("status") == "missing"
+        assert parity.get("denied") is True
+        assert parity.get("denial_reason") == "daemon_audit_commit_missing"
+        assert result.success is False
+        assert result.error == "Daemon task completed without audit commitment"
+
+    def test_audit_trace_event_is_schema_compatible_and_hash_chained(self):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "sqlite://log/system/session-edu"
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["glossary_pruning"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {"glossary": []}}],
+            persistence=persistence,
+        )
+
+        report = sched.trigger_manual(actor_id="user1", domain_ids=["edu"])
+        assert report.status == "completed"
+
+        append_call = persistence.append_log_record.call_args
+        assert append_call is not None
+        session_id = append_call.args[0]
+        record = append_call.args[1]
+
+        # session_id must be UUID string for TraceEvent schema.
+        import uuid as _uuid
+        _uuid.UUID(session_id)
+
+        assert record["record_type"] == "TraceEvent"
+        assert record["event_type"] == "other"
+        assert record["prev_record_hash"] == "genesis"
+        assert "decision_rationale" not in record
+        assert "actor_role" not in record
+
+    def test_exception_result_still_gets_audit_parity_metadata(self, monkeypatch):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "sqlite://log/system/session-edu"
+
+        def _raising_task(**_kw):
+            raise RuntimeError("task crash")
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["boom_task"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {}}],
+            persistence=persistence,
+        )
+
+        monkeypatch.setattr("lumina.daemon.scheduler.get_task", lambda name: _raising_task if name == "boom_task" else None)
+
+        report = sched.trigger_manual(actor_id="user1", domain_ids=["edu"])
+        assert report.status == "failed"
+        assert len(report.task_results) == 1
+        result = report.task_results[0]
+        assert result.success is False
+        assert "task crash" in (result.error or "")
+        parity = result.metadata.get("audit_commit_parity") or {}
+        assert parity.get("contract") == "daemon_audit_commit_parity_v1"
+        assert parity.get("status") == "committed"
+
+    def test_cross_domain_exception_result_gets_audit_parity_metadata(self, monkeypatch):
+        persistence = MagicMock()
+        persistence.get_system_ledger_path.return_value = "sqlite://log/system/session-cross"
+
+        def _raising_cross_domain(**_kw):
+            raise RuntimeError("cross crash")
+
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": ["__unknown__"]},
+            domain_loader=lambda: [{"domain_id": "edu", "physics": {}}],
+            persistence=persistence,
+        )
+
+        monkeypatch.setattr("lumina.daemon.scheduler.list_cross_domain_tasks", lambda: ["cross_domain_synthesis"])
+        monkeypatch.setattr("lumina.daemon.scheduler.cross_domain_execution_path_allowed", lambda _path: True)
+        monkeypatch.setattr("lumina.daemon.scheduler.get_cross_domain_task", lambda _name: _raising_cross_domain)
+
+        report = sched.trigger_manual(actor_id="user1")
+        assert len(report.task_results) == 1
+        result = report.task_results[0]
+        assert result.domain_id == "cross_domain"
+        assert result.success is False
+        assert "cross crash" in (result.error or "")
+        parity = result.metadata.get("audit_commit_parity") or {}
+        assert parity.get("contract") == "daemon_audit_commit_parity_v1"
+        assert parity.get("status") == "committed"
 
     def test_cross_domain_scheduler_path_enforces_api_only_boundary(self, monkeypatch):
         domains = [{"domain_id": "edu", "physics": {}}]
