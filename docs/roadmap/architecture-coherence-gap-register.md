@@ -1,8 +1,8 @@
 ---
 title: "Architecture Coherence Gap Register"
 status: active
-version: 0.1.0
-last_updated: 2026-08-06
+version: 0.2.0
+last_updated: 2026-08-07
 ---
 
 ## Purpose
@@ -19,7 +19,7 @@ and map each gap to a dependency-DAG node, owner hotspot, and closure evidence.
 | G3 | Pipeline ordering is documented but not uniformly hard-failed/degraded when stages are missing or reordered | high | `src/lumina/api/processing.py` |
 | G4 | Cross-domain API-only boundary is partial policy-level, not fully runtime-enforced | high | `src/lumina/daemon/cross_domain.py`, `src/lumina/daemon/task_adapter.py` |
 | G5 | Daemon audit-commit coverage parity is not consistently guaranteed | medium | `src/lumina/orchestrator/system_log_writer.py`, daemon task paths |
-| G6 | Active SoR actor-liveness verification is not first-class in auth flow | medium | `src/lumina/auth/operating_context.py`, auth dependencies |
+| G6 | Active SoR actor-liveness verification is enforced in shared auth dependencies with deterministic deny-closed fallback | low | `src/lumina/api/dependencies.py` |
 
 ## DAG Node Mapping
 
@@ -48,3 +48,9 @@ For each node closure PR:
 - `.venv/Scripts/python.exe -m lumina.systools.manifest_integrity check`
 - `.venv/Scripts/python.exe -m lumina.systools.verify_repo`
 - Local CI fallback evidence per active Slice 39 protocol.
+
+## Recent Closure Notes
+
+- G6 closure evidence (N6): actor-liveness guard added to `get_active_operating_context` in `src/lumina/api/dependencies.py`.
+- Deterministic deny taxonomy for N6: `actor_inactive_in_sor`, `actor_liveness_unavailable`.
+- N6 targeted test coverage: `tests/test_api_dependencies_liveness.py`.
