@@ -21,6 +21,11 @@ from lumina.daemon.tasks import get_task, get_cross_domain_task
 log = logging.getLogger("lumina-daemon")
 
 
+_CROSS_DOMAIN_API_ONLY_CONTRACT = "cross_domain_api_only_enforcement_v1"
+_ALLOWED_CROSS_DOMAIN_EXECUTION_PATHS = frozenset({"daemon_api"})
+_DEFAULT_DENIAL_REASON = None
+
+
 async def run_task_preemptible(
     task_name: str,
     token: PreemptionToken,
@@ -115,17 +120,70 @@ def _load_domains(
     return domains or [{"domain_id": "default", "physics": {}}]
 
 
+def _cross_domain_boundary(
+    execution_path: str,
+    status: str,
+) -> dict[str, Any]:
+    return {
+        "contract": _CROSS_DOMAIN_API_ONLY_CONTRACT,
+        "execution_path": execution_path,
+        "status": status,
+    }
+
+
+def cross_domain_execution_path_allowed(execution_path: str) -> bool:
+    """Return whether the cross-domain execution path is authorized."""
+    return execution_path in _ALLOWED_CROSS_DOMAIN_EXECUTION_PATHS
+
+
+def _cross_domain_api_only_denied_result(
+    task_name: str,
+    execution_path: str,
+) -> dict[str, Any]:
+    return {
+        "task": task_name,
+        "results": [],
+        "preempted": False,
+        "error": "Cross-domain task denied by API-only boundary",
+        "denied": True,
+        "denial_reason": "cross_domain_api_only_boundary",
+        "boundary": _cross_domain_boundary(execution_path, "denied"),
+    }
+
+
 async def run_cross_domain_task_preemptible(
     task_name: str,
     token: PreemptionToken,
     domain_loader: Callable[[], list[dict[str, Any]]] | None = None,
+    execution_path: str = "direct",
     **extra_kw: Any,
 ) -> dict[str, Any]:
     """Execute a cross-domain daemon batch task with preemption.
 
     Cross-domain tasks receive the full domain list and iterate internally.
     The adapter still checks preemption before dispatch.
+
+    Parameters
+    ----------
+    task_name:
+        Registered cross-domain daemon task name.
+    token:
+        ``PreemptionToken`` checked before dispatch.
+    domain_loader:
+        Callable returning ``[{"domain_id": str, "physics": dict}, ...]``.
+    execution_path:
+        Invocation origin label for boundary enforcement. Allowed value(s):
+        ``"daemon_api"``. Any other value is denied deterministically.
+
+    Returns
+    -------
+    dict
+        Deterministic response schema including ``denied`` (bool),
+        ``denial_reason`` (str | None), and ``boundary`` metadata.
     """
+    if not cross_domain_execution_path_allowed(execution_path):
+        return _cross_domain_api_only_denied_result(task_name, execution_path)
+
     task_fn = get_cross_domain_task(task_name)
     if task_fn is None:
         return {
@@ -133,22 +191,61 @@ async def run_cross_domain_task_preemptible(
             "results": [],
             "preempted": False,
             "error": f"Unknown cross-domain task: {task_name}",
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
+            "boundary": _cross_domain_boundary(execution_path, "allowed"),
         }
 
     try:
         token.checkpoint_sync()
     except TaskPreempted:
-        return {"task": task_name, "results": [], "preempted": True}
+        return {
+            "task": task_name,
+            "results": [],
+            "preempted": True,
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
+            "boundary": _cross_domain_boundary(execution_path, "allowed"),
+        }
 
     domains = _load_domains(domain_loader)
 
     try:
         result = await asyncio.to_thread(task_fn, domains=domains, **extra_kw)
         if isinstance(result, TaskResult):
-            return {"task": task_name, "results": [result.to_dict()], "preempted": False}
-        return {"task": task_name, "results": [result], "preempted": False}
+            return {
+                "task": task_name,
+                "results": [result.to_dict()],
+                "preempted": False,
+                "denied": False,
+                "denial_reason": _DEFAULT_DENIAL_REASON,
+                "boundary": _cross_domain_boundary(execution_path, "allowed"),
+            }
+        return {
+            "task": task_name,
+            "results": [result],
+            "preempted": False,
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
+            "boundary": _cross_domain_boundary(execution_path, "allowed"),
+        }
     except TaskPreempted:
-        return {"task": task_name, "results": [], "preempted": True}
+        return {
+            "task": task_name,
+            "results": [],
+            "preempted": True,
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
+            "boundary": _cross_domain_boundary(execution_path, "allowed"),
+        }
     except Exception as exc:
         log.error("Cross-domain task %s failed: %s", task_name, exc)
-        return {"task": task_name, "results": [], "preempted": False, "error": str(exc)}
+        return {
+            "task": task_name,
+            "results": [],
+            "preempted": False,
+            "error": str(exc),
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
+            "boundary": _cross_domain_boundary(execution_path, "allowed"),
+        }

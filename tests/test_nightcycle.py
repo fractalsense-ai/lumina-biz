@@ -375,6 +375,26 @@ class TestDaemonScheduler:
         assert all_proposals[0].proposal_type == "slm_hint"
         assert all_proposals[0].detail["standing_order_id"] == "irrigate"
 
+    def test_cross_domain_scheduler_path_enforces_api_only_boundary(self, monkeypatch):
+        domains = [{"domain_id": "edu", "physics": {}}]
+        sched = DaemonScheduler(
+            config={"enabled": True, "tasks": []},
+            domain_loader=lambda: domains,
+        )
+
+        monkeypatch.setattr("lumina.daemon.scheduler.list_cross_domain_tasks", lambda: ["cross_domain_synthesis"])
+        monkeypatch.setattr("lumina.daemon.scheduler.cross_domain_execution_path_allowed", lambda path: False)
+
+        report = sched.trigger_manual(actor_id="user1")
+        denied = [r for r in report.task_results if r.task == "cross_domain_synthesis"]
+
+        assert len(denied) == 1
+        assert denied[0].success is False
+        assert denied[0].error == "Cross-domain task denied by API-only boundary"
+        assert denied[0].metadata["denied"] is True
+        assert denied[0].metadata["denial_reason"] == "cross_domain_api_only_boundary"
+        assert denied[0].metadata["boundary"]["contract"] == "cross_domain_api_only_enforcement_v1"
+
 
 # ── slm_hint_generation unit tests ──────────────────────────
 
