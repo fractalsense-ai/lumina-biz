@@ -172,6 +172,8 @@ async def test_run_cross_domain_task_unknown() -> None:
 
     assert "error" in result
     assert result["preempted"] is False
+    assert result["denied"] is False
+    assert result["denial_reason"] is None
     assert result["boundary"]["status"] == "allowed"
 
 
@@ -189,6 +191,8 @@ async def test_run_cross_domain_task_success() -> None:
 
     assert result["preempted"] is False
     assert result["results"] is not None
+    assert result["denied"] is False
+    assert result["denial_reason"] is None
     assert result["boundary"]["status"] == "allowed"
 
 
@@ -206,6 +210,8 @@ async def test_run_cross_domain_task_task_result_wrapping() -> None:
 
     assert result["preempted"] is False
     assert len(result["results"]) == 1
+    assert result["denied"] is False
+    assert result["denial_reason"] is None
     assert result["boundary"]["status"] == "allowed"
 
 
@@ -227,6 +233,8 @@ async def test_run_cross_domain_task_preempted() -> None:
         )
 
     assert result["preempted"] is True
+    assert result["denied"] is False
+    assert result["denial_reason"] is None
     assert result["boundary"]["status"] == "allowed"
 
 
@@ -244,6 +252,8 @@ async def test_run_cross_domain_task_failure() -> None:
 
     assert result["preempted"] is False
     assert "error" in result
+    assert result["denied"] is False
+    assert result["denial_reason"] is None
     assert result["boundary"]["status"] == "allowed"
 
 
@@ -265,6 +275,8 @@ async def test_run_cross_domain_task_task_preempted_internally() -> None:
         )
 
     assert result["preempted"] is True
+    assert result["denied"] is False
+    assert result["denial_reason"] is None
     assert result["boundary"]["status"] == "allowed"
 
 

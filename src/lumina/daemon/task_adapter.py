@@ -23,6 +23,7 @@ log = logging.getLogger("lumina-daemon")
 
 _CROSS_DOMAIN_API_ONLY_CONTRACT = "cross_domain_api_only_enforcement_v1"
 _ALLOWED_CROSS_DOMAIN_EXECUTION_PATHS = frozenset({"daemon_api"})
+_DEFAULT_DENIAL_REASON = None
 
 
 async def run_task_preemptible(
@@ -130,6 +131,11 @@ def _cross_domain_boundary(
     }
 
 
+def cross_domain_execution_path_allowed(execution_path: str) -> bool:
+    """Return whether the cross-domain execution path is authorized."""
+    return execution_path in _ALLOWED_CROSS_DOMAIN_EXECUTION_PATHS
+
+
 def _cross_domain_api_only_denied_result(
     task_name: str,
     execution_path: str,
@@ -156,8 +162,26 @@ async def run_cross_domain_task_preemptible(
 
     Cross-domain tasks receive the full domain list and iterate internally.
     The adapter still checks preemption before dispatch.
+
+    Parameters
+    ----------
+    task_name:
+        Registered cross-domain daemon task name.
+    token:
+        ``PreemptionToken`` checked before dispatch.
+    domain_loader:
+        Callable returning ``[{"domain_id": str, "physics": dict}, ...]``.
+    execution_path:
+        Invocation origin label for boundary enforcement. Allowed value(s):
+        ``"daemon_api"``. Any other value is denied deterministically.
+
+    Returns
+    -------
+    dict
+        Deterministic response schema including ``denied`` (bool),
+        ``denial_reason`` (str | None), and ``boundary`` metadata.
     """
-    if execution_path not in _ALLOWED_CROSS_DOMAIN_EXECUTION_PATHS:
+    if not cross_domain_execution_path_allowed(execution_path):
         return _cross_domain_api_only_denied_result(task_name, execution_path)
 
     task_fn = get_cross_domain_task(task_name)
@@ -167,6 +191,8 @@ async def run_cross_domain_task_preemptible(
             "results": [],
             "preempted": False,
             "error": f"Unknown cross-domain task: {task_name}",
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
             "boundary": _cross_domain_boundary(execution_path, "allowed"),
         }
 
@@ -177,6 +203,8 @@ async def run_cross_domain_task_preemptible(
             "task": task_name,
             "results": [],
             "preempted": True,
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
             "boundary": _cross_domain_boundary(execution_path, "allowed"),
         }
 
@@ -189,12 +217,16 @@ async def run_cross_domain_task_preemptible(
                 "task": task_name,
                 "results": [result.to_dict()],
                 "preempted": False,
+                "denied": False,
+                "denial_reason": _DEFAULT_DENIAL_REASON,
                 "boundary": _cross_domain_boundary(execution_path, "allowed"),
             }
         return {
             "task": task_name,
             "results": [result],
             "preempted": False,
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
             "boundary": _cross_domain_boundary(execution_path, "allowed"),
         }
     except TaskPreempted:
@@ -202,6 +234,8 @@ async def run_cross_domain_task_preemptible(
             "task": task_name,
             "results": [],
             "preempted": True,
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
             "boundary": _cross_domain_boundary(execution_path, "allowed"),
         }
     except Exception as exc:
@@ -211,5 +245,7 @@ async def run_cross_domain_task_preemptible(
             "results": [],
             "preempted": False,
             "error": str(exc),
+            "denied": False,
+            "denial_reason": _DEFAULT_DENIAL_REASON,
             "boundary": _cross_domain_boundary(execution_path, "allowed"),
         }

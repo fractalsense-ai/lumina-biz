@@ -14,6 +14,7 @@ import time
 from typing import Any, Callable
 
 from lumina.daemon.report import DaemonReport, TaskResult
+from lumina.daemon.task_adapter import cross_domain_execution_path_allowed
 from lumina.daemon.tasks import get_task, get_cross_domain_task, list_tasks, list_cross_domain_tasks
 
 log = logging.getLogger("lumina-daemon")
@@ -231,6 +232,25 @@ class DaemonScheduler:
                     if time.monotonic() > deadline:
                         log.warning("Daemon batch exceeded max duration during cross-domain tasks")
                         break
+
+                    execution_path = "daemon_api"
+                    if not cross_domain_execution_path_allowed(execution_path):
+                        report.task_results.append(TaskResult(
+                            task=task_name,
+                            domain_id="cross_domain",
+                            success=False,
+                            error="Cross-domain task denied by API-only boundary",
+                            metadata={
+                                "denied": True,
+                                "denial_reason": "cross_domain_api_only_boundary",
+                                "boundary": {
+                                    "contract": "cross_domain_api_only_enforcement_v1",
+                                    "execution_path": execution_path,
+                                    "status": "denied",
+                                },
+                            },
+                        ))
+                        continue
 
                     cd_task_fn = get_cross_domain_task(task_name)
                     if cd_task_fn is None:
