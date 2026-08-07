@@ -1,9 +1,9 @@
 ---
 title: "Slice 40 — Architecture Coherence Enforcement Hardening"
 slice: 40
-status: planned
-version: 0.1.0
-last_updated: 2026-08-06
+status: in-progress
+version: 0.2.0
+last_updated: 2026-08-07
 ---
 
 ## Purpose
@@ -41,6 +41,21 @@ and cross-domain execution safety.
 - New ordering contract: `pipeline_order_enforcement_v1`.
 - New boundary contract: `cross_domain_api_only_enforcement_v1`.
 - Extended audit contract: daemon parity requirements over system-log commitment.
+- New actor liveness contract: `actor_liveness_enforcement_v1`.
+
+## Current Node Status
+
+- N4: complete. Cross-domain API-only boundary is enforced in daemon scheduling and adapter paths.
+- N5: complete. Daemon audit-commit parity is enforced for success and exception paths.
+- N6: complete. Actor liveness is enforced in shared auth dependencies with deny-closed fallback.
+
+## N6 Closure Evidence
+
+- Runtime guard location: `src/lumina/api/dependencies.py` (`_enforce_actor_liveness`).
+- Deterministic deny reasons: `actor_inactive_in_sor`, `actor_liveness_unavailable`.
+- Observability: pseudonymous actor-liveness outcomes emitted via structured log event.
+- Tests: `tests/test_api_dependencies_liveness.py`.
+- Regression verification: `pytest -q tests/test_task_adapter.py tests/test_nightcycle.py tests/test_cross_domain_synthesis.py tests/test_api_dependencies_liveness.py tests/test_operating_context_and_admin_service.py` (117 passed).
 
 ## Files Likely Touched
 
