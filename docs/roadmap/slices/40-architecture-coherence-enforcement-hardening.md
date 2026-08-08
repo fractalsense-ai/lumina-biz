@@ -19,7 +19,7 @@ and cross-domain execution safety.
 - Enforce pipeline ordering controls for auth -> NLP -> semantic routing -> PPA.
 - Enforce API-only cross-domain execution boundaries.
 - Extend daemon paths to audit-commit coverage parity with API paths.
-- Add optional active SoR actor-liveness verification with deterministic fallback.
+- Enforce active SoR actor-liveness verification with deterministic deny-closed fallback.
 
 ## Out of Scope
 

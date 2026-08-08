@@ -54,6 +54,7 @@ def _emit_actor_liveness_observation(
             ),
             site_id=user.get("site_id") if isinstance(user.get("site_id"), str) else None,
         )
+        observation["event_type"] = "actor_liveness_verification"
     except Exception:
         # Observability must never weaken auth-path determinism.
         observation = {
@@ -115,7 +116,7 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
         )
 
     try:
-        is_active = bool(verifier(user))
+        verifier_result = verifier(user)
     except Exception:
         _emit_actor_liveness_observation(
             user,
@@ -130,6 +131,23 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
                 "contract": _ACTOR_LIVENESS_CONTRACT,
             },
         )
+
+    if not isinstance(verifier_result, bool):
+        _emit_actor_liveness_observation(
+            user,
+            outcome="deny",
+            reason=_ACTOR_LIVENESS_REASON_UNAVAILABLE,
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "Actor liveness verification unavailable",
+                "reason": _ACTOR_LIVENESS_REASON_UNAVAILABLE,
+                "contract": _ACTOR_LIVENESS_CONTRACT,
+            },
+        )
+
+    is_active = verifier_result
 
     if not is_active:
         _emit_actor_liveness_observation(

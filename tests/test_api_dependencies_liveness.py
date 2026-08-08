@@ -197,3 +197,39 @@ def test_get_active_operating_context_uses_custom_verifier_when_configured(monke
     context = dependencies.get_active_operating_context(user)
     assert context["device_id"] == "dev-1"
     assert len(calls) == 1
+
+
+@pytest.mark.unit
+def test_get_active_operating_context_rejects_non_bool_verifier_result(monkeypatch, caplog):
+    caplog.set_level(logging.INFO, logger="lumina-auth")
+
+    def _invalid_verifier(_user: dict):
+        return "true"
+
+    monkeypatch.setattr(dependencies._cfg, "ACTOR_LIVENESS_VERIFIER", _invalid_verifier, raising=False)
+    monkeypatch.setattr(dependencies, "build_token_verification_observation", lambda **kwargs: {
+        "event_type": "actor_liveness_verification",
+        "verification_source": kwargs["verification_source"],
+        "outcome": kwargs["outcome"],
+        "reason": kwargs["reason"],
+        "subject_hash": "invalid-bool-hash",
+    })
+
+    user = {
+        "sub": "u-1",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        dependencies.get_active_operating_context(user)
+
+    assert exc_info.value.status_code == 403
+    detail = exc_info.value.detail
+    assert detail["reason"] == "actor_liveness_unavailable"
+
+    events = _extract_actor_liveness_events(caplog)
+    assert len(events) == 1
+    event = events[0]
+    assert event["outcome"] == "deny"
+    assert event["reason"] == "actor_liveness_unavailable"
