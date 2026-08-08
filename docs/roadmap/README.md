@@ -1,13 +1,13 @@
 ---
-version: 1.2.9
-last_updated: 2026-08-08
+version: 1.2.8
+last_updated: 2026-08-06
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.9
+**Version:** 1.2.8
 **Status:** Active
-**Last updated:** 2026-08-08
+**Last updated:** 2026-08-06
 
 ---
 
@@ -66,16 +66,6 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Delivered |
 | [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
 | [40](slices/40-architecture-coherence-enforcement-hardening.md) | Architecture Coherence Enforcement Hardening | Planned |
-| [41](slices/41-erp-integration-program-charter-and-dependency-lock.md) | ERP Integration Program Charter and Dependency Lock | Planned |
-| [42](slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md) | ERP Trust Runtime and Live Actor-Liveness Adapter | Planned |
-| [43](slices/43-generic-connector-transport-runtime.md) | Generic Connector Transport Runtime | Planned |
-| [44](slices/44-mutation-safety-and-idempotency-ledger.md) | Mutation Safety and Idempotency Ledger | Planned |
-| [45](slices/45-erpnext-live-execution-adapter-and-error-normalization.md) | ERPNext Live Execution Adapter and Error Normalization | Planned |
-| [46](slices/46-connector-operational-resilience-and-tenant-fairness.md) | Connector Operational Resilience and Tenant Fairness | Planned |
-| [47](slices/47-credential-lifecycle-and-secret-rotation-integration.md) | Credential Lifecycle and Secret Rotation Integration | Planned |
-| [48](slices/48-production-cutover-gates-and-rollback-automation.md) | Production Cutover Gates and Rollback Automation | Planned |
-| [49](slices/49-secondary-provider-adapter-parity.md) | Secondary Provider Adapter Parity | Planned |
-| [50](slices/50-post-parity-hardening-slo-enforcement-and-governance-closeout.md) | Post-Parity Hardening, SLO Enforcement, and Governance Closeout | Planned |
 
 ---
 
