@@ -22,6 +22,13 @@ class _RecordingPersistence(NullPersistenceAdapter):
     def __init__(self) -> None:
         super().__init__()
         self.records: list[dict] = []
+        self.create_user(
+            "actor-a",
+            "actor-a",
+            "hash",
+            "user",
+            active=True,
+        )
 
     def append_log_record(self, session_id, record, ledger_path=None) -> None:
         self.records.append(dict(record))

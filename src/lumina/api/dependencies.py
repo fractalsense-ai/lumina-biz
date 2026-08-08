@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import functools
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
@@ -13,9 +13,9 @@ from lumina.api import config as _cfg
 from lumina.api.middleware import _bearer_scheme, get_current_user, require_auth
 from lumina.auth.auth import build_token_verification_observation
 from lumina.auth.operating_context import operating_context_from_claims
-from lumina.retrieval.embedder import DocEmbedder
-from lumina.retrieval.institutional import InstitutionalMemoryIndexer
-from lumina.retrieval.vector_store import VectorStore
+
+if TYPE_CHECKING:
+    from lumina.retrieval.institutional import InstitutionalMemoryIndexer
 
 _INSTITUTIONAL_INDEX_DIR = _cfg._REPO_ROOT / "data" / "retrieval-index" / "institutional-memory"
 _ACTOR_LIVENESS_CONTRACT = "actor_liveness_enforcement_v1"
@@ -100,6 +100,11 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
     if verifier is None:
         verifier = _default_actor_liveness_verifier
     if not callable(verifier):
+        _emit_actor_liveness_observation(
+            user,
+            outcome="deny",
+            reason=_ACTOR_LIVENESS_REASON_UNAVAILABLE,
+        )
         raise HTTPException(
             status_code=403,
             detail={
@@ -163,6 +168,10 @@ def get_active_operating_context(
 
 
 @functools.lru_cache(maxsize=1)
-def get_institutional_indexer() -> InstitutionalMemoryIndexer:
+def get_institutional_indexer() -> "InstitutionalMemoryIndexer":
     """Build and share the local institutional-memory indexer lazily."""
+    from lumina.retrieval.embedder import DocEmbedder
+    from lumina.retrieval.institutional import InstitutionalMemoryIndexer
+    from lumina.retrieval.vector_store import VectorStore
+
     return InstitutionalMemoryIndexer(VectorStore(_INSTITUTIONAL_INDEX_DIR), DocEmbedder())
