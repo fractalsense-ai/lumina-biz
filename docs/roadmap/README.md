@@ -1,13 +1,13 @@
 ---
-version: 1.2.9
-last_updated: 2026-08-08
+version: 1.3.0
+last_updated: 2026-08-09
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.9
+**Version:** 1.3.0
 **Status:** Active
-**Last updated:** 2026-08-08
+**Last updated:** 2026-08-09
 
 ---
 
@@ -66,7 +66,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Delivered |
 | [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
 | [40](slices/40-architecture-coherence-enforcement-hardening.md) | Architecture Coherence Enforcement Hardening | Planned |
-| [41](slices/41-erp-integration-program-charter-and-dependency-lock.md) | ERP Integration Program Charter and Dependency Lock | Planned |
+| [41](slices/41-erp-integration-program-charter-and-dependency-lock.md) | ERP Integration Program Charter and Dependency Lock | Active |
 | [42](slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md) | ERP Trust Runtime and Live Actor-Liveness Adapter | Planned |
 | [43](slices/43-generic-connector-transport-runtime.md) | Generic Connector Transport Runtime | Planned |
 | [44](slices/44-mutation-safety-and-idempotency-ledger.md) | Mutation Safety and Idempotency Ledger | Planned |
@@ -138,6 +138,22 @@ Unblock criteria:
 - N4 complete when cross-domain direct state access is blocked outside API paths.
 - N5 complete when daemon operations require the same audit commitment guarantees as API paths.
 - N6 complete when SoR liveness check policy is implemented with deterministic fallback behavior.
+
+## Slice 41 Execution Gate
+
+Slice 41 is active and governs post-Slice-40 ERP execution sequencing. Runtime
+implementation for Slices 42-50 is hard-gated until Slice 40 nodes N1, N2, and
+N3 are closed with explicit closure evidence.
+
+Allowed while gate is closed:
+
+- Documentation refinements and dependency clarifications.
+- Test-design planning and evidence-template preparation.
+
+Blocked while gate is closed:
+
+- Runtime implementation for ERP trust adapters, transport execution, live
+  mutation paths, provider parity execution, and cutover automation.
 
 ---
 
