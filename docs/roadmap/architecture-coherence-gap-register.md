@@ -60,7 +60,7 @@ Gate release requirements:
 
 - N1 closed with structural unauthorized-tool exclusion tests.
 - N2 closed with deterministic ingest rejection tests for prohibited payload
-	classes.
+  classes.
 - N3 closed with enforced order checks or explicit degraded-mode telemetry tests.
 
 Gate scope boundaries:

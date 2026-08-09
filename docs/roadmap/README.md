@@ -153,7 +153,7 @@ Allowed while gate is closed:
 Blocked while gate is closed:
 
 - Runtime implementation for ERP trust adapters, transport execution, live
-	mutation paths, provider parity execution, and cutover automation.
+  mutation paths, provider parity execution, and cutover automation.
 
 ---
 

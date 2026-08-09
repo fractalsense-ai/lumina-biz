@@ -249,16 +249,16 @@ artifacts:
 - path: docs/roadmap/slices/41-erp-integration-program-charter-and-dependency-lock.md
   type: doc
   section: 0
-  doc_version: 0.1.0
-  status: planned
-  last_updated: 2026-08-08
+  doc_version: 0.2.0
+  status: active
+  last_updated: 2026-08-09
   sha256: 91b86901a797cab634040fe235052756e67289799dd42cf5e8f44696009ba965
 - path: docs/roadmap/slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md
   type: doc
   section: 0
-  doc_version: 0.1.0
+  doc_version: 0.2.0
   status: planned
-  last_updated: 2026-08-08
+  last_updated: 2026-08-09
   sha256: 7df25bbc66ed5dfdf588321ad17bbfa6a58ef26ef2c915b77e7c68a3cfa14013
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
@@ -1877,16 +1877,16 @@ artifacts:
   sha256: e16c0e65fe3537678a6b8393065104bafa128972bf7bd7dc954ec977320caab2
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.2.9
+  doc_version: 1.3.0
   status: active
-  last_updated: 2026-08-08
-  sha256: 66a98f3faa1c32bf32126efbb6b50a575c1ba56678253199d001cda76574518c
+  last_updated: 2026-08-09
+  sha256: 375212977559a2f83d429cf4ec8162318383f40e7d0282f8f6ab2c414ae5e3b9
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
-  doc_version: 0.1.0
+  doc_version: 0.3.0
   status: active
-  last_updated: 2026-08-06
-  sha256: ca24ef981cd3a958e9fc9ad5f875380fbc5ab96a8437838485928b2d862375b0
+  last_updated: 2026-08-09
+  sha256: c08aded95dfd15f1081e4d28427f8016666d711bea3831abffede85e961b3521
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
