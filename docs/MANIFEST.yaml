@@ -259,7 +259,7 @@ artifacts:
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-08-08
-  sha256: 3f2909fbf246db84ef35d2a6720201ca371e5d8b4359654a394ab0c8cb311a6d
+  sha256: 7df25bbc66ed5dfdf588321ad17bbfa6a58ef26ef2c915b77e7c68a3cfa14013
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
   section: 0
