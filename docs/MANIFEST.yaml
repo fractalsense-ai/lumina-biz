@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-08-08
+last_updated: 2026-08-09
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -252,7 +252,7 @@ artifacts:
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-08-08
-  sha256: b3f7961b8f17837beac7df2a9c12abce0dcbcdd07afc1e8c44c483eff8135205
+  sha256: 91b86901a797cab634040fe235052756e67289799dd42cf5e8f44696009ba965
 - path: docs/roadmap/slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md
   type: doc
   section: 0
@@ -1880,13 +1880,13 @@ artifacts:
   doc_version: 1.2.9
   status: active
   last_updated: 2026-08-08
-  sha256: d697be4a5d1929c2839a5ff1b47d4967f3b16485513521ceac31b03cc2f60ae6
+  sha256: 66a98f3faa1c32bf32126efbb6b50a575c1ba56678253199d001cda76574518c
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.1.0
   status: active
   last_updated: 2026-08-06
-  sha256: a5bdfcee7f28c59470ff5cb7888f8f48384820438c82defeef2257bf0a4f97a3
+  sha256: ca24ef981cd3a958e9fc9ad5f875380fbc5ab96a8437838485928b2d862375b0
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0

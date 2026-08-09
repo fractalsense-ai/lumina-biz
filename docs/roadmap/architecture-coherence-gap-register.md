@@ -1,8 +1,8 @@
 ---
 title: "Architecture Coherence Gap Register"
 status: active
-version: 0.2.0
-last_updated: 2026-08-07
+version: 0.3.0
+last_updated: 2026-08-09
 ---
 
 ## Purpose
@@ -48,6 +48,25 @@ For each node closure PR:
 - `.venv/Scripts/python.exe -m lumina.systools.manifest_integrity check`
 - `.venv/Scripts/python.exe -m lumina.systools.verify_repo`
 - Local CI fallback evidence per active Slice 39 protocol.
+
+## Slice 41 Hard-Gate Linkage
+
+Slice 41 (`erp_integration_program_charter_v1`) is the active governance gate
+for post-Slice-40 ERP execution. Gaps G1, G2, and G3 (nodes N1, N2, N3) are
+hard blockers for runtime implementation in Slices 42-50 until closure evidence
+is documented.
+
+Gate release requirements:
+
+- N1 closed with structural unauthorized-tool exclusion tests.
+- N2 closed with deterministic ingest rejection tests for prohibited payload
+	classes.
+- N3 closed with enforced order checks or explicit degraded-mode telemetry tests.
+
+Gate scope boundaries:
+
+- Allowed while gate is closed: documentation and test-planning updates.
+- Blocked while gate is closed: runtime implementation in Slices 42-50.
 
 ## Recent Closure Notes
 
