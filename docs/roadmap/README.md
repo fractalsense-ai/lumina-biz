@@ -197,6 +197,9 @@ Slice 41 relation:
 
 - Slices 51-66 are planning/documentation-only and may proceed while the Slice
   41 hard gate for runtime implementation in Slices 42-50 remains active.
+- The Slice 41 hard gate applies specifically to ERP runtime implementation
+  paths defined in Slices 42-50; it does not globally block unrelated
+  non-ERP framework hardening implementation.
 - Any runtime implementation generated from Slices 51-66 that intersects ERP
   execution paths must still respect Slice 41 gating and dependency locks.
 
