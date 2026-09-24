@@ -55,6 +55,7 @@ assignments, and notification-routing outcomes.
 - `model-packs/business-ops/`
 - `docs/roadmap/slices/63-neutral-reference-vertical-exemplar-pack.md`
 - `docs/roadmap/slices/68-capability-gated-workflow-and-task-eligibility-contract-v1.md`
+- `docs/roadmap/slices/69-role-catalog-assignment-and-notification-routing-contract-v1.md`
 
 ## Acceptance Criteria
 
