@@ -1,13 +1,12 @@
----
-version: 1.3.0
-last_updated: 2026-08-09
+version: 1.5.0
+last_updated: 2026-09-24
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.3.0
+**Version:** 1.5.0
 **Status:** Active
-**Last updated:** 2026-08-09
+**Last updated:** 2026-09-24
 
 ---
 
@@ -76,6 +75,28 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [48](slices/48-production-cutover-gates-and-rollback-automation.md) | Production Cutover Gates and Rollback Automation | Planned |
 | [49](slices/49-secondary-provider-adapter-parity.md) | Secondary Provider Adapter Parity | Planned |
 | [50](slices/50-post-parity-hardening-slo-enforcement-and-governance-closeout.md) | Post-Parity Hardening, SLO Enforcement, and Governance Closeout | Planned |
+| [51](slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md) | Framework Boundary Lock and Pack Taxonomy Reconciliation | Planned |
+| [52](slices/52-domain-pack-authoring-contract-v1.md) | Domain Pack Authoring Contract v1 | Planned |
+| [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Planned |
+| [54](slices/54-module-glossary-and-index-contract.md) | Module Glossary and Index Contract | Planned |
+| [55](slices/55-knowledge-index-rebuild-and-drift-elimination.md) | Knowledge Index Rebuild and Drift Elimination | Planned |
+| [56](slices/56-turn-interpreter-contract-v1.md) | Turn Interpreter Contract v1 | Planned |
+| [57](slices/57-deterministic-pre-llm-domain-to-module-routing.md) | Deterministic Pre-LLM Domain-to-Module Routing | Planned |
+| [58](slices/58-module-command-surface-contract-v1.md) | Module Command Surface Contract v1 | Planned |
+| [59](slices/59-workflow-definition-contract-and-dag-compilation.md) | Workflow Definition Contract and DAG Compilation | Planned |
+| [60](slices/60-workflow-state-durability-and-recovery.md) | Workflow State Durability and Recovery | Planned |
+| [61](slices/61-generic-connector-contract-consolidation.md) | Generic Connector Contract Consolidation | Planned |
+| [62](slices/62-erp-auth-cutover-wiring.md) | ERP Auth Cutover Wiring | Planned |
+| [63](slices/63-neutral-reference-vertical-exemplar-pack.md) | Neutral Reference Vertical Exemplar Pack | Planned |
+| [64](slices/64-multi-site-and-cross-location-aggregation-contract.md) | Multi-Site and Cross-Location Aggregation Contract | Planned |
+| [65](slices/65-pack-extraction-tooling-and-vertical-repository-template.md) | Pack Extraction Tooling and Vertical Repository Template | Planned |
+| [66](slices/66-authoring-guides-and-extraction-readiness-closeout.md) | Authoring Guides and Extraction Readiness Closeout | Planned |
+| [67](slices/67-site-profile-and-capability-declaration-contract-v1.md) | Site Profile and Capability Declaration Contract v1 | Planned |
+| [68](slices/68-capability-gated-workflow-and-task-eligibility-contract-v1.md) | Capability-Gated Workflow and Task Eligibility Contract v1 | Planned |
+| [69](slices/69-role-catalog-assignment-and-notification-routing-contract-v1.md) | Role Catalog, Assignment, and Notification Routing Contract v1 | Planned |
+| [70](slices/70-site-variance-and-role-aware-reference-scenarios.md) | Site-Variance and Role-Aware Reference Scenarios | Planned |
+| [71](slices/71-operational-overrides-profile-versioning-and-change-governance.md) | Operational Overrides, Profile Versioning, and Change Governance | Planned |
+| [72](slices/72-vertical-extraction-and-configuration-portability-gate.md) | Vertical Extraction and Configuration Portability Gate | Planned |
 
 ---
 
@@ -155,6 +176,65 @@ Blocked while gate is closed:
 - Runtime implementation for ERP trust adapters, transport execution, live
   mutation paths, provider parity execution, and cutover automation.
 
+## Framework Finalization Program DAG (Slices 51-72)
+
+Program objective: finalize Lumina as a reusable framework first, make
+multi-location variance, role assignment, and notification routing declarative
+rather than hardcoded, then prove the authoring/execution shape with a neutral
+reference vertical, and finally define repeatable extraction into
+business-specific repositories.
+
+Program phases:
+
+- **Phase A — Framework hardening contracts:** Slices 51-62.
+- **Phase B — Reference vertical proof:** Slices 63-64.
+- **Phase C — Extraction readiness:** Slices 65-66.
+- **Phase D — Declarative site variance and portability proof:** Slices 67-72.
+
+Critical invariant:
+
+- Site variance, role assignment, workflow/task eligibility, and notification
+  routing must be declarative configuration. They must never require
+  per-location runtime forks, site-specific conditional code paths, or
+  hardcoded recipient logic.
+
+Dependency chain:
+
+- 51 -> 52 -> 53 -> 54 -> 55 -> 56 -> 57 -> 58 -> 59 -> 60
+- 52 -> 61
+- 38 -> 62
+- 59 -> 62
+- 60 -> 63
+- 61 -> 63
+- 62 -> 63
+- 63 -> 64 -> 65 -> 66
+- 52 -> 67
+- 53 -> 67
+- 59 -> 68
+- 67 -> 68
+- 67 -> 69
+- 68 -> 70
+- 69 -> 70
+- 67 -> 71
+- 68 -> 71
+- 69 -> 71
+- 70 -> 72
+- 71 -> 72
+
+Slice 41 relation:
+
+- Slices 51-72 are planning/documentation-only and may proceed while the Slice
+  41 hard gate for runtime implementation in Slices 42-50 remains active.
+- The Slice 41 hard gate applies specifically to ERP runtime implementation
+  paths defined in Slices 42-50; it does not globally block unrelated
+  non-ERP framework hardening implementation.
+- Any runtime implementation generated from Slices 51-72 that intersects ERP
+  execution paths must still respect Slice 41 gating and dependency locks.
+- Slice 41 already locks Lumina to reusable profile-layer variance over a shared
+  core. Slices 67-72 extend that principle to site profiles, role catalogs, and
+  notification routing so location differences stay in configuration and do not
+  reopen framework-fork pressure.
+
 ---
 
 ## Roadmap Posture
@@ -166,8 +246,8 @@ base framework consists of exactly three model packs:
 - **Coding Agent Model Pack** — bounded artifact factory
 - **Template Model Pack** — reusable approved framework template shapes
 
-Domain packs currently in the repository (business-ops, business-ops, assistant)
-are provisional scaffolding used while validating the framework shape. They
+Domain packs currently in the repository (`business-ops`) are provisional
+scaffolding used while validating the framework shape. They
 will be extracted, moved, or removed in later PRs.
 
 See [`docs/7-concepts/framework-boundary.md`](../7-concepts/framework-boundary.md)
@@ -191,4 +271,3 @@ Each slice document uses the following structure:
 ## Ledger/Governance Impact
 ## Follow-Up Slices
 ```
-
