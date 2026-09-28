@@ -25,6 +25,8 @@ runtime code.
 
 ### Upstream Dependencies
 
+- Slice 65 pack extraction tooling and vertical repository template.
+- Slice 66 authoring guides and extraction readiness closeout.
 - Slice 70 site-variance and role-aware reference scenarios.
 - Slice 71 operational overrides, profile versioning, and change governance.
 
