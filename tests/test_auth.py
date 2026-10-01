@@ -211,3 +211,360 @@ def test_verify_jwt_rejects_malformed_token(monkeypatch: pytest.MonkeyPatch) -> 
     monkeypatch.setattr(auth, "JWT_SECRET", "test-secret")
     with pytest.raises(auth.TokenInvalidError, match="Malformed token"):
         auth.verify_jwt("not.a.valid.jwt.with.extra")
+
+
+def _make_erp_token(payload: dict[str, object], secret: str = "erp-secret") -> str:
+    header = {"alg": "HS256", "typ": "JWT"}
+    h = auth._b64url_encode(auth.json.dumps(header, separators=(",", ":")).encode("utf-8"))
+    p = auth._b64url_encode(auth.json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+    message = f"{h}.{p}".encode("ascii")
+    sig = auth._b64url_encode(auth._sign_hs256(message, secret))
+    return f"{h}.{p}.{sig}"
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_success(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+    monkeypatch.setattr(auth, "ERP_CLOCK_SKEW_SECONDS", 30)
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+    out = auth.verify_erp_jwt(token)
+
+    assert out["sub"] == "actor-1"
+    assert out["token_scope"] == "erp"
+
+
+@pytest.mark.unit
+def test_build_token_verification_observation_hashes_identifiers(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "audit-secret")
+    observation = auth.build_token_verification_observation(
+        outcome="deny",
+        reason="INVALID_AUDIENCE",
+        verification_source="erp_jwt_gateway_v1",
+        issuer="erp.example",
+        audience="lumina-api",
+        token_scope="erp",
+        jti="jti-1",
+        subject="actor-1",
+        organization_id="org-1",
+        site_id="site-1",
+    )
+
+    assert observation["event_type"] == "token_verification"
+    assert observation["outcome"] == "deny"
+    assert observation["reason"] == "INVALID_AUDIENCE"
+    assert observation["issuer"] == "erp.example"
+    assert observation["audience"] == "lumina-api"
+    assert observation["token_scope"] == "erp"
+    assert observation["jti_hash"] is not None
+    assert observation["subject_hash"] is not None
+    assert observation["organization_hash"] is not None
+    assert observation["site_hash"] is not None
+    assert len(observation["jti_hash"]) == 24
+
+
+@pytest.mark.unit
+def test_hash_audit_identifier_changes_with_secret(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "secret-a")
+    first = auth._hash_audit_identifier("org-1")
+    second = auth._hash_audit_identifier("org-1")
+    assert first == second
+
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "secret-b")
+    third = auth._hash_audit_identifier("org-1")
+    assert third != first
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_emits_observation_logs(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+    monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "audit-secret")
+
+    good_payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    bad_payload = dict(good_payload)
+    bad_payload["aud"] = "wrong-aud"
+
+    good_token = _make_erp_token(good_payload)
+    bad_token = _make_erp_token(bad_payload)
+
+    with caplog.at_level("INFO", logger=auth.__name__):
+        auth.verify_erp_jwt(good_token)
+        with pytest.raises(auth.TokenInvalidError, match="INVALID_AUDIENCE"):
+            auth.verify_erp_jwt(bad_token)
+
+    assert "token_verification_observation" in caplog.text
+    assert '"outcome":"allow"' in caplog.text
+    assert '"reason":"VERIFIED"' in caplog.text
+    assert '"outcome":"deny"' in caplog.text
+    assert '"reason":"INVALID_AUDIENCE"' in caplog.text
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_invalid_signature(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload, secret="wrong-secret")
+
+    with pytest.raises(auth.TokenInvalidError, match="INVALID_SIGNATURE"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_invalid_issuer(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.other",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="INVALID_ISSUER"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_invalid_audience(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "other-audience",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="INVALID_AUDIENCE"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_non_string_audience(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.example",
+        "aud": ["lumina-api"],
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="MALFORMED_CLAIM:aud"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_non_string_issuer(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": 123,
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="MALFORMED_CLAIM:iss"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_missing_required_claim(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="MISSING_REQUIRED_CLAIM:site_id"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_expired(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+    monkeypatch.setattr(auth, "ERP_CLOCK_SKEW_SECONDS", 0)
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now - 1,
+        "iat": now - 10,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenExpiredError, match="TOKEN_EXPIRED"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_invalid_time_claims(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+    monkeypatch.setattr(auth, "ERP_CLOCK_SKEW_SECONDS", 0)
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 10,
+        "iat": now + 20,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+
+    with pytest.raises(auth.TokenInvalidError, match="INVALID_TIME_CLAIMS"):
+        auth.verify_erp_jwt(token)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_rejects_malformed_signature_segment(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now + 120,
+        "iat": now,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload)
+    h_part, p_part, _ = token.split(".")
+    malformed = f"{h_part}.{p_part}.@"
+
+    with pytest.raises(auth.TokenInvalidError, match="MALFORMED_CLAIM"):
+        auth.verify_erp_jwt(malformed)
+
+
+@pytest.mark.unit
+def test_verify_erp_jwt_checks_signature_before_expiry(monkeypatch: pytest.MonkeyPatch) -> None:
+    now = int(time.time())
+    monkeypatch.setattr(auth, "ERP_TRUSTED_ISSUER", "erp.example")
+    monkeypatch.setattr(auth, "ERP_EXPECTED_AUDIENCE", "lumina-api")
+    monkeypatch.setattr(auth, "ERP_JWT_SECRET", "erp-secret")
+    monkeypatch.setattr(auth, "ERP_CLOCK_SKEW_SECONDS", 0)
+
+    payload = {
+        "iss": "erp.example",
+        "aud": "lumina-api",
+        "sub": "actor-1",
+        "exp": now - 30,
+        "iat": now - 90,
+        "jti": "jti-1",
+        "role": "operator",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    token = _make_erp_token(payload, secret="wrong-secret")
+
+    with pytest.raises(auth.TokenInvalidError, match="INVALID_SIGNATURE"):
+        auth.verify_erp_jwt(token)

@@ -21,6 +21,13 @@ class _RecordingPersistence(NullPersistenceAdapter):
     def __init__(self) -> None:
         super().__init__()
         self.records: list[dict] = []
+        self.create_user(
+            "actor-a",
+            "actor-a",
+            "hash",
+            "user",
+            active=True,
+        )
 
     def append_log_record(self, session_id, record, ledger_path=None) -> None:
         self.records.append(dict(record))
@@ -221,6 +228,18 @@ def test_preflight_rejects_cross_scope_registry_entry(client) -> None:
     )
 
     assert response.status_code == 403
+    assert response.json()["detail"] == "SITE_MISMATCH"
+
+    payload = _preflight_payload()
+    payload["connector_registry_entries"][0]["organization_id"] = "org-b"
+    org_response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert org_response.status_code == 403
+    assert org_response.json()["detail"] == "ORGANIZATION_MISMATCH"
 
 
 @pytest.mark.integration

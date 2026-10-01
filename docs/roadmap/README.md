@@ -1,13 +1,12 @@
----
-version: 1.2.6
-last_updated: 2026-08-03
+version: 1.5.0
+last_updated: 2026-09-24
 ---
 
 # Lumina Framework Roadmap
 
-**Version:** 1.2.6
+**Version:** 1.5.0
 **Status:** Active
-**Last updated:** 2026-08-03
+**Last updated:** 2026-09-24
 
 ---
 
@@ -63,8 +62,41 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [35](slices/35-auto-repair-mvp-over-connector-abstractions.md) | Auto Repair MVP Over Connector Abstractions | Delivered |
 | [36](slices/36-single-box-deployment-and-operational-hardening.md) | Single-Box Deployment and Operational Hardening | Planned |
 | [37](slices/37-erp-identity-authority-and-claim-contract.md) | ERP Identity Authority and Claim Contract | Active |
-| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Planned |
+| [38](slices/38-erp-jwt-verification-gateway-and-auth-transition.md) | ERP JWT Verification Gateway and Auth Transition | Delivered |
 | [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
+| [40](slices/40-architecture-coherence-enforcement-hardening.md) | Architecture Coherence Enforcement Hardening | Planned |
+| [41](slices/41-erp-integration-program-charter-and-dependency-lock.md) | ERP Integration Program Charter and Dependency Lock | Active |
+| [42](slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md) | ERP Trust Runtime and Live Actor-Liveness Adapter | Planned |
+| [43](slices/43-generic-connector-transport-runtime.md) | Generic Connector Transport Runtime | Planned |
+| [44](slices/44-mutation-safety-and-idempotency-ledger.md) | Mutation Safety and Idempotency Ledger | Planned |
+| [45](slices/45-erpnext-live-execution-adapter-and-error-normalization.md) | ERPNext Live Execution Adapter and Error Normalization | Planned |
+| [46](slices/46-connector-operational-resilience-and-tenant-fairness.md) | Connector Operational Resilience and Tenant Fairness | Planned |
+| [47](slices/47-credential-lifecycle-and-secret-rotation-integration.md) | Credential Lifecycle and Secret Rotation Integration | Planned |
+| [48](slices/48-production-cutover-gates-and-rollback-automation.md) | Production Cutover Gates and Rollback Automation | Planned |
+| [49](slices/49-secondary-provider-adapter-parity.md) | Secondary Provider Adapter Parity | Planned |
+| [50](slices/50-post-parity-hardening-slo-enforcement-and-governance-closeout.md) | Post-Parity Hardening, SLO Enforcement, and Governance Closeout | Planned |
+| [51](slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md) | Framework Boundary Lock and Pack Taxonomy Reconciliation | Planned |
+| [52](slices/52-domain-pack-authoring-contract-v1.md) | Domain Pack Authoring Contract v1 | Planned |
+| [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Planned |
+| [54](slices/54-module-glossary-and-index-contract.md) | Module Glossary and Index Contract | Planned |
+| [55](slices/55-knowledge-index-rebuild-and-drift-elimination.md) | Knowledge Index Rebuild and Drift Elimination | Planned |
+| [56](slices/56-turn-interpreter-contract-v1.md) | Turn Interpreter Contract v1 | Planned |
+| [57](slices/57-deterministic-pre-llm-domain-to-module-routing.md) | Deterministic Pre-LLM Domain-to-Module Routing | Planned |
+| [58](slices/58-module-command-surface-contract-v1.md) | Module Command Surface Contract v1 | Planned |
+| [59](slices/59-workflow-definition-contract-and-dag-compilation.md) | Workflow Definition Contract and DAG Compilation | Planned |
+| [60](slices/60-workflow-state-durability-and-recovery.md) | Workflow State Durability and Recovery | Planned |
+| [61](slices/61-generic-connector-contract-consolidation.md) | Generic Connector Contract Consolidation | Planned |
+| [62](slices/62-erp-auth-cutover-wiring.md) | ERP Auth Cutover Wiring | Planned |
+| [63](slices/63-neutral-reference-vertical-exemplar-pack.md) | Neutral Reference Vertical Exemplar Pack | Planned |
+| [64](slices/64-multi-site-and-cross-location-aggregation-contract.md) | Multi-Site and Cross-Location Aggregation Contract | Planned |
+| [65](slices/65-pack-extraction-tooling-and-vertical-repository-template.md) | Pack Extraction Tooling and Vertical Repository Template | Planned |
+| [66](slices/66-authoring-guides-and-extraction-readiness-closeout.md) | Authoring Guides and Extraction Readiness Closeout | Planned |
+| [67](slices/67-site-profile-and-capability-declaration-contract-v1.md) | Site Profile and Capability Declaration Contract v1 | Planned |
+| [68](slices/68-capability-gated-workflow-and-task-eligibility-contract-v1.md) | Capability-Gated Workflow and Task Eligibility Contract v1 | Planned |
+| [69](slices/69-role-catalog-assignment-and-notification-routing-contract-v1.md) | Role Catalog, Assignment, and Notification Routing Contract v1 | Planned |
+| [70](slices/70-site-variance-and-role-aware-reference-scenarios.md) | Site-Variance and Role-Aware Reference Scenarios | Planned |
+| [71](slices/71-operational-overrides-profile-versioning-and-change-governance.md) | Operational Overrides, Profile Versioning, and Change Governance | Planned |
+| [72](slices/72-vertical-extraction-and-configuration-portability-gate.md) | Vertical Extraction and Configuration Portability Gate | Planned |
 
 ---
 
@@ -80,6 +112,143 @@ invariants it established.
 
 Slice 39 hard-locks the ERP integration direction to a reusable generic service core with profile-layer variance. Until explicitly superseded, new vertical onboarding work should extend profile and mapping layers first rather than introducing core workflow forks.
 
+## Operational Note (Temporary CI Fallback)
+
+While GitHub-hosted CI is unstable, Slice 39 delivery uses a local full-workflow
+pre-merge gate that mirrors the `CI Tests` workflow intent.
+
+Required baseline before merge:
+
+- `./scripts/run-full-verification.ps1`
+- backend coverage gate: `pytest ... --cov-fail-under=85`
+- frontend unit/coverage/e2e sequence from workflow
+
+This temporary fallback remains active until 5 consecutive green `CI Tests`
+workflow runs are observed on `main`. Sunset and re-enable procedures are
+defined in Slice 39.
+
+## Dependency Graph (Architecture Coherence)
+
+Lumina tracks two graph categories:
+
+- Runtime execution DAG lineage (Slices 12 and 14).
+- Delivery dependency DAG for post-Slice 38 enforcement closure.
+
+Architecture coherence DAG nodes:
+
+- N1 Tool-token boundary enforcement.
+- N2 Institutional-memory ingest guardrails.
+- N3 Pipeline order enforcement (actor auth -> NLP -> semantic routing -> PPA).
+- N4 Cross-domain API-only execution boundary.
+- N5 Daemon audit-commit parity.
+- N6 Active SoR actor-liveness verification.
+
+Dependency edges:
+
+- N1 -> N4
+- N1 -> N5
+- N1 -> N6
+- N2 -> N6
+- N3 -> N5
+
+Unblock criteria:
+
+- N1 complete when unauthorized tool calls are structurally excluded and tested.
+- N2 complete when chat/conversation payload classes are rejected at ingest.
+- N3 complete when strict ordering checks are enforced or explicit degraded-mode telemetry is emitted.
+- N4 complete when cross-domain direct state access is blocked outside API paths.
+- N5 complete when daemon operations require the same audit commitment guarantees as API paths.
+- N6 complete when SoR liveness check policy is implemented with deterministic fallback behavior.
+
+## Slice 41 Execution Gate
+
+Slice 41 is active and governs post-Slice-40 ERP execution sequencing. Runtime
+implementation for Slices 42-50 is hard-gated until Slice 40 nodes N1, N2, and
+N3 are closed with explicit closure evidence.
+
+Allowed while gate is closed:
+
+- Documentation refinements and dependency clarifications.
+- Test-design planning and evidence-template preparation.
+
+Blocked while gate is closed:
+
+- Runtime implementation for ERP trust adapters, transport execution, live
+  mutation paths, provider parity execution, and cutover automation.
+
+## Framework Finalization Program DAG (Slices 51-72)
+
+Program objective: finalize Lumina as a reusable framework first, make
+multi-location variance, role assignment, and notification routing declarative
+rather than hardcoded, then prove the authoring/execution shape with a neutral
+reference vertical, and finally define repeatable extraction into
+business-specific repositories.
+
+Program phases:
+
+- **Phase A — Framework hardening contracts:** Slices 51-62.
+- **Phase B — Reference vertical proof:** Slices 63-64.
+- **Phase C — Extraction readiness:** Slices 65-66.
+- **Phase D — Declarative site variance and portability proof:** Slices 67-72.
+
+Program backbone:
+
+- [Phase A hardening contracts: 51-62]
+           |
+- [Phase B reference vertical: 63-64]
+           |
+- [Phase C extraction readiness: 65-66]
+           |
+- [Phase D site variance and portability: 67-72]
+
+Critical invariant:
+
+- Site variance, role assignment, workflow/task eligibility, and notification
+  routing must be declarative configuration. They must never require
+  per-location runtime forks, site-specific conditional code paths, or
+  hardcoded recipient logic.
+
+Dependency chain:
+
+- 51 -> 52 -> 53 -> 54 -> 55 -> 56 -> 57 -> 58 -> 59 -> 60
+- 52 -> 61
+- 38 -> 62
+- 59 -> 62
+- 60 -> 63
+- 61 -> 63
+- 62 -> 63
+- 63 -> 64 -> 65 -> 66
+- 52 -> 67
+- 53 -> 67
+- 59 -> 68
+- 67 -> 68
+- 67 -> 69
+- 63 -> 70
+- 64 -> 70
+- 68 -> 70
+- 69 -> 70
+- 67 -> 71
+- 68 -> 71
+- 69 -> 71
+- 70 -> 72
+- 71 -> 72
+- 65 -> 72
+- 66 -> 72
+
+Slice 41 relation:
+
+- Slices 51-72 are planning/documentation-only and may proceed while the Slice
+  41 hard gate for runtime implementation in Slices 42-50 remains active.
+- The Slice 41 hard gate applies specifically to ERP runtime implementation
+  paths defined in Slices 42-50; it does not globally block unrelated
+  non-ERP framework hardening implementation.
+- Any runtime implementation generated from Slices 51-72 that intersects ERP
+  execution paths must still respect Slice 41 gating and dependency locks.
+- Slice 41 already locks Lumina to reusable profile-layer variance over a shared
+  core. Slices 67-72 extend that principle to site profiles, role catalogs, and
+  notification routing so location differences stay in configuration and do not
+  reopen framework-fork pressure.
+
 ---
 
 ## Roadmap Posture
@@ -91,8 +260,8 @@ base framework consists of exactly three model packs:
 - **Coding Agent Model Pack** — bounded artifact factory
 - **Template Model Pack** — reusable approved framework template shapes
 
-Domain packs currently in the repository (business-ops, business-ops, assistant)
-are provisional scaffolding used while validating the framework shape. They
+Domain packs currently in the repository (`business-ops`) are provisional
+scaffolding used while validating the framework shape. They
 will be extracted, moved, or removed in later PRs.
 
 See [`docs/7-concepts/framework-boundary.md`](../7-concepts/framework-boundary.md)
@@ -116,4 +285,3 @@ Each slice document uses the following structure:
 ## Ledger/Governance Impact
 ## Follow-Up Slices
 ```
-

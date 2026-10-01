@@ -15,6 +15,13 @@ _RECORD_SUMMARY_FIELDS = (
     "event_type",
 )
 
+_PROHIBITED_CONVERSATION_MARKERS = (
+    "chat",
+    "conversation",
+    "dialog",
+    "transcript",
+)
+
 
 def _required_identifier(record: dict[str, Any], field_name: str) -> str:
     value = record.get(field_name)
@@ -29,6 +36,15 @@ def _summary_text(record: dict[str, Any]) -> str:
         if isinstance(value, str) and value.strip():
             return value.strip()
     raise ValueError("institutional record requires a summary field")
+
+
+def _validate_record_type(record_type: str) -> str:
+    """Validate institutional record family and reject conversational payload types."""
+    normalized = record_type.strip()
+    lowered = normalized.lower()
+    if any(marker in lowered for marker in _PROHIBITED_CONVERSATION_MARKERS):
+        raise ValueError("institutional record_type is prohibited for conversational/transcript content")
+    return normalized
 
 
 def _metadata(record: dict[str, Any]) -> dict[str, str | None]:
@@ -48,7 +64,7 @@ def _metadata(record: dict[str, Any]) -> dict[str, str | None]:
 
 def record_to_chunk(record: dict[str, Any]) -> DocChunk:
     """Convert one scoped memory record into a deterministic index chunk."""
-    record_type = _required_identifier(record, "record_type")
+    record_type = _validate_record_type(_required_identifier(record, "record_type"))
     record_id = _required_identifier(record, "record_id")
     organization_id = _required_identifier(record, "organization_id")
     site_id = _required_identifier(record, "site_id")

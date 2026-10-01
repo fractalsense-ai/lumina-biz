@@ -206,11 +206,10 @@ async def confirm(
     decision = pending.decision
     if decision.actor_id != user["sub"]:
         raise HTTPException(status_code=403, detail="Thread routing decision belongs to another actor")
-    if (
-        decision.organization_id != context["organization_id"]
-        or decision.site_id != context["site_id"]
-    ):
-        raise HTTPException(status_code=403, detail="Thread routing decision is outside the active context")
+    if decision.organization_id != context["organization_id"]:
+        raise HTTPException(status_code=403, detail="ORGANIZATION_MISMATCH")
+    if decision.site_id != context["site_id"]:
+        raise HTTPException(status_code=403, detail="SITE_MISMATCH")
 
     selected = _resolve_confirmation(pending, req.action)
     binding = load_thread_session_binding(

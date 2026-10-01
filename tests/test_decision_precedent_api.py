@@ -22,6 +22,13 @@ class _RecordingPersistence(NullPersistenceAdapter):
     def __init__(self) -> None:
         super().__init__()
         self.records: list[dict] = []
+        self.create_user(
+            "actor-a",
+            "actor-a",
+            "hash",
+            "user",
+            active=True,
+        )
 
     def append_log_record(self, session_id, record, ledger_path=None) -> None:
         self.records.append(dict(record))
@@ -135,6 +142,20 @@ def test_confirmation_is_scoped_and_replay_protected(client) -> None:
     assert preflight.status_code == 200
     confidence_record_id = preflight.json()["confidence_record_id"]
     assert preflight.json()["confirmation_required"] is True
+
+    mismatch = test_client.post(
+        f"/api/decision-precedent/{confidence_record_id}/confirm",
+        headers={"Authorization": f"Bearer {_token(site_id='site-2')}"},
+    )
+    assert mismatch.status_code == 403
+    assert mismatch.json()["detail"] == "SITE_MISMATCH"
+
+    org_mismatch = test_client.post(
+        f"/api/decision-precedent/{confidence_record_id}/confirm",
+        headers={"Authorization": f"Bearer {_token(organization_id='org-b')}"},
+    )
+    assert org_mismatch.status_code == 403
+    assert org_mismatch.json()["detail"] == "ORGANIZATION_MISMATCH"
 
     confirmed = test_client.post(f"/api/decision-precedent/{confidence_record_id}/confirm", headers={"Authorization": f"Bearer {_token()}"})
     assert confirmed.status_code == 200

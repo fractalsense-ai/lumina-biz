@@ -77,6 +77,12 @@ CORS_ORIGINS: list[str] = [
 ]
 BOOTSTRAP_MODE: bool = os.environ.get("LUMINA_BOOTSTRAP_MODE", "true").strip().lower() not in {"0", "false", "no"}
 
+# ERP JWT verification inputs (Slice 38 PR1).
+ERP_TRUSTED_ISSUER = os.environ.get("LUMINA_ERP_TRUSTED_ISSUER", "")
+ERP_EXPECTED_AUDIENCE = os.environ.get("LUMINA_ERP_EXPECTED_AUDIENCE", "")
+ERP_JWT_SECRET = os.environ.get("LUMINA_ERP_JWT_SECRET", "")
+ERP_CLOCK_SKEW_SECONDS = int(os.environ.get("LUMINA_ERP_CLOCK_SKEW_SECONDS", "30"))
+
 # Session idle timeout (minutes). 0 = disabled.
 SESSION_IDLE_TIMEOUT_MINUTES: int = int(os.environ.get("LUMINA_SESSION_IDLE_TIMEOUT_MINUTES", "30"))
 

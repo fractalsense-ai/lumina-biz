@@ -262,3 +262,19 @@ def test_record_to_chunk_requires_summary() -> None:
     record.pop("summary")
     with pytest.raises(ValueError, match="summary"):
         record_to_chunk(record)
+
+
+@pytest.mark.unit
+def test_record_to_chunk_rejects_conversation_record_type() -> None:
+    record = _record("chat-1")
+    record["record_type"] = "ConversationTranscriptRecord"
+    with pytest.raises(ValueError, match="prohibited"):
+        record_to_chunk(record)
+
+
+@pytest.mark.unit
+def test_record_to_chunk_rejects_unknown_record_type() -> None:
+    record = _record("custom-1")
+    record["record_type"] = "CustomRuntimeDebugRecord"
+    chunk = record_to_chunk(record)
+    assert chunk.record_type == "CustomRuntimeDebugRecord"

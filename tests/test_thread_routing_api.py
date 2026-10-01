@@ -23,6 +23,13 @@ class _RecordingPersistence(NullPersistenceAdapter):
     def __init__(self) -> None:
         super().__init__()
         self.records: list[dict] = []
+        self.create_user(
+            "actor-a",
+            "actor-a",
+            "hash",
+            "user",
+            active=True,
+        )
 
     def append_log_record(self, session_id, record, ledger_path=None) -> None:
         self.records.append(dict(record))
@@ -300,6 +307,16 @@ def test_confirmation_rejects_different_actor_or_active_context(client) -> None:
         json={"action": "accept"},
     )
     assert forbidden_context.status_code == 403
+    assert forbidden_context.json()["detail"] == "SITE_MISMATCH"
+
+    wrong_org = _token(organization_id="org-b")
+    forbidden_org = test_client.post(
+        f"/api/thread-routing/{decision_id}/confirm",
+        headers={"Authorization": f"Bearer {wrong_org}"},
+        json={"action": "accept"},
+    )
+    assert forbidden_org.status_code == 403
+    assert forbidden_org.json()["detail"] == "ORGANIZATION_MISMATCH"
 
 
 @pytest.mark.integration
