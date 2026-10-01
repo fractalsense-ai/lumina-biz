@@ -1874,13 +1874,13 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-05-05
-  sha256: e16c0e65fe3537678a6b8393065104bafa128972bf7bd7dc954ec977320caab2
+  sha256: 78d3f8e151cdaec2a7a3c5f4ac183deb09276fd310669770c474b6a56811609e
 - path: docs/roadmap/README.md
   type: doc
   doc_version: 1.3.0
   status: active
   last_updated: 2026-08-09
-  sha256: 5df5ef45e63e8c405d1b24fff21156303ecc368c43b7b044dbdfaf77bee23cdc
+  sha256: b71536944ff1fb38f81068a63c3223aaad393424eceb5f3e94b4c1a4344f4de3
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0

@@ -1,6 +1,6 @@
 # Model-Packs — Lumina Framework
 
-Model-packs are authored system models loaded by the Lumina Framework. They are the "mods" layer: the same engine underneath, a different modeled system on top. This directory contains the framework packs plus the active business-ops domain pack.
+Model-packs are authored system models loaded by the Lumina Framework. They are the "mods" layer: the same engine underneath, a different modeled system on top. This directory contains the required framework packs plus the active `business-ops` seed vertical pack used to validate the architecture before extraction.
 
 ---
 
@@ -21,7 +21,7 @@ inherits them unchanged.
 | Template Model Pack | `model-packs/template/` | Canonical scaffold shapes used by System Pack routing and the Coding Agent | Required |
 | Coding Agent Model Pack | `model-packs/coding-agent/` | Bounded artifact factory — receives scoped jobs from System Pack, produces build artefacts | Active |
 
-### Reference / Provisional Packs
+### Seed Vertical / Provisional Packs
 
 These packs were built to think through the flow of information, adapter
 patterns, domain-physics structure, and world-sim conventions. They are **not
@@ -31,7 +31,7 @@ base framework boundary is stable.
 
 | Pack | Directory | Purpose |
 |------|-----------|---------|
-| Business Ops | `model-packs/business-ops/` | Active domain — deterministic operations workflows and replay evidence capture |
+| Business Ops | `model-packs/business-ops/` | Seed vertical used to validate deterministic operations workflows and replay evidence capture before extraction |
 
 > **Status note:** Legacy R&D vertical packs were split out of this repository.
 > This repo keeps framework packs and the active business-ops domain pack.

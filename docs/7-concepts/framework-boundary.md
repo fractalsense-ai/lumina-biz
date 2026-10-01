@@ -26,9 +26,11 @@ The Lumina Framework base layer consists of exactly **three model packs**:
 | Coding Agent Model Pack | Bounded artifact factory |
 | Template Model Pack | Reusable approved template shapes and contracts |
 
-All other model packs currently present in the repository — including business-ops,
-business-ops, and assistant — are **provisional domain/deployment/testing
-material**, not base framework infrastructure.
+All other model packs currently present in the repository — including
+`business-ops` and `assistant` — are **provisional seed vertical material**, not
+base framework infrastructure. They exist to validate the authoring model and
+must be treated as candidates for later extraction or retirement once the
+framework boundary is stable.
 
 ---
 
@@ -115,15 +117,14 @@ All other model packs serve a different purpose:
 
 | Category | Examples | Status |
 |----------|----------|--------|
-| Domain packs | business-ops, business-ops, assistant | Provisional — not base framework |
+| Seed vertical packs | `business-ops`, `assistant` | Provisional — not base framework |
 | Deployment-specific packs | NOC, clinic, field operations | Provisional — not base framework |
 | Experimental/testing packs | Any pack created during framework validation | Provisional — not base framework |
 
-The packs currently present in `model-packs/` beyond the three base packs
-(business-ops, business-ops, assistant) are **temporary scaffolding** used while
-validating the framework shape. They demonstrate that the engine works across
-varied domains, but they are not part of the long-term framework-core
-contract.
+The packs currently present in `model-packs/` beyond the three base packs are
+**temporary scaffolding** used while validating the framework shape. The
+`business-ops` pack is the active seed vertical used for architecture proof and
+reference flows; it is not part of the long-term framework-core contract.
 
 **They should be treated as experimental/domain/testing material until they
 are extracted, moved to their own repositories, or removed in later PRs.**

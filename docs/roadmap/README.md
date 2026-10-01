@@ -75,7 +75,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [48](slices/48-production-cutover-gates-and-rollback-automation.md) | Production Cutover Gates and Rollback Automation | Planned |
 | [49](slices/49-secondary-provider-adapter-parity.md) | Secondary Provider Adapter Parity | Planned |
 | [50](slices/50-post-parity-hardening-slo-enforcement-and-governance-closeout.md) | Post-Parity Hardening, SLO Enforcement, and Governance Closeout | Planned |
-| [51](slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md) | Framework Boundary Lock and Pack Taxonomy Reconciliation | Planned |
+| [51](slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md) | Framework Boundary Lock and Pack Taxonomy Reconciliation | Active |
 | [52](slices/52-domain-pack-authoring-contract-v1.md) | Domain Pack Authoring Contract v1 | Planned |
 | [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Planned |
 | [54](slices/54-module-glossary-and-index-contract.md) | Module Glossary and Index Contract | Planned |
