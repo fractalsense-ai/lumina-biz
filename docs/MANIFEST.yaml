@@ -792,10 +792,10 @@ artifacts:
   sha256: 98d72043029e0712c25ef4cb7cbd6560e35247516cab48b284b3cdaaad29588f
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.3.0
+  doc_version: 1.4.0
   status: active
-  last_updated: 2026-08-09
-  sha256: 4ccfb0dbd6a42af9d18d9bb3d9f5c6a6dfee02eefd46dcb3a8b3db0b157ebf2a
+  last_updated: 2026-09-22
+  sha256: 9bfc378b4dde2cded9ec002d7b0ea90627cf2b0cc140a984449467f58c9849d5
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0

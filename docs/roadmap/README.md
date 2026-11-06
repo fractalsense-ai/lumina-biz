@@ -1,4 +1,5 @@
 ---
+title: "Lumina Framework Roadmap"
 version: 1.5.0
 last_updated: 2026-09-24
 ---
