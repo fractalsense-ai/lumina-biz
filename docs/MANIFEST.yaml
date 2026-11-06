@@ -795,7 +795,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-09-22
-  sha256: 9bfc378b4dde2cded9ec002d7b0ea90627cf2b0cc140a984449467f58c9849d5
+  sha256: 245ec8855e0387008b7867efce2890c7b997d33bbfbdb5277dd4884a410739ef
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
@@ -1175,14 +1175,14 @@ artifacts:
   doc_version: 0.2.0
   status: active
   last_updated: 2026-10-01
-  sha256: 170d7c58241120b68788b01d74fc5f486a40989a16c49337e83e5084c9318bce
+  sha256: 3a64cd13bf01565ba14dd0938bcb4bad1f675addea8c43dfd5c6461455bb7d65
 - path: docs/roadmap/slices/52-domain-pack-authoring-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 6d13932cfaea7a4cabd9fed6a55c823014b82d78ec7d0682e5dfd66abde438d1
+  sha256: 655d2762f7647462fc06a868daa029ea64679ec60dab0145dea61b6e41833865
 - path: docs/roadmap/slices/53-module-authoring-contract-v1.md
   type: doc
   section: 0

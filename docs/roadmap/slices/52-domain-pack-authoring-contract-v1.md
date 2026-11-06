@@ -1,9 +1,9 @@
 ---
 title: "Slice 52 - Domain Pack Authoring Contract v1"
 slice: 52
-status: planned
-version: 0.1.0
-last_updated: 2026-09-22
+status: active
+version: 0.2.0
+last_updated: 2026-11-06
 ---
 
 ## Purpose

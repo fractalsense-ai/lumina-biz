@@ -1,142 +1,76 @@
 # PLAN.md — Current Execution Plan
 
-_Last updated: 2026-08-03_
+_Last updated: 2026-11-06_
 
 ## Why This File Changed
 
-The previous content in this file was a historical, slice-specific planning artifact (including Hermes prototype notes) and is no longer the right top-level plan for current delivery.
-
-This file now tracks the active implementation target and handoff details.
+The repo was still pointing at an outdated slice sequence. This plan now reflects the current docs-first execution path: the framework boundary has been locked and the next implementation target is the domain pack authoring contract.
 
 ## Active Target
 
-Slice 37: ERP Identity Authority and Claim Contract
+Slice 52: Domain Pack Authoring Contract v1
 
 Roadmap source:
-- docs/roadmap/slices/37-erp-identity-authority-and-claim-contract.md
-- docs/roadmap/slices/38-erp-jwt-verification-gateway-and-auth-transition.md
+- docs/roadmap/slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md
+- docs/roadmap/slices/52-domain-pack-authoring-contract-v1.md
 
 Current status:
-- Slice 35 and docs decontamination cleanup are complete.
-- Slice 37 is active and defines ERP as SSOT for domain/user identity.
-- Slice 38 is planned and defines runtime verification and endpoint transition.
+- Slice 51 established the framework boundary and the package taxonomy baseline.
+- Slice 52 is the active execution target and defines the mandatory `pack.yaml` contract for future domain packs.
+- The next downstream workstream continues through Slices 53-66 once the pack contract is locked.
 
 ## Objective
 
-Establish ERP as the single source of truth (SSOT) for domain/user identity and membership context, while preserving a Lumina-owned JWT track for system/developer control-plane access (`root`, `super_admin`).
+Define the canonical, schema-backed domain pack authoring contract so every future pack has a consistent identity, governance, routing surface, and compatibility policy before implementation work proceeds.
 
-## Generic ERP Core Guardrail
+## Baseline Rule
 
-Execution must preserve a reusable generic ERP service core where service-like verticals (for example towing and retail-delivery) remain profile/presentation variants over the same canonical workflow and action graph.
-
-Direction lock:
-- Prefer profile-layer and mapping-layer extension before any core workflow divergence.
-- Keep provider-specific behavior isolated in connector mapping adapters or bounded customization hooks.
-- Do not introduce vertical-specific forks in core runtime semantics without an explicit roadmap pivot.
+Execution must preserve the framework boundary established by Slice 51:
+- Base framework core remains exactly `system`, `template`, and `coding-agent`.
+- `business-ops` remains a seed vertical used for validation and later extraction.
+- Future vertical work must extend domain packs and profile/gateway layers without disturbing the base framework boundary.
 
 Roadmap anchor:
-- docs/roadmap/slices/39-generic-erp-service-core-and-vertical-profile-layer.md
+- docs/7-concepts/framework-boundary.md
+- docs/7-concepts/domain-pack-authoring-contract-v1.md
 
 ## Scope
 
-1. Identity authority and claim contract (Slice 37)
-- Define ERP ownership for domain/user identity lifecycle and organization/site assignment truth.
-- Define canonical ERP JWT claim requirements (`iss`, `aud`, `sub`, `exp`, `iat`, `jti`, `role`, `organization_id`, `site_id`).
-- Define role and context claim mapping into Lumina runtime authorization.
+1. Pack taxonomy and contract baseline (Slice 51)
+- Confirm the three-pack framework core.
+- Reconcile the repository taxonomy to distinguish framework packs from provisional vertical packs.
+- Lock shared terminology used by the downstream authoring slices.
 
-2. Verification gateway and transition model (Slice 38)
-- Define verification strategy for ERP-issued JWTs (issuer/audience/signature/time claims).
-- Define key rotation handling (static keys and/or JWKS cache behavior).
-- Define compatibility and deprecation stages for Lumina-issued domain/user tokens.
+2. Domain pack authoring contract (Slice 52)
+- Define required and optional `pack.yaml` fields.
+- State default module, routing, scope, and governance metadata expectations.
+- Define compatibility and versioning semantics for future extraction and portability.
+- Document migration expectations for existing packs such as `model-packs/business-ops/pack.yaml`.
 
-3. System-track preservation
-- Keep Lumina-issued system-track JWTs for control-plane operations.
-- Preserve `/api/admin/auth/*` as the bounded system/developer path.
-
-4. Operational safeguards
-- Define break-glass fallback posture as time-bounded and auditable.
-- Define denial behavior for invalid/missing claims.
+3. Downstream follow-through
+- Continue into Slice 53 (module authoring contract) only after the pack contract is accepted.
+- Keep all implementation work aligned to the docs-first, PR-based workflow.
 
 ## Out of Scope
 
-- Full removal of system-track Lumina JWT in this phase.
-- Full enterprise IdP federation beyond ERP-issued token contract.
-- Immediate hard-cut deletion of all legacy domain/user auth endpoints in Slice 37.
+- Creating new runtime loader behavior in this phase.
+- Provider-specific connector implementation details.
+- Broad module implementation beyond the authoring contracts.
 
 ## Acceptance Criteria
 
-- ERP is explicitly documented as SSOT for domain/user identity and membership context.
-- Canonical claim contract and verification constraints are unambiguous.
-- System-track Lumina JWT path remains explicitly preserved and isolated.
-- Migration/deprecation phases for domain/user token issuance are explicit and reversible.
+- The framework boundary is explicitly documented and stable.
+- `pack.yaml` contract fields are defined with required/optional semantics.
+- Scope and routing defaults are unambiguous for new domain packs.
+- Versioning and compatibility expectations are documented.
 
 ## Test Checklist
 
-- [ ] Contract validation scenarios documented for issuer, audience, required claims, expiry, and invalid signature.
-- [ ] Transition scenarios documented for compatibility window and deprecation behavior.
-- [ ] System-track auth preservation explicitly verified in docs/contracts.
-- [ ] `python -m lumina.systools.verify_repo` passes.
-- [ ] `python -m lumina.systools.manifest_integrity check` passes.
-
-## Implementation-Ready PR Description Template (Slice 37)
-
-### Title
-
-Slice 37: ERP identity authority and canonical claim contract
-
-### PR Scope
-
-- Define ERP as SSOT for domain/user identities.
-- Define canonical JWT claim contract and validation constraints.
-- Preserve Lumina system-track JWT path for control-plane operations.
-
-### Acceptance Criteria
-
-- Claim contract is explicit and internally consistent with RBAC/auth docs.
-- Invalid/missing-claim deny behavior is documented.
-- Dependency boundaries into Slice 38 are explicit.
-
-### Test Checklist
-
-- [ ] Issuer/audience/claim/expiry scenario matrix documented.
-- [ ] Fallback governance behavior documented and bounded.
-- [ ] Repo and manifest integrity checks pass.
-
-### Out of Scope Confirmations
-
-- No middleware rewiring in Slice 37.
-- No removal of system-track auth endpoints.
-
-## Implementation-Ready PR Description Template (Slice 38)
-
-### Title
-
-Slice 38: ERP JWT verification gateway and domain/user auth transition
-
-### PR Scope
-
-- Define runtime verification gateway for ERP-issued JWTs.
-- Define compatibility/deprecation path for Lumina-issued domain/user tokens.
-- Preserve system-track Lumina JWT control-plane behavior.
-
-### Acceptance Criteria
-
-- Verification and key-rotation behavior is deterministic and documented.
-- Transition/rollback path is explicit.
-- System-track preservation is explicit.
-
-### Test Checklist
-
-- [ ] Invalid-token scenario matrix documented.
-- [ ] Rotation/cache and fallback behavior documented.
-- [ ] Compatibility and deprecation stages documented.
-- [ ] Repo and manifest integrity checks pass.
-
-### Out of Scope Confirmations
-
-- No `/api/admin/auth/*` removal in this slice.
-- No non-ERP IdP migration in this slice.
+- [ ] Roadmap and boundary documentation remain consistent with package taxonomy.
+- [ ] `pack.yaml` manifest contract is documented in the concept docs and slice doc.
+- [ ] Repo integrity checks pass.
+- [ ] Manifest/hash integrity checks pass.
 
 ## Notes
 
-If historical plans are needed for audit, they should live in slice docs under `docs/roadmap/slices/` rather than this top-level execution plan.
+Historical plans remain in the slice docs under `docs/roadmap/slices/` instead of this top-level plan. This file is the current execution baseline for the active repository workstream.
