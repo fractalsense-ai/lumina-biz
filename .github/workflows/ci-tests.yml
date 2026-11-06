@@ -7,7 +7,9 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Playwright 1.52/1.58 does not support Ubuntu 26.04 yet, so pin to a
+    # supported runner image for browser installation in CI.
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout

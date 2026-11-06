@@ -1721,7 +1721,7 @@ function App() {
     return window.localStorage.getItem('lumina.consent_given') === 'true'
   })
   const [manifest, setManifest] = useState<UiManifest>(DEFAULT_MANIFEST)
-  const [uiMode, setUiMode] = useState<UiMode>('gear1')
+  const [uiMode, setUiMode] = useState<UiMode>('gear2')
   const [roleLayout, setRoleLayout] = useState<RoleLayout | undefined>(undefined)
   const [domainId, setDomainId] = useState<string | undefined>(undefined)
   const [domainKey, setDomainKey] = useState<string | undefined>(undefined)

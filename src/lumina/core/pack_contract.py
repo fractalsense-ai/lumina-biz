@@ -41,6 +41,62 @@ def _require_list(value: Any, field_name: str) -> list[Any]:
     return value
 
 
+def _validate_optional_pack_fields(manifest: dict[str, Any]) -> None:
+    """Validate optional metadata fields documented in the pack authoring contract."""
+    if "owner" in manifest and manifest["owner"] is not None:
+        owner = manifest["owner"]
+        if not isinstance(owner, str) or not owner.strip():
+            raise ValueError("owner must be a non-empty string when provided")
+
+    if "vertical_type" in manifest and manifest["vertical_type"] is not None:
+        vertical_type = manifest["vertical_type"]
+        allowed = {"framework", "seed_vertical", "business_ops", "domain"}
+        if not isinstance(vertical_type, str) or vertical_type not in allowed:
+            raise ValueError(
+                "vertical_type must be one of: framework, seed_vertical, business_ops, domain"
+            )
+
+    if "scope" in manifest and manifest["scope"] is not None:
+        scope = manifest["scope"]
+        if not isinstance(scope, (str, dict)) or (isinstance(scope, str) and not scope.strip()):
+            raise ValueError("scope must be a non-empty string or mapping when provided")
+
+    if "routing_defaults" in manifest and manifest["routing_defaults"] is not None:
+        routing_defaults = manifest["routing_defaults"]
+        if not isinstance(routing_defaults, dict):
+            raise ValueError("routing_defaults must be a mapping when provided")
+
+    if "module_map" in manifest and manifest["module_map"] is not None:
+        module_map = manifest["module_map"]
+        if not isinstance(module_map, dict):
+            raise ValueError("module_map must be a mapping when provided")
+
+    if "metadata" in manifest and manifest["metadata"] is not None:
+        metadata = manifest["metadata"]
+        if not isinstance(metadata, dict):
+            raise ValueError("metadata must be a mapping when provided")
+
+    if "maintainers" in manifest and manifest["maintainers"] is not None:
+        maintainers = manifest["maintainers"]
+        if not isinstance(maintainers, list) or not all(isinstance(item, str) and item.strip() for item in maintainers):
+            raise ValueError("maintainers must be a list of non-empty strings when provided")
+
+    if "contract_version" in manifest and manifest["contract_version"] is not None:
+        contract_version = manifest["contract_version"]
+        if not isinstance(contract_version, str) or not contract_version.strip():
+            raise ValueError("contract_version must be a non-empty string when provided")
+
+    if "compatibility" in manifest and manifest["compatibility"] is not None:
+        compatibility = manifest["compatibility"]
+        if not isinstance(compatibility, dict):
+            raise ValueError("compatibility must be a mapping when provided")
+
+    if "notes" in manifest and manifest["notes"] is not None:
+        notes = manifest["notes"]
+        if not isinstance(notes, str):
+            raise ValueError("notes must be a string when provided")
+
+
 def validate_pack_manifest(pack_path: str | Path) -> dict[str, Any]:
     """Validate a domain pack manifest against the v1 authoring contract.
 
@@ -95,13 +151,17 @@ def validate_pack_manifest(pack_path: str | Path) -> dict[str, Any]:
     if "runtime_config" not in entry_points:
         raise ValueError("entry_points.runtime_config is required")
 
+    runtime_config_rel = entry_points["runtime_config"]
+    runtime_config_path = path.parent / str(runtime_config_rel)
+    if not str(runtime_config_rel).strip():
+        raise ValueError("entry_points.runtime_config is required")
+    if not runtime_config_path.exists():
+        raise ValueError(f"entry_points.runtime_config does not exist: {runtime_config_rel}")
+
     for field in ("pack_id", "version", "description", "default_module"):
         if field in manifest and manifest[field] is None:
             raise ValueError(f"{field} is required")
 
-    for key in OPTIONAL_PACK_KEYS:
-        if key in manifest and manifest[key] is not None and key in {"modules", "layers", "entry_points"}:
-            # keyed by the validator above; nothing extra to do here.
-            continue
+    _validate_optional_pack_fields(manifest)
 
     return manifest
