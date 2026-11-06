@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-08-09
+last_updated: 2026-11-06
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -316,6 +316,118 @@ artifacts:
   status: planned
   last_updated: 2026-08-08
   sha256: 7a4edc1bc4eeddad8cfd517e0efca3df2e6092c74a43e785c79141e04fb45bd7
+- path: docs/roadmap/slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: cb372af194f96701798975e9eda283e074edbe192189ffee59863ec004578082
+- path: docs/roadmap/slices/52-domain-pack-authoring-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 6d13932cfaea7a4cabd9fed6a55c823014b82d78ec7d0682e5dfd66abde438d1
+- path: docs/roadmap/slices/53-module-authoring-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 21e883e4c878205c58f8047815d9e5325ad89a945607102a06a805514783eb9d
+- path: docs/roadmap/slices/54-module-glossary-and-index-contract.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: f08df01000a65034cc9ee7abc1dab56cfb4d6472f326f2049321d34884601601
+- path: docs/roadmap/slices/55-knowledge-index-rebuild-and-drift-elimination.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 8404ff32f97d4d5beda6e6e181ceb645feb86893e717ae7a9e318e817003076c
+- path: docs/roadmap/slices/56-turn-interpreter-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 4c2aa24481eb5aebecb861e937191663a371193ae4f3db2c510ba016cd8ad3f0
+- path: docs/roadmap/slices/57-deterministic-pre-llm-domain-to-module-routing.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 29e3160bbda8a3d32a19ef291426a6ad89fcb3c60e635202e8e107fee5fbeb91
+- path: docs/roadmap/slices/58-module-command-surface-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 3c0c796ac0f3ae8eb9651465b13393dce3ebfbff3f3e17fd8c29faa5f92fd10d
+- path: docs/roadmap/slices/59-workflow-definition-contract-and-dag-compilation.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: bc468fff7d1d541adbbe7fc68249dc8a7b142e656cc46fe898f3a2570bb81561
+- path: docs/roadmap/slices/60-workflow-state-durability-and-recovery.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 3bc27730027e44c4f928d7c6f5ebbd6751561364fe062e2c4ecf13b931d60d00
+- path: docs/roadmap/slices/61-generic-connector-contract-consolidation.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 58987c0d42802b79dcda21194b7ea45e09be3d35455f5af353196b90733afe59
+- path: docs/roadmap/slices/62-erp-auth-cutover-wiring.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 176b39626540cb8b498224a5f5967b84cb39f84f84becf76a9e3f4e7645513af
+- path: docs/roadmap/slices/63-neutral-reference-vertical-exemplar-pack.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: ce020b0e403f9dfb799f7a045daa36f5a485c2fb37ce626ff92f53c93e4e4fd2
+- path: docs/roadmap/slices/64-multi-site-and-cross-location-aggregation-contract.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 9d1914b5a5b1e2e6d3467465d4997c4772173dc0e73659c9976d9a06c3244f76
+- path: docs/roadmap/slices/65-pack-extraction-tooling-and-vertical-repository-template.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 890017ed9febcfcb726cf582daa3553852da84fe90d2cbd407f1017191dac768
+- path: docs/roadmap/slices/66-authoring-guides-and-extraction-readiness-closeout.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-22
+  sha256: 33f5aa42a75d97cceacb4f59355d9045a05c9b89226a952e93e8963c0f5781e0
 - path: docs/1-commands/README.md
   type: doc
   section: 1
@@ -1877,10 +1989,10 @@ artifacts:
   sha256: e16c0e65fe3537678a6b8393065104bafa128972bf7bd7dc954ec977320caab2
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.3.0
+  doc_version: 1.4.0
   status: active
-  last_updated: 2026-08-09
-  sha256: 375212977559a2f83d429cf4ec8162318383f40e7d0282f8f6ab2c414ae5e3b9
+  last_updated: 2026-09-22
+  sha256: 4b0de378c590f1212c8a7d07f8c710a2a6b22da80a13af463e490800b6920298
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
@@ -2014,4 +2126,3 @@ artifacts:
   status: active
   last_updated: 2026-07-30
   sha256: 14d002b81d0d14c1a3bad428ec121b21ce14a98a9c820236eb3225fb516f1d5c
-
