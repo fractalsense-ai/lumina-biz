@@ -1,6 +1,6 @@
 # Model-Packs — Lumina Framework
 
-Model-packs are authored system models loaded by the Lumina Framework. They are the "mods" layer: the same engine underneath, a different modeled system on top. This directory contains the framework packs plus the active business-ops domain pack.
+Model-packs are authored system models loaded by the Lumina Framework. They are the "mods" layer: the same engine underneath, a different modeled system on top. This directory contains the required framework packs plus the active `business-ops` seed vertical pack used to validate the architecture before extraction.
 
 ---
 
@@ -21,7 +21,7 @@ inherits them unchanged.
 | Template Model Pack | `model-packs/template/` | Canonical scaffold shapes used by System Pack routing and the Coding Agent | Required |
 | Coding Agent Model Pack | `model-packs/coding-agent/` | Bounded artifact factory — receives scoped jobs from System Pack, produces build artefacts | Active |
 
-### Reference / Provisional Packs
+### Seed Vertical / Provisional Packs
 
 These packs were built to think through the flow of information, adapter
 patterns, domain-physics structure, and world-sim conventions. They are **not
@@ -31,7 +31,7 @@ base framework boundary is stable.
 
 | Pack | Directory | Purpose |
 |------|-----------|---------|
-| Business Ops | `model-packs/business-ops/` | Active domain — deterministic operations workflows and replay evidence capture |
+| Business Ops | `model-packs/business-ops/` | Seed vertical used to validate deterministic operations workflows and replay evidence capture before extraction |
 
 > **Status note:** Legacy R&D vertical packs were split out of this repository.
 > This repo keeps framework packs and the active business-ops domain pack.
@@ -65,6 +65,21 @@ right object and method; deterministic code handles dispatch and guards;
 neural execution happens inside the selected module context.
 
 See [`../docs/7-concepts/lumina-framework-ontology.md`](../docs/7-concepts/lumina-framework-ontology.md) for the engine/model-pack/module vocabulary and [`../docs/7-concepts/domain-profile-spec.md`](../docs/7-concepts/domain-profile-spec.md) for the full authoring specification.
+
+---
+
+## Pack authoring contract (v1)
+
+Every domain pack must declare a canonical `pack.yaml` manifest. The manifest is
+not just documentation; it is the framework contract used to identify the pack,
+register its default module, and validate the pack's routing surface before
+sessions start.
+
+The normative contract is defined in
+[`../docs/7-concepts/domain-pack-authoring-contract-v1.md`](../docs/7-concepts/domain-pack-authoring-contract-v1.md).
+It covers the required manifest keys, the optional metadata keys, and the
+versioning / compatibility policy. The live validation helper is
+`lumina.core.pack_contract.validate_pack_manifest()`.
 
 ---
 

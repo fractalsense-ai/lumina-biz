@@ -24,6 +24,7 @@ import {
   type SessionSummary,
 } from '@/services/transcriptStore'
 import { parseSlashCommand, generateHelpText } from '@/services/slashCommands'
+import { getModeLabel, shouldUseDeterministicMode, type UiMode } from '@/services/uiMode'
 import { fireChatHooks, registerPlugin } from '@/plugins/PluginRegistry'
 
 interface Message {
@@ -662,6 +663,8 @@ function AppHeader({
   onToggleSidebar,
   sessionPanelOpen,
   onToggleSessionPanel,
+  uiMode,
+  onUiModeChange,
 }: {
   manifest: UiManifest
   auth: AuthState
@@ -678,6 +681,8 @@ function AppHeader({
   onToggleSidebar?: () => void
   sessionPanelOpen?: boolean
   onToggleSessionPanel?: () => void
+  uiMode: UiMode
+  onUiModeChange: (mode: UiMode) => void
 }) {
   return (
     <header className="border-b border-border bg-card px-6 py-4">
@@ -722,6 +727,16 @@ function AppHeader({
               <SidebarSimple size={18} />
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onUiModeChange(uiMode === 'gear1' ? 'gear2' : 'gear1')}
+            title={`Switch between deterministic mode and assistant mode`}
+            className="text-muted-foreground hover:text-foreground flex items-center gap-1.5"
+          >
+            <Gauge size={18} />
+            <span className="hidden sm:inline text-sm">{getModeLabel(uiMode)}</span>
+          </Button>
           {showDashboard && (
             <Button
               variant="ghost"
@@ -792,6 +807,8 @@ function ChatInterface({
   roleLayout,
   domainId,
   domainKey,
+  uiMode,
+  onUiModeChange,
 }: {
   manifest: UiManifest
   onManifestChange: (updater: UiManifest | ((prev: UiManifest) => UiManifest)) => void
@@ -807,6 +824,8 @@ function ChatInterface({
   roleLayout?: RoleLayout
   domainId?: string
   domainKey?: string
+  uiMode: UiMode
+  onUiModeChange: (mode: UiMode) => void
 }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -1056,6 +1075,19 @@ function ChatInterface({
       role: 'user',
       content: trimmedInput,
       id: `user-${Date.now()}`,
+    }
+
+    if (shouldUseDeterministicMode(uiMode, trimmedInput) && !trimmedInput.startsWith('/')) {
+      const deterministicResponse: Message = {
+        role: 'assistant',
+        content: `${getModeLabel(uiMode)} is deterministic mode. Use a slash command such as /help or /modules, or switch to Gear 2 for the full assistant flow.`,
+        id: `assistant-${Date.now()}`,
+        meta: { action: 'deterministic_mode', promptType: 'mode_gate' },
+      }
+      setMessages((prev) => [...prev, userMessage, deterministicResponse])
+      setInputValue('')
+      setIsLoading(false)
+      return
     }
 
     setMessages((prev) => [...prev, userMessage])
@@ -1495,6 +1527,8 @@ function ChatInterface({
         onToggleSidebar={() => setSidebarOpen((v) => !v)}
         sessionPanelOpen={sessionPanelOpen}
         onToggleSessionPanel={() => setSessionPanelOpen((v) => !v)}
+        uiMode={uiMode}
+        onUiModeChange={onUiModeChange}
       />
 
       <div className="flex-1 flex overflow-hidden">
@@ -1687,6 +1721,7 @@ function App() {
     return window.localStorage.getItem('lumina.consent_given') === 'true'
   })
   const [manifest, setManifest] = useState<UiManifest>(DEFAULT_MANIFEST)
+  const [uiMode, setUiMode] = useState<UiMode>('gear1')
   const [roleLayout, setRoleLayout] = useState<RoleLayout | undefined>(undefined)
   const [domainId, setDomainId] = useState<string | undefined>(undefined)
   const [domainKey, setDomainKey] = useState<string | undefined>(undefined)
@@ -1806,6 +1841,8 @@ function App() {
             onViewChange={setView}
             unreadCount={unreadCount}
             onClearUnread={clearUnread}
+            uiMode={uiMode}
+            onUiModeChange={setUiMode}
           />
           <DashboardPage auth={auth} manifest={manifest} />
         </div>
@@ -1826,6 +1863,8 @@ function App() {
           roleLayout={roleLayout}
           domainId={domainId}
           domainKey={domainKey}
+          uiMode={uiMode}
+          onUiModeChange={setUiMode}
         />
       </div>
     </>

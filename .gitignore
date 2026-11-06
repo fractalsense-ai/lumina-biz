@@ -22,6 +22,7 @@ dist/
 /tmp/
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 coverage.xml
 
@@ -33,6 +34,7 @@ coverage.xml
 .vscode/
 hermesport/
 .gemini/
+.github/
 
 # Frontend (src/web/)
 src/web/node_modules/

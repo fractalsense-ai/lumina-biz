@@ -1,9 +1,9 @@
 ---
 title: "Slice 51 - Framework Boundary Lock and Pack Taxonomy Reconciliation"
 slice: 51
-status: planned
-version: 0.1.0
-last_updated: 2026-09-22
+status: active
+version: 0.2.0
+last_updated: 2026-10-01
 ---
 
 ## Purpose

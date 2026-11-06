@@ -16,6 +16,7 @@ import threading
 from pathlib import Path
 from typing import Any, Callable
 
+from lumina.core.pack_contract import validate_pack_manifest
 from lumina.core.yaml_loader import load_yaml
 
 log = logging.getLogger("lumina-api.domain-registry")
@@ -337,7 +338,7 @@ class DomainRegistry:
             return None
 
         try:
-            pack_data = load_yaml(str(pack_path))
+            pack_data = validate_pack_manifest(pack_path)
             default_module_name = pack_data.get("default_module")
             if not default_module_name:
                 return None
