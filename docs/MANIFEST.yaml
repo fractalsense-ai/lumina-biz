@@ -1992,7 +1992,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-09-22
-  sha256: 4b0de378c590f1212c8a7d07f8c710a2a6b22da80a13af463e490800b6920298
+  sha256: 138628ab57b73e01554685accc1b6ec2ec425562b9dc0414a0c4609d512a845e
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
@@ -2126,3 +2126,45 @@ artifacts:
   status: active
   last_updated: 2026-07-30
   sha256: 14d002b81d0d14c1a3bad428ec121b21ce14a98a9c820236eb3225fb516f1d5c
+- path: docs/roadmap/slices/67-site-profile-and-capability-declaration-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-24
+  sha256: d058d779d74677cb4b65d45cd549de900491931a494775c0a8c0f388a7d3d592
+- path: docs/roadmap/slices/68-capability-gated-workflow-and-task-eligibility-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-24
+  sha256: 70bb37b5fe6d6148ab2f08a126d346aa51ff4b2b930b44cc5650115274d246fd
+- path: docs/roadmap/slices/69-role-catalog-assignment-and-notification-routing-contract-v1.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-24
+  sha256: 9e01eb6311f32d26a86a82dd5fe3f114066a7beeb1157ca6d69899c0a910b646
+- path: docs/roadmap/slices/70-site-variance-and-role-aware-reference-scenarios.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-24
+  sha256: 3b688db243b903d7cced6b6f021d9bd0ce7c2cfcc2f724bb8b266cb06005d4a3
+- path: docs/roadmap/slices/71-operational-overrides-profile-versioning-and-change-governance.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-24
+  sha256: 30308880a866083397579f18d3bd7b9cc376b7d1ac91f2d6a921492952d63d30
+- path: docs/roadmap/slices/72-vertical-extraction-and-configuration-portability-gate.md
+  type: doc
+  section: 0
+  doc_version: 0.1.0
+  status: planned
+  last_updated: 2026-09-24
+  sha256: bf4ec9eaee3ba0d91b5da32a70312b38f12a6257ad889f887f3cb97a7cf74113
