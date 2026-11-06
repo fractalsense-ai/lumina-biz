@@ -1,3 +1,5 @@
+---
+title: "Lumina Framework Roadmap"
 version: 1.5.0
 last_updated: 2026-09-24
 ---
@@ -191,6 +193,16 @@ Program phases:
 - **Phase C — Extraction readiness:** Slices 65-66.
 - **Phase D — Declarative site variance and portability proof:** Slices 67-72.
 
+Program backbone:
+
+- [Phase A hardening contracts: 51-62]
+           |
+- [Phase B reference vertical: 63-64]
+           |
+- [Phase C extraction readiness: 65-66]
+           |
+- [Phase D site variance and portability: 67-72]
+
 Critical invariant:
 
 - Site variance, role assignment, workflow/task eligibility, and notification
@@ -213,6 +225,8 @@ Dependency chain:
 - 59 -> 68
 - 67 -> 68
 - 67 -> 69
+- 63 -> 70
+- 64 -> 70
 - 68 -> 70
 - 69 -> 70
 - 67 -> 71
@@ -220,6 +234,8 @@ Dependency chain:
 - 69 -> 71
 - 70 -> 72
 - 71 -> 72
+- 65 -> 72
+- 66 -> 72
 
 Slice 41 relation:
 

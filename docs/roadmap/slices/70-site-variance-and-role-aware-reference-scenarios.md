@@ -24,6 +24,8 @@ assignments, and notification-routing outcomes.
 
 ### Upstream Dependencies
 
+- Slice 63 neutral reference vertical exemplar pack.
+- Slice 64 multi-site and cross-location aggregation contract.
 - Slice 68 capability-gated workflow and task eligibility contract.
 - Slice 69 role catalog, assignment, and notification routing contract.
 
