@@ -394,7 +394,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-09-22
-  sha256: 418fb77dfbe045c166437159bc3b2ff7d2c1f36b6be20ed5f08f3b1ee3f22e4f
+  sha256: f6014e9198efb60499373e85215848ea926285fcc02a953d2a48efa64c46df9a
 - path: docs/7-concepts/domain-profile-spec.md
   type: spec
   doc_version: 1.0.0
@@ -1175,154 +1175,154 @@ artifacts:
   doc_version: 0.2.0
   status: active
   last_updated: 2026-10-01
-  sha256: 54734e3a6099e1f36cf3a9ac74ab4ce454895d39c0802f3473f694751ab0bc7f
+  sha256: 170d7c58241120b68788b01d74fc5f486a40989a16c49337e83e5084c9318bce
 - path: docs/roadmap/slices/52-domain-pack-authoring-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 118f8b769957e2d25413f79556bfbc2a72c4f2af2da187ed85045cd6b1a11bdf
+  sha256: 6d13932cfaea7a4cabd9fed6a55c823014b82d78ec7d0682e5dfd66abde438d1
 - path: docs/roadmap/slices/53-module-authoring-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 492cee3559c88ea8402456a82936f405f3e223d9fc827e2296a8660c132eb337
+  sha256: 21e883e4c878205c58f8047815d9e5325ad89a945607102a06a805514783eb9d
 - path: docs/roadmap/slices/54-module-glossary-and-index-contract.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 436fe3a507fc5b032a28803e88cf0ae9d130b9850f220491a76bd81e4e48f6ca
+  sha256: f08df01000a65034cc9ee7abc1dab56cfb4d6472f326f2049321d34884601601
 - path: docs/roadmap/slices/55-knowledge-index-rebuild-and-drift-elimination.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 8254699b6e9d1b4b36297e6c0a50fc462391c1d095455eed5e03dd101d2c5746
+  sha256: 8404ff32f97d4d5beda6e6e181ceb645feb86893e717ae7a9e318e817003076c
 - path: docs/roadmap/slices/56-turn-interpreter-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 6aaeeff255367f8ac7902e0886694a5d5dbca5b3699010e48425ef6ab70de448
+  sha256: 4c2aa24481eb5aebecb861e937191663a371193ae4f3db2c510ba016cd8ad3f0
 - path: docs/roadmap/slices/57-deterministic-pre-llm-domain-to-module-routing.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: c4b37562aa12fbe56116ee08ef473ae267c16385a83438df31b059390cfbf83e
+  sha256: 29e3160bbda8a3d32a19ef291426a6ad89fcb3c60e635202e8e107fee5fbeb91
 - path: docs/roadmap/slices/58-module-command-surface-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: fc3e4dc9f8b78610978d543278c191f661fc2971c9b516bb41d1ebd13c675afc
+  sha256: 3c0c796ac0f3ae8eb9651465b13393dce3ebfbff3f3e17fd8c29faa5f92fd10d
 - path: docs/roadmap/slices/59-workflow-definition-contract-and-dag-compilation.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 363d001c97a173124239b03ddb7f8ed47b0e6257031999af9c2399d72941f867
+  sha256: bc468fff7d1d541adbbe7fc68249dc8a7b142e656cc46fe898f3a2570bb81561
 - path: docs/roadmap/slices/60-workflow-state-durability-and-recovery.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 9daa4adaab68e86ab7d9c691f7b6df5e8aeb5cd12f5fce959e38f675563651e7
+  sha256: 3bc27730027e44c4f928d7c6f5ebbd6751561364fe062e2c4ecf13b931d60d00
 - path: docs/roadmap/slices/61-generic-connector-contract-consolidation.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: d741dd4d52bebf1ec955a01b7b47ebf67a6bd867208ba3ce0e37ba80881e8ce3
+  sha256: 58987c0d42802b79dcda21194b7ea45e09be3d35455f5af353196b90733afe59
 - path: docs/roadmap/slices/62-erp-auth-cutover-wiring.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 3259be5dfd0abd04c9652358dd8a52e24eb9cbad397529a6ec0420dcf3c4563a
+  sha256: 176b39626540cb8b498224a5f5967b84cb39f84f84becf76a9e3f4e7645513af
 - path: docs/roadmap/slices/63-neutral-reference-vertical-exemplar-pack.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 395ec65e526901c6f8af5864f4fed182e015277ecf67dcb72c33c63b626f15d8
+  sha256: ce020b0e403f9dfb799f7a045daa36f5a485c2fb37ce626ff92f53c93e4e4fd2
 - path: docs/roadmap/slices/64-multi-site-and-cross-location-aggregation-contract.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: aaa8a22d1a6ec724b9141347e575d85d69eedf2a3d6b2240ea464f344404fbb1
+  sha256: 9d1914b5a5b1e2e6d3467465d4997c4772173dc0e73659c9976d9a06c3244f76
 - path: docs/roadmap/slices/65-pack-extraction-tooling-and-vertical-repository-template.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: dd0b65b31b5fbc731b6f4862e8762fded6c491d2bc259fba6725247d7eb954d9
+  sha256: 890017ed9febcfcb726cf582daa3553852da84fe90d2cbd407f1017191dac768
 - path: docs/roadmap/slices/66-authoring-guides-and-extraction-readiness-closeout.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: c10440cd6d09cce98a816944e8a979140bf831a1df6635b33416b3f22f958cb9
+  sha256: 33f5aa42a75d97cceacb4f59355d9045a05c9b89226a952e93e8963c0f5781e0
 - path: docs/roadmap/slices/67-site-profile-and-capability-declaration-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-24
-  sha256: 2f13e234d305fa28969cd5bf5ef4e12eefe1a6b5ccd19a02f6ffd5c89da62b68
+  sha256: d058d779d74677cb4b65d45cd549de900491931a494775c0a8c0f388a7d3d592
 - path: docs/roadmap/slices/68-capability-gated-workflow-and-task-eligibility-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-24
-  sha256: 7ff4304536327f3a916f4fd452f2294353028e5491312e1f3f01352b1c4c78c3
+  sha256: 70bb37b5fe6d6148ab2f08a126d346aa51ff4b2b930b44cc5650115274d246fd
 - path: docs/roadmap/slices/69-role-catalog-assignment-and-notification-routing-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-24
-  sha256: dce1fde78492c76ceecbe22d967adb0450a006a8f59b64faee25e4eb92269f62
+  sha256: 9e01eb6311f32d26a86a82dd5fe3f114066a7beeb1157ca6d69899c0a910b646
 - path: docs/roadmap/slices/70-site-variance-and-role-aware-reference-scenarios.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-24
-  sha256: 6b0eef74bde9f7fc71dbabb68f69fc4d7b5143d7659ebe2be0819f2932f221f8
+  sha256: 0694ec2b758be1360b73f3ffe4122a13e34b21f562ad72a7c3ad8305a699d100
 - path: docs/roadmap/slices/71-operational-overrides-profile-versioning-and-change-governance.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-24
-  sha256: 7aba8c0ec8f3aef95a62eb30143ec28a512bf0f4ad3ba17cd7b7cb8da94d5d2a
+  sha256: 30308880a866083397579f18d3bd7b9cc376b7d1ac91f2d6a921492952d63d30
 - path: docs/roadmap/slices/72-vertical-extraction-and-configuration-portability-gate.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-24
-  sha256: 7c281c2ac836a2e084df1b0169479d39d6fd0ea906b2b47eec35cd9f3002affb
+  sha256: a17abdf18e92e97e60acb56e4868587cb328957769c0feea4b427443b80496b2
 - path: examples/escalation-example-packet.yaml
   type: doc
   doc_version: 1.0.0
