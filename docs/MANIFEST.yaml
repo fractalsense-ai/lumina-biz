@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-09-22
+last_updated: 2026-11-06
 artifacts:
 - path: docs/5-standards/manifest-regen-policy.md
   type: doc
@@ -329,14 +329,14 @@ artifacts:
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 4b08459c00ac9b85a31889f6472e44ad7cb12a80d63945190910e4ca8bbf032b
+  sha256: 6d13932cfaea7a4cabd9fed6a55c823014b82d78ec7d0682e5dfd66abde438d1
 - path: docs/roadmap/slices/53-module-authoring-contract-v1.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 4986c33119cd5e49fc17c88b7588f98e8fdeb7a19c61d6ed5d69f7c749228b95
+  sha256: 21e883e4c878205c58f8047815d9e5325ad89a945607102a06a805514783eb9d
 - path: docs/roadmap/slices/54-module-glossary-and-index-contract.md
   type: doc
   section: 0
@@ -378,14 +378,14 @@ artifacts:
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 2b478e1217187efd6dd41d1108f028ab506145e36e56f3ca34ecb2e7e8fc8158
+  sha256: bc468fff7d1d541adbbe7fc68249dc8a7b142e656cc46fe898f3a2570bb81561
 - path: docs/roadmap/slices/60-workflow-state-durability-and-recovery.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: dd288b8d0565d21f8acc166f629a7a8754e1725d42d80eb87b62c6a5da425f6e
+  sha256: 3bc27730027e44c4f928d7c6f5ebbd6751561364fe062e2c4ecf13b931d60d00
 - path: docs/roadmap/slices/61-generic-connector-contract-consolidation.md
   type: doc
   section: 0
@@ -406,28 +406,28 @@ artifacts:
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: c06407d3b4858911301df6c37cf4726cbe90286ae69c3f4b22559029318386cd
+  sha256: ce020b0e403f9dfb799f7a045daa36f5a485c2fb37ce626ff92f53c93e4e4fd2
 - path: docs/roadmap/slices/64-multi-site-and-cross-location-aggregation-contract.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 90f2475ae319d8a9235dc110035373f40a6cc201de7ef98bf9fc4e5804f51aa4
+  sha256: 9d1914b5a5b1e2e6d3467465d4997c4772173dc0e73659c9976d9a06c3244f76
 - path: docs/roadmap/slices/65-pack-extraction-tooling-and-vertical-repository-template.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: 8ae0795c50ccd5371d11e378cac50941b4570d9a8bf12122a50c14dfe432fd2e
+  sha256: 890017ed9febcfcb726cf582daa3553852da84fe90d2cbd407f1017191dac768
 - path: docs/roadmap/slices/66-authoring-guides-and-extraction-readiness-closeout.md
   type: doc
   section: 0
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-09-22
-  sha256: bccdd189f0f58b0d33ca176a186780d73f8344a14e72586a1defe591330ba3f9
+  sha256: 33f5aa42a75d97cceacb4f59355d9045a05c9b89226a952e93e8963c0f5781e0
 - path: docs/1-commands/README.md
   type: doc
   section: 1
@@ -1992,7 +1992,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-09-22
-  sha256: c3eefd756297ab7c227ec90b6a6f822ba423d785b77eb2c57d98bc92dc7319cf
+  sha256: 4b0de378c590f1212c8a7d07f8c710a2a6b22da80a13af463e490800b6920298
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0

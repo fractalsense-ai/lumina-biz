@@ -68,4 +68,4 @@ Define the tooling and procedure for extracting a domain pack into a standalone 
 ## Follow-Up Slices
 
 - Slice 66.
-
+- Slice 72.

@@ -67,4 +67,4 @@ Define durable workflow state and recovery requirements to replace or supersede 
 ## Follow-Up Slices
 
 - Slice 63.
-
+- Slice 71.

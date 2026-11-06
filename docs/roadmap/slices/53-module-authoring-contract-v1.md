@@ -67,7 +67,7 @@ Define the required/optional artifact contract for modules so each module is ind
 ## Follow-Up Slices
 
 - Slice 54.
+- Slice 67.
 - Slice 56.
 - Slice 58.
 - Slice 59.
-

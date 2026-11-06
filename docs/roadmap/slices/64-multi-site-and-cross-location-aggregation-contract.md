@@ -68,4 +68,5 @@ Define organization/site isolation, cross-site authorization, aggregation, and r
 ## Follow-Up Slices
 
 - Slice 65.
-
+- Slice 70.
+- Slice 72.

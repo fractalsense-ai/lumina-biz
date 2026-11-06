@@ -68,5 +68,5 @@ Define a versioned, schema-backed domain pack contract so all future vertical pa
 ## Follow-Up Slices
 
 - Slice 53.
+- Slice 67.
 - Slice 61.
-
