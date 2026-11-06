@@ -68,6 +68,21 @@ See [`../docs/7-concepts/lumina-framework-ontology.md`](../docs/7-concepts/lumin
 
 ---
 
+## Pack authoring contract (v1)
+
+Every domain pack must declare a canonical `pack.yaml` manifest. The manifest is
+not just documentation; it is the framework contract used to identify the pack,
+register its default module, and validate the pack's routing surface before
+sessions start.
+
+The normative contract is defined in
+[`../docs/7-concepts/domain-pack-authoring-contract-v1.md`](../docs/7-concepts/domain-pack-authoring-contract-v1.md).
+It covers the required manifest keys, the optional metadata keys, and the
+versioning / compatibility policy. The live validation helper is
+`lumina.core.pack_contract.validate_pack_manifest()`.
+
+---
+
 ## Directory Structure
 
 ```
