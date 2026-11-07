@@ -5,7 +5,7 @@ last_updated: 2026-11-06
 
 # Module Authoring Contract v1
 
-**Status:** Active  
+**Status:** Active
 **Applies to:** every `model-packs/<domain>/modules/<module>/` artifact set
 
 This document defines the normative contract for a module in Lumina. A module is not a standalone pack; it is the bounded execution unit that sits beneath a domain pack and owns one coherent unit of domain behavior.
