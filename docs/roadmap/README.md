@@ -78,8 +78,8 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [49](slices/49-secondary-provider-adapter-parity.md) | Secondary Provider Adapter Parity | Planned |
 | [50](slices/50-post-parity-hardening-slo-enforcement-and-governance-closeout.md) | Post-Parity Hardening, SLO Enforcement, and Governance Closeout | Planned |
 | [51](slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md) | Framework Boundary Lock and Pack Taxonomy Reconciliation | Delivered |
-| [52](slices/52-domain-pack-authoring-contract-v1.md) | Domain Pack Authoring Contract v1 | Active |
-| [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Planned |
+| [52](slices/52-domain-pack-authoring-contract-v1.md) | Domain Pack Authoring Contract v1 | Delivered |
+| [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Active |
 | [54](slices/54-module-glossary-and-index-contract.md) | Module Glossary and Index Contract | Planned |
 | [55](slices/55-knowledge-index-rebuild-and-drift-elimination.md) | Knowledge Index Rebuild and Drift Elimination | Planned |
 | [56](slices/56-turn-interpreter-contract-v1.md) | Turn Interpreter Contract v1 | Planned |
