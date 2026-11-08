@@ -1,13 +1,13 @@
 ---
-version: 1.5.0
-last_updated: 2026-07-19
+version: 1.6.0
+last_updated: 2026-11-08
 ---
 
 # Section 7 — Concepts
 
-**Version:** 1.5.0
+**Version:** 1.6.0
 **Status:** Active
-**Last updated:** 2026-07-19
+**Last updated:** 2026-11-08
 
 ---
 
@@ -21,6 +21,7 @@ This section is Lumina's architectural rationale layer. It explains *why* scoped
 - [`domain-pack-anatomy(7)`](domain-pack-anatomy.md) — model-pack structure and isolation boundaries
 - [`domain-pack-authoring-contract-v1(7)`](domain-pack-authoring-contract-v1.md) — pack manifest and routing contract for new domains
 - [`module-authoring-contract-v1(7)`](module-authoring-contract-v1.md) — module-level artifact and default-state contract beneath the pack boundary
+- [`business-repository-topology(7)`](business-repository-topology.md) — ownership and release boundaries from the business core to vertical and customer repositories
 - [`edge-vectorization(7)`](edge-vectorization.md) — per-domain retrieval isolation and scoped context delivery
 - [`institutional-vector-memory(7)`](institutional-vector-memory.md) — scoped, transcript-free operational recall
 
@@ -35,6 +36,7 @@ This section is Lumina's architectural rationale layer. It explains *why* scoped
   - [`domain-pack-anatomy.md`](domain-pack-anatomy.md)
   - [`domain-pack-authoring-contract-v1.md`](domain-pack-authoring-contract-v1.md)
   - [`module-authoring-contract-v1.md`](module-authoring-contract-v1.md)
+  - [`business-repository-topology.md`](business-repository-topology.md)
   - [`domain-adapter-pattern.md`](domain-adapter-pattern.md)
   - [`prompt-packet-assembly.md`](prompt-packet-assembly.md)
 

@@ -1,78 +1,46 @@
-# PLAN.md — Current Execution Plan
+# PLAN.md - Active Execution Plan
 
-_Last updated: 2026-11-06_
+_Last updated: 2026-11-08_
 
-## Why This File Changed
+## Product and Repository Boundary
 
-The repo was still pointing at an outdated slice sequence. This plan now reflects the current docs-first execution path: the framework boundary has been locked and the next implementation target is the domain pack authoring contract.
+- `lumina-framework` is the generic orchestration and governance engine.
+- `lumina-biz` is the reusable core for Lumina's business product line. It owns shared business capabilities, not every industry implementation.
+- `lumina-restaurants`, `lumina-autorepair`, and `lumina-cstore` are distinct vertical repositories derived from tagged `lumina-biz` releases.
+- Private customer solution repositories are downstream of a vertical release and hold customer configuration, deployment overlays, and approved extensions.
 
-## Active Target
+The detailed ownership, upstream, release, and data boundaries are defined in [business-repository-topology.md](docs/7-concepts/business-repository-topology.md).
 
-Slice 53: Module Authoring Contract v1
+## Current Status
 
-Roadmap source:
-- docs/roadmap/slices/52-domain-pack-authoring-contract-v1.md
-- docs/roadmap/slices/53-module-authoring-contract-v1.md
+- Slice 53 is merged and delivered by PR #55.
+- The tracked `main` roadmap previously ended at Slice 72; the active 73-81 program is being reconciled into the tracked repository.
+- Slices 54-72 are preserved as prior planning backlog, but are not the active execution sequence until explicitly reconciled with the business-core direction.
+- Slices 73-81 define the immediate documentation contracts. They do not constitute runtime implementation.
+- Runtime outcomes, owning repositories, prerequisites, and verification gates are tracked in [runtime-implementation-program.md](docs/roadmap/runtime-implementation-program.md).
 
-Current status:
-- Slice 51 established the framework boundary and the package taxonomy baseline.
-- Slice 52 is delivered and locks the domain-pack authoring contract for future vertical packs.
-- Slice 53 is now the active execution target and defines the module artifact contract that sits beneath the domain pack layer.
-- The downstream workstream continues through Slices 54-66 once the module contract is locked.
+## Documentation Delivery
 
-## Objective
+Keep documentation work in a few dependency-oriented PRs, and explicitly list every included slice:
 
-Define the canonical, schema-backed module authoring contract so each module is independently authored, reviewed, and reused across domain packs without drifting from the framework shape.
+1. Slices 73-76: business-core boundary, deterministic operator UI, assistant boundary, and shared business capabilities.
+2. Slices 77-79: restaurant repository, invoice intake, and unit/recipe contracts.
+3. Slices 80-81: compute cascade and edge deployment contracts.
 
-## Baseline Rule
+The three groups may be reviewed in fewer PRs when the shared boundary changes require it. Each PR must list its included slices, acceptance criteria, checks run, deferred runtime work, and final roadmap status update. Manifest entries and hashes are mandatory for new or changed documentation.
 
-Execution must preserve the framework boundary and pack contract established by Slices 51 and 52:
-- Base framework core remains exactly `system`, `template`, and `coding-agent`.
-- `business-ops` remains a seed vertical used for validation and later extraction.
-- Domain packs remain the top-level packaging boundary; modules live beneath them and must follow a consistent artifact structure.
+## Runtime Execution
 
-Roadmap anchor:
-- docs/7-concepts/framework-boundary.md
-- docs/7-concepts/domain-pack-authoring-contract-v1.md
-- docs/7-concepts/module-authoring-contract-v1.md
+RI-00, the runtime baseline audit, is the first runtime-program task. It must identify what already works in `lumina-biz`, what is partial, and what is missing before implementation estimates are committed.
 
-## Scope
+After the audit, implement each workstream in its owning repository. A runtime stream may begin when its direct contract prerequisites are accepted; it does not wait for unrelated vertical documentation. Shared behavior stays in `lumina-biz`, industry behavior stays in the vertical repo, and customer behavior stays in a private customer solution layer unless an approved extension point is insufficient.
 
-1. Domain pack lock baseline (Slices 51-52)
-- Confirm the three-pack framework core.
-- Keep the repository taxonomy aligned to the framework and pack boundary.
-- Preserve the domain-pack authoring contract as the authoritative pack metadata layer.
+See [Runtime Implementation Program](docs/roadmap/runtime-implementation-program.md) for RI-00 through RI-12, dependencies, and per-PR gates.
 
-2. Module authoring contract (Slice 53)
-- Define required and optional module artifacts.
-- State naming/path conventions and ownership metadata expectations.
-- Define compatibility and migration expectations for future module extraction and reuse.
-- Document how modules fit beneath a domain pack without violating the framework boundary.
+## Governance Gates
 
-3. Downstream follow-through
-- Continue into Slice 54 (module glossary/index contract) once the module contract is accepted.
-- Keep all implementation work aligned to the docs-first, PR-based workflow.
-
-## Out of Scope
-
-- Building new modules or workflows in this phase.
-- Runtime execution-engine behavior changes.
-- Broad provider-specific implementation beyond the contract layer.
-
-## Acceptance Criteria
-
-- The framework boundary remains explicitly documented and stable.
-- Module artifact contract fields are defined with required/optional semantics.
-- Naming, path, and ownership conventions are unambiguous for module authoring.
-- Compatibility and migration expectations are documented for future module reuse.
-
-## Test Checklist
-
-- [ ] Roadmap and boundary documentation remain consistent with the pack and module taxonomy.
-- [ ] Module contract is documented in the concept docs and slice doc.
-- [ ] Repo integrity checks pass.
-- [ ] Manifest/hash integrity checks pass.
-
-## Notes
-
-Historical plans remain in the slice docs under `docs/roadmap/slices/` instead of this top-level plan. This file is the current execution baseline for the active repository workstream.
+- No customer production data, credentials, or raw conversation logs in source control.
+- A vertical pins and tests a supported `lumina-biz` release; customer solutions pin a supported vertical release.
+- Mutations preserve system-of-record authority, Tool Token permissions, audit evidence, and human approval requirements.
+- Every runtime change is tied to a tracked slice/workstream and PR in the repository that owns the behavior.
+- Documentation changes pass repo verification and manifest integrity checks before merge.

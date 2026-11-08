@@ -34,6 +34,12 @@ The core engine is **fully model-pack-agnostic**. All system-specific behavior â
 
 Think of Lumina as the engine and model-packs as the mods: the same runtime underneath, a different modeled system on top.
 
+## Role of This Repository
+
+This repository is `lumina-biz`, the shared business core built on the generic `lumina-framework` engine. Reusable business capabilities belong here. Industry-specific behavior belongs in separate repositories such as `lumina-restaurants`, `lumina-autorepair`, and `lumina-cstore`; private customer solution repositories should consume a tagged vertical release and contain only customer-scoped configuration or approved extensions.
+
+See [Business Repository Topology](docs/7-concepts/business-repository-topology.md) and the [runtime implementation program](docs/roadmap/runtime-implementation-program.md) for ownership, versioning, and delivery boundaries.
+
 ---
 
 ## The D.S.A. Framework
