@@ -22,7 +22,7 @@ from lumina.core.yaml_loader import load_yaml
 # Locate defaults file relative to the repo root
 # ─────────────────────────────────────────────────────────────
 
-_SRC_ROOT = Path(__file__).resolve().parents[3]  # project-lumina/
+_SRC_ROOT = Path(__file__).resolve().parents[3]  # lumina-biz/
 _DEFAULTS_PATH = _SRC_ROOT / "standards" / "framework-tier-defaults.yaml"
 
 _cached_defaults: list[dict[str, Any]] | None = None

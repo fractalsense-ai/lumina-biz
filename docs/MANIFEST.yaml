@@ -126,7 +126,7 @@ artifacts:
   doc_version: 1.5.1
   status: active
   last_updated: 2026-08-05
-  sha256: 7b639c7b59021174f87315d6d68c0bdd7a882a6ce1fbb0857adc371e90a6280a
+  sha256: fa6f6531cd015cecb5c340e3559c3d724f4feeec0646f27e48ec3733ba3bdeee
 - path: docs/3-functions/domain-state-lib.md
   type: standard
   doc_version: 1.0.0
@@ -332,7 +332,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-11-08
-  sha256: 1354cc96955bb03cca2428eb829808bf30d1622c56a5e1470d2b56a1bb47eaa4
+  sha256: 08e9431e1b9469e8dbbf31364370325fe9ca1e3c2e5771c3bd07288bcb3b9e5f
 - path: docs/7-concepts/business-system-capability-taxonomy.md
   type: doc
   section: 7
@@ -783,7 +783,7 @@ artifacts:
   doc_version: 1.4.0
   status: active
   last_updated: 2026-08-05
-  sha256: 04638b3f764dd56c5ca8944764acad4041950e2a516f3d244893e0eae09d3129
+  sha256: 4ab78a27365dbfad9d6bea2d1077074834fe428d57d7ed8798e119e79e066778
 - path: docs/8-admin/single-box-deployment-profile.md
   type: doc
   section: 8
@@ -816,7 +816,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-11-08
-  sha256: b9f196892f0a0202e1745a9158cdeb1996fb7a8b0a2a234686e0255f7b44f511
+  sha256: 27b0a699d030757f14fa411ce9f0fcf663f0a9b1830c659647498f6064a2420c
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
