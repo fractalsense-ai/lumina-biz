@@ -1,25 +1,22 @@
 ---
-title: "Lumina Framework Roadmap"
-version: 1.6.0
-last_updated: 2026-11-06
+title: "Lumina Biz Roadmap"
+version: 1.7.0
+last_updated: 2026-11-08
 ---
 
-# Lumina Framework Roadmap
+# Lumina Biz Roadmap
 
-**Version:** 1.6.0
+**Version:** 1.7.0
 **Status:** Active
-**Last updated:** 2026-11-06
+**Last updated:** 2026-11-08
 
 ---
 
 ## Overview
 
-The Lumina Framework roadmap is delivered one slice at a time. Each slice is
-a focused, reviewable unit of work with explicit scope, contracts, and
-acceptance criteria.
+The `lumina-biz` roadmap tracks the shared business core built on `lumina-framework`, followed by distinct vertical repositories and downstream private customer solutions. Each slice has explicit scope, dependencies, and acceptance criteria.
 
-Slices are numbered sequentially. Each slice is documented in its own file
-under `docs/roadmap/slices/` and delivered as a focused PR.
+Each slice is documented under `docs/roadmap/slices/`. Closely related documentation slices may be delivered in a small dependency-oriented PR bundle; runtime implementation remains separately tracked and must target its owning repository.
 
 ---
 
@@ -79,7 +76,7 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [50](slices/50-post-parity-hardening-slo-enforcement-and-governance-closeout.md) | Post-Parity Hardening, SLO Enforcement, and Governance Closeout | Planned |
 | [51](slices/51-framework-boundary-lock-and-pack-taxonomy-reconciliation.md) | Framework Boundary Lock and Pack Taxonomy Reconciliation | Delivered |
 | [52](slices/52-domain-pack-authoring-contract-v1.md) | Domain Pack Authoring Contract v1 | Delivered |
-| [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Active |
+| [53](slices/53-module-authoring-contract-v1.md) | Module Authoring Contract v1 | Delivered |
 | [54](slices/54-module-glossary-and-index-contract.md) | Module Glossary and Index Contract | Planned |
 | [55](slices/55-knowledge-index-rebuild-and-drift-elimination.md) | Knowledge Index Rebuild and Drift Elimination | Planned |
 | [56](slices/56-turn-interpreter-contract-v1.md) | Turn Interpreter Contract v1 | Planned |
@@ -99,6 +96,21 @@ under `docs/roadmap/slices/` and delivered as a focused PR.
 | [70](slices/70-site-variance-and-role-aware-reference-scenarios.md) | Site-Variance and Role-Aware Reference Scenarios | Planned |
 | [71](slices/71-operational-overrides-profile-versioning-and-change-governance.md) | Operational Overrides, Profile Versioning, and Change Governance | Planned |
 | [72](slices/72-vertical-extraction-and-configuration-portability-gate.md) | Vertical Extraction and Configuration Portability Gate | Planned |
+| [73](slices/73-vertical-decontamination-and-generic-base-lock.md) | Business Core and Vertical Repository Boundary | Active |
+| [74](slices/74-dual-mode-ui-shell-and-gear-1-deterministic-surface.md) | Dual-Mode UI Shell and Gear 1 Deterministic Surface | Planned |
+| [75](slices/75-gear-2-assistant-drawer-and-context-locking-telemetry.md) | Gear 2 Assistant Drawer and Context-Locking Telemetry | Planned |
+| [76](slices/76-generic-pos-back-office-capability-contract.md) | Generic POS and Back-Office Capability Contract | Planned |
+| [77](slices/77-restaurant-vertical-repo-charter-and-pack-boundary.md) | Restaurant Vertical Repo Charter and Pack Boundary | Planned |
+| [78](slices/78-invoice-vlm-ingestion-contract.md) | Invoice VLM Ingestion Contract | Planned |
+| [79](slices/79-unit-of-measure-and-recipe-yield-contract.md) | Unit-of-Measure and Recipe/Yield Contract | Planned |
+| [80](slices/80-neurosymbolic-compute-cascade-contract.md) | Neurosymbolic Compute Cascade Contract | Planned |
+| [81](slices/81-edge-deployment-node-integration.md) | Edge Deployment Node Integration | Planned |
+
+## Current Direction
+
+Slices 54-72 remain preserved as prior planning backlog and are not the active execution sequence until reconciled with the business-core repository model. The current contract sequence is 73-81; the runtime work that follows is explicitly tracked in [runtime-implementation-program.md](runtime-implementation-program.md). Slice 53 was merged in PR #55.
+
+The business repository layers and their release/update path are defined in [business-repository-topology.md](../7-concepts/business-repository-topology.md). Documentation work is grouped into Slices 73-76, 77-79, and 80-81. Runtime implementation proceeds by direct prerequisite, not by waiting for unrelated vertical documentation to finish.
 
 ---
 
@@ -178,13 +190,12 @@ Blocked while gate is closed:
 - Runtime implementation for ERP trust adapters, transport execution, live
   mutation paths, provider parity execution, and cutover automation.
 
-## Framework Finalization Program DAG (Slices 51-72)
+## Prior Framework Planning Backlog (Slices 51-72)
 
-Program objective: finalize Lumina as a reusable framework first, make
-multi-location variance, role assignment, and notification routing declarative
-rather than hardcoded, then prove the authoring/execution shape with a neutral
-reference vertical, and finally define repeatable extraction into
-business-specific repositories.
+This program records the earlier framework-finalization plan and its dependency
+graph. Slices 54-72 remain preserved for traceability, but are not the current
+execution order until explicitly reconciled with the business-core and vertical
+repository topology.
 
 Program phases:
 
@@ -255,19 +266,20 @@ Slice 41 relation:
 
 ## Roadmap Posture
 
-The repository is being finalised into the reusable base framework. The final
-base framework consists of exactly three model packs:
+`lumina-framework` is the generic engine. Its framework boundary and three base
+model packs remain governed by
+[`framework-boundary.md`](../7-concepts/framework-boundary.md).
 
-- **System Model Pack** — sole governance/authority/ingress layer
-- **Coding Agent Model Pack** — bounded artifact factory
-- **Template Model Pack** — reusable approved framework template shapes
+`lumina-biz` is the shared business core built on that engine. Generic business
+capabilities remain here; restaurant-, auto-repair-, and c-store-specific
+behavior belongs in separate vertical repositories. Private customer solutions
+consume a tagged vertical release and hold only customer-scoped configuration
+or approved extensions.
 
-Domain packs currently in the repository (`business-ops`) are provisional
-scaffolding used while validating the framework shape. They
-will be extracted, moved, or removed in later PRs.
-
-See [`docs/7-concepts/framework-boundary.md`](../7-concepts/framework-boundary.md)
-for the authoritative framework boundary contract.
+The ownership and release policy is defined in
+[`business-repository-topology.md`](../7-concepts/business-repository-topology.md).
+Runtime implementation is tracked separately in
+[`runtime-implementation-program.md`](runtime-implementation-program.md).
 
 ---
 

@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-11-07
+last_updated: 2026-11-08
 artifacts:
 - path: docs/1-commands/README.md
   type: doc
@@ -287,10 +287,10 @@ artifacts:
 - path: docs/7-concepts/README.md
   type: doc
   section: 7
-  doc_version: 1.5.0
+  doc_version: 1.6.0
   status: active
-  last_updated: 2026-07-19
-  sha256: 8a5b18e4038a8bbc954adadbcc1b2d951b52253e444a232bdd3c1934835baca7
+  last_updated: 2026-11-08
+  sha256: a7acc55b447978ad39d5e1c6c16c273078fb906c861d8c0cecb7dd6ba4acc186
 - path: docs/7-concepts/affect-monitoring-pipeline.md
   type: doc
   section: 7
@@ -326,6 +326,13 @@ artifacts:
   status: active
   last_updated: 2026-06-14
   sha256: b97217740858b0acf6f88e3a58833b996fe59d160e147b40c8f74ce743af2142
+- path: docs/7-concepts/business-repository-topology.md
+  type: doc
+  section: 7
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-11-08
+  sha256: 1354cc96955bb03cca2428eb829808bf30d1622c56a5e1470d2b56a1bb47eaa4
 - path: docs/7-concepts/business-system-capability-taxonomy.md
   type: doc
   section: 7
@@ -799,10 +806,17 @@ artifacts:
   sha256: 98d72043029e0712c25ef4cb7cbd6560e35247516cab48b284b3cdaaad29588f
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.4.0
+  doc_version: 1.7.0
   status: active
-  last_updated: 2026-09-22
-  sha256: 8f27c84eef36394dc72a7bfe9eb5cc441ef5c834174b6aa6fc1da16ef3868ed8
+  last_updated: 2026-11-08
+  sha256: e90b640319810ff3cb1fd191967aab49cb893f7dc7a0246a399c8afe2f821813
+- path: docs/roadmap/runtime-implementation-program.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-11-08
+  sha256: 184ad18d432d05b70522c430961bc507bf270de5805a1b81e95dfccfbd2bf92c
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
@@ -1193,10 +1207,10 @@ artifacts:
 - path: docs/roadmap/slices/53-module-authoring-contract-v1.md
   type: doc
   section: 0
-  doc_version: 0.1.0
-  status: planned
-  last_updated: 2026-09-22
-  sha256: 21f8e4aed22e153766dae84c07f0fc7147ec7f39e45a0548883c65502e304e12
+  doc_version: 0.3.0
+  status: delivered
+  last_updated: 2026-11-08
+  sha256: e707ade73b476ad1cefa441ea6d1882e636561ccad70563e10b13275ca5ceae3
 - path: docs/roadmap/slices/54-module-glossary-and-index-contract.md
   type: doc
   section: 0
@@ -1330,6 +1344,69 @@ artifacts:
   status: planned
   last_updated: 2026-09-24
   sha256: a17abdf18e92e97e60acb56e4868587cb328957769c0feea4b427443b80496b2
+- path: docs/roadmap/slices/73-vertical-decontamination-and-generic-base-lock.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: active
+  last_updated: 2026-11-08
+  sha256: 4afd8aea3a6bc2603a8392fa215ab00efdd557c0041644c0b7900a9faa0d242d
+- path: docs/roadmap/slices/74-dual-mode-ui-shell-and-gear-1-deterministic-surface.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 2772144a929cd9d4732998497260b33df34d876e54793a2db08fecd7b35a2f15
+- path: docs/roadmap/slices/75-gear-2-assistant-drawer-and-context-locking-telemetry.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 39941c68f2863d31f76e162a349b02bdf98efa78bc1db2583d994f71003f1e42
+- path: docs/roadmap/slices/76-generic-pos-back-office-capability-contract.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 51cf6eb1478abf1d36d1fbdb1f198a4ee5ebe679cf7aa4fa461d6ed576dcfe2e
+- path: docs/roadmap/slices/77-restaurant-vertical-repo-charter-and-pack-boundary.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 41bf81c9ec35c75cb055c83a4d1c51debafc4f3d899d7a68ad419eb0fa1b0291
+- path: docs/roadmap/slices/78-invoice-vlm-ingestion-contract.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 7bf1fec4d7d16ab1d3492be7c3ab50f67953ba3189af385c1e735d4154034f60
+- path: docs/roadmap/slices/79-unit-of-measure-and-recipe-yield-contract.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 8945b2e0c4857050036c1e56ef6d33022cd35ca7d820961ee658a07245a5775b
+- path: docs/roadmap/slices/80-neurosymbolic-compute-cascade-contract.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 5d2ac80fffe5b59a4b414e335e27e2fc48a436aeb661deb7441ccc4854f32724
+- path: docs/roadmap/slices/81-edge-deployment-node-integration.md
+  type: doc
+  section: 0
+  doc_version: 1.0.0
+  status: planned
+  last_updated: 2026-11-08
+  sha256: 8014c81be62c22da256e727e1ac8b793d39c7d36cb38db9b258623c5b60c869d
 - path: examples/escalation-example-packet.yaml
   type: doc
   doc_version: 1.0.0

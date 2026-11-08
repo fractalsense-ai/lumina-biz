@@ -1,9 +1,9 @@
 ---
 title: "Slice 53 - Module Authoring Contract v1"
 slice: 53
-status: active
+status: delivered
 version: 0.3.0
-last_updated: 2026-11-06
+last_updated: 2026-11-08
 ---
 
 ## Purpose
