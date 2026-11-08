@@ -20,7 +20,7 @@ Implement a runtime workstream after its directly required contract bundle is ac
 | ID | Runtime outcome | Owning repository | Contract prerequisites | Status |
 |---|---|---|---|---|
 | RI-00 | Inventory current runtime behavior and identify implemented, partial, missing, and conflicting surfaces before estimating work | `lumina-biz` | Slices 73-81 review | Completed |
-| RI-01 | Establish the business-core package/release boundary and remove or relocate only vertical-specific behavior; preserve shared business capabilities | `lumina-biz` | 73, 76 | Planned |
+| RI-01 | Establish the business-core package/release boundary and remove or relocate only vertical-specific behavior; preserve shared business capabilities | `lumina-biz` | 73, 76 | In progress |
 | RI-02 | Deliver Gear 1 deterministic operator screens, permission-aware commands, and screen-context handling | `lumina-biz` | 74, RI-01 | Planned |
 | RI-03 | Deliver Gear 2 assistant drawer, screen context lock, staged drafts, human approval, and privacy-safe telemetry | `lumina-biz` | 75, RI-02 | Planned |
 | RI-04 | Implement provider-neutral POS and back-office capability interfaces, adapters, and conformance tests | `lumina-biz` | 76, RI-01 | Planned |
@@ -49,6 +49,13 @@ RI-00 is an audit, not a rewrite. The source-level baseline below records what e
 | Repository separation | The `business-ops` pack contains an `auto-repair` module. | No separate `lumina-restaurants`, `lumina-autorepair`, or `lumina-cstore` checkout is present in this workspace; restaurant and c-store modules and customer solution repos are not yet established here. |
 
 This snapshot is an inventory, not proof that each existing surface meets its contract. RI-02 through RI-09 must add behavior-level tests around the existing partial implementations rather than duplicate them.
+
+## RI-01 Progress
+
+- The Python distribution metadata now identifies the artifact as `lumina-biz` rather than `project-lumina`; Python imports remain under the existing `lumina` namespace.
+- A built wheel and the editable development extra were checked against this identity.
+- This is only the release-identity step. The wheel still packages the current `src/lumina` tree; generic-engine/package separation is not complete.
+- The auto-repair module remains in the current repository until its vertical repository exists and its runtime, fixtures, and tests can be migrated together. Do not remove shared connector or routing code during that move.
 
 ## Dependency Order
 

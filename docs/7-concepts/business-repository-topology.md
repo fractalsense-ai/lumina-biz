@@ -24,18 +24,18 @@ Define the repository and release boundaries from the generic Lumina engine thro
 
 ## Fork and Upstream Policy
 
-Vertical repositories may be forked from a tagged `lumina-biz` baseline to establish repository lineage and independent release control. Each vertical must record the upstream core version, keep an explicit upstream update path, and run compatibility tests before adopting a newer core release.
+Each vertical repository is a distinct fork from a tagged `lumina-biz` baseline, giving it independent release control while retaining upstream lineage. Each vertical must record the base tag/commit, keep an explicit upstream update path, and run compatibility tests before syncing newer core changes.
 
 A fork is not permission for indefinite divergence. Generic fixes and capabilities belong in `lumina-biz`; industry-specific behavior belongs in the corresponding vertical. Promote a change upstream when it is reusable across at least two verticals or is an agreed core capability.
 
-Customer repositories should normally consume a tagged vertical release and contain only customer configuration, deployment definitions, and approved extensions. Create customer-specific runtime forks only when a documented requirement cannot be satisfied through supported configuration or extension points.
+Private customer solution repositories are created from a tagged vertical release. They should contain only customer configuration, deployment definitions, and approved extensions. Create customer-specific runtime forks only when a documented requirement cannot be satisfied through supported configuration or extension points.
 
 ## Change Flow
 
 1. Generic engine behavior is implemented in `lumina-framework` and released independently.
 2. Shared business behavior is implemented in `lumina-biz` against a compatible engine version.
-3. Each vertical pins a `lumina-biz` release and validates its pack against the core conformance suite.
-4. A customer solution pins a vertical release and adds only customer-scoped configuration or extensions.
+3. Each vertical records its `lumina-biz` base tag/commit and validates its changes against the core conformance suite.
+4. A customer solution is forked from a tagged vertical release and adds only customer-scoped configuration or extensions.
 5. Upstream changes flow from engine to business core, then through vertical compatibility PRs, then into customer solution updates.
 
 ## Data and Secret Boundaries
@@ -45,8 +45,8 @@ Source repositories may contain schemas, synthetic fixtures, non-secret defaults
 ## Release and Compatibility Gates
 
 - `lumina-biz` publishes versioned releases with a declared compatible `lumina-framework` range.
-- Each vertical declares its supported `lumina-biz` range and passes core contract/conformance tests before release.
-- Customer solutions pin a vertical release and pass deployment, migration, and end-to-end acceptance checks before upgrade.
+- Each vertical records the upstream `lumina-biz` base and passes core contract/conformance tests before release.
+- Customer solutions record their vertical base tag and pass deployment, migration, and end-to-end acceptance checks before upgrade.
 - Breaking changes require an explicit migration note and a staged upgrade path at every downstream layer.
 
 ## Decision Rule

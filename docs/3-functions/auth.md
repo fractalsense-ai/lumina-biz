@@ -101,7 +101,7 @@ algorithm from the stored format — no configuration needed for verification.
 
 ## NOTES
 
-This module uses zero external dependencies for JWT — implemented using the standard library (`hmac`, `hashlib`, `base64`). Password hashing supports optional external libraries (`argon2-cffi`, `bcrypt`) for production-grade security; install via `pip install project-lumina[passwords]`. When neither is installed, SHA-256 with per-user salt is used as a fallback. Production deployments should evaluate an external IdP.
+This module uses zero external dependencies for JWT — implemented using the standard library (`hmac`, `hashlib`, `base64`). Password hashing supports optional external libraries (`argon2-cffi`, `bcrypt`) for production-grade security; install via `pip install lumina-biz[passwords]`. When neither is installed, SHA-256 with per-user salt is used as a fallback. Production deployments should evaluate an external IdP.
 
 ## ERP Claim Contract (Slice 37)
 
