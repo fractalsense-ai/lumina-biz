@@ -154,7 +154,7 @@ from lumina.api.routes.system import router as system_router  # noqa: E402
 from lumina.api.routes.consent import router as consent_router  # noqa: E402
 from lumina.api.routes.holodeck import router as holodeck_router  # noqa: E402
 from lumina.api.routes.panels import router as panels_router  # noqa: E402
-from lumina.api.routes.workflow import router as workflow_router  # noqa: E402
+from lumina.business_ops.auto_repair_workflow import router as workflow_router  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────
 # FastAPI Application

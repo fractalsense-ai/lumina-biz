@@ -142,6 +142,13 @@ def _auth_header(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+def test_legacy_workflow_route_import_reexports_business_router() -> None:
+    from lumina.api.routes.workflow import router as legacy_router
+    from lumina.business_ops.auto_repair_workflow import router as business_router
+
+    assert legacy_router is business_router
+
+
 def _fake_process_message(
     session_id, message, turn_data_override, deterministic_response,
     domain_id, user, model_id, model_version, holodeck,
@@ -163,7 +170,7 @@ class TestWorkflowRoutes:
     def test_intake_endpoint_returns_workflow_metadata(self, client: TestClient, api_module: Any) -> None:
         token = _register_root(client)
         session_id = "wf-intake-1"
-        with patch("lumina.api.routes.workflow.process_message", side_effect=_fake_process_message):
+        with patch("lumina.business_ops.auto_repair_workflow.process_message", side_effect=_fake_process_message):
             resp = client.post(
                 "/api/workflow/auto-repair/intake",
                 json={"session_id": session_id, "message": "Start intake"},
@@ -178,7 +185,7 @@ class TestWorkflowRoutes:
 
     def test_status_endpoint_sets_stage(self, client: TestClient) -> None:
         token = _register_root(client)
-        with patch("lumina.api.routes.workflow.process_message", side_effect=_fake_process_message):
+        with patch("lumina.business_ops.auto_repair_workflow.process_message", side_effect=_fake_process_message):
             resp = client.post(
                 "/api/workflow/auto-repair/status",
                 json={"message": "Need status update"},
@@ -202,7 +209,7 @@ class TestWorkflowRoutes:
             result["action"] = "stage_erp_draft_update"
             return result
 
-        with patch("lumina.api.routes.workflow.process_message", side_effect=_draft_result):
+        with patch("lumina.business_ops.auto_repair_workflow.process_message", side_effect=_draft_result):
             resp = client.post(
                 "/api/workflow/auto-repair/draft-update",
                 json={"session_id": "wf-draft-1", "message": "Please draft update"},
@@ -226,7 +233,7 @@ class TestWorkflowRoutes:
             result["action"] = next(actions)
             return result
 
-        with patch("lumina.api.routes.workflow.process_message", side_effect=_sequenced):
+        with patch("lumina.business_ops.auto_repair_workflow.process_message", side_effect=_sequenced):
             first = client.post(
                 "/api/workflow/auto-repair/intake",
                 json={
