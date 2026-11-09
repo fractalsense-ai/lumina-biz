@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.1.0
+version: 1.2.0
 status: active
 last_updated: 2026-11-08
 ---
@@ -15,24 +15,34 @@ Track the code and integration work that follows the contract-first slices. The 
 
 Implement a runtime workstream after its directly required contract bundle is accepted. Do not wait for unrelated vertical contracts to finish, and do not start a runtime change without a linked slice/PR scope, executable acceptance criteria, tests, and an owning repository.
 
+## Shared Roadmap Memory
+
+This program and [SMB Operations Product Direction](smb-operations-product-direction.md) are the model-independent source of truth for product scope, repository ownership, dependency order, status, and deferred decisions. Update them through reviewed PRs when a decision or workstream changes; chat history and model-generated slice numbering are not authoritative state.
+
 ## Workstream Ledger
 
 | ID | Runtime outcome | Owning repository | Contract prerequisites | Status |
 |---|---|---|---|---|
 | RI-00 | Inventory current runtime behavior and identify implemented, partial, missing, and conflicting surfaces before estimating work | `lumina-biz` | Slices 73-81 review | Completed |
 | RI-01 | Establish the business-core package/release boundary and remove or relocate only vertical-specific behavior; preserve shared business capabilities | `lumina-biz` | 73, 76 | In progress |
-| RI-02 | Deliver Gear 1 deterministic operator screens, permission-aware commands, and screen-context handling | `lumina-biz` | 74, RI-01 | Planned |
-| RI-03 | Deliver Gear 2 assistant drawer, screen context lock, staged drafts, human approval, and privacy-safe telemetry | `lumina-biz` | 75, RI-02 | Planned |
+| RI-02 | Deliver Gear 1 deterministic operator screens, permission-aware commands, and screen-context handling | `lumina-biz` | 74, RI-01, RI-14 | Planned |
+| RI-03 | Deliver Gear 2 assistant drawer, screen context lock, staged drafts, human approval, and privacy-safe telemetry | `lumina-biz` | 75, RI-02, RI-14 | Planned |
 | RI-04 | Implement provider-neutral POS and back-office capability interfaces, adapters, and conformance tests | `lumina-biz` | 76, RI-01 | Planned |
-| RI-05 | Bootstrap `lumina-fnb` from a tagged business-core release with independent CI and core compatibility tests | `lumina-fnb` | F&B repository charter, RI-01 | Planned |
-| RI-06 | Implement local-first DSD invoice intake, extraction review, deposit/CRV and credit flags, and staged receiving handoff | `lumina-fnb` | Invoice intake contract, RI-05 | Planned |
-| RI-07 | Implement deterministic unit conversion, daypart prep suggestions, and reviewed recipe/yield-to-BOM drafts | `lumina-fnb` | Recipe and unit contract, RI-05, RI-06 | Planned |
-| RI-08 | Implement the four-stage compute cascade with deterministic ordering, bounded model calls, and degraded-mode evidence | `lumina-biz` plus vertical configuration | 80, RI-01, RI-03 | Planned |
+| RI-05 | Bootstrap `lumina-fnb` from a tagged business-core release with independent CI and core compatibility tests | `lumina-fnb` | F&B repository charter, RI-01, RI-04 | Planned |
+| RI-06 | Implement local-first DSD invoice intake, extraction review, deposit/CRV and credit flags, and staged receiving handoff | `lumina-fnb` | Invoice intake contract, RI-05, RI-08 | Planned |
+| RI-07 | Implement deterministic unit conversion and reviewed recipe/yield-to-BOM drafts | `lumina-fnb` | Recipe and unit contract, RI-05 | Planned |
+| RI-08 | Implement the four-stage compute cascade with deterministic ordering, bounded model calls, and degraded-mode evidence | `lumina-biz` plus vertical configuration | 80, RI-01 | Planned |
 | RI-09 | Deliver local-first edge packaging, offline/degraded operation, and upgrade/rollback behavior | `lumina-biz` plus vertical deployment | 81, RI-08 | Planned |
 | RI-10 | Bootstrap `lumina-auto` from a tagged business-core release and port only auto-care, repair, and towing modules and tests | `lumina-auto` | Auto vertical charter, RI-01 | Planned |
 | RI-11 | Bootstrap `lumina-cstore` from a tagged business-core release and port only convenience-store and fuel modules and tests | `lumina-cstore` | C-store vertical charter, RI-01 | Planned |
 | RI-12 | Establish private customer solution repos from supported vertical releases, with configuration, deployment, upgrade, and acceptance gates | Customer private repo(s) | Vertical release; topology contract | Planned |
 | RI-13 | Bootstrap `lumina-retail` from a tagged business-core release and port standard dry-retail workflows and tests | `lumina-retail` | Retail vertical charter, RI-01 | Planned |
+| RI-14 | Implement revocable PIN, signed QR, and supported-device NFC employee authentication; BLE may preselect identity but never authenticate | `lumina-biz` | RI-01, identity/fast-auth acceptance policy | Planned |
+| RI-15 | Deliver role-filtered operational tasks with accessible completion controls and auditable status transitions | `lumina-biz` | RI-01, RI-02, RI-14 | Planned |
+| RI-16 | Implement authenticated sensor ingestion, buffered BLE gateway delivery, stale-reading state, and role-scoped notifications | `lumina-biz` plus vertical sensor profiles | RI-09, RI-14, RI-15 | Planned |
+| RI-17 | Implement F&B till cohorts, deterministic tip-pool readiness, safe thresholds, and reviewed payout routing | `lumina-fnb` | RI-05, RI-14, RI-15 | Planned |
+| RI-18 | Implement F&B par and daypart prep suggestions using historical systems-of-record data plus timestamped calendar/weather evidence | `lumina-fnb` | RI-04, RI-05, RI-07 | Planned |
+| RI-19 | Implement consented proof-of-work image capture and bounded VLM review with confidence, evidence, retention, and human escalation | `lumina-biz` plus vertical policy | RI-08, RI-15 | Planned |
 
 RI-00 is an audit, not a rewrite. The source-level baseline below records what exists in the `lumina-biz` checkout as of 2026-11-08; re-check the relevant tests before implementation estimates are committed.
 
@@ -61,14 +71,61 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 ## Dependency Order
 
 - RI-00 precedes scope commitment for every implementation workstream.
-- RI-01 precedes shared UI and vertical bootstrap work.
-- RI-02 precedes RI-03 because the assistant is a context-scoped sidecar to the deterministic operator surface.
-- RI-04 and RI-05 may proceed after RI-01; RI-05 must pin a released core baseline.
-- RI-06 and RI-07 are F&B-owned and depend on RI-05; their contracts must preserve human review before operational mutation.
-- RI-08 may proceed once its contract is accepted and required core/vertical inputs are available; it must not become an unbounded model router.
-- RI-09 follows a verified local runtime and cascade; it includes failure and recovery tests.
-- RI-10, RI-11, and RI-13 reuse the released business core independently; no vertical blocks another vertical's delivery.
-- RI-12 begins only after a vertical has a supportable release and a customer-specific configuration boundary.
+- RI-01 precedes all shared UI, authentication, connector, and vertical bootstrap work.
+- RI-14 can proceed after RI-01; RI-02 depends on identity hooks, and RI-03 follows both the deterministic surface and authentication boundary.
+- RI-04 and RI-14 can proceed in parallel after RI-01. RI-05, RI-10, RI-11, and RI-13 each require RI-01 and the shared capability boundary; no vertical blocks another.
+- RI-06 requires the F&B repo and compute cascade. RI-07 can proceed independently after the F&B repo is bootstrapped; both preserve human review before mutations.
+- RI-15 requires the shared UI and authentication foundations. RI-16 additionally requires edge packaging; stale alerts route through role-authorized tasks.
+- RI-17 requires the F&B vertical, identity, and task primitives. It must not move or redirect wages/tips without approved jurisdictional policy and human review.
+- RI-18 requires F&B capabilities, the F&B repo, and unit/recipe semantics; forecasts remain advisory evidence.
+- RI-19 requires the bounded compute cascade and task/evidence surface; VLM output is advisory, never sole proof.
+- RI-08 is bounded by the compute-cascade contract; RI-09 follows it and includes failure/recovery tests.
+- RI-12 begins after any one supported public vertical release and customer-specific configuration boundaries are defined.
+
+## Active Runtime Dependency DAG
+
+```mermaid
+flowchart TD
+	RI00[RI-00 Runtime audit] --> RI01[RI-01 Business-core boundary]
+	RI01 --> RI02[RI-02 Gear 1 operator UI]
+	RI01 --> RI04[RI-04 Shared capabilities/connectors]
+	RI01 --> RI08[RI-08 Compute cascade]
+	RI01 --> RI14[RI-14 Fast authentication]
+	RI14 --> RI02
+	RI02 --> RI03[RI-03 Gear 2 assistant]
+	RI01 --> RI05[RI-05 lumina-fnb bootstrap]
+	RI04 --> RI05
+	RI05 --> RI06[RI-06 DSD invoice intake]
+	RI08 --> RI06
+	RI05 --> RI07[RI-07 UoM and recipe]
+	RI03 --> RI08
+	RI08 --> RI09[RI-09 Edge packaging]
+	RI02 --> RI15[RI-15 Role-filtered tasks]
+	RI14 --> RI15
+	RI09 --> RI16[RI-16 Sensors and stale alerts]
+	RI14 --> RI16
+	RI15 --> RI16
+	RI05 --> RI17[RI-17 F&B cash cohorts]
+	RI14 --> RI17
+	RI15 --> RI17
+	RI04 --> RI18[RI-18 F&B par/prep suggestions]
+	RI05 --> RI18
+	RI07 --> RI18
+	RI08 --> RI19[RI-19 VLM proof-of-work]
+	RI15 --> RI19
+	RI01 --> RI10[RI-10 lumina-auto bootstrap]
+	RI04 --> RI10
+	RI01 --> RI11[RI-11 lumina-cstore bootstrap]
+	RI04 --> RI11
+	RI01 --> RI13[RI-13 lumina-retail bootstrap]
+	RI04 --> RI13
+	RI05 --> RI12[RI-12 Private customer solution]
+	RI10 --> RI12
+	RI11 --> RI12
+	RI13 --> RI12
+```
+
+All ERP transport and mutation edges remain subject to the Slice 41 gate. The graph is capability-based rather than a single serial queue: independent public verticals can proceed after their shared-core prerequisites, and private customer work begins from a supported vertical release.
 
 ## Per-Workstream Gates
 

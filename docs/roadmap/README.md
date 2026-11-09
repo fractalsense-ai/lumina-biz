@@ -1,12 +1,12 @@
 ---
 title: "Lumina Biz Roadmap"
-version: 1.8.0
+version: 1.9.0
 last_updated: 2026-11-08
 ---
 
 # Lumina Biz Roadmap
 
-**Version:** 1.8.0
+**Version:** 1.9.0
 **Status:** Active
 **Last updated:** 2026-11-08
 
@@ -271,8 +271,9 @@ model packs remain governed by
 [`framework-boundary.md`](../7-concepts/framework-boundary.md).
 
 `lumina-biz` is the shared business core built on that engine. Generic business
-capabilities remain here; restaurant-, auto-repair-, and c-store-specific
-behavior belongs in separate vertical repositories. Private customer solutions
+capabilities remain here; F&B, convenience/fuel, dry retail, and auto care,
+repair, and towing behavior belongs in the public `lumina-fnb`, `lumina-cstore`,
+`lumina-retail`, and `lumina-auto` repositories. Private customer solutions
 consume a tagged vertical release and hold only customer-scoped configuration
 or approved extensions.
 
@@ -280,6 +281,8 @@ The ownership and release policy is defined in
 [`business-repository-topology.md`](../7-concepts/business-repository-topology.md).
 Runtime implementation is tracked separately in
 [`runtime-implementation-program.md`](runtime-implementation-program.md).
+Its Active Runtime Dependency DAG is the current implementation order; the
+51-72 dependency graph above is retained only as historical planning context.
 
 ---
 
