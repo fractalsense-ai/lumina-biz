@@ -329,10 +329,10 @@ artifacts:
 - path: docs/7-concepts/business-repository-topology.md
   type: doc
   section: 7
-  doc_version: 1.0.0
+  doc_version: 1.1.0
   status: active
   last_updated: 2026-11-08
-  sha256: 08e9431e1b9469e8dbbf31364370325fe9ca1e3c2e5771c3bd07288bcb3b9e5f
+  sha256: e740a363986aa8f7cf9d45b2f62f917bd7587cdfe51329b5690e06a79061456a
 - path: docs/7-concepts/business-system-capability-taxonomy.md
   type: doc
   section: 7
@@ -806,17 +806,24 @@ artifacts:
   sha256: 98d72043029e0712c25ef4cb7cbd6560e35247516cab48b284b3cdaaad29588f
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.7.0
+  doc_version: 1.8.0
   status: active
   last_updated: 2026-11-08
-  sha256: e90b640319810ff3cb1fd191967aab49cb893f7dc7a0246a399c8afe2f821813
+  sha256: 0cbf7dc97aab220cc36b72c17f915746f1e377ff5ca4911c5ff6b4c5cc8f8787
 - path: docs/roadmap/runtime-implementation-program.md
+  type: doc
+  section: 0
+  doc_version: 1.1.0
+  status: active
+  last_updated: 2026-11-08
+  sha256: 2ab71f2d5226d657965db4971c61a727bb1b696653089dd0f9cef7fd026bff90
+- path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
   doc_version: 1.0.0
   status: active
   last_updated: 2026-11-08
-  sha256: 27b0a699d030757f14fa411ce9f0fcf663f0a9b1830c659647498f6064a2420c
+  sha256: c6e5770e3b0f3de75f29d6a9ae23acbb9325ff8bd770c1b4836a82db2379d601
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
@@ -1375,10 +1382,10 @@ artifacts:
 - path: docs/roadmap/slices/77-restaurant-vertical-repo-charter-and-pack-boundary.md
   type: doc
   section: 0
-  doc_version: 1.0.0
+  doc_version: 1.1.0
   status: planned
   last_updated: 2026-11-08
-  sha256: 41bf81c9ec35c75cb055c83a4d1c51debafc4f3d899d7a68ad419eb0fa1b0291
+  sha256: 242a1984d0359ce136b4161ce426136c90d8631f3b9bcc56856ec52d8d9f5e67
 - path: docs/roadmap/slices/78-invoice-vlm-ingestion-contract.md
   type: doc
   section: 0

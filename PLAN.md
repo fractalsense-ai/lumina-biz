@@ -6,28 +6,27 @@ _Last updated: 2026-11-08_
 
 - `lumina-framework` is the generic orchestration and governance engine.
 - `lumina-biz` is the reusable core for Lumina's business product line. It owns shared business capabilities, not every industry implementation.
-- `lumina-restaurants`, `lumina-autorepair`, and `lumina-cstore` are distinct vertical repositories derived from tagged `lumina-biz` releases.
+- `lumina-fnb`, `lumina-cstore`, `lumina-retail`, and `lumina-auto` are public vertical repositories derived from tagged `lumina-biz` releases.
 - Private customer solution repositories are downstream of a vertical release and hold customer configuration, deployment overlays, and approved extensions.
 
-The detailed ownership, upstream, release, and data boundaries are defined in [business-repository-topology.md](docs/7-concepts/business-repository-topology.md).
+The detailed ownership, upstream, release, and data boundaries are defined in [business-repository-topology.md](docs/7-concepts/business-repository-topology.md). The capability requirements and product constraints are captured in [SMB Operations Product Direction](docs/roadmap/smb-operations-product-direction.md).
 
 ## Current Status
 
 - Slice 53 is merged and delivered by PR #55.
-- The tracked `main` roadmap previously ended at Slice 72; the active 73-81 program is being reconciled into the tracked repository.
-- Slices 54-72 are preserved as prior planning backlog, but are not the active execution sequence until explicitly reconciled with the business-core direction.
-- Slices 73-81 define the immediate documentation contracts. They do not constitute runtime implementation.
+- The active product scope is the SMB operations direction in `docs/roadmap/smb-operations-product-direction.md`.
+- Numbered draft slices are planning artifacts, not the authority for product names, vertical priority, or runtime completion.
 - Runtime outcomes, owning repositories, prerequisites, and verification gates are tracked in [runtime-implementation-program.md](docs/roadmap/runtime-implementation-program.md).
 
 ## Documentation Delivery
 
-Keep documentation work in a few dependency-oriented PRs, and explicitly list every included slice:
+Keep documentation work in a few dependency-oriented PRs, and explicitly list every included capability area:
 
-1. Slices 73-76: business-core boundary, deterministic operator UI, assistant boundary, and shared business capabilities.
-2. Slices 77-79: restaurant repository, invoice intake, and unit/recipe contracts.
-3. Slices 80-81: compute cascade and edge deployment contracts.
+1. Business-core boundary, mobile operator UI, identity, tasks, and deterministic cash workflows.
+2. Vertical repository boundaries, F&B receiving/recipe workflows, and shared cstore, retail, and auto capabilities.
+3. Sensor telemetry, compute routing, and edge deployment.
 
-The three groups may be reviewed in fewer PRs when the shared boundary changes require it. Each PR must list its included slices, acceptance criteria, checks run, deferred runtime work, and final roadmap status update. Manifest entries and hashes are mandatory for new or changed documentation.
+The three groups may be reviewed in fewer PRs when the shared boundary changes require it. Each PR must list its included capabilities, acceptance criteria, checks run, deferred runtime work, and final roadmap status update. Manifest entries and hashes are mandatory for new or changed documentation.
 
 ## Runtime Execution
 
@@ -35,7 +34,7 @@ RI-00, the runtime baseline audit, is the first runtime-program task. It must id
 
 After the audit, implement each workstream in its owning repository. A runtime stream may begin when its direct contract prerequisites are accepted; it does not wait for unrelated vertical documentation. Shared behavior stays in `lumina-biz`, industry behavior stays in the vertical repo, and customer behavior stays in a private customer solution layer unless an approved extension point is insufficient.
 
-See [Runtime Implementation Program](docs/roadmap/runtime-implementation-program.md) for RI-00 through RI-12, dependencies, and per-PR gates.
+See [Runtime Implementation Program](docs/roadmap/runtime-implementation-program.md) for RI-00 through RI-13, dependencies, and per-PR gates.
 
 ## Governance Gates
 
