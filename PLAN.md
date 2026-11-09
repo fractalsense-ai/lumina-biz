@@ -30,9 +30,9 @@ The three groups may be reviewed in fewer PRs when the shared boundary changes r
 
 ## Runtime Execution
 
-RI-00, the runtime baseline audit, is the first runtime-program task. It must identify what already works in `lumina-biz`, what is partial, and what is missing before implementation estimates are committed.
+RI-00, the source-level runtime baseline audit, is complete and recorded in [runtime-implementation-program.md](docs/roadmap/runtime-implementation-program.md). RI-01 is active: PRs #57 and #58 gave the distribution a `lumina-biz` identity and added a regression guard, but the wheel still packages the complete `src/lumina` tree and the existing auto-repair module has not moved. RI-01 is not complete until the repository/package ownership boundary and safe vertical migration path are implemented and tested.
 
-After the audit, implement each workstream in its owning repository. A runtime stream may begin when its direct contract prerequisites are accepted; it does not wait for unrelated vertical documentation. Shared behavior stays in `lumina-biz`, industry behavior stays in the vertical repo, and customer behavior stays in a private customer solution layer unless an approved extension point is insufficient.
+Continue each runtime workstream in its owning repository according to the active dependency DAG. A workstream may begin when its direct prerequisites are accepted; it does not wait for unrelated vertical work. Shared behavior stays in `lumina-biz`, industry behavior stays in its public vertical repo, and customer behavior stays in a private customer solution layer unless an approved extension point is insufficient.
 
 See [Runtime Implementation Program](docs/roadmap/runtime-implementation-program.md) for RI-00 through RI-13, dependencies, and per-PR gates.
 
