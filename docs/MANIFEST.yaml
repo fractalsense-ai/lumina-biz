@@ -816,7 +816,7 @@ artifacts:
   doc_version: 1.2.0
   status: active
   last_updated: 2026-11-08
-  sha256: b3eec93074baa62e56c88726436e1fb64c388d44e5744db525f930e20335cab4
+  sha256: dd1b64b1f707f6e4bfeb253f5ed2ffbf13fc4c1f3041a9a4fcb4ff2d8b0b05fc
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
