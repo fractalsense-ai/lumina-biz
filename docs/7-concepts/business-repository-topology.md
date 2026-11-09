@@ -1,6 +1,6 @@
 ---
 title: "Business Repository Topology"
-version: 1.0.0
+version: 1.1.0
 status: active
 last_updated: 2026-11-08
 ---
@@ -16,11 +16,11 @@ Define the repository and release boundaries from the generic Lumina engine thro
 | Layer | Repository | Owns | Must not own |
 |---|---|---|---|
 | Generic engine | `lumina-framework` | Model-pack runtime, orchestration primitives, identity and governance foundations | Business vertical policy or customer-specific behavior |
-| Business core | `lumina-biz` | Reusable business workflows and capability contracts, provider-neutral connector surfaces, shared business UI and operational primitives | Restaurant-, auto-repair-, or convenience-store-only rules |
-| Vertical product | `lumina-restaurants`, `lumina-autorepair`, `lumina-cstore` | Industry workflows, domain modules, vertical schemas, provider mappings, fixtures, and product acceptance tests | Copies of generic engine/core behavior that should be upstreamed |
+| Business core | `lumina-biz` | Reusable SMB workflows and capability contracts, provider-neutral connector surfaces, shared operator UI, identity hooks, task primitives, and audit controls | F&B-, cstore-, retail-, or auto-specific rules |
+| Public vertical products | `lumina-fnb`, `lumina-cstore`, `lumina-retail`, `lumina-auto` | Industry workflows, domain modules, vertical schemas, provider mappings, fixtures, and product acceptance tests | Copies of generic engine/core behavior that should be upstreamed |
 | Customer solution | Private customer repository, derived from a vertical release | Customer-approved configuration, deployment overlays, and narrowly scoped extensions | Secrets, production records, or an independently forked copy of the full platform |
 
-`lumina-biz` is the reusable core for Lumina's business product line. It is not a replacement for the lower-level `lumina-framework`, and it is not a single repository that accumulates every industry implementation.
+`lumina-biz` is the reusable core for Lumina's SMB product line. It is not a replacement for the lower-level `lumina-framework`, and it is not a single repository that accumulates every industry implementation. The capability requirements and product constraints are defined in [SMB Operations Product Direction](../roadmap/smb-operations-product-direction.md).
 
 ## Fork and Upstream Policy
 

@@ -36,9 +36,9 @@ Think of Lumina as the engine and model-packs as the mods: the same runtime unde
 
 ## Role of This Repository
 
-This repository is `lumina-biz`, the shared business core built on the generic `lumina-framework` engine. Reusable business capabilities belong here. Industry-specific behavior belongs in separate repositories such as `lumina-restaurants`, `lumina-autorepair`, and `lumina-cstore`; private customer solution repositories should consume a tagged vertical release and contain only customer-scoped configuration or approved extensions.
+This repository is `lumina-biz`, the shared business core built on the generic `lumina-framework` engine for SMB operations. Reusable business capabilities belong here. Industry-specific behavior belongs in the public vertical repositories `lumina-fnb`, `lumina-cstore`, `lumina-retail`, and `lumina-auto`; customer-specific solution repositories are private and derive from a tagged vertical release.
 
-See [Business Repository Topology](docs/7-concepts/business-repository-topology.md) and the [runtime implementation program](docs/roadmap/runtime-implementation-program.md) for ownership, versioning, and delivery boundaries.
+See [Business Repository Topology](docs/7-concepts/business-repository-topology.md), [SMB Operations Product Direction](docs/roadmap/smb-operations-product-direction.md), and the [runtime implementation program](docs/roadmap/runtime-implementation-program.md) for product scope, ownership, versioning, and delivery boundaries.
 
 ---
 
