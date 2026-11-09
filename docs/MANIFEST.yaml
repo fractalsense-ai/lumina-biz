@@ -806,17 +806,17 @@ artifacts:
   sha256: 98d72043029e0712c25ef4cb7cbd6560e35247516cab48b284b3cdaaad29588f
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.8.0
+  doc_version: 1.9.0
   status: active
   last_updated: 2026-11-08
-  sha256: 0cbf7dc97aab220cc36b72c17f915746f1e377ff5ca4911c5ff6b4c5cc8f8787
+  sha256: 78195679eca076f92c5a44f1a7a055d8a0e5703366bae27e7c7d9a8886482f8f
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.1.0
+  doc_version: 1.2.0
   status: active
   last_updated: 2026-11-08
-  sha256: 2ab71f2d5226d657965db4971c61a727bb1b696653089dd0f9cef7fd026bff90
+  sha256: b3eec93074baa62e56c88726436e1fb64c388d44e5744db525f930e20335cab4
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
