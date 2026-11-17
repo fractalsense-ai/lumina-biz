@@ -128,10 +128,18 @@ class TestProcessingModuleKeyLookup:
         from lumina.api import processing as proc
 
         gov_interpreter = MagicMock(return_value={"query_type": "admin_command", "urgency": "routine"})
+        runtime_allowed_tool = MagicMock()
+        runtime_blocked_tool = MagicMock()
+        module_allowed_tool = MagicMock()
+        module_blocked_tool = MagicMock()
         module_map = {
             "domain/bizops/domain-authority/v1": {
                 "system_prompt": "You are the governance persona.",
                 "turn_interpreter_fn": gov_interpreter,
+                "tool_fns": {
+                    "module_allowed": module_allowed_tool,
+                    "module_blocked": module_blocked_tool,
+                },
                 "turn_input_defaults": {"query_type": "general", "urgency": "routine"},
                 "turn_input_schema": {"query_type": {"type": "enum", "values": ["general", "admin_command"]}},
                 "local_only": True,
@@ -139,9 +147,20 @@ class TestProcessingModuleKeyLookup:
         }
         session = self._make_session(module_key="domain/bizops/domain-authority/v1")
         runtime = self._make_runtime(module_map=module_map)
+        runtime["tool_fns"] = {
+            "runtime_allowed": runtime_allowed_tool,
+            "runtime_blocked": runtime_blocked_tool,
+        }
+        runtime["tool_allowlist"] = [
+            "runtime_allowed",
+            "runtime_blocked",
+            "module_allowed",
+            "module_blocked",
+        ]
 
         mock_registry = MagicMock(**{"get_runtime_context.return_value": runtime})
         mock_persistence = MagicMock()
+        command_builder = MagicMock(return_value=None)
 
         with (
             patch.object(proc, "get_or_create_session", return_value=session),
@@ -153,16 +172,31 @@ class TestProcessingModuleKeyLookup:
             patch.object(proc, "slm_interpret_physics_context", return_value={}),
             patch.object(proc, "normalize_turn_data", side_effect=lambda d, _s: d),
             patch.object(proc, "apply_tool_call_policy", return_value=[]),
+            patch.object(proc, "build_command_content", command_builder),
             patch.object(proc, "strip_latex_delimiters", side_effect=lambda s: s),
             patch.object(proc, "call_llm", return_value="response"),
             patch("lumina.api.processing._session_containers", {}),
             patch("lumina.api.processing._persist_session_container"),
         ):
-            result = proc.process_message("sess-1", "list users", deterministic_response=False)
+            result = proc.process_message(
+                "sess-1",
+                "list users",
+                deterministic_response=False,
+                user={"allowed_tools": ["runtime_allowed", "module_allowed"]},
+            )
 
         # The governance interpreter should have been called (via local_only branch),
         # NOT the default interpret_turn_input (which calls OpenAI).
         gov_interpreter.assert_called_once()
+        assert set(gov_interpreter.call_args.kwargs["tool_fns"]) == {
+            "runtime_allowed",
+            "module_allowed",
+        }
+        command_runtime = command_builder.call_args.args[6]
+        assert set(command_runtime["tool_fns"]) == {
+            "runtime_allowed",
+            "module_allowed",
+        }
 
     def test_module_key_empty_falls_back_to_domain_id(self) -> None:
         """When module_key is empty, falls back to domain_id for module_map lookup."""
@@ -172,6 +206,7 @@ class TestProcessingModuleKeyLookup:
         runtime = self._make_runtime(module_map={
             "domain/bizops/domain-authority/v1": {"system_prompt": "gov persona"},
         })
+        runtime["tool_fns"] = {"sensitive_tool": MagicMock()}
 
         interpret_mock = MagicMock(return_value={"query_type": "general"})
         mock_persistence = MagicMock()
@@ -196,6 +231,7 @@ class TestProcessingModuleKeyLookup:
         # for "business-ops" finds nothing, so no governance overrides applied.
         # Falls through to interpret_turn_input (the else branch).
         interpret_mock.assert_called_once()
+        assert interpret_mock.call_args.args[2]["tool_fns"] == {}
 
 
 # ─────────────────────────────────────────────────────────────

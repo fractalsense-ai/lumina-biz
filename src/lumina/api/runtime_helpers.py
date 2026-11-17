@@ -60,6 +60,21 @@ def _is_tool_allowed(tool_id: str, runtime: dict[str, Any], allowed_tool_ids: An
     return tool_id in effective_allow
 
 
+def filter_runtime_tool_fns(
+    runtime: dict[str, Any],
+    allowed_tool_ids: Any,
+) -> dict[str, Any]:
+    """Return only tool adapters allowed by both runtime and caller scope."""
+    tool_fns = runtime.get("tool_fns") or {}
+    if not isinstance(tool_fns, Mapping):
+        raise RuntimeError("runtime tool functions must be a mapping")
+    return {
+        tool_id: tool_fn
+        for tool_id, tool_fn in tool_fns.items()
+        if isinstance(tool_id, str) and _is_tool_allowed(tool_id, runtime, allowed_tool_ids)
+    }
+
+
 def render_contract_response(
     prompt_contract: dict[str, Any],
     runtime: dict[str, Any],
