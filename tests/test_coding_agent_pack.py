@@ -171,11 +171,9 @@ class TestCodingAgentPhysicsAndRegistry:
         assert "system_pack_sole_ingress" in invariant_ids
         assert "no_authority_escalation_inside_pack" in invariant_ids
 
-    def test_registry_contains_coding_agent(self):
+    def test_registry_does_not_expose_coding_agent_as_product_domain(self):
         registry = _load_yaml(REGISTRY_PATH)
-        entry = registry["domains"]["coding-agent"]
-        assert entry["runtime_config_path"] == "model-packs/coding-agent/cfg/runtime-config.yaml"
-        assert entry["module_prefix"] == "ca"
+        assert "coding-agent" not in registry["domains"]
 
     def test_tool_adapters_listed_in_physics(self):
         physics = _load_json(PHYSICS_PATH)

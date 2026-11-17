@@ -12,14 +12,26 @@ boundary defined in
 
 ### Base Framework Packs
 
-These three packs are required framework infrastructure. Every Lumina deployment
-inherits them unchanged.
+These packs provide generic governance and authoring infrastructure. Product
+deployments should include only the capabilities required by their approved
+runtime profile.
 
 | Pack | Directory | Role | Status |
 |------|-----------|------|--------|
 | System Model Pack | `model-packs/system/` | Sole governance, authority, and ingress layer — all requests route through it | Required |
-| Template Model Pack | `model-packs/template/` | Canonical scaffold shapes used by System Pack routing and the Coding Agent | Required |
-| Coding Agent Model Pack | `model-packs/coding-agent/` | Bounded artifact factory — receives scoped jobs from System Pack, produces build artefacts | Active |
+| Template Model Pack | `model-packs/template/` | Canonical scaffold shapes for authoring domain packs and modules | Authoring support |
+
+### Experimental / Developer Packs
+
+The Coding Agent pack was an exploratory artifact factory, not an SMB product
+domain or required business-runtime capability. It is not registered as a
+selectable runtime domain; its files and tests remain as reference material.
+Do not make vertical product behavior depend on this pack; reusable ideas must
+be specified and implemented as generic contracts independently.
+
+| Pack | Directory | Purpose | Status |
+|------|-----------|---------|--------|
+| Coding Agent Model Pack | `model-packs/coding-agent/` | Exploratory artifact-factory prototype | Not in SMB product scope |
 
 ### Seed Vertical / Provisional Packs
 

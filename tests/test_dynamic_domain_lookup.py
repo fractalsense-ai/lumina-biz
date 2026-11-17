@@ -38,14 +38,50 @@ def registry() -> DomainRegistry:
     )
 
 
+@pytest.fixture
+def registry_with_coding_agent(tmp_path: Path) -> DomainRegistry:
+    import yaml
+
+    from lumina.core.runtime_loader import load_runtime_context
+
+    registry_path = tmp_path / "registry.yaml"
+    registry_path.write_text(
+        yaml.safe_dump(
+            {
+                "default_domain": _PRIMARY_DOMAIN,
+                "domains": {
+                    _PRIMARY_DOMAIN: {
+                        "runtime_config_path": "model-packs/business-ops/cfg/runtime-config.yaml",
+                        "module_prefix": "biz",
+                    },
+                    _SECONDARY_DOMAIN: {
+                        "runtime_config_path": "model-packs/coding-agent/cfg/runtime-config.yaml",
+                        "module_prefix": "ca",
+                    },
+                    _SYSTEM_DOMAIN: {
+                        "runtime_config_path": "model-packs/system/cfg/runtime-config.yaml",
+                        "module_prefix": "sys",
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return DomainRegistry(
+        repo_root=_REPO_ROOT,
+        registry_path=str(registry_path),
+        load_runtime_context_fn=load_runtime_context,
+    )
+
+
 @pytest.mark.unit
 def test_resolve_exact_primary(registry: DomainRegistry) -> None:
     assert registry.resolve_domain_id(_PRIMARY_DOMAIN) == _PRIMARY_DOMAIN
 
 
 @pytest.mark.unit
-def test_resolve_exact_secondary(registry: DomainRegistry) -> None:
-    assert registry.resolve_domain_id(_SECONDARY_DOMAIN) == _SECONDARY_DOMAIN
+def test_resolve_exact_secondary(registry_with_coding_agent: DomainRegistry) -> None:
+    assert registry_with_coding_agent.resolve_domain_id(_SECONDARY_DOMAIN) == _SECONDARY_DOMAIN
 
 
 @pytest.mark.unit
@@ -59,8 +95,8 @@ def test_resolve_prefix_biz(registry: DomainRegistry) -> None:
 
 
 @pytest.mark.unit
-def test_resolve_prefix_ca(registry: DomainRegistry) -> None:
-    assert registry.resolve_domain_id("ca") == _SECONDARY_DOMAIN
+def test_resolve_prefix_ca(registry_with_coding_agent: DomainRegistry) -> None:
+    assert registry_with_coding_agent.resolve_domain_id("ca") == _SECONDARY_DOMAIN
 
 
 @pytest.mark.unit
@@ -79,8 +115,8 @@ def test_resolve_path_domain_biz_with_module(registry: DomainRegistry) -> None:
 
 
 @pytest.mark.unit
-def test_resolve_path_domain_ca_with_module(registry: DomainRegistry) -> None:
-    assert registry.resolve_domain_id(_SECONDARY_MODULE) == _SECONDARY_DOMAIN
+def test_resolve_path_domain_ca_with_module(registry_with_coding_agent: DomainRegistry) -> None:
+    assert registry_with_coding_agent.resolve_domain_id(_SECONDARY_MODULE) == _SECONDARY_DOMAIN
 
 
 @pytest.mark.unit
@@ -264,8 +300,8 @@ def test_get_default_module_id_business_ops(registry: DomainRegistry) -> None:
 
 
 @pytest.mark.unit
-def test_get_default_module_id_coding_agent(registry: DomainRegistry) -> None:
-    mod_id = registry.get_default_module_id(_SECONDARY_DOMAIN)
+def test_get_default_module_id_coding_agent(registry_with_coding_agent: DomainRegistry) -> None:
+    mod_id = registry_with_coding_agent.get_default_module_id(_SECONDARY_DOMAIN)
     assert mod_id is not None
     assert "coding-agent-core" in mod_id
 

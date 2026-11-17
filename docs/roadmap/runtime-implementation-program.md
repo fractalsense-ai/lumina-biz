@@ -2,7 +2,7 @@
 title: "Runtime Implementation Program"
 version: 1.3.0
 status: active
-last_updated: 2026-11-08
+last_updated: 2026-11-17
 ---
 
 # Runtime Implementation Program
@@ -31,7 +31,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-05 | Bootstrap `lumina-fnb` from a tagged business-core release with independent CI and core compatibility tests | `lumina-fnb` | F&B repository charter, RI-01, RI-04 | Planned |
 | RI-06 | Implement local-first DSD invoice intake, extraction review, deposit/CRV and credit flags, and staged receiving handoff | `lumina-fnb` | Invoice intake contract, RI-05, RI-08 | Planned |
 | RI-07 | Implement deterministic unit conversion and reviewed recipe/yield-to-BOM drafts | `lumina-fnb` | Recipe and unit contract, RI-05 | Planned |
-| RI-08 | Implement the four-stage compute cascade with deterministic ordering, bounded model calls, and degraded-mode evidence | `lumina-biz` plus vertical configuration | 80, RI-01 | Planned |
+| RI-08 | Implement workflow- and modality-aware model selection and the four-stage compute cascade across text, vision, and audio capabilities, with bounded escalation, versioned evidence, and safe degraded modes | `lumina-biz` plus vertical configuration | 80, RI-01 | Planned |
 | RI-09 | Deliver local-first edge packaging, offline/degraded operation, and upgrade/rollback behavior | `lumina-biz` plus vertical deployment | 81, RI-08 | Planned |
 | RI-10 | Bootstrap `lumina-auto` from a tagged business-core release and port only auto-care, repair, and towing modules and tests | `lumina-auto` | Auto vertical charter, RI-01 | Planned |
 | RI-11 | Bootstrap `lumina-cstore` from a tagged business-core release and port only convenience-store and fuel modules and tests | `lumina-cstore` | C-store vertical charter, RI-01 | Planned |
@@ -43,6 +43,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-17 | Implement F&B till cohorts, deterministic tip-pool readiness, safe thresholds, and reviewed payout routing | `lumina-fnb` | RI-05, RI-14, RI-15 | Planned |
 | RI-18 | Implement F&B par and daypart prep suggestions using historical systems-of-record data plus timestamped calendar/weather evidence | `lumina-fnb` | RI-04, RI-05, RI-07 | Planned |
 | RI-19 | Implement consented proof-of-work image capture and bounded VLM review with confidence, evidence, retention, and human escalation | `lumina-biz` plus vertical policy | RI-08, RI-15 | Planned |
+| RI-20 | Deliver freshness-aware knowledge refresh and a reviewed, privacy-limited outcome corpus for offline model evaluation and controlled improvement | `lumina-biz` plus vertical-approved data policy | 55, 80, RI-08 | Planned |
 
 RI-00 is an audit, not a rewrite. The source-level baseline below records what exists in the `lumina-biz` checkout as of 2026-11-08; re-check the relevant tests before implementation estimates are committed.
 
@@ -55,7 +56,7 @@ RI-00 is an audit, not a rewrite. The source-level baseline below records what e
 | Business connectors | ERPNext and Odoo connector modules, fixture adapters, and a provider conformance harness exist under `src/lumina/business_ops/connectors/`. | This is not yet a complete generic POS, labor, payroll, and accounting capability runtime across providers. |
 | Document ingestion | `src/lumina/ingestion/extractors.py` extracts generic PDF, DOCX, Markdown, CSV, JSON, and YAML text; `interpreter.py` provides generic SLM interpretation. | No F&B invoice-specific VLM/OCR, line-item validation, deposit/CRV handling, or receiving handoff was found in first-party runtime code. |
 | Recipe and units | No first-party UoM conversion, yield calculation, or recipe-to-BOM implementation was found in `src/lumina` or `model-packs/business-ops`. | The deterministic conversion, provenance, review, and draft-write path remain to be implemented in `lumina-fnb`. |
-| Compute cascade | spaCy/regex processing, glossary and vector routing, SLM calls, an LLM path, and degraded-reason tracking exist across `src/lumina/core/` and `src/lumina/api/processing.py`. | The components need an integrated, tested four-stage cascade with explicit transition, evidence, and degraded-mode acceptance; avoid replacing existing stages wholesale. |
+| Compute cascade | spaCy/regex processing, glossary and vector routing, a single environment-selected SLM, low/high task-weight classification, an LLM path, and degraded-reason tracking exist across `src/lumina/core/` and `src/lumina/api/processing.py`. | The components need workflow- and modality-aware model capability selection for text, vision, and audio, explicit transitions and evidence, freshness-aware knowledge, reviewed outcome curation, and modality-specific degraded-mode acceptance; avoid replacing existing stages wholesale. |
 | Edge deployment | A single-box health-check script, local-first SLM defaults, and single-box deployment documentation exist. | No complete edge-node lifecycle, offline recovery, versioned upgrade, or rollback runtime was found. |
 | Repository separation | The `business-ops` pack contains an `auto-repair` module. | No separate `lumina-fnb`, `lumina-cstore`, `lumina-retail`, or `lumina-auto` checkout is present in this workspace; vertical and customer solution repos are not yet established here. |
 
@@ -82,6 +83,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - RI-18 requires F&B capabilities, the F&B repo, and unit/recipe semantics; forecasts remain advisory evidence.
 - RI-19 requires the bounded compute cascade and task/evidence surface; VLM output is advisory, never sole proof.
 - RI-08 is bounded by the compute-cascade contract; RI-09 follows it and includes failure/recovery tests.
+- RI-20 requires the knowledge-index lifecycle and compute-cascade evidence contracts. Knowledge refresh remains separate from training; any model improvement uses reviewed, purpose-limited examples and offline evaluation, never raw-chat training or autonomous online updates.
 - RI-12 begins after any one supported public vertical release and customer-specific configuration boundaries are defined.
 
 ## Active Runtime Dependency DAG
@@ -102,6 +104,7 @@ flowchart TD
 	RI05 --> RI07[RI-07 UoM and recipe]
 	RI03 --> RI08
 	RI08 --> RI09[RI-09 Edge packaging]
+	RI08 --> RI20[RI-20 Knowledge freshness and reviewed model improvement]
 	RI02 --> RI15[RI-15 Role-filtered tasks]
 	RI14 --> RI15
 	RI09 --> RI16[RI-16 Sensors and stale alerts]
@@ -139,11 +142,12 @@ Every runtime PR must:
 - pass repository verification and manifest integrity checks;
 - preserve systems-of-record authority and human approval for mutations;
 - respect Slice 41's hard gate for any ERP execution, live transport, or mutation path until its closure criteria are satisfied;
-- keep customer data and secrets out of source control; and
+- keep customer data and secrets out of source control;
+- keep raw chat transcripts out of knowledge and training stores; model improvement must use reviewed, purpose-limited structured examples with evaluation and rollback evidence; and
 - document release compatibility and downstream upgrade impact.
 
 ## Product Direction and Contract Documents
 
 The authoritative capability brief is [SMB Operations Product Direction](smb-operations-product-direction.md). Numbered slice files are supporting planning artifacts, not the source of product names or vertical priority. Reconcile them to the product brief as they are revised; do not infer implementation completion from a documentation slice being merged.
 
-Related product documents may be reviewed in one roadmap-alignment PR or a few capability-oriented PRs, provided each included contract and its acceptance evidence are listed. Runtime implementation is released separately in code PRs using RI-00 through RI-13; documentation merge does not count as runtime delivery.
+Related product documents may be reviewed in one roadmap-alignment PR or a few capability-oriented PRs, provided each included contract and its acceptance evidence are listed. Runtime implementation is released separately in code PRs using RI-00 through RI-20; documentation merge does not count as runtime delivery.

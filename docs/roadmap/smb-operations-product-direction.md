@@ -2,7 +2,7 @@
 title: "SMB Operations Product Direction"
 version: 1.0.0
 status: active
-last_updated: 2026-11-08
+last_updated: 2026-11-17
 ---
 
 # SMB Operations Product Direction
@@ -16,7 +16,7 @@ Capture the intended SMB product family and capability boundaries for `lumina-bi
 - `lumina-framework` is the generic orchestration and governance engine.
 - `lumina-biz` is the shared business core for small and medium-sized businesses. It owns reusable operator UI primitives, identity and authorization integration, task and connector contracts, audit controls, and shared runtime capabilities.
 - Public vertical repositories fork a tagged `lumina-biz` baseline and own their industry workflows, domain rules, integrations, fixtures, and product acceptance tests.
-- Private customer repositories are created only for customer-specific deployments and approved extensions, based on a tagged public vertical release.
+- Private customer repositories are created only for customer-specific deployments and approved extensions, based on a tagged public vertical release. The business owner owns the private repository; Lumina is maintained by its operator under an agreed access and update model.
 
 | Public vertical | Intended scope |
 |---|---|
@@ -26,6 +26,16 @@ Capture the intended SMB product family and capability boundaries for `lumina-bi
 | `lumina-auto` | Auto care, repair, and towing services |
 
 These names and scopes replace earlier draft labels. A capability may be shared or configurable across verticals, but vertical business rules remain owned by the relevant vertical repository.
+
+### Initial delivery order and reuse
+
+1. **F&B first:** Use `lumina-fnb` as the flagship vertical to build and validate the first complete set of SMB operating workflows against real acceptance scenarios.
+2. **C-store second:** Build `lumina-cstore` on the shared business core and reuse F&B capabilities where the operational meaning matches. A C-store kitchen or commissary can use configured food-service workflows, then add convenience, fuel, and site-specific rules without copying the shared implementation.
+3. **Other verticals later:** `lumina-retail` and `lumina-auto` remain in the product family, but do not set the initial delivery order. Network infrastructure is a future domain candidate to evaluate separately, not a reason to expand the first vertical scope.
+
+Prioritize reusable capabilities through the F&B and C-store overlap: time and temperature records, hot/cold holding checks, sanitation and bathroom checks, vendor check-in, forecasting and trends, scheduling, and reconciliation reports. The shared core should provide reusable UI primitives, workflow mechanics, algorithms, and provider-neutral integration contracts. Vertical and site configuration owns thresholds, terminology, schedules, accounting mappings, and other domain rules; do not duplicate workflows merely because they appear in more than one vertical.
+
+The Coding Agent pack was exploratory and is not an SMB product domain, workflow, or runtime dependency. Reusable ideas such as capability-based model selection, bounded escalation, and evidence-based evaluation may inform separately specified generic-engine contracts; product behavior must not depend on the pack itself.
 
 ## Business-System Integration
 
@@ -51,6 +61,14 @@ The product is headless with respect to the business system of record: Lumina pr
 - Offer contextual drafting and inline suggestions; a local SLM may propose ghost text or calculations for explicit operator acceptance.
 - Distinguish deterministic values, external data, and model-generated suggestions in the UI. A Tab/accept action is an explicit user decision, not an authorization to commit a mutation.
 - Model output remains a draft until reviewed. Final submission follows the system-of-record, Tool Token, and human-approval boundaries.
+
+### Inline business completion and optional assistant
+
+- Treat business operations as the combination of operator UI, deterministic algorithms, reports, and workflows, with AI used when it adds value; the product is not chat-first.
+- Use IDE-style inline completion in operational screens: show a contextual suggestion as uncommitted ghost text or a draft, and let the operator explicitly accept or dismiss it. Acceptance does not authorize an external or irreversible business mutation.
+- Keep a chat assistant available as an optional, user-invoked surface for information retrieval, explanation, and requesting bounded analysis or workflows. It uses only the actor's current authorization and available tools.
+- Treat text, vision/image-document understanding, speech input, and text-to-speech as selectable workflow capabilities, not as one fixed model stack. For example, a vendor check-in may use a permissioned document/image flow, while hands-free guidance or status may use speech synthesis; offer accessible text and deterministic fallbacks when devices, permissions, or models are unavailable.
+- Example: repeated empty planogram slots despite reported on-hand inventory can prompt a manager to ask why. The assistant may inspect authorized inventory and sales data and run or offer a reconciliation report. The report presents evidence and discrepancies; inventory adjustments or other system-of-record changes remain explicit, authorized actions.
 
 ### Authentication and employee identification
 
