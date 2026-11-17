@@ -32,7 +32,7 @@ Define the provider-neutral capability boundary between `lumina-biz`, public ver
 - Reference the canonical capability namespaces and action classes in `docs/7-concepts/business-system-capability-taxonomy.md`.
 - Specify how requests and results conform to `business-operation-request-schema-v1.json` and `business-operation-result-schema-v1.json`.
 - Specify that connector manifests declare supported namespace/action pairs using `business-system-connector-manifest-schema-v1.json`.
-- Preserve those per-namespace action pairs in connector registry entries. New registry producers must provide the exact `capabilities` declaration; it is authoritative when present. Legacy flattened summaries are accepted only when unambiguous (a single namespace or a single action); ambiguous multi-namespace/multi-action entries must provide exact declarations.
+- Preserve those per-namespace action pairs in connector registry entries. New registry producers must provide the exact `capabilities` declaration; when both exact declarations and legacy flattened summaries are present, their namespace sets and action unions must agree. Legacy flattened summaries without exact declarations are accepted only when unambiguous (a single namespace or a single action); ambiguous multi-namespace/multi-action entries must provide exact declarations.
 - Define provider mapping, capability discovery, conformance, structured unsupported-operation errors, and fallback rules.
 - Define Tool Token scope, organization/site/actor binding, runtime-secret references, idempotency, and auditable human approval for mutations.
 - Define deterministic analytics provenance and the boundary that reserves AI for unresolved ambiguity or requested qualitative synthesis.
