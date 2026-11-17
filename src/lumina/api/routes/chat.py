@@ -28,7 +28,6 @@ log = logging.getLogger("lumina-api")
 
 router = APIRouter()
 
-_THREAD_ROUTING_POLICY_PATH = _cfg._REPO_ROOT / "model-packs" / "business-ops" / "cfg" / "thread-routing-policy.yaml"
 def _get_accessible_domain_ids(
     user: dict[str, Any],
     routing_map: dict[str, dict[str, Any]],
@@ -257,26 +256,34 @@ async def chat(
 
     if req.thread_id is not None and user is not None:
         try:
-            policy = load_thread_routing_policy(
-                _THREAD_ROUTING_POLICY_PATH,
-                organization_id=str(user["organization_id"]),
-                site_id=str(user["site_id"]),
+            resolved_domain_id = result.get("domain_id")
+            runtime = (
+                _cfg.DOMAIN_REGISTRY.get_runtime_context(resolved_domain_id)
+                if isinstance(resolved_domain_id, str) and resolved_domain_id
+                else {}
             )
-            container = _session_containers.get(session_id)
-            turn_count = container.active_context.turn_count if container is not None else 0
-            await run_in_threadpool(
-                record_thread_recap,
-                persistence=_cfg.PERSISTENCE,
-                indexer=get_institutional_indexer(),
-                policy=policy,
-                thread_id=req.thread_id,
-                actor_id=str(user["sub"]),
-                turn_count=turn_count,
-                message=req.message,
-                action=str(result["action"]),
-                domain_id=result.get("domain_id"),
-                device_id=user.get("device_id"),
-            )
+            policy_path = runtime.get("thread_routing_policy_path")
+            if policy_path:
+                policy = load_thread_routing_policy(
+                    policy_path,
+                    organization_id=str(user["organization_id"]),
+                    site_id=str(user["site_id"]),
+                )
+                container = _session_containers.get(session_id)
+                turn_count = container.active_context.turn_count if container is not None else 0
+                await run_in_threadpool(
+                    record_thread_recap,
+                    persistence=_cfg.PERSISTENCE,
+                    indexer=get_institutional_indexer(),
+                    policy=policy,
+                    thread_id=req.thread_id,
+                    actor_id=str(user["sub"]),
+                    turn_count=turn_count,
+                    message=req.message,
+                    action=str(result["action"]),
+                    domain_id=resolved_domain_id,
+                    device_id=user.get("device_id"),
+                )
         except Exception:
             log.warning("Could not record thread recap for %s", req.thread_id, exc_info=True)
 

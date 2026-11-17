@@ -482,6 +482,12 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
         if full_ao.is_file():
             ctx["admin_operations_schema_path"] = str(full_ao)
 
+    thread_policy_path = cfg.get("thread_routing_policy_path") or runtime_cfg.get("thread_routing_policy_path")
+    if isinstance(thread_policy_path, str) and thread_policy_path:
+        full_thread_policy_path = repo_root / thread_policy_path
+        if full_thread_policy_path.is_file():
+            ctx["thread_routing_policy_path"] = str(full_thread_policy_path)
+
     # ── Hierarchical profile templates (optional, Base → Domain → Role) ──
     _base_profile = runtime_cfg.get("base_profile_path")
     if _base_profile:

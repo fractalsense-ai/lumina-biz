@@ -176,6 +176,10 @@ def test_auto_repair_router_is_declared_only_by_business_runtime(api_module: Any
 
     assert [router["id"] for router in business_runtime["api_router_defs"]] == ["auto_repair_workflow"]
     assert system_runtime["api_router_defs"] == []
+    assert business_runtime["thread_routing_policy_path"] == str(
+        _REPO_ROOT / "model-packs/business-ops/cfg/thread-routing-policy.yaml"
+    )
+    assert "thread_routing_policy_path" not in system_runtime
 
 
 def _fake_process_message(
