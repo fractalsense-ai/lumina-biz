@@ -147,6 +147,17 @@ def map_operation_to_erpnext(request: dict[str, object]) -> dict[str, object]:
             **({"order_by": query["order_by"]} if "order_by" in query else {}),
         }
 
+    if capability_namespace == "sales/pos" and action_class == "query":
+        query = _as_query_envelope(payload)
+        return {
+            "doctype": "POS Invoice",
+            "operation": "get_list",
+            "filters": query.get("filters", {}),
+            **({"fields": query["fields"]} if "fields" in query else {}),
+            **({"limit": query["limit"]} if "limit" in query else {}),
+            **({"order_by": query["order_by"]} if "order_by" in query else {}),
+        }
+
     if capability_namespace == "warehouse/storage" and action_class == "query":
         query = _as_query_envelope(payload)
         return {

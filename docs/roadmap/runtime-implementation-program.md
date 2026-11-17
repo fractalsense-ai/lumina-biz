@@ -78,8 +78,9 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - The connector execution API's Pydantic action and capability literals now match the canonical request schema, including POS, purchasing, timekeeping, accounting, and all six canonical action classes.
 - Connector registry entries can preserve per-namespace supported actions; exact declarations are authoritative in routing, preventing flattened summary lists from claiming undeclared combinations.
 - Provider-specific connector mappings remain narrower by design; unimplemented namespace/action pairs pass envelope validation and return structured unsupported results rather than being rejected as non-canonical input.
-- Focused canonical schema, connector execution, and routing tests pass (281 passed). Full backend suite passes (5,173 passed, 1 skipped) at 85.14% coverage.
-- This is API vocabulary parity only. Provider transports, new connector capabilities, and live SoR mutations remain separate RI-04 work and subject to existing approval and execution gates.
+- ERPNext now declares and maps read-only `sales/pos` queries to its POS Invoice sub-ledger; the shared manifest-driven fixture harness verifies every declared provider capability/action pair.
+- Focused ERPNext connector, conformance, and routing tests pass (31 passed). Full backend suite passes (5,183 passed, 1 skipped) at 85.48% coverage.
+- This adds a fixture-backed mapping, not live transport or checkout/session-close mutations. Those remain separate RI-04 work and subject to the Slice 41 gate and existing approval controls.
 
 ## Dependency Order
 
