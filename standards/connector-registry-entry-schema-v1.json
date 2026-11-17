@@ -4,7 +4,7 @@
   "schema_version": "1.0.0",
   "last_updated": "2026-07-26",
   "title": "Connector Registry Entry Schema V1",
-  "description": "Canonical provider-neutral connector registry entry scoped to organization/site.",
+  "description": "Canonical provider-neutral connector registry entry scoped to organization/site. The optional capabilities list preserves action support per namespace and is authoritative when present. Legacy flattened summaries are accepted only when the mapping is unambiguous.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -35,6 +35,29 @@
       "uniqueItems": true,
       "items": {
         "$ref": "business-operation-request-schema-v1.json#/$defs/action_class"
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["namespace", "supported_actions"],
+        "properties": {
+          "namespace": {
+            "$ref": "business-operation-request-schema-v1.json#/$defs/capability_namespace"
+          },
+          "supported_actions": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "business-operation-request-schema-v1.json#/$defs/action_class"
+            }
+          }
+        }
       }
     },
     "enabled": {"type": "boolean"},

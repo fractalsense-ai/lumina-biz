@@ -185,10 +185,14 @@ def _preflight_payload() -> dict:
 @pytest.mark.integration
 def test_preflight_returns_scoped_resolution_and_persists_trace_event(client) -> None:
     test_client, persistence = client
+    payload = _preflight_payload()
+    payload["connector_registry_entries"][0]["capabilities"] = [
+        {"namespace": "service/work-order", "supported_actions": ["query"]},
+    ]
     response = test_client.post(
         "/api/connector-routing/preflight",
         headers={"Authorization": f"Bearer {_token()}"},
-        json=_preflight_payload(),
+        json=payload,
     )
 
     assert response.status_code == 200
@@ -202,6 +206,77 @@ def test_preflight_returns_scoped_resolution_and_persists_trace_event(client) ->
     evidence = trace.get("evidence_summary", {})
     assert evidence["connector_resolution_result"]["request_id"] == "req-1"
     assert "transcript" not in str(evidence).lower()
+
+
+@pytest.mark.integration
+def test_preflight_does_not_cross_product_namespace_and_action_support(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["request_id"] = "req-unsupported-pair"
+    payload["action_class"] = "create_draft"
+    payload["capability_namespace"] = "sales/pos"
+    payload["idempotency_key"] = "idem-unsupported-pair"
+    payload["capability_routes"] = []
+    payload["connector_registry_entries"][0].update(
+        {
+            "capability_namespaces": ["inventory", "sales/pos"],
+            "supported_action_classes": ["query", "create_draft"],
+            "capabilities": [
+                {"namespace": "inventory", "supported_actions": ["query", "create_draft"]},
+                {"namespace": "sales/pos", "supported_actions": ["query"]},
+            ],
+        }
+    )
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "error"
+    assert body["reason_code"] == "no_eligible_connector"
+    assert body["connector_instance_id"] is None
+
+
+@pytest.mark.integration
+def test_preflight_rejects_ambiguous_legacy_capability_summaries(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    entry = payload["connector_registry_entries"][0]
+    entry["capability_namespaces"] = ["inventory", "sales/pos"]
+    entry["supported_action_classes"] = ["query", "create_draft"]
+    payload["capability_routes"] = []
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    assert "capabilities is required" in response.json()["detail"]
+
+
+@pytest.mark.integration
+def test_preflight_rejects_duplicate_capability_declarations(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    payload["connector_registry_entries"][0]["capabilities"] = [
+        {"namespace": "inventory", "supported_actions": ["query"]},
+        {"namespace": "inventory", "supported_actions": ["create_draft"]},
+    ]
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    assert "Duplicate capability declaration" in response.json()["detail"]
 
 
 @pytest.mark.integration

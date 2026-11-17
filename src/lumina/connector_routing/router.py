@@ -48,6 +48,12 @@ _MUTATION_ACTIONS = frozenset({
 
 
 @dataclass(frozen=True)
+class CapabilityDeclaration:
+    namespace: str
+    supported_actions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class ConnectorRegistryEntry:
     organization_id: str
     site_id: str
@@ -57,6 +63,7 @@ class ConnectorRegistryEntry:
     enabled: bool
     health_status: HealthStatus
     is_site_primary: bool = False
+    capabilities: tuple[CapabilityDeclaration, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -147,6 +154,18 @@ def _is_entry_eligible(
         return False, "no_eligible_connector"
     if entry.health_status == "unhealthy":
         return False, "connector_unhealthy"
+    if entry.capabilities is not None:
+        capability_actions = {
+            declaration.namespace.strip(): declaration.supported_actions
+            for declaration in entry.capabilities
+            if declaration.namespace.strip()
+        }
+        actions = capability_actions.get(capability_namespace)
+        if actions is None:
+            return False, "unsupported_capability"
+        if action_class not in actions:
+            return False, "unsupported_action"
+        return True, "ok"
     if capability_namespace not in normalized_capabilities:
         return False, "unsupported_capability"
     if action_class not in entry.supported_action_classes:
