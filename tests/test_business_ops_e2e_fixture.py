@@ -10,6 +10,7 @@ import pytest
 import yaml
 
 from lumina.connector_routing.router import (
+    CapabilityDeclaration,
     CapabilityRoute,
     CapabilityRoutePolicy,
     ConnectorRegistryEntry,
@@ -93,6 +94,17 @@ def test_business_ops_fixture_replay_thread_precedent_connector_flow() -> None:
             enabled=bool(item["enabled"]),
             health_status=item["health_status"],
             is_site_primary=bool(item.get("is_site_primary", False)),
+            capabilities=(
+                tuple(
+                    CapabilityDeclaration(
+                        namespace=declaration["namespace"],
+                        supported_actions=tuple(declaration["supported_actions"]),
+                    )
+                    for declaration in item["capabilities"]
+                )
+                if "capabilities" in item
+                else None
+            ),
         )
         for item in connector_fixture["entries"]
     ]
