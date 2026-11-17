@@ -6,6 +6,7 @@ from __future__ import annotations
 SUPPORTED_CAPABILITIES: dict[str, tuple[str, ...]] = {
     "service/work-order": ("query", "create_draft", "update_draft", "request_commit"),
     "inventory": ("query",),
+    "sales/pos": ("query",),
     "warehouse/storage": ("query",),
     "logistics/dispatch": ("query",),
     "scheduling": ("query",),

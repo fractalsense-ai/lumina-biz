@@ -20,6 +20,7 @@ def test_manifest_declares_provider_and_capabilities() -> None:
     caps = {c["namespace"]: tuple(c["supported_actions"]) for c in manifest["capabilities"]}  # type: ignore[index]
     assert "service/work-order" in caps
     assert "inventory" in caps
+    assert caps.get("sales/pos") == ("query",)
     assert "warehouse/storage" in caps
     assert "logistics/dispatch" in caps
     assert "scheduling" in caps
@@ -37,6 +38,29 @@ def test_mapping_query_work_order() -> None:
     assert payload["doctype"] == "Work Order"
     assert payload["operation"] == "get_list"
     assert payload["limit"] == 25
+
+
+@pytest.mark.unit
+def test_mapping_query_pos_invoices() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "query",
+            "capability_namespace": "sales/pos",
+            "payload": {
+                "filters": {"docstatus": 1},
+                "fields": ["name", "posting_date", "grand_total"],
+                "limit": 20,
+                "order_by": "posting_date desc",
+            },
+        }
+    )
+
+    assert payload["doctype"] == "POS Invoice"
+    assert payload["operation"] == "get_list"
+    assert payload["filters"] == {"docstatus": 1}
+    assert payload["fields"] == ["name", "posting_date", "grand_total"]
+    assert payload["limit"] == 20
+    assert payload["order_by"] == "posting_date desc"
 
 
 @pytest.mark.unit
