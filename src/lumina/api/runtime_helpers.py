@@ -9,12 +9,18 @@ from __future__ import annotations
 
 import functools
 import inspect
+import json
+import logging
 from collections.abc import Iterable, Mapping
 from typing import Any
 
 from lumina.api.llm import call_llm
 from lumina.api.utils.templates import render_template_value
+from lumina.auth.auth import build_token_verification_observation
 from lumina.core.slm import SLM_TURN_MAX_TOKENS, TaskWeight, call_slm, classify_task_weight, slm_available
+
+_TOOL_BOUNDARY_CONTRACT = "tool_token_boundary_enforcement_v1"
+log = logging.getLogger("lumina-auth")
 
 
 def _normalize_allowed_tool_ids(value: Any) -> set[str] | None:
@@ -73,6 +79,62 @@ def filter_runtime_tool_fns(
         for tool_id, tool_fn in tool_fns.items()
         if isinstance(tool_id, str) and _is_tool_allowed(tool_id, runtime, allowed_tool_ids)
     }
+
+
+def emit_tool_boundary_observation(
+    user: dict[str, Any] | None,
+    *,
+    exposed_tool_count: int,
+    excluded_tool_count: int,
+) -> None:
+    """Log a deny observation without exposing tool IDs or raw token claims."""
+    if excluded_tool_count < 1:
+        return
+    claims = user or {}
+    try:
+        observation = build_token_verification_observation(
+            outcome="deny",
+            reason="unauthorized_tools_excluded",
+            verification_source=_TOOL_BOUNDARY_CONTRACT,
+            issuer=claims.get("iss") if isinstance(claims.get("iss"), str) else None,
+            audience=claims.get("aud") if isinstance(claims.get("aud"), str) else None,
+            token_scope=(
+                claims.get("token_scope")
+                if isinstance(claims.get("token_scope"), str)
+                else None
+            ),
+            jti=claims.get("jti") if isinstance(claims.get("jti"), str) else None,
+            subject=claims.get("sub") if isinstance(claims.get("sub"), str) else None,
+            organization_id=(
+                claims.get("organization_id")
+                if isinstance(claims.get("organization_id"), str)
+                else None
+            ),
+            site_id=claims.get("site_id") if isinstance(claims.get("site_id"), str) else None,
+        )
+        observation.update(
+            event_type="tool_boundary_verification",
+            exposed_tool_count=exposed_tool_count,
+            excluded_tool_count=excluded_tool_count,
+        )
+        observation.pop("issuer", None)
+        observation.pop("audience", None)
+    except Exception:
+        observation = {
+            "event_type": "tool_boundary_verification",
+            "verification_source": _TOOL_BOUNDARY_CONTRACT,
+            "outcome": "deny",
+            "reason": "unauthorized_tools_excluded",
+            "subject_present": isinstance(claims.get("sub"), str),
+            "organization_present": isinstance(claims.get("organization_id"), str),
+            "site_present": isinstance(claims.get("site_id"), str),
+            "exposed_tool_count": exposed_tool_count,
+            "excluded_tool_count": excluded_tool_count,
+        }
+    log.info(
+        "tool_boundary_observation %s",
+        json.dumps(observation, separators=(",", ":"), sort_keys=True),
+    )
 
 
 def render_contract_response(

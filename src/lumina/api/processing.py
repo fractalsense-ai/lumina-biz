@@ -51,6 +51,7 @@ from lumina.api.pipeline.response import (
 )
 from lumina.api.runtime_helpers import (
     apply_tool_call_policy,
+    emit_tool_boundary_observation,
     filter_runtime_tool_fns,
     interpret_turn_input,
     render_contract_response,
@@ -310,7 +311,14 @@ def process_message(
     if _allowed_tool_ids is None:
         _allowed_tool_ids = []
     _turn_runtime = dict(runtime)
-    _turn_runtime["tool_fns"] = filter_runtime_tool_fns(runtime, _allowed_tool_ids)
+    _turn_tool_fns = filter_runtime_tool_fns(runtime, _allowed_tool_ids)
+    _configured_tool_fns = runtime.get("tool_fns") or {}
+    emit_tool_boundary_observation(
+        user,
+        exposed_tool_count=len(_turn_tool_fns),
+        excluded_tool_count=len(_configured_tool_fns) - len(_turn_tool_fns),
+    )
+    _turn_runtime["tool_fns"] = _turn_tool_fns
 
     # ── Pre-turn resume hook (domain-driven) ────────────────────
     # When a domain marks current_task as completed and the user returns,

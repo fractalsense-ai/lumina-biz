@@ -1126,7 +1126,7 @@ artifacts:
   doc_version: 0.1.0
   status: planned
   last_updated: 2026-08-06
-  sha256: f50abd1c314029ebd15049e80be17b3a63af716772332d1600ab6aea4dd3c225
+  sha256: 14be6614591c40088da568469bb73eab6e1b28e0f4b184e0fe919380e9c0aef2
 - path: docs/roadmap/slices/41-erp-integration-program-charter-and-dependency-lock.md
   type: doc
   section: 0

@@ -45,7 +45,7 @@ and cross-domain execution safety.
 
 ## Current Node Status
 
-- N1: partial. Interpreter and command contexts now contain only runtime/caller-allowlisted tools, and direct tool invocation requires an authenticated token. Closure still requires an explicit session-scoped Tool Token lifecycle and pseudonymous guard observations.
+- N1: partial. Interpreter and command contexts now contain only runtime/caller-allowlisted tools, direct tool invocation requires an authenticated token, and tool exclusions emit pseudonymous deny observations. Closure still requires an explicit session-scoped Tool Token lifecycle and validation.
 - N4: complete. Cross-domain API-only boundary is enforced in daemon scheduling and adapter paths.
 - N5: complete. Daemon audit-commit parity is enforced for success and exception paths.
 - N6: complete. Actor liveness is enforced in shared auth dependencies with deny-closed fallback.
