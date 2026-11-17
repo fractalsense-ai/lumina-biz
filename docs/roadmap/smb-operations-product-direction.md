@@ -39,7 +39,9 @@ The Coding Agent pack was exploratory and is not an SMB product domain, workflow
 
 ## Business-System Integration
 
-The product is headless with respect to the business system of record: Lumina provides operator workflows and orchestration around the authoritative business system. ERPNext is a candidate initial integration, not a required dependency for every vertical. Keep capability contracts provider-neutral, preserve each external system's authority for its data, and place provider-specific mapping and transport behind connector boundaries.
+Lumina is an integrated, local-first product, not a headless overlay that requires third-party SaaS subscriptions. First-party POS, operator, and back-office apps communicate with the business system through the deployment's edge node. ERPNext/Frappe and Odoo are the initial self-hostable business-system backends; deployments select the backend that fits, and Lumina should use its existing business modules fully where they meet the need rather than recreate overlapping ledgers or workflows. The configured backend remains authoritative for persisted transactions.
+
+No third-party POS, labor, scheduling, or accounting SaaS is mandatory. External SaaS connectors remain optional for businesses that already use those systems and choose to retain them; Lumina does not force a rip-and-replace. Keep canonical capability contracts provider-neutral and provider-specific mapping and transport behind connector boundaries. Card acquiring may require a payment processor, but that is a replaceable integration behind the POS workflow, not a reason to couple register access or the operator app to one provider.
 
 ## Operator Experience
 
