@@ -23,7 +23,10 @@ def _entry(
     capabilities: tuple[str, ...] = ("service/work-order", "inventory"),
     actions: tuple[str, ...] = ("query", "request_commit"),
     capability_actions: tuple[tuple[str, tuple[str, ...]], ...] | None = None,
+    legacy_summaries_only: bool = False,
 ) -> ConnectorRegistryEntry:
+    if capability_actions is None and not legacy_summaries_only:
+        capability_actions = tuple((namespace, actions) for namespace in capabilities)
     return ConnectorRegistryEntry(
         organization_id="org-a",
         site_id="site-a",
@@ -143,6 +146,31 @@ def test_connector_action_must_be_declared_for_requested_namespace() -> None:
         action_class="create_draft",
         capability_namespace="sales/pos",
         idempotency_key="idem-capability-action-pair",
+    )
+
+    assert result.status == "error"
+    assert result.reason_code == "no_eligible_connector"
+    assert result.connector_instance_id is None
+
+
+@pytest.mark.unit
+def test_ambiguous_legacy_connector_summary_is_ineligible() -> None:
+    result = resolve_connector(
+        [
+            _entry(
+                "conn-legacy",
+                is_site_primary=True,
+                capabilities=("inventory", "sales/pos"),
+                actions=("query", "create_draft"),
+                legacy_summaries_only=True,
+            )
+        ],
+        _policy(),
+        request_id="req-legacy-ambiguous-pair",
+        actor_id="actor-a",
+        action_class="create_draft",
+        capability_namespace="sales/pos",
+        idempotency_key="idem-legacy-ambiguous-pair",
     )
 
     assert result.status == "error"

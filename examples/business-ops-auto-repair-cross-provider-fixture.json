@@ -50,6 +50,10 @@
         "connector_instance_id": "conn-erpnext-primary",
         "capability_namespaces": ["erp/work-order", "erp/customer"],
         "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+        "capabilities": [
+          {"namespace": "erp/work-order", "supported_actions": ["query", "create_draft", "update_draft", "request_commit"]},
+          {"namespace": "erp/customer", "supported_actions": ["query"]}
+        ],
         "enabled": true,
         "health_status": "healthy",
         "is_site_primary": true
@@ -95,6 +99,10 @@
                   "connector_instance_id": "conn-erpnext-1",
                   "capability_namespaces": ["erp/work-order", "erp/customer"],
                   "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+                  "capabilities": [
+                    {"namespace": "erp/work-order", "supported_actions": ["query", "create_draft", "update_draft", "request_commit"]},
+                    {"namespace": "erp/customer", "supported_actions": ["query"]}
+                  ],
                   "enabled": true,
                   "health_status": "healthy",
                   "is_site_primary": true
@@ -136,6 +144,10 @@
                   "connector_instance_id": "conn-odoo-1",
                   "capability_namespaces": ["erp/work-order", "erp/customer"],
                   "supported_action_classes": ["query", "create_draft", "update_draft", "request_commit"],
+                  "capabilities": [
+                    {"namespace": "erp/work-order", "supported_actions": ["query", "create_draft", "update_draft", "request_commit"]},
+                    {"namespace": "erp/customer", "supported_actions": ["query"]}
+                  ],
                   "enabled": true,
                   "health_status": "healthy",
                   "is_site_primary": true
