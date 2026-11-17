@@ -113,6 +113,15 @@ def _validator(path: Path) -> jsonschema.Draft202012Validator:
     )
 
 
+@pytest.mark.unit
+def test_api_connector_execution_literals_match_canonical_request_schema() -> None:
+    canonical = _load(SCHEMA_FILES["operation_request"])
+    api_schema = ConnectorExecutionFixtureRequest.model_json_schema()
+
+    assert api_schema["properties"]["action_class"]["enum"] == canonical["$defs"]["action_class"]["enum"]
+    assert api_schema["properties"]["capability_namespace"]["enum"] == canonical["$defs"]["capability_namespace"]["enum"]
+
+
 def _external_reference() -> dict:
     return {
         "connector_instance_id": "erpnext-main",
