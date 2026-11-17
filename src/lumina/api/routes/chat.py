@@ -12,11 +12,12 @@ from fastapi.security import HTTPAuthorizationCredentials
 from starlette.concurrency import run_in_threadpool
 
 from lumina.api import config as _cfg
-from lumina.api.dependencies import get_institutional_indexer
+from lumina.api.dependencies import get_active_operating_context, get_institutional_indexer
 from lumina.api.middleware import _bearer_scheme, get_current_user
 from lumina.api.models import ChatRequest, ChatResponse
 from lumina.api.processing import process_message
 from lumina.api.session import _session_containers
+from lumina.auth.tool_token import ToolToken, mint_tool_token
 from lumina.core.domain_registry import DomainNotFoundError
 from lumina.core.permissions import Operation, check_permission
 from lumina.system_log.commit_guard import requires_log_commit
@@ -161,8 +162,9 @@ async def chat(
     routing_record["final_domain"] = resolved_domain_id
 
     # ── RBAC gate ──
+    runtime = _cfg.DOMAIN_REGISTRY.get_runtime_context(resolved_domain_id)
+    module_execute_allowed = bool(user and user.get("role") == "root")
     if user is not None:
-        runtime = _cfg.DOMAIN_REGISTRY.get_runtime_context(resolved_domain_id)
         domain_physics_path = runtime["domain_physics_path"]
         domain = await run_in_threadpool(_cfg.PERSISTENCE.load_domain_physics, str(domain_physics_path))
         module_perms = domain.get("permissions")
@@ -190,6 +192,21 @@ async def chat(
             )
             if not has_access:
                 raise HTTPException(status_code=403, detail="Module access denied")
+            module_execute_allowed = has_access
+
+    tool_token: ToolToken | None = None
+    if user is not None and module_execute_allowed:
+        try:
+            get_active_operating_context(user)
+        except HTTPException:
+            log.info("[%s] Tool Token not issued: active operating context unavailable", session_id)
+        else:
+            tool_token = mint_tool_token(
+                session_id=session_id,
+                user=user,
+                module_id=str(runtime.get("module_id") or resolved_domain_id),
+                runtime=runtime,
+            )
 
     # ── Holodeck role gate ──
     if req.holodeck:
@@ -210,6 +227,10 @@ async def chat(
     except Exception:
         log.debug("Could not write routing decision to meta-ledger")
 
+    process_kwargs: dict[str, Any] = {}
+    if tool_token is not None:
+        process_kwargs["tool_token"] = tool_token
+
     try:
         result = await run_in_threadpool(
             process_message,
@@ -225,6 +246,7 @@ async def chat(
             None,                      # physics_sandbox
             req.journal_entity_salt,
             req.journal_mode,
+            **process_kwargs,
         )
     except DomainNotFoundError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

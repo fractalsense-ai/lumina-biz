@@ -64,6 +64,7 @@ from lumina.api.session import (
 from lumina.api.utils.coercion import normalize_turn_data
 from lumina.api.utils.glossary import detect_glossary_query
 from lumina.api.utils.text import strip_latex_delimiters
+from lumina.auth.tool_token import ToolToken, ToolTokenError, validate_tool_token
 from lumina.core.slm import (
     SLM_TURN_MAX_TOKENS,
     TaskWeight,
@@ -221,6 +222,8 @@ def process_message(
     physics_sandbox: dict[str, Any] | None = None,
     journal_entity_salt: str | None = None,
     journal_mode: bool = False,
+    *,
+    tool_token: ToolToken | None = None,
 ) -> dict[str, Any]:
     # physics_sandbox implies holodeck
     if physics_sandbox is not None:
@@ -307,9 +310,18 @@ def process_message(
         runtime = dict(runtime)
         runtime["nlp_pre_interpreter_fn"] = _active_mod["nlp_pre_interpreter_fn"]
 
-    _allowed_tool_ids = user.get("allowed_tools") if isinstance(user, dict) else None
-    if _allowed_tool_ids is None:
-        _allowed_tool_ids = []
+    _allowed_tool_ids: frozenset[str] = frozenset()
+    if tool_token is not None and isinstance(user, dict):
+        try:
+            _allowed_tool_ids = validate_tool_token(
+                tool_token,
+                session_id=session_id,
+                user=user,
+                module_id=str(runtime.get("module_id") or resolved_domain_id),
+                runtime=runtime,
+            )
+        except ToolTokenError:
+            pass
     _turn_runtime = dict(runtime)
     _turn_tool_fns = filter_runtime_tool_fns(runtime, _allowed_tool_ids)
     _configured_tool_fns = runtime.get("tool_fns") or {}

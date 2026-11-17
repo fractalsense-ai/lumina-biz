@@ -1,8 +1,8 @@
 ---
 title: "Architecture Coherence Gap Register"
 status: active
-version: 0.3.0
-last_updated: 2026-08-09
+version: 0.4.0
+last_updated: 2026-11-17
 ---
 
 ## Purpose
@@ -14,7 +14,7 @@ and map each gap to a dependency-DAG node, owner hotspot, and closure evidence.
 
 | Gap ID | Gap Summary | Risk | Primary Hotspots |
 |---|---|---|---|
-| G1 | Tool-token boundary is not yet explicit end-to-end at runtime invocation surface | high | `src/lumina/api/dependencies.py`, `src/lumina/api/runtime_helpers.py` |
+| G1 | Closed: session-bound Tool Tokens gate interpreter context, command assembly, and direct tool invocation | low | `src/lumina/auth/tool_token.py`, `src/lumina/api/runtime_helpers.py`, `src/lumina/api/routes/chat.py`, `src/lumina/api/routes/system.py` |
 | G2 | Institutional-memory ingest lacks explicit rejection for chat/conversation payload classes | high | `src/lumina/retrieval/institutional.py` |
 | G3 | Pipeline ordering is documented but not uniformly hard-failed/degraded when stages are missing or reordered | high | `src/lumina/api/processing.py` |
 | G4 | Cross-domain API-only boundary is partial policy-level, not fully runtime-enforced | high | `src/lumina/daemon/cross_domain.py`, `src/lumina/daemon/task_adapter.py` |
@@ -70,6 +70,7 @@ Gate scope boundaries:
 
 ## Recent Closure Notes
 
+- G1 closure evidence (N1): internal tokens are minted after module `EXECUTE` and active actor/site checks, then validated against session, actor, org/site, module, expiry, and current runtime allowlist. Denials fail closed with pseudonymous observations. Regression coverage is in `tests/test_tool_token.py`, `tests/test_pipeline_fix.py`, `tests/test_routes_chat.py`, `tests/test_api_chat_tool_log_integration.py`, and `tests/test_runtime_helpers_coercion.py`.
 - G6 closure evidence (N6): actor-liveness guard added to `get_active_operating_context` in `src/lumina/api/dependencies.py`.
 - Deterministic deny taxonomy for N6: `actor_inactive_in_sor`, `actor_liveness_unavailable`.
 - N6 targeted test coverage: `tests/test_api_dependencies_liveness.py`.
