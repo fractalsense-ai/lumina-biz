@@ -280,6 +280,27 @@ def test_preflight_rejects_duplicate_capability_declarations(client) -> None:
 
 
 @pytest.mark.integration
+def test_preflight_rejects_capability_summary_mismatch(client) -> None:
+    test_client, _ = client
+    payload = _preflight_payload()
+    entry = payload["connector_registry_entries"][0]
+    entry["capability_namespaces"] = ["inventory", "sales/pos"]
+    entry["supported_action_classes"] = ["query", "create_draft"]
+    entry["capabilities"] = [
+        {"namespace": "inventory", "supported_actions": ["query"]},
+    ]
+
+    response = test_client.post(
+        "/api/connector-routing/preflight",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    assert "do not match capabilities" in response.json()["detail"]
+
+
+@pytest.mark.integration
 def test_preflight_rejects_unscoped_token(client) -> None:
     test_client, _ = client
     response = test_client.post(

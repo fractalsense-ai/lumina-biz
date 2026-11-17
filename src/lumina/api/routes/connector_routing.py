@@ -292,6 +292,20 @@ async def preflight(
                     )
                 )
             capabilities = tuple(capability_declarations)
+            declared_namespaces = {declaration.namespace for declaration in capabilities}
+            declared_actions = {
+                action
+                for declaration in capabilities
+                for action in declaration.supported_actions
+            }
+            if (
+                set(capability_namespaces) != declared_namespaces
+                or set(supported_action_classes) != declared_actions
+            ):
+                raise HTTPException(
+                    status_code=422,
+                    detail="Connector capability summary lists do not match capabilities",
+                )
         health_status = _normalize_health_status(
             entry.health_status,
             field_name="connector_registry_entries.health_status",

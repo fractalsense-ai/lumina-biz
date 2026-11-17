@@ -1378,7 +1378,7 @@ artifacts:
   doc_version: 1.0.0
   status: planned
   last_updated: 2026-11-08
-  sha256: 7ba6bfb6bc1441f76f58ae080407cae5e9ccdd3bcc631463b6f5b9bda615152c
+  sha256: 1c03e270bcfda59af766f3a15f0d5a01d00a6cb16d4d6ae5d84549326013a53f
 - path: docs/roadmap/slices/77-restaurant-vertical-repo-charter-and-pack-boundary.md
   type: doc
   section: 0
