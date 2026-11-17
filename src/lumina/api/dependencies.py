@@ -32,6 +32,43 @@ async def get_authenticated_user(
     return require_auth(await get_current_user(credentials))
 
 
+def require_registered_domain_access(domain_id: str):
+    """Build a dependency requiring membership in a mounted domain's scope."""
+    async def _require_domain_access(
+        user: dict[str, Any] = Depends(get_authenticated_user),
+    ) -> None:
+        registry = _cfg.DOMAIN_REGISTRY
+        if not registry.is_multi_domain or user.get("role") == "root":
+            return
+
+        try:
+            runtime = registry.get_runtime_context(domain_id)
+            module_ids = set((runtime.get("module_map") or {}).keys())
+            default_module_id = registry.get_default_module_id(domain_id)
+            if default_module_id:
+                module_ids.add(default_module_id)
+        except Exception as exc:
+            log.warning("Domain authorization context unavailable for %s", domain_id)
+            raise HTTPException(
+                status_code=503,
+                detail="Domain authorization context unavailable",
+            ) from exc
+
+        domain_roles = user.get("domain_roles") or {}
+        governed_modules = set(user.get("governed_modules") or [])
+        if (
+            domain_id in domain_roles
+            or domain_id in governed_modules
+            or module_ids.intersection(domain_roles)
+            or module_ids.intersection(governed_modules)
+        ):
+            return
+
+        raise HTTPException(status_code=403, detail=f"Access denied for domain '{domain_id}'")
+
+    return _require_domain_access
+
+
 def _emit_actor_liveness_observation(
     user: dict[str, Any],
     *,
