@@ -32,6 +32,7 @@ Define the provider-neutral capability boundary between `lumina-biz`, public ver
 - Reference the canonical capability namespaces and action classes in `docs/7-concepts/business-system-capability-taxonomy.md`.
 - Specify how requests and results conform to `business-operation-request-schema-v1.json` and `business-operation-result-schema-v1.json`.
 - Specify that connector manifests declare supported namespace/action pairs using `business-system-connector-manifest-schema-v1.json`.
+- Preserve those per-namespace action pairs in connector registry entries. New registry producers must provide the exact `capabilities` declaration; it is authoritative when present. Legacy flattened summaries are accepted only when unambiguous (a single namespace or a single action); ambiguous multi-namespace/multi-action entries must provide exact declarations.
 - Define provider mapping, capability discovery, conformance, structured unsupported-operation errors, and fallback rules.
 - Define Tool Token scope, organization/site/actor binding, runtime-secret references, idempotency, and auditable human approval for mutations.
 - Define deterministic analytics provenance and the boundary that reserves AI for unresolved ambiguity or requested qualitative synthesis.
@@ -78,6 +79,7 @@ Verticals may configure formulas, thresholds, units, and schedules. F&B recipe/y
 - Capabilities are vendor-neutral and reusable by distinct verticals.
 - Provider-specific behavior is isolated behind connector mappings.
 - Requests/results validate against the canonical schemas, and provider support is checked against manifest declarations.
+- Routing honors the declared action set for the requested namespace; it never infers a cross-product when exact declarations are present.
 - External systems of record retain authority over their domains.
 - Cross-domain operations use target-domain APIs and are auditable; Tool Token and actor scope are enforced at dispatch.
 - Routine analytics are reproducible, CPU-first calculations with provenance and make zero model calls.

@@ -18,6 +18,7 @@ from lumina.business_ops.connectors.erpnext import (
     execute_with_fixtures,
 )
 from lumina.connector_routing.router import (
+    CapabilityDeclaration,
     CapabilityRoute,
     CapabilityRoutePolicy,
     ConnectorRegistryEntry,
@@ -254,6 +255,43 @@ async def preflight(
             entry.supported_action_classes,
             field_name="connector_registry_entries.supported_action_classes",
         )
+        if (
+            entry.capabilities is None
+            and len(set(capability_namespaces)) > 1
+            and len(set(supported_action_classes)) > 1
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    "connector_registry_entries.capabilities is required when "
+                    "multiple namespaces and actions need exact pairing"
+                ),
+            )
+        capabilities = None
+        if entry.capabilities is not None:
+            capability_declarations: list[CapabilityDeclaration] = []
+            declared_namespaces: set[str] = set()
+            for capability in entry.capabilities:
+                namespace = _normalize_required(
+                    capability.namespace,
+                    field_name="connector_registry_entries.capabilities.namespace",
+                )
+                if namespace in declared_namespaces:
+                    raise HTTPException(
+                        status_code=422,
+                        detail=f"Duplicate capability declaration for '{namespace}'",
+                    )
+                declared_namespaces.add(namespace)
+                capability_declarations.append(
+                    CapabilityDeclaration(
+                        namespace=namespace,
+                        supported_actions=_normalize_action_classes(
+                            capability.supported_actions,
+                            field_name="connector_registry_entries.capabilities.supported_actions",
+                        ),
+                    )
+                )
+            capabilities = tuple(capability_declarations)
         health_status = _normalize_health_status(
             entry.health_status,
             field_name="connector_registry_entries.health_status",
@@ -268,6 +306,7 @@ async def preflight(
                 enabled=entry.enabled,
                 health_status=health_status,
                 is_site_primary=entry.is_site_primary,
+                capabilities=capabilities,
             )
         )
 

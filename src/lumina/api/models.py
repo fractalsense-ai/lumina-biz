@@ -161,9 +161,18 @@ class ConnectorRoutingRegistryEntryRequest(BaseModel):
     connector_instance_id: str = Field(min_length=1)
     capability_namespaces: list[str] = Field(min_length=1)
     supported_action_classes: list[str] = Field(min_length=1)
+    capabilities: list["ConnectorCapabilityDeclarationRequest"] | None = Field(
+        default=None,
+        description="Exact per-namespace action support; authoritative when provided. Omit only for legacy registry entries during migration.",
+    )
     enabled: bool = True
     health_status: str
     is_site_primary: bool = False
+
+
+class ConnectorCapabilityDeclarationRequest(BaseModel):
+    namespace: ConnectorExecutionCapabilityNamespace
+    supported_actions: list[ConnectorExecutionActionClass] = Field(min_length=1)
 
 
 class ConnectorRoutingCapabilityRouteRequest(BaseModel):

@@ -70,6 +70,14 @@ def test_registry_entry_schema_accepts_valid_payload() -> None:
         "provider_family": "erpnext",
         "capability_namespaces": ["service/work-order"],
         "supported_action_classes": ["query", "request_commit"],
+        "capabilities": [
+            {"namespace": "service/work-order", "supported_actions": ["query", "request_commit"]},
+            {"namespace": "inventory", "supported_actions": ["query"]},
+        ],
+        "capabilities": [
+            {"namespace": "service/work-order", "supported_actions": ["query", "request_commit"]},
+            {"namespace": "inventory", "supported_actions": ["query"]},
+        ],
         "enabled": True,
         "health_status": "healthy",
         "is_site_primary": True,

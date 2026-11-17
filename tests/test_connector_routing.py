@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 
 from lumina.connector_routing.router import (
+    CapabilityDeclaration,
     CapabilityRoute,
     CapabilityRoutePolicy,
     ConnectorRegistryEntry,
@@ -21,6 +22,7 @@ def _entry(
     is_site_primary: bool = False,
     capabilities: tuple[str, ...] = ("service/work-order", "inventory"),
     actions: tuple[str, ...] = ("query", "request_commit"),
+    capability_actions: tuple[tuple[str, tuple[str, ...]], ...] | None = None,
 ) -> ConnectorRegistryEntry:
     return ConnectorRegistryEntry(
         organization_id="org-a",
@@ -31,6 +33,14 @@ def _entry(
         enabled=enabled,
         health_status=health_status,  # type: ignore[arg-type]
         is_site_primary=is_site_primary,
+        capabilities=(
+            tuple(
+                CapabilityDeclaration(namespace, supported_actions)
+                for namespace, supported_actions in capability_actions
+            )
+            if capability_actions is not None
+            else None
+        ),
     )
 
 
@@ -110,6 +120,34 @@ def test_capability_namespace_is_normalized_for_matching() -> None:
     assert result.status == "resolved"
     assert result.source == "capability_route"
     assert result.connector_instance_id == "conn-cap"
+
+
+@pytest.mark.unit
+def test_connector_action_must_be_declared_for_requested_namespace() -> None:
+    result = resolve_connector(
+        [
+            _entry(
+                "conn-a",
+                is_site_primary=True,
+                capabilities=("inventory", "sales/pos"),
+                actions=("query", "create_draft"),
+                capability_actions=(
+                    ("inventory", ("query", "create_draft")),
+                    ("sales/pos", ("query",)),
+                ),
+            )
+        ],
+        _policy(),
+        request_id="req-capability-action-pair",
+        actor_id="actor-a",
+        action_class="create_draft",
+        capability_namespace="sales/pos",
+        idempotency_key="idem-capability-action-pair",
+    )
+
+    assert result.status == "error"
+    assert result.reason_code == "no_eligible_connector"
+    assert result.connector_instance_id is None
 
 
 @pytest.mark.unit

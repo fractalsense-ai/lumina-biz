@@ -76,6 +76,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 ## RI-04 Progress
 
 - The connector execution API's Pydantic action and capability literals now match the canonical request schema, including POS, purchasing, timekeeping, accounting, and all six canonical action classes.
+- Connector registry entries can preserve per-namespace supported actions; exact declarations are authoritative in routing, preventing flattened summary lists from claiming undeclared combinations.
 - Provider-specific connector mappings remain narrower by design; unimplemented namespace/action pairs pass envelope validation and return structured unsupported results rather than being rejected as non-canonical input.
 - Focused canonical schema, connector execution, and routing tests pass (281 passed). Full backend suite passes (5,173 passed, 1 skipped) at 85.14% coverage.
 - This is API vocabulary parity only. Provider transports, new connector capabilities, and live SoR mutations remain separate RI-04 work and subject to existing approval and execution gates.
