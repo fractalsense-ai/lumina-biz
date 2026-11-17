@@ -243,6 +243,9 @@ _domain_routers_mounted = False
 def _mount_domain_api_routers() -> int:
     """Mount FastAPI routers explicitly declared by active domain packs."""
     global _domain_routers_mounted
+    from fastapi import Depends
+    from lumina.api.dependencies import require_registered_domain_access
+
     if _domain_routers_mounted:
         return 0
     _domain_routers_mounted = True
@@ -262,7 +265,10 @@ def _mount_domain_api_routers() -> int:
             router = router_def.get("router")
             if router is None:
                 continue
-            app.include_router(router)
+            app.include_router(
+                router,
+                dependencies=[Depends(require_registered_domain_access(domain_id))],
+            )
             mounted += 1
             log.info("domain_api_routers: mounted %s for %s", router_def.get("id"), domain_id)
     return mounted
@@ -283,6 +289,9 @@ def _mount_domain_api_routes() -> int:
     Returns the number of routes mounted.
     """
     global _domain_routes_mounted
+    from fastapi import Depends
+    from lumina.api.dependencies import require_registered_domain_access
+
     if _domain_routes_mounted:
         return 0
     _domain_routes_mounted = True
@@ -390,7 +399,12 @@ def _mount_domain_api_routes() -> int:
                 from lumina.system_log.commit_guard import requires_log_commit
                 _endpoint = requires_log_commit(_endpoint)
 
-            app.add_api_route(_path, _endpoint, methods=[_method])
+            app.add_api_route(
+                _path,
+                _endpoint,
+                methods=[_method],
+                dependencies=[Depends(require_registered_domain_access(domain_id))],
+            )
             mounted += 1
             log.info("domain_api_routes: mounted %s %s", _method, _path)
 

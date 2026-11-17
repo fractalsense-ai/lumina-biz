@@ -99,18 +99,24 @@ def _build_vector_store_stub() -> types.ModuleType:
 
 @pytest.fixture
 def api_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LUMINA_RUNTIME_CONFIG_PATH", "model-packs/business-ops/cfg/runtime-config.yaml")
-    monkeypatch.delenv("LUMINA_DOMAIN_REGISTRY_PATH", raising=False)
+    monkeypatch.setenv("LUMINA_DOMAIN_REGISTRY_PATH", "model-packs/system/cfg/domain-registry.yaml")
+    monkeypatch.delenv("LUMINA_RUNTIME_CONFIG_PATH", raising=False)
     monkeypatch.setitem(sys.modules, "lumina.retrieval.embedder", _build_embedder_stub())
     monkeypatch.setitem(sys.modules, "lumina.retrieval.vector_store", _build_vector_store_stub())
     prior_server_module = sys.modules.get("lumina.api.server")
     mod = _load_api_module()
     mod.DOMAIN_REGISTRY = DomainRegistry(
         repo_root=_REPO_ROOT,
-        single_config_path="model-packs/business-ops/cfg/runtime-config.yaml",
+        registry_path="model-packs/system/cfg/domain-registry.yaml",
         load_runtime_context_fn=load_runtime_context,
     )
     mod.PERSISTENCE = NullPersistenceAdapter()
+    from lumina.api import config as config_module
+
+    prior_registry = config_module.DOMAIN_REGISTRY
+    prior_persistence = config_module.PERSISTENCE
+    config_module.DOMAIN_REGISTRY = mod.DOMAIN_REGISTRY
+    config_module.PERSISTENCE = mod.PERSISTENCE
     mod.BOOTSTRAP_MODE = True
     mod._session_containers.clear()
     mod._STAGED_COMMANDS.clear()
@@ -119,6 +125,8 @@ def api_module(monkeypatch: pytest.MonkeyPatch):
     try:
         yield mod
     finally:
+        config_module.DOMAIN_REGISTRY = prior_registry
+        config_module.PERSISTENCE = prior_persistence
         sys.modules.pop("lumina.api.server", None)
         if prior_server_module is not None:
             sys.modules["lumina.api.server"] = prior_server_module
@@ -135,7 +143,13 @@ def _register_root(client: TestClient) -> str:
         json={"username": "wf-admin", "password": "test-pass-123", "role": "user"},
     )
     assert resp.status_code == 200
-    return resp.json()["access_token"]
+    from lumina.auth.auth import create_scoped_jwt
+
+    return create_scoped_jwt(
+        user_id=resp.json()["user_id"],
+        role="user",
+        domain_roles={"domain/bizops/auto-repair/v1": "operator"},
+    )
 
 
 def _auth_header(token: str) -> dict[str, str]:
@@ -182,6 +196,30 @@ def _fake_process_message(
 
 @pytest.mark.integration
 class TestWorkflowRoutes:
+    def test_workflow_endpoint_denies_admin_outside_declaring_domain(
+        self,
+        client: TestClient,
+    ) -> None:
+        from lumina.auth.auth import create_scoped_jwt
+
+        token = create_scoped_jwt(
+            user_id="system-only-admin",
+            role="admin",
+            governed_modules=[],
+            domain_roles={"system": "operator"},
+        )
+        with patch(
+            "lumina.business_ops.auto_repair_workflow.process_message",
+            side_effect=_fake_process_message,
+        ):
+            response = client.post(
+                "/api/workflow/auto-repair/intake",
+                json={"message": "Start intake", "domain_id": "business-ops"},
+                headers=_auth_header(token),
+            )
+
+        assert response.status_code == 403
+
     def test_intake_endpoint_returns_workflow_metadata(self, client: TestClient, api_module: Any) -> None:
         token = _register_root(client)
         session_id = "wf-intake-1"
