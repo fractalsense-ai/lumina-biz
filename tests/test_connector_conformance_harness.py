@@ -20,6 +20,16 @@ def _request(*, request_id: str, action_class: str, capability_namespace: str, p
     }
 
 
+def _payload_for_action(action_class: str) -> dict[str, object]:
+    if action_class == "create_draft":
+        return {"record": {"name": "fixture-record"}}
+    if action_class == "update_draft":
+        return {"record_id": "fixture-record", "record": {"status": "Open"}}
+    if action_class == "request_commit":
+        return {"record_id": "fixture-record"}
+    return {}
+
+
 @pytest.mark.unit
 @pytest.mark.parametrize(
     "provider_module,provider_family",
@@ -61,6 +71,42 @@ def test_conformance_suite_runs_shared_scenarios(provider_module, provider_famil
     assert all(result.provider == provider_family for result in results)
     assert all(result.passed for result in results)
     assert [result.scenario_id for result in results] == ["query-work-order-ok", "unsupported-op-fails"]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("provider_module", [erpnext, odoo])
+def test_manifest_declared_pairs_have_executable_mappings(provider_module) -> None:
+    manifest = provider_module.build_connector_manifest()
+    scenarios = []
+    declared_pairs = set()
+
+    for capability in manifest["capabilities"]:  # type: ignore[index]
+        namespace = str(capability["namespace"])
+        for action_class in capability["supported_actions"]:
+            action_class = str(action_class)
+            scenario_id = f"{namespace}:{action_class}"
+            declared_pairs.add((namespace, action_class))
+            scenarios.append(
+                conformance.ConformanceScenario(
+                    scenario_id=scenario_id,
+                    request=_request(
+                        request_id=f"req-{scenario_id}",
+                        action_class=action_class,
+                        capability_namespace=namespace,
+                        payload=_payload_for_action(action_class),
+                    ),
+                    fixture_result={"status": "succeeded", "data": {}},
+                )
+            )
+
+    results = conformance.run_conformance_suite(
+        provider_module,
+        scenarios,
+        expected_scope={"organization_id": "org-a", "site_id": "site-a"},
+    )
+
+    assert {(result.capability_namespace, result.action_class) for result in results} == declared_pairs
+    assert all(result.passed for result in results), [result.error_summary for result in results]
 
 
 @pytest.mark.unit
