@@ -99,7 +99,9 @@ The product is headless with respect to the business system of record: Lumina pr
 
 ### Demand and prep planning
 
-Historical transactions, local event calendars, and weather feeds may inform demand forecasts and prep suggestions. Keep the forecast method, data sources, timestamp, confidence, and fallback policy visible. Weather and calendar feeds are uncertain external inputs, not Domain Physics. Deterministic policy may apply approved thresholds to a forecast, while the operator reviews material prep or purchasing changes.
+Routine analytics are deterministic, CPU-first calculations over authorized systems-of-record data; they do not call an LLM, SLM, or VLM or generate model tokens. This includes trends, seasonal velocity curves, rolling averages, exponential smoothing, daypart histograms, par levels, FIFO or moving-average inventory valuation, and basic reorder triggers. Keep the algorithm/version, input window, source, timestamp, and missing-data behavior visible so results are reproducible.
+
+Historical transactions, local event calendars, and weather feeds may inform demand forecasts and prep suggestions. Weather and calendar feeds are uncertain external inputs, not Domain Physics. Deterministic policy may apply approved thresholds to the calculated forecast, while the operator reviews material prep or purchasing changes. Invoke AI only when deterministic results leave material ambiguity, evidence conflicts or is incomplete, an anomaly needs interpretation, or the operator explicitly asks for qualitative synthesis. AI may explain or suggest; it does not replace deterministic values or authorize a system-of-record mutation.
 
 ### DSD invoices and receiving
 

@@ -41,7 +41,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-15 | Deliver role-filtered operational tasks with accessible completion controls and auditable status transitions | `lumina-biz` | RI-01, RI-02, RI-14 | Planned |
 | RI-16 | Implement authenticated sensor ingestion, buffered BLE gateway delivery, stale-reading state, and role-scoped notifications | `lumina-biz` plus vertical sensor profiles | RI-09, RI-14, RI-15 | Planned |
 | RI-17 | Implement F&B till cohorts, deterministic tip-pool readiness, safe thresholds, and reviewed payout routing | `lumina-fnb` | RI-05, RI-14, RI-15 | Planned |
-| RI-18 | Implement F&B par and daypart prep suggestions using historical systems-of-record data plus timestamped calendar/weather evidence | `lumina-fnb` | RI-04, RI-05, RI-07 | Planned |
+| RI-18 | Implement deterministic F&B trends, seasonal/daypart velocity, par and reorder calculations using systems-of-record data; reserve AI for unresolved ambiguity or requested qualitative synthesis | `lumina-fnb` | RI-04, RI-05, RI-07 | Planned |
 | RI-19 | Implement consented proof-of-work image capture and bounded VLM review with confidence, evidence, retention, and human escalation | `lumina-biz` plus vertical policy | RI-08, RI-15 | Planned |
 | RI-20 | Deliver freshness-aware knowledge refresh and a reviewed, privacy-limited outcome corpus for offline model evaluation and controlled improvement | `lumina-biz` plus vertical-approved data policy | 55, 80, RI-08 | Planned |
 
