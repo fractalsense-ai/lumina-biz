@@ -347,10 +347,21 @@ def test_confirmed_thread_selects_bound_chat_session(client, monkeypatch: pytest
             "action": "continue",
             "prompt_type": "standard",
             "escalated": False,
-            "domain_id": "_default",
+            "domain_id": "business-ops",
         }
 
     import lumina.api.routes.chat as chat_module
+    from lumina.api import config as config_module
+
+    runtime = config_module.DOMAIN_REGISTRY.get_runtime_context("business-ops")
+    runtime["thread_routing_policy_path"] = "custom/domain/thread-policy.yaml"
+    loaded_policy_paths: list[str] = []
+
+    def fake_load_thread_routing_policy(path, **_kwargs):
+        loaded_policy_paths.append(str(path))
+        return object()
+
+    monkeypatch.setattr(chat_module, "load_thread_routing_policy", fake_load_thread_routing_policy)
     monkeypatch.setattr(chat_module, "process_message", fake_process_message)
     recap_calls: list[dict] = []
 
@@ -369,6 +380,7 @@ def test_confirmed_thread_selects_bound_chat_session(client, monkeypatch: pytest
     assert response.json()["session_id"] == confirmed["session_id"]
     assert recap_calls[0]["thread_id"] == confirmed["thread_id"]
     assert recap_calls[0]["turn_count"] == 1
+    assert loaded_policy_paths == ["custom/domain/thread-policy.yaml"]
 
     mismatch = test_client.post(
         "/api/chat",
