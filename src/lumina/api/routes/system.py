@@ -10,7 +10,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from starlette.concurrency import run_in_threadpool
 
 from lumina.api import config as _cfg
-from lumina.api.middleware import _bearer_scheme, get_current_user, require_role
+from lumina.api.middleware import _bearer_scheme, get_current_user, require_auth, require_role
 from lumina.api.models import SystemLogValidateResponse, ToolRequestWithDomain, ToolResponse
 from lumina.api.runtime_helpers import invoke_runtime_tool
 from lumina.core.domain_registry import DomainNotFoundError
@@ -215,26 +215,27 @@ async def run_tool(
 
     runtime = _cfg.DOMAIN_REGISTRY.get_runtime_context(resolved)
 
-    user = await get_current_user(credentials)
-    if user is not None:
-        domain_physics_path = runtime["domain_physics_path"]
-        domain = await run_in_threadpool(_cfg.PERSISTENCE.load_domain_physics, str(domain_physics_path))
-        module_perms = domain.get("permissions")
-        if module_perms:
-            user_domain_roles = user.get("domain_roles") or {}
-            mod_id = runtime.get("module_id", resolved)
-            user_dr = user_domain_roles.get(mod_id) or user_domain_roles.get(resolved)
-            if not check_permission(
-                user_id=user["sub"],
-                user_role=user["role"],
-                module_permissions=module_perms,
-                operation=Operation.EXECUTE,
-                domain_role=user_dr,
-                domain_roles_config=domain.get("domain_roles"),
-                groups_config=domain.get("groups"),
-            ):
-                raise HTTPException(status_code=403, detail="Module access denied")
-    _allowed_tool_ids = user.get("allowed_tools") if isinstance(user, dict) else None
+    user = require_auth(await get_current_user(credentials))
+    domain_physics_path = runtime["domain_physics_path"]
+    domain = await run_in_threadpool(_cfg.PERSISTENCE.load_domain_physics, str(domain_physics_path))
+    module_perms = domain.get("permissions")
+    if module_perms:
+        user_domain_roles = user.get("domain_roles") or {}
+        mod_id = runtime.get("module_id", resolved)
+        user_dr = user_domain_roles.get(mod_id) or user_domain_roles.get(resolved)
+        if not check_permission(
+            user_id=user["sub"],
+            user_role=user["role"],
+            module_permissions=module_perms,
+            operation=Operation.EXECUTE,
+            domain_role=user_dr,
+            domain_roles_config=domain.get("domain_roles"),
+            groups_config=domain.get("groups"),
+        ):
+            raise HTTPException(status_code=403, detail="Module access denied")
+    _allowed_tool_ids = user.get("allowed_tools")
+    if _allowed_tool_ids is None:
+        _allowed_tool_ids = []
     try:
         result = await run_in_threadpool(
             invoke_runtime_tool,

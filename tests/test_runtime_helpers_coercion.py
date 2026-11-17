@@ -18,6 +18,7 @@ from lumina.api.utils.coercion import (
 )
 from lumina.api.runtime_helpers import (
     apply_tool_call_policy,
+    filter_runtime_tool_fns,
     invoke_runtime_tool,
     render_contract_response,
 )
@@ -381,6 +382,30 @@ class TestInvokeRuntimeTool:
                 runtime,
                 allowed_tool_ids={"scorer": True},
             )
+
+
+class TestFilterRuntimeToolFns:
+
+    @pytest.mark.unit
+    def test_excludes_tools_outside_effective_allowlist(self) -> None:
+        runtime = {
+            "tool_fns": {
+                "shared": lambda payload: {"shared": True},
+                "runtime_only": lambda payload: {"runtime_only": True},
+                "caller_only": lambda payload: {"caller_only": True},
+            },
+            "tool_allowlist": ["shared", "runtime_only"],
+        }
+
+        visible = filter_runtime_tool_fns(runtime, ["shared", "caller_only"])
+
+        assert set(visible) == {"shared"}
+
+    @pytest.mark.unit
+    def test_missing_caller_allowlist_exposes_no_tools(self) -> None:
+        runtime = {"tool_fns": {"scorer": lambda payload: {"ok": True}}}
+
+        assert filter_runtime_tool_fns(runtime, []) == {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════

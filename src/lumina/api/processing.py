@@ -51,6 +51,7 @@ from lumina.api.pipeline.response import (
 )
 from lumina.api.runtime_helpers import (
     apply_tool_call_policy,
+    filter_runtime_tool_fns,
     interpret_turn_input,
     render_contract_response,
 )
@@ -305,6 +306,12 @@ def process_message(
         runtime = dict(runtime)
         runtime["nlp_pre_interpreter_fn"] = _active_mod["nlp_pre_interpreter_fn"]
 
+    _allowed_tool_ids = user.get("allowed_tools") if isinstance(user, dict) else None
+    if _allowed_tool_ids is None:
+        _allowed_tool_ids = []
+    _turn_runtime = dict(runtime)
+    _turn_runtime["tool_fns"] = filter_runtime_tool_fns(runtime, _allowed_tool_ids)
+
     # ── Pre-turn resume hook (domain-driven) ────────────────────
     # When a domain marks current_task as completed and the user returns,
     # the domain's pre_turn_resume_fn decides whether/how to replace it.
@@ -468,7 +475,7 @@ def process_message(
                     task_context=task_context,
                     prompt_text=_mti_prompt,
                     default_fields=runtime["turn_input_defaults"],
-                    tool_fns=runtime.get("tool_fns"),
+                    tool_fns=_turn_runtime.get("tool_fns"),
                 )
             else:
                 _li_interpreter = _active_mod.get("turn_interpreter_fn") or runtime["turn_interpreter_fn"]
@@ -479,7 +486,7 @@ def process_message(
                     "task_context": task_context,
                     "prompt_text": runtime["turn_interpretation_prompt"],
                     "default_fields": runtime["turn_input_defaults"],
-                    "tool_fns": runtime.get("tool_fns"),
+                    "tool_fns": _turn_runtime.get("tool_fns"),
                 }
                 if "call_slm" in _li_sig.parameters:
                     _li_kwargs["call_slm"] = call_slm
@@ -514,7 +521,7 @@ def process_message(
                     task_context=task_context,
                     prompt_text=_mti_prompt,
                     default_fields=runtime["turn_input_defaults"],
-                    tool_fns=runtime.get("tool_fns"),
+                    tool_fns=_turn_runtime.get("tool_fns"),
                 )
             except Exception as _mti_exc:
                 if _mti_use_slm:
@@ -525,13 +532,13 @@ def process_message(
                         task_context=task_context,
                         prompt_text=_mti_prompt,
                         default_fields=runtime["turn_input_defaults"],
-                        tool_fns=runtime.get("tool_fns"),
+                        tool_fns=_turn_runtime.get("tool_fns"),
                     )
                 else:
                     raise
         else:
             turn_data = interpret_turn_input(
-                input_text, task_context, runtime,
+                input_text, task_context, _turn_runtime,
                 world_sim_theme=world_sim_theme, mud_world_state=mud_world_state,
                 slm_weight_overrides=runtime.get("slm_weight_overrides") or {},
             )
@@ -858,12 +865,10 @@ def process_message(
     if structured_content is None:
         structured_content = build_command_content(
             resolved_action, turn_data, input_text, user,
-            resolved_domain_id, domain_physics, runtime, task_spec,
+            resolved_domain_id, domain_physics, _turn_runtime, task_spec,
             session_id, orch,
             call_llm_fn=call_llm,
         )
-
-    _allowed_tool_ids = user.get("allowed_tools") if isinstance(user, dict) else None
 
     tool_results = apply_tool_call_policy(
         resolved_action=resolved_action,

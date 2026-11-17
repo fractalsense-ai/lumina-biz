@@ -131,9 +131,9 @@ def test_chat_permission_denied_with_token(client: TestClient, api_module) -> No
 
 
 @pytest.mark.integration
-def test_tool_invalid_tool_id_returns_400(client: TestClient) -> None:
+def test_tool_requires_authentication(client: TestClient) -> None:
     resp = client.post("/api/tool/not-a-real-tool", json={"payload": {}})
-    assert resp.status_code == 400
+    assert resp.status_code == 401
 
 
 @pytest.mark.integration
