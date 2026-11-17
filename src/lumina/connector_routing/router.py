@@ -166,6 +166,8 @@ def _is_entry_eligible(
         if action_class not in actions:
             return False, "unsupported_action"
         return True, "ok"
+    if len(normalized_capabilities) > 1 and len(set(entry.supported_action_classes)) > 1:
+        return False, "unsupported_action"
     if capability_namespace not in normalized_capabilities:
         return False, "unsupported_capability"
     if action_class not in entry.supported_action_classes:
