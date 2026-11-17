@@ -61,6 +61,11 @@ runtime:
     default: "Proceed with bounded business-ops workflow."
 
 adapters:
+  api_routers:
+    auto_repair_workflow:
+      module: lumina.business_ops.auto_repair_workflow
+      factory: get_api_router
+
   state_builder:
     module_path: model-packs/business-ops/controllers/runtime_adapters.py
     callable: build_initial_state
