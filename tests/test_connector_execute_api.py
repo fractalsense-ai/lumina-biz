@@ -249,6 +249,28 @@ def test_execute_fixture_returns_failed_result_on_fixture_miss(client) -> None:
 
 
 @pytest.mark.integration
+def test_execute_fixture_accepts_canonical_pos_cancellation_and_returns_structured_unsupported(client) -> None:
+    test_client, _ = client
+    payload = _payload()
+    payload["request_id"] = "req-pos-cancel-unsupported"
+    payload["action_class"] = "request_cancel"
+    payload["capability_namespace"] = "sales/pos"
+
+    response = test_client.post(
+        "/api/connectors/erpnext/execute-fixture",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["action_class"] == "request_cancel"
+    assert body["capability_namespace"] == "sales/pos"
+    assert body["status"] == "failed"
+    assert body["errors"]
+
+
+@pytest.mark.integration
 def test_execute_fixture_normalizes_upstream_failure_codes(client) -> None:
     test_client, _ = client
     payload = _payload()

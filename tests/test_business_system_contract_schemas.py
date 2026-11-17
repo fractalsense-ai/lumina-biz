@@ -7,6 +7,8 @@ from pathlib import Path
 import jsonschema
 import pytest
 
+from lumina.api.models import ConnectorExecutionFixtureRequest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 STANDARDS = REPO_ROOT / "standards"
 
@@ -69,6 +71,28 @@ CAPABILITY_NAMESPACES = [
 ]
 
 SCHEMA_STORE = _build_schema_store()
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("action_class", ACTION_CLASSES)
+@pytest.mark.parametrize("capability_namespace", CAPABILITY_NAMESPACES)
+def test_api_connector_execution_model_accepts_canonical_contract_values(
+    action_class: str,
+    capability_namespace: str,
+) -> None:
+    ConnectorExecutionFixtureRequest.model_validate(
+        {
+            "request_id": "req-canonical-contract",
+            "action_class": action_class,
+            "capability_namespace": capability_namespace,
+            "payload": {},
+            "actor_scope": {
+                "organization_id": "org-a",
+                "site_id": "site-a",
+                "actor_id": "actor-a",
+            },
+        }
+    )
 
 
 def _load(path: Path) -> dict:

@@ -27,7 +27,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-01 | Establish the business-core package/release boundary and remove or relocate only vertical-specific behavior; preserve shared business capabilities | `lumina-biz` | 73, 76 | In progress |
 | RI-02 | Deliver Gear 1 deterministic operator screens, permission-aware commands, and screen-context handling | `lumina-biz` | 74, RI-01, RI-14 | Planned |
 | RI-03 | Deliver Gear 2 assistant drawer, screen context lock, staged drafts, human approval, and privacy-safe telemetry | `lumina-biz` | 75, RI-02, RI-14 | Planned |
-| RI-04 | Implement provider-neutral POS and back-office capability interfaces, adapters, and conformance tests | `lumina-biz` | 76, RI-01 | Planned |
+| RI-04 | Implement provider-neutral POS and back-office capability interfaces, adapters, and conformance tests | `lumina-biz` | 76, RI-01 | In progress |
 | RI-05 | Bootstrap `lumina-fnb` from a tagged business-core release with independent CI and core compatibility tests | `lumina-fnb` | F&B repository charter, RI-01, RI-04 | Planned |
 | RI-06 | Implement local-first DSD invoice intake, extraction review, deposit/CRV and credit flags, and staged receiving handoff | `lumina-fnb` | Invoice intake contract, RI-05, RI-08 | Planned |
 | RI-07 | Implement deterministic unit conversion and reviewed recipe/yield-to-BOM drafts | `lumina-fnb` | Recipe and unit contract, RI-05 | Planned |
@@ -72,6 +72,13 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - The workflow endpoint paths and authorization/draft behavior were preserved; focused workflow tests pass (6 passed), and the backend suite passes (5,056 passed, 1 skipped, 85.23% coverage).
 - This is only the release-identity step. The wheel still packages the current `src/lumina` tree; generic-engine/package separation is not complete.
 - The auto-repair module and workflow remain in the `lumina-biz` distribution until `lumina-auto` is bootstrapped and runtime, fixtures, and tests can be migrated together. This move changed code ownership within the package, not repository ownership. Do not remove shared connector or routing code during that move.
+
+## RI-04 Progress
+
+- The connector execution API's Pydantic action and capability literals now match the canonical request schema, including POS, purchasing, timekeeping, accounting, and all six canonical action classes.
+- Provider-specific connector mappings remain narrower by design; unimplemented namespace/action pairs pass envelope validation and return structured unsupported results rather than being rejected as non-canonical input.
+- Focused canonical schema, connector execution, and routing tests pass (281 passed). Full backend suite passes (5,173 passed, 1 skipped) at 85.14% coverage.
+- This is API vocabulary parity only. Provider transports, new connector capabilities, and live SoR mutations remain separate RI-04 work and subject to existing approval and execution gates.
 
 ## Dependency Order
 

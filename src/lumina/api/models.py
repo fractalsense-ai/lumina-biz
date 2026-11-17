@@ -12,14 +12,30 @@ ConnectorExecutionActionClass = Literal[
     "create_draft",
     "update_draft",
     "request_commit",
+    "request_cancel",
+    "sync_event",
 ]
 
 ConnectorExecutionCapabilityNamespace = Literal[
-    "service/work-order",
+    "party/customer",
+    "catalog/item",
     "inventory",
-    "warehouse/storage",
-    "logistics/dispatch",
+    "sales/pos",
+    "purchasing",
+    "service/work-order",
     "scheduling",
+    "timekeeping",
+    "accounting/invoice",
+    "farm/poultry",
+    "farm/beef-cattle",
+    "processing/meat",
+    "kitchen/production",
+    "warehouse/storage",
+    "logistics/fleet",
+    "logistics/dispatch",
+    "logistics/towing",
+    "logistics/delivery",
+    "logistics/route-zone",
 ]
 
 
