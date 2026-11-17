@@ -4,6 +4,8 @@ All tests are pure / deterministic — no live model or SLM calls.
 """
 from __future__ import annotations
 
+import json
+import logging
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -18,6 +20,7 @@ from lumina.api.utils.coercion import (
 )
 from lumina.api.runtime_helpers import (
     apply_tool_call_policy,
+    emit_tool_boundary_observation,
     filter_runtime_tool_fns,
     invoke_runtime_tool,
     render_contract_response,
@@ -406,6 +409,47 @@ class TestFilterRuntimeToolFns:
         runtime = {"tool_fns": {"scorer": lambda payload: {"ok": True}}}
 
         assert filter_runtime_tool_fns(runtime, []) == {}
+
+
+class TestToolBoundaryObservation:
+
+    @pytest.mark.unit
+    def test_denial_log_is_pseudonymous(self, monkeypatch: pytest.MonkeyPatch, caplog) -> None:
+        from lumina.auth import auth
+
+        monkeypatch.setattr(auth, "AUDIT_HASH_SECRET", "test-audit-secret")
+        claims = {
+            "sub": "private-subject",
+            "jti": "private-token-id",
+            "iss": "test-issuer",
+            "aud": "test-audience",
+            "token_scope": "user",
+            "organization_id": "private-org",
+            "site_id": "private-site",
+        }
+
+        with caplog.at_level(logging.INFO, logger="lumina-auth"):
+            emit_tool_boundary_observation(
+                claims,
+                exposed_tool_count=1,
+                excluded_tool_count=2,
+            )
+
+        message = next(record.message for record in caplog.records if "tool_boundary_observation" in record.message)
+        observation = json.loads(message.split("tool_boundary_observation ", 1)[1])
+        assert observation["event_type"] == "tool_boundary_verification"
+        assert observation["outcome"] == "deny"
+        assert observation["reason"] == "unauthorized_tools_excluded"
+        assert observation["exposed_tool_count"] == 1
+        assert observation["excluded_tool_count"] == 2
+        assert observation["subject_hash"]
+        assert observation["jti_hash"]
+        assert "private-subject" not in message
+        assert "private-token-id" not in message
+        assert "private-org" not in message
+        assert "private-site" not in message
+        assert "test-issuer" not in message
+        assert "test-audience" not in message
 
 
 # ═══════════════════════════════════════════════════════════════════════════
