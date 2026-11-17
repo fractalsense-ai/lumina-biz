@@ -823,7 +823,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-11-08
-  sha256: 81f9775a8342c521bcadab10414fcc5b80f08ade3a984c8dd12ae54cb5296694
+  sha256: d6f29d79de1fba61b35f2203b7339877f60aac3ddddb9ddda3fd91a6ea0359d4
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
