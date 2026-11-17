@@ -86,14 +86,14 @@ def test_domain_authority_with_biz_module_returns_business_ops(registry: DomainR
 
 
 @pytest.mark.unit
-def test_domain_authority_with_ca_module_returns_coding_agent(registry: DomainRegistry) -> None:
-    """admin with a domain/ca/... module -> coding-agent domain."""
+def test_domain_authority_with_unregistered_ca_module_returns_global_default(registry: DomainRegistry) -> None:
+    """An exploratory Coding Agent module prefix is not a registered product domain."""
     user = {
         "sub": "da_ca_001",
         "role": "admin",
         "governed_modules": ["domain/ca/review-assistant/v1"],
     }
-    assert registry.resolve_default_for_user(user) == "coding-agent"
+    assert registry.resolve_default_for_user(user) == "business-ops"
 
 
 @pytest.mark.unit

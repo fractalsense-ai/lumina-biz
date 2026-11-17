@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-11-08
+last_updated: 2026-11-17
 artifacts:
 - path: docs/1-commands/README.md
   type: doc
@@ -816,14 +816,14 @@ artifacts:
   doc_version: 1.2.0
   status: active
   last_updated: 2026-11-08
-  sha256: dd1b64b1f707f6e4bfeb253f5ed2ffbf13fc4c1f3041a9a4fcb4ff2d8b0b05fc
+  sha256: fdeb35eda4aa016898b4cc76365d8830379b409204097d83098754082025f591
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
   doc_version: 1.0.0
   status: active
   last_updated: 2026-11-08
-  sha256: c6e5770e3b0f3de75f29d6a9ae23acbb9325ff8bd770c1b4836a82db2379d601
+  sha256: 4cad5c659f4a2b956abc130ab07d6a394754554d730007686697922c0bb6cc85
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.3.0
@@ -1406,7 +1406,7 @@ artifacts:
   doc_version: 1.0.0
   status: planned
   last_updated: 2026-11-08
-  sha256: 5d2ac80fffe5b59a4b414e335e27e2fc48a436aeb661deb7441ccc4854f32724
+  sha256: 077d71a318b5820f7ea5c237fa7e26217948802ef4c8f991998e1b8e30b55dd1
 - path: docs/roadmap/slices/81-edge-deployment-node-integration.md
   type: doc
   section: 0
@@ -1588,7 +1588,7 @@ artifacts:
   doc_version: 1.0.0
   status: active
   last_updated: 2026-03-20
-  sha256: ad76540152fa20e534078edbdb14c4f023426ef9cc1e355fe64ce723a406e734
+  sha256: 23bd1d1153e4f53823d580be25f8fc55abebff78632b101f5d5e761c03a0d991
 - path: model-packs/system/cfg/domain-role-defaults.yaml
   type: config
   doc_version: 1.0.0

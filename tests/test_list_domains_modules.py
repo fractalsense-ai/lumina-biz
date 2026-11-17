@@ -211,7 +211,7 @@ def test_list_modules_da_with_governed_modules(client: TestClient, api_module) -
 
 @pytest.mark.integration
 def test_list_modules_da_wrong_domain_403(client: TestClient, api_module) -> None:
-    """DA for business-ops cannot list_modules for coding-agent."""
+    """DA for business-ops cannot list_modules for the system domain."""
     from lumina.auth.auth import create_scoped_jwt
 
     token = create_scoped_jwt(
@@ -224,7 +224,7 @@ def test_list_modules_da_wrong_domain_403(client: TestClient, api_module) -> Non
         "/api/domain/command",
         json={
             "operation": "list_modules",
-            "params": {"domain_id": "coding-agent"},
+            "params": {"domain_id": "system"},
         },
         headers=_auth_header(token),
     )
