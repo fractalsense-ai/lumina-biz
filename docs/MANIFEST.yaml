@@ -826,10 +826,10 @@ artifacts:
   sha256: d6f29d79de1fba61b35f2203b7339877f60aac3ddddb9ddda3fd91a6ea0359d4
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
-  doc_version: 0.3.0
+  doc_version: 0.5.0
   status: active
-  last_updated: 2026-08-09
-  sha256: 83f0d86465486ecbec698579757d13560eb9946931822984f2c81970c9786546
+  last_updated: 2026-11-17
+  sha256: 66096068f0ae6e8b131334aa6ae94076be99a0a09d407145e1d4fcd457b48ac8
 - path: docs/roadmap/slices/01-framework-boundary.md
   type: doc
   doc_version: 1.0.0
@@ -1123,10 +1123,10 @@ artifacts:
 - path: docs/roadmap/slices/40-architecture-coherence-enforcement-hardening.md
   type: doc
   section: 0
-  doc_version: 0.1.0
-  status: planned
-  last_updated: 2026-08-06
-  sha256: d66ebbae4e895c1a33bb3116046d08623405daefdfa95bafdda866064c6dcff1
+  doc_version: 0.4.0
+  status: in-progress
+  last_updated: 2026-11-17
+  sha256: 6b28ccec6c057a12312fa43f3bc0568256340cec238ebce55376bc74b9646ec4
 - path: docs/roadmap/slices/41-erp-integration-program-charter-and-dependency-lock.md
   type: doc
   section: 0
