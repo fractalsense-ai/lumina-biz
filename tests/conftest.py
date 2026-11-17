@@ -84,4 +84,7 @@ def _mount_domain_routes_if_loaded(request):
     mount_fn = getattr(mod, "_mount_domain_api_routes", None)
     if mount_fn is not None:
         mount_fn()
+    mount_routers_fn = getattr(mod, "_mount_domain_api_routers", None)
+    if mount_routers_fn is not None:
+        mount_routers_fn()
 

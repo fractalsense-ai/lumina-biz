@@ -45,6 +45,10 @@ class AutoRepairWorkflowResponse(BaseModel):
 
 router = APIRouter()
 
+
+def get_api_router() -> APIRouter:
+    return router
+
 _ACTION_TO_HANDLER = {
     "recommend_next_step": "workflow.intake_or_status",
     "stage_erp_draft_update": "workflow.stage_draft_update",

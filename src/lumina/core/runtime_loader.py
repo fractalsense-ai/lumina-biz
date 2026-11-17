@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import importlib.util
 import json
 import logging
@@ -379,6 +380,29 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
             "commit_guard": bool(route_cfg.get("commit_guard", False)),
         })
 
+    api_router_defs: list[dict[str, Any]] = []
+    api_routers_cfg = adapters_cfg.get("api_routers") or {}
+    for router_id, router_cfg in api_routers_cfg.items():
+        if not isinstance(router_cfg, dict):
+            continue
+        module_name = router_cfg.get("module")
+        factory_name = router_cfg.get("factory")
+        if not isinstance(module_name, str) or not isinstance(factory_name, str):
+            log.warning("api_routers.%s: missing module or factory — skipped", router_id)
+            continue
+        try:
+            module = importlib.import_module(module_name)
+            factory = getattr(module, factory_name)
+            router = factory()
+            from fastapi import APIRouter
+
+            if not isinstance(router, APIRouter):
+                raise TypeError(f"{module_name}.{factory_name} did not return an APIRouter")
+        except Exception as exc:
+            log.warning("api_routers.%s: failed to load router — %s", router_id, exc)
+            continue
+        api_router_defs.append({"id": str(router_id), "router": router})
+
     deterministic_templates = runtime_cfg.get("deterministic_templates") or {}
     deterministic_templates_mud = runtime_cfg.get("deterministic_templates_mud") or {}
     tool_call_policies = runtime_cfg.get("tool_call_policies") or {}
@@ -437,6 +461,7 @@ def load_runtime_context(repo_root: Path, runtime_config_path: str | None = None
         "task_initializer_fn": task_initializer_fn,
         "tool_fns": tool_fns,
         "api_route_defs": api_route_defs,
+        "api_router_defs": api_router_defs,
         "world_sim": _world_sim_cfg,
         "local_only": bool(runtime_cfg.get("local_only", False)),
         "pre_turn_checks": runtime_cfg.get("pre_turn_checks") or [],

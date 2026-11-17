@@ -67,6 +67,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - The Python distribution metadata now identifies the artifact as `lumina-biz` rather than `project-lumina`; Python imports remain under the existing `lumina` namespace.
 - A built wheel and the editable development extra were checked against this identity.
 - Auto-repair workflow routes and their request/response models now live in `lumina.business_ops.auto_repair_workflow`; the generic API server mounts that router, and the previous API route import remains a compatibility shim.
+- Domain-owned FastAPI routers are opt-in through `adapters.api_routers`; the core server mounts only routers declared by a runtime config, and Business Ops explicitly registers Auto Repair.
 - The workflow endpoint paths and authorization/draft behavior were preserved; focused workflow tests pass (6 passed), and the backend suite passes (5,056 passed, 1 skipped, 85.23% coverage).
 - This is only the release-identity step. The wheel still packages the current `src/lumina` tree; generic-engine/package separation is not complete.
 - The auto-repair module and workflow remain in the `lumina-biz` distribution until `lumina-auto` is bootstrapped and runtime, fixtures, and tests can be migrated together. This move changed code ownership within the package, not repository ownership. Do not remove shared connector or routing code during that move.

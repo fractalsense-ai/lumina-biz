@@ -154,7 +154,6 @@ from lumina.api.routes.system import router as system_router  # noqa: E402
 from lumina.api.routes.consent import router as consent_router  # noqa: E402
 from lumina.api.routes.holodeck import router as holodeck_router  # noqa: E402
 from lumina.api.routes.panels import router as panels_router  # noqa: E402
-from lumina.business_ops.auto_repair_workflow import router as workflow_router  # noqa: E402
 
 # ─────────────────────────────────────────────────────────────
 # FastAPI Application
@@ -230,7 +229,6 @@ app.include_router(events_router)
 app.include_router(consent_router)
 app.include_router(holodeck_router)
 app.include_router(panels_router)
-app.include_router(workflow_router)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -239,6 +237,35 @@ app.include_router(workflow_router)
 
 
 _domain_routes_mounted = False
+_domain_routers_mounted = False
+
+
+def _mount_domain_api_routers() -> int:
+    """Mount FastAPI routers explicitly declared by active domain packs."""
+    global _domain_routers_mounted
+    if _domain_routers_mounted:
+        return 0
+    _domain_routers_mounted = True
+
+    mounted = 0
+    domains = DOMAIN_REGISTRY.list_domains()
+    if not domains and DOMAIN_REGISTRY.default_domain_id:
+        domains = [{"domain_id": DOMAIN_REGISTRY.default_domain_id}]
+    for domain_info in domains:
+        domain_id = domain_info["domain_id"]
+        try:
+            ctx = DOMAIN_REGISTRY.get_runtime_context(domain_id)
+        except Exception:
+            log.warning("domain_api_routers: could not load context for %s", domain_id)
+            continue
+        for router_def in ctx.get("api_router_defs") or []:
+            router = router_def.get("router")
+            if router is None:
+                continue
+            app.include_router(router)
+            mounted += 1
+            log.info("domain_api_routers: mounted %s for %s", router_def.get("id"), domain_id)
+    return mounted
 
 
 def _mount_domain_api_routes() -> int:
@@ -408,6 +435,13 @@ async def _start_background_tasks() -> None:
             log.info("Domain API routes: %d route(s) mounted", _n_routes)
     except Exception:
         log.warning("Domain API route registration failed", exc_info=True)
+
+    try:
+        _n_routers = _mount_domain_api_routers()
+        if _n_routers:
+            log.info("Domain API routers: %d router(s) mounted", _n_routers)
+    except Exception:
+        log.warning("Domain API router registration failed", exc_info=True)
 
     # ── Seal diagnostic: surface missing secrets early ────────
     _seal_secret = os.environ.get("LUMINA_TRANSCRIPT_HMAC_SECRET") or os.environ.get("LUMINA_JWT_SECRET")

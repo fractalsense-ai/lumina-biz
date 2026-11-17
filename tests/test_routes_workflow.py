@@ -149,6 +149,21 @@ def test_legacy_workflow_route_import_reexports_business_router() -> None:
     assert legacy_router is business_router
 
 
+@pytest.mark.unit
+def test_auto_repair_router_is_declared_only_by_business_runtime(api_module: Any) -> None:
+    business_runtime = load_runtime_context(
+        _REPO_ROOT,
+        "model-packs/business-ops/cfg/runtime-config.yaml",
+    )
+    system_runtime = load_runtime_context(
+        _REPO_ROOT,
+        "model-packs/system/cfg/runtime-config.yaml",
+    )
+
+    assert [router["id"] for router in business_runtime["api_router_defs"]] == ["auto_repair_workflow"]
+    assert system_runtime["api_router_defs"] == []
+
+
 def _fake_process_message(
     session_id, message, turn_data_override, deterministic_response,
     domain_id, user, model_id, model_version, holodeck,
