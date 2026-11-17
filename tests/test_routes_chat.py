@@ -101,6 +101,39 @@ def _fake_process_message(
 
 @pytest.mark.integration
 class TestChatEndpoint:
+    def test_chat_passes_server_minted_tool_token_to_processing(self, client: TestClient) -> None:
+        from lumina.api.routes import chat as chat_route
+
+        actor = {
+            "sub": "actor-1",
+            "role": "root",
+            "organization_id": "org-1",
+            "site_id": "site-1",
+        }
+        tool_token = object()
+        process_result = {
+            "response": "Echo: inventory",
+            "action": "continue",
+            "prompt_type": "standard",
+            "escalated": False,
+            "domain_id": "_default",
+        }
+        with (
+            patch.object(chat_route, "get_current_user", return_value=actor),
+            patch.object(chat_route, "get_active_operating_context", return_value={
+                "organization_id": "org-1",
+                "site_id": "site-1",
+            }),
+            patch.object(chat_route, "mint_tool_token", return_value=tool_token) as mint,
+            patch.object(chat_route, "process_message", return_value=process_result) as process,
+        ):
+            response = client.post("/api/chat", json={"message": "inventory"})
+
+        assert response.status_code == 200
+        mint.assert_called_once()
+        assert process.call_args.kwargs["tool_token"] is tool_token
+        assert "tool_token" not in response.json()
+
     def test_basic_chat_message(self, client: TestClient) -> None:
         root_token = _register_root(client)
         with patch("lumina.api.routes.chat.process_message", side_effect=_fake_process_message):

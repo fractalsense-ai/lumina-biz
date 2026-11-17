@@ -2,8 +2,8 @@
 title: "Slice 40 — Architecture Coherence Enforcement Hardening"
 slice: 40
 status: in-progress
-version: 0.2.0
-last_updated: 2026-08-07
+version: 0.3.0
+last_updated: 2026-11-17
 ---
 
 ## Purpose
@@ -45,10 +45,21 @@ and cross-domain execution safety.
 
 ## Current Node Status
 
-- N1: partial. Interpreter and command contexts now contain only runtime/caller-allowlisted tools, direct tool invocation requires an authenticated token, and tool exclusions emit pseudonymous deny observations. Closure still requires an explicit session-scoped Tool Token lifecycle and validation.
+- N1: complete. Server-minted Tool Tokens bind session, actor, organization, site, module, expiry, and the configured runtime tool allowlist; tokens are validated before tools enter interpreter/command contexts or direct invocation.
+- N2: open. Institutional-memory ingest still requires deterministic rejection tests for prohibited chat/conversation payload classes.
+- N3: open. Pipeline ordering still requires enforced order checks or explicit degraded-mode telemetry.
 - N4: complete. Cross-domain API-only boundary is enforced in daemon scheduling and adapter paths.
 - N5: complete. Daemon audit-commit parity is enforced for success and exception paths.
 - N6: complete. Actor liveness is enforced in shared auth dependencies with deny-closed fallback.
+
+## N1 Closure Evidence
+
+- Minting: `src/lumina/auth/tool_token.py` creates an in-process, short-lived capability only after module `EXECUTE` authorization and active actor/site verification. Chat tokens are bound to one session; direct tool calls receive a one-call token.
+- Validation: `src/lumina/api/processing.py` validates token identity, scope, expiry, and current runtime allowlist before structural filtering. `src/lumina/api/routes/system.py` validates direct tool IDs before invocation.
+- Denial behavior: absent, expired, mismatched, or runtime-revoked tokens expose no tools; direct calls outside the module allowlist return 403. No implicit allow-all fallback is permitted.
+- Observability: exclusions emit `tool_boundary_verification` with pseudonymous actor/token/scope hashes, a deterministic deny reason, and counts; raw identifiers and tool IDs are omitted.
+- Tests: `tests/test_tool_token.py`, `tests/test_pipeline_fix.py`, `tests/test_routes_chat.py`, `tests/test_api_chat_tool_log_integration.py`, and `tests/test_runtime_helpers_coercion.py`.
+- Rollback: on token-validation or scope-binding regression, disable tool-bearing paths until fixed. Do not restore unscoped tool exposure.
 
 ## N6 Closure Evidence
 

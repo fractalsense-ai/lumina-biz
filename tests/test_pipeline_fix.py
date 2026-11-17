@@ -126,6 +126,7 @@ class TestProcessingModuleKeyLookup:
     def test_module_key_used_for_module_map_lookup(self) -> None:
         """When module_key is set, module_map lookup uses it instead of domain_id."""
         from lumina.api import processing as proc
+        from lumina.auth.tool_token import mint_tool_token
 
         gov_interpreter = MagicMock(return_value={"query_type": "admin_command", "urgency": "routine"})
         runtime_allowed_tool = MagicMock()
@@ -151,12 +152,19 @@ class TestProcessingModuleKeyLookup:
             "runtime_allowed": runtime_allowed_tool,
             "runtime_blocked": runtime_blocked_tool,
         }
-        runtime["tool_allowlist"] = [
-            "runtime_allowed",
-            "runtime_blocked",
-            "module_allowed",
-            "module_blocked",
-        ]
+        runtime["tool_allowlist"] = ["runtime_allowed", "module_allowed"]
+        actor = {
+            "sub": "actor-1",
+            "organization_id": "org-1",
+            "site_id": "site-1",
+        }
+        tool_token = mint_tool_token(
+            session_id="sess-1",
+            user=actor,
+            module_id="business-ops",
+            runtime=runtime,
+            now=time.time(),
+        )
 
         mock_registry = MagicMock(**{"get_runtime_context.return_value": runtime})
         mock_persistence = MagicMock()
@@ -182,7 +190,8 @@ class TestProcessingModuleKeyLookup:
                 "sess-1",
                 "list users",
                 deterministic_response=False,
-                user={"allowed_tools": ["runtime_allowed", "module_allowed"]},
+                user=actor,
+                tool_token=tool_token,
             )
 
         # The governance interpreter should have been called (via local_only branch),

@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -134,6 +135,55 @@ def test_chat_permission_denied_with_token(client: TestClient, api_module) -> No
 def test_tool_requires_authentication(client: TestClient) -> None:
     resp = client.post("/api/tool/not-a-real-tool", json={"payload": {}})
     assert resp.status_code == 401
+
+
+@pytest.mark.integration
+def test_tool_route_uses_session_scoped_runtime_allowlist(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from lumina.api import config
+
+    actor = {
+        "sub": "actor-1",
+        "role": "root",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+    safe_tool = lambda _payload: {"ok": True}
+    runtime = {
+        "domain_physics_path": "domain-physics.json",
+        "module_id": "inventory",
+        "tool_allowlist": ["inventory.read"],
+        "tool_fns": {"inventory.read": safe_tool, "admin.delete": safe_tool},
+    }
+    registry = MagicMock()
+    registry.resolve_domain_id.return_value = "domain/inventory/v1"
+    registry.get_runtime_context.return_value = runtime
+    persistence = MagicMock()
+    persistence.load_domain_physics.return_value = {}
+    monkeypatch.setattr(config, "DOMAIN_REGISTRY", registry)
+    monkeypatch.setattr(config, "PERSISTENCE", persistence)
+
+    with (
+        patch("lumina.api.routes.system.get_current_user", new_callable=AsyncMock, return_value=actor),
+        patch(
+            "lumina.api.routes.system.get_active_operating_context",
+            return_value={"organization_id": "org-1", "site_id": "site-1"},
+        ),
+    ):
+        allowed = client.post(
+            "/api/tool/inventory.read",
+            json={"domain_id": "inventory", "payload": {}},
+        )
+        denied = client.post(
+            "/api/tool/admin.delete",
+            json={"domain_id": "inventory", "payload": {}},
+        )
+
+    assert allowed.status_code == 200
+    assert allowed.json()["result"] == {"ok": True}
+    assert denied.status_code == 403
 
 
 @pytest.mark.integration

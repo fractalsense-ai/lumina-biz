@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,9 +11,11 @@ from fastapi.security import HTTPAuthorizationCredentials
 from starlette.concurrency import run_in_threadpool
 
 from lumina.api import config as _cfg
+from lumina.api.dependencies import get_active_operating_context
 from lumina.api.middleware import _bearer_scheme, get_current_user, require_auth, require_role
 from lumina.api.models import SystemLogValidateResponse, ToolRequestWithDomain, ToolResponse
 from lumina.api.runtime_helpers import invoke_runtime_tool
+from lumina.auth.tool_token import mint_tool_token, validate_tool_token
 from lumina.core.domain_registry import DomainNotFoundError
 from lumina.core.permissions import Operation, check_permission
 
@@ -216,6 +219,7 @@ async def run_tool(
     runtime = _cfg.DOMAIN_REGISTRY.get_runtime_context(resolved)
 
     user = require_auth(await get_current_user(credentials))
+    module_execute_allowed = user.get("role") == "root"
     domain_physics_path = runtime["domain_physics_path"]
     domain = await run_in_threadpool(_cfg.PERSISTENCE.load_domain_physics, str(domain_physics_path))
     module_perms = domain.get("permissions")
@@ -233,9 +237,28 @@ async def run_tool(
             groups_config=domain.get("groups"),
         ):
             raise HTTPException(status_code=403, detail="Module access denied")
-    _allowed_tool_ids = user.get("allowed_tools")
-    if _allowed_tool_ids is None:
-        _allowed_tool_ids = []
+        module_execute_allowed = True
+    if not module_execute_allowed:
+        raise HTTPException(status_code=403, detail="Module access denied")
+
+    get_active_operating_context(user)
+    module_id = str(runtime.get("module_id") or resolved)
+    token_session_id = f"tool:{uuid.uuid4()}"
+    tool_token = mint_tool_token(
+        session_id=token_session_id,
+        user=user,
+        module_id=module_id,
+        runtime=runtime,
+    )
+    _allowed_tool_ids = validate_tool_token(
+        tool_token,
+        session_id=token_session_id,
+        user=user,
+        module_id=module_id,
+        runtime=runtime,
+    )
+    if tool_id not in _allowed_tool_ids:
+        raise HTTPException(status_code=403, detail="Tool is not authorized for this module")
     try:
         result = await run_in_threadpool(
             invoke_runtime_tool,
