@@ -129,3 +129,61 @@ def test_auth_failure_is_normalized_without_retry() -> None:
     assert result.error["code"] == "AUTH_FAILED"
     assert result.error["retryable"] is False
     assert "do not log credentials" not in result.error["message"]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "status_code,expected_code,expected_retryable",
+    [
+        (400, "VALIDATION_FAILED", False),
+        (401, "AUTH_FAILED", False),
+        (404, "NOT_FOUND", False),
+        (409, "CONFLICT", False),
+        (429, "RATE_LIMITED", True),
+        (503, "UPSTREAM_UNAVAILABLE", True),
+    ],
+)
+def test_query_status_error_matrix(status_code, expected_code, expected_retryable) -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(status_code, json={"message": "provider detail"})
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = send_json(
+            _request(),
+            client=client,
+            policy=TransportPolicy(timeout_seconds=1, max_query_retries=0),
+        )
+
+    assert result.error is not None
+    assert result.error["code"] == expected_code
+    assert result.error["retryable"] is expected_retryable
+    assert "provider detail" not in result.error["message"]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("body", [b"not-json", b"[]", b"null"])
+def test_malformed_success_response_is_normalized(body: bytes) -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=body)
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = send_json(_request(), client=client)
+
+    assert result.error is not None
+    assert result.error["code"] == "MALFORMED_RESPONSE"
+    assert result.error["retryable"] is False
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"timeout_seconds": 0},
+        {"timeout_seconds": 61},
+        {"max_query_retries": -1},
+        {"max_query_retries": 6},
+    ],
+)
+def test_transport_policy_rejects_out_of_range_values(kwargs) -> None:
+    with pytest.raises(ValueError):
+        TransportPolicy(**kwargs)

@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.6.0
+version: 1.7.0
 status: active
 last_updated: 2026-11-18
 ---
@@ -92,7 +92,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 ## RI-22 Progress
 
 - The shared `lumina.business_ops.connectors.transport` seam now supports bounded HTTPX timeouts, query-only retries, correlation IDs, mutation idempotency-key propagation, and canonical transport errors without echoing provider response bodies.
-- Targeted tests cover transient query retry, mutation non-replay, timeout normalization, auth errors, and metadata propagation (4 passed). Provider-specific execution wiring remains separate work.
+- Targeted tests cover transient query retry, mutation non-replay, timeout normalization, the HTTP error matrix, malformed responses, safe metadata propagation, and policy bounds (17 passed). Provider-specific execution wiring remains separate work.
 
 ## Dependency Order
 

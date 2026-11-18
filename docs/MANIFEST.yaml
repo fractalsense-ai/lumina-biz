@@ -813,10 +813,10 @@ artifacts:
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.6.0
+  doc_version: 1.7.0
   status: active
   last_updated: 2026-11-18
-  sha256: fafbdd9fe976cddad00939b3a5f021afdb2f0e1faf0a51c6b76dbd3fb29ee8aa
+  sha256: d12dc156d38efce6cf53425327436d5108268bdbdf6a7c381ea5e2dbf1c20e1b
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
@@ -1144,10 +1144,10 @@ artifacts:
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
   section: 0
-  doc_version: 0.2.0
+  doc_version: 0.3.0
   status: in-progress
   last_updated: 2026-11-18
-  sha256: 8ea75b62aaec70f7f6fad6f7a80b5ebe625850e015b3e387abcf12ad60300f34
+  sha256: 017b64997295b9c0d5acb5545c469af63e42fa5a51a683612e53ff84f8be7d4c
 - path: docs/roadmap/slices/44-mutation-safety-and-idempotency-ledger.md
   type: doc
   section: 0

@@ -2,7 +2,7 @@
 title: "Slice 43 - Generic Connector Transport Runtime"
 slice: 43
 status: in-progress
-version: 0.2.0
+version: 0.3.0
 last_updated: 2026-11-18
 ---
 
@@ -67,7 +67,7 @@ all ERP adapters, including timeout, retry, correlation, and idempotency-key plu
 ## Runtime Progress
 
 - A provider-neutral HTTPX transport seam now applies bounded timeouts, retries only `query` actions, propagates correlation IDs and optional mutation idempotency keys, and maps failures to the canonical connector error shape without echoing provider response bodies.
-- Fixture-backed transport tests pass (4 tests). Wiring ERPNext, Odoo, or actor-liveness adapters to live transport remains separate; no business-operation mutation or production cutover is enabled by this increment.
+- Fixture-backed transport tests pass (17 tests), covering the HTTP error matrix, timeout/retry behavior, malformed bodies, and metadata propagation. Wiring ERPNext, Odoo, or actor-liveness adapters to live transport remains separate; no business-operation mutation or production cutover is enabled by this increment.
 
 ## Follow-Up Slices
 
