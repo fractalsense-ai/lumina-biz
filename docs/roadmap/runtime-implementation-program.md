@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.7.0
+version: 1.8.0
 status: active
 last_updated: 2026-11-18
 ---
@@ -87,12 +87,13 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 ## RI-21 Progress
 
 - The protected-context hook consumes a structured `ActorLivenessResult` with strict boolean `allow`, deterministic `deny_reason`, and a format-restricted non-PII `evidence_code`; malformed outputs and unavailable/timeouts remain distinct deny-closed outcomes with pseudonymous observations. The liveness matrix passes (11 tests).
-- The provider-specific live SoR verifier and shared transport remain open; RI-21 must use Slice 43 for network calls and does not add business-operation transport or mutations.
+- `ERPNextActorLivenessAdapter` performs a read-only Frappe `User.enabled` check through RI-22 transport, requesting only `name`/`enabled` and using an injected authorization-header provider.
+- Fixture tests cover active, disabled, missing, malformed, unavailable, missing-scope, credential-provider failure, and public package export (9 passed). Production base-URL/secret-resolver registration and live-instance verification remain open; no business-operation mutation is added.
 
 ## RI-22 Progress
 
 - The shared `lumina.business_ops.connectors.transport` seam now supports bounded HTTPX timeouts, query-only retries, correlation IDs, mutation idempotency-key propagation, and canonical transport errors without echoing provider response bodies.
-- Targeted tests cover transient query retry, mutation non-replay, timeout normalization, the HTTP error matrix, malformed responses, safe metadata propagation, and policy bounds (17 passed). Provider-specific execution wiring remains separate work.
+- Targeted tests cover transient query retry, mutation non-replay, GET query-parameter encoding, timeout normalization, the HTTP error matrix, malformed responses, safe metadata propagation, and policy bounds (19 passed). Provider-specific execution wiring remains separate work.
 
 ## Dependency Order
 

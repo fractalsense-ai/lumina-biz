@@ -3,6 +3,7 @@
 from .errors import normalize_erpnext_error
 from .execute import execute_with_fixtures
 from .fixtures import DeterministicFixtureRunner, FixtureScenario
+from .liveness import ERPNextActorLivenessAdapter
 from .manifest import build_connector_manifest
 from .mapping import map_operation_to_erpnext
 
@@ -12,5 +13,6 @@ __all__ = [
     "execute_with_fixtures",
     "DeterministicFixtureRunner",
     "FixtureScenario",
+    "ERPNextActorLivenessAdapter",
     "normalize_erpnext_error",
 ]

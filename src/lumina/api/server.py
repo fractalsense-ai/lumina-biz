@@ -59,6 +59,7 @@ class _ModProxy(types.ModuleType):
 # ─────────────────────────────────────────────────────────────
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(message)s")
+logging.getLogger("httpx").setLevel(logging.WARNING)
 log = logging.getLogger("lumina-api")
 
 # ── Verbose coloured output (opt-in) ────────────────────────

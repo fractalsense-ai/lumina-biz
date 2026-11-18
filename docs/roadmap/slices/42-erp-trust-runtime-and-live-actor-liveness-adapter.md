@@ -2,7 +2,7 @@
 title: "Slice 42 - ERP Trust Runtime and Live Actor-Liveness Adapter"
 slice: 42
 status: in-progress
-version: 0.4.0
+version: 0.5.0
 last_updated: 2026-11-18
 ---
 
@@ -103,7 +103,8 @@ SoR liveness adapter contract used by protected API flows.
 
 - The injected actor-liveness verifier now consumes a structured `ActorLivenessResult`, validates the strict boolean/reason/evidence fields, and distinguishes malformed results (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`); both remain deny-closed and emit pseudonymous observations.
 - Local persistence verification and injected adapters use the same result contract; failure-matrix coverage passes (11 tests).
-- The live ERP/Frappe actor-liveness adapter and transport/deadline implementation remain open; this progress item does not claim Slice 42 completion.
+- `ERPNextActorLivenessAdapter` now checks the read-only Frappe `User.enabled` field through the generic transport seam, with credentials supplied by an injected authorization-header provider. Fixture tests cover active, disabled, missing, malformed, unavailable, missing-scope, credential-provider failure, and public package export (9 passed).
+- Production adapter selection/base-URL and secret-resolver wiring, plus live-instance verification, remain open. No credentials or endpoint values are committed, and Slice 42 is not complete.
 
 ## Follow-Up Slices
 
