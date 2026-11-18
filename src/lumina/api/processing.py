@@ -80,6 +80,49 @@ log = logging.getLogger("lumina-api")
 vlog = logging.getLogger("lumina.verbose")
 
 _PIPELINE_ORDER_CONTRACT = "pipeline_order_enforcement_v1"
+_PIPELINE_STAGE_ORDER = ("auth", "nlp", "semantic_routing", "ppa")
+_NLP_DEGRADED_REASONS = frozenset(
+    {
+        "nlp_stage_bypassed_deterministic",
+        "nlp_stage_bypassed_turn_override",
+        "nlp_pre_interpreter_unavailable",
+        "nlp_stage_not_executed",
+    }
+)
+
+
+def _pipeline_order_violation(
+    stage_trace: list[str],
+    degraded_reasons: list[str],
+    *,
+    next_stage: str,
+) -> str | None:
+    """Return a deterministic reason when a prerequisite stage is missing or out of order."""
+    if next_stage not in _PIPELINE_STAGE_ORDER:
+        raise ValueError(f"Unknown pipeline stage: {next_stage}")
+
+    proposed_trace = [*stage_trace, next_stage]
+    actual_ordered_stages = [stage for stage in proposed_trace if stage in _PIPELINE_STAGE_ORDER]
+    expected_ordered_stages = [stage for stage in _PIPELINE_STAGE_ORDER if stage in proposed_trace]
+    if actual_ordered_stages != expected_ordered_stages:
+        return "pipeline_stage_order_invalid"
+
+    required_stages = _PIPELINE_STAGE_ORDER[:_PIPELINE_STAGE_ORDER.index(next_stage)]
+    for stage in required_stages:
+        if stage in stage_trace:
+            continue
+        if stage == "nlp" and _NLP_DEGRADED_REASONS.intersection(degraded_reasons):
+            continue
+        return f"missing_{stage}_stage"
+    return None
+
+
+def _emit_pipeline_order_observation(payload: dict[str, Any]) -> None:
+    """Persist pipeline-order evidence for response paths that bypass PPA."""
+    log.info(
+        "pipeline_order_observation %s",
+        json.dumps(payload, separators=(",", ":"), sort_keys=True),
+    )
 
 
 def _pipeline_order_payload(
@@ -114,6 +157,7 @@ def _pipeline_order_denied_result(
         degraded_reasons,
     )
     _payload["denied_reason"] = reason
+    _emit_pipeline_order_observation(_payload)
     return {
         "response": "I cannot process this input because runtime stage-order validation failed.",
         "action": "pipeline_order_denied",
@@ -366,6 +410,53 @@ def process_message(
         return _gate
     _mark_pipeline_stage("auth")
 
+    task_context = dict(task_spec)
+    task_context["current_task"] = current_task
+
+    # Run deterministic NLP before any model-capable interceptor or interpreter.
+    _nlp_pre_result: dict[str, Any] = {}
+    _multi_intent_detected = False
+    _nlp_pre_executed = False
+    if not deterministic_response and turn_data_override is None:
+        _nlp_fn_pre = runtime.get("nlp_pre_interpreter_fn")
+        if _nlp_fn_pre is not None:
+            try:
+                _nlp_pre_result = _nlp_fn_pre(input_text, task_context) or {}
+                _nlp_pre_executed = True
+                _nlp_intent_scores = _nlp_pre_result.get("intent_scores") or {}
+                _multi_intent_detected = (
+                    len([score for score in _nlp_intent_scores.values() if score > 0]) >= 2
+                    and bool(runtime.get("multi_task_turn_interpreter_fn"))
+                )
+                if _multi_intent_detected:
+                    vlog.debug("[TURN] Multi-intent detected: %s", _nlp_intent_scores)
+            except Exception:
+                _nlp_pre_result = {}
+                _multi_intent_detected = False
+
+    if _nlp_pre_executed:
+        _mark_pipeline_stage("nlp")
+    elif deterministic_response:
+        _add_pipeline_degraded("nlp_stage_bypassed_deterministic")
+    elif turn_data_override is not None:
+        _add_pipeline_degraded("nlp_stage_bypassed_turn_override")
+    else:
+        _add_pipeline_degraded("nlp_pre_interpreter_unavailable")
+
+    _order_violation = _pipeline_order_violation(
+        _pipeline_stage_trace,
+        _pipeline_degraded_reasons,
+        next_stage="semantic_routing",
+    )
+    if _order_violation:
+        return _pipeline_order_denied_result(
+            session_id,
+            resolved_domain_id,
+            _pipeline_stage_trace,
+            _pipeline_degraded_reasons,
+            reason=_order_violation,
+        )
+
     # ── Layer 2: Interceptors (early-return paths) ────────────
     domain_physics = getattr(orch, "domain", None) or runtime.get("domain") or {}
 
@@ -380,10 +471,16 @@ def process_message(
         sync_session_fn=_sync_session_back,
     )
     if _glossary_result is not None:
+        _mark_pipeline_stage("semantic_routing")
+        _add_pipeline_degraded("ppa_bypassed_glossary_intercept")
+        _glossary_result["_pipeline_order"] = _pipeline_order_payload(
+            session_id,
+            resolved_domain_id,
+            _pipeline_stage_trace,
+            _pipeline_degraded_reasons,
+        )
+        _emit_pipeline_order_observation(_glossary_result["_pipeline_order"])
         return _glossary_result
-
-    task_context = dict(task_spec)
-    task_context["current_task"] = current_task
 
     _t0_result = check_turn_0(
         session_id, session, input_text, current_task, task_spec,
@@ -396,6 +493,15 @@ def process_message(
         sync_session_fn=_sync_session_back,
     )
     if _t0_result is not None:
+        _add_pipeline_degraded("semantic_routing_bypassed_turn_0")
+        _add_pipeline_degraded("ppa_bypassed_turn_0")
+        _t0_result["_pipeline_order"] = _pipeline_order_payload(
+            session_id,
+            resolved_domain_id,
+            _pipeline_stage_trace,
+            _pipeline_degraded_reasons,
+        )
+        _emit_pipeline_order_observation(_t0_result["_pipeline_order"])
         return _t0_result
 
     # If check_turn_0 did not intercept, _has_equation is False.
@@ -416,39 +522,6 @@ def process_message(
         input_text, resolved_domain_id,
         module_key=session.get("module_key"),
     )
-
-    # ── NLP pre-scan for multi-intent detection ───────────────
-    # Run the domain's NLP pre-interpreter deterministically before any
-    # LLM call. If multiple intent signals are detected AND the domain has
-    # registered a multi_task_turn_interpreter_fn, the multi-task path fires.
-    _nlp_pre_result: dict[str, Any] = {}
-    _multi_intent_detected = False
-    _nlp_pre_executed = False
-    if not deterministic_response and turn_data_override is None:
-        _nlp_fn_pre = runtime.get("nlp_pre_interpreter_fn")
-        if _nlp_fn_pre is not None:
-            try:
-                _nlp_pre_result = _nlp_fn_pre(input_text, task_context) or {}
-                _nlp_pre_executed = True
-                _nlp_intent_scores = _nlp_pre_result.get("intent_scores") or {}
-                _multi_intent_detected = (
-                    len([s for s in _nlp_intent_scores.values() if s > 0]) >= 2
-                    and bool(runtime.get("multi_task_turn_interpreter_fn"))
-                )
-                if _multi_intent_detected:
-                    vlog.debug("[TURN] Multi-intent detected: %s", _nlp_intent_scores)
-            except Exception:
-                _nlp_pre_result = {}
-                _multi_intent_detected = False
-
-    if _nlp_pre_executed:
-        _mark_pipeline_stage("nlp")
-    elif deterministic_response:
-        _add_pipeline_degraded("nlp_stage_bypassed_deterministic")
-    elif turn_data_override is not None:
-        _add_pipeline_degraded("nlp_stage_bypassed_turn_override")
-    else:
-        _add_pipeline_degraded("nlp_pre_interpreter_unavailable")
 
     # ── Journal entity extraction (SVA-gated, privacy-preserving) ─
     # When the client sends a journal_entity_salt (device-local, never
@@ -572,6 +645,19 @@ def process_message(
             reason="semantic_routing_output_invalid",
         )
     _mark_pipeline_stage("semantic_routing")
+    _order_violation = _pipeline_order_violation(
+        _pipeline_stage_trace,
+        _pipeline_degraded_reasons,
+        next_stage="ppa",
+    )
+    if _order_violation:
+        return _pipeline_order_denied_result(
+            session_id,
+            resolved_domain_id,
+            _pipeline_stage_trace,
+            _pipeline_degraded_reasons,
+            reason=_order_violation,
+        )
 
     # ── Multi-task graph extraction ───────────────────────────
     # If the multi-task interpreter emitted a {tasks: [...]} graph shape,
@@ -627,6 +713,14 @@ def process_message(
             sync_session_fn=_sync_session_back,
         )
         if _g_result is not None:
+            _add_pipeline_degraded("ppa_bypassed_greeting_intercept")
+            _g_result["_pipeline_order"] = _pipeline_order_payload(
+                session_id,
+                resolved_domain_id,
+                _pipeline_stage_trace,
+                _pipeline_degraded_reasons,
+            )
+            _emit_pipeline_order_observation(_g_result["_pipeline_order"])
             return _g_result
 
     # ── Layer 2½b: Post-interpretation enrichment (SLM context + telemetry) ──
@@ -684,7 +778,7 @@ def process_message(
             session_id,
             _inspection_result.violations,
         )
-        return {
+        denied_result = {
             "response": "I cannot process this input \u2014 it does not satisfy the domain constraints.",
             "action": "inspection_denied",
             "prompt_type": "inspection_denied",
@@ -693,25 +787,31 @@ def process_message(
             "domain_id": resolved_domain_id,
             "_inspection": _inspection_result.to_dict(),
         }
+        _add_pipeline_degraded("ppa_bypassed_inspection_denied")
+        denied_result["_pipeline_order"] = _pipeline_order_payload(
+            session_id,
+            resolved_domain_id,
+            _pipeline_stage_trace,
+            _pipeline_degraded_reasons,
+        )
+        _emit_pipeline_order_observation(denied_result["_pipeline_order"])
+        return denied_result
     turn_data = _inspection_result.sanitized_payload or turn_data
 
     # ── Layer 4: Orchestration ────────────────────────────────
     vlog.debug("[ORCH] Orchestrating turn (domain=%s)", resolved_domain_id)
-    if "auth" not in _pipeline_stage_trace:
+    _order_violation = _pipeline_order_violation(
+        _pipeline_stage_trace,
+        _pipeline_degraded_reasons,
+        next_stage="ppa",
+    )
+    if _order_violation:
         return _pipeline_order_denied_result(
             session_id,
             resolved_domain_id,
             _pipeline_stage_trace,
             _pipeline_degraded_reasons,
-            reason="missing_auth_stage",
-        )
-    if "semantic_routing" not in _pipeline_stage_trace:
-        return _pipeline_order_denied_result(
-            session_id,
-            resolved_domain_id,
-            _pipeline_stage_trace,
-            _pipeline_degraded_reasons,
-            reason="missing_semantic_routing_stage",
+            reason=_order_violation,
         )
     if "nlp" not in _pipeline_stage_trace:
         _add_pipeline_degraded("nlp_stage_not_executed")

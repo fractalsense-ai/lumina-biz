@@ -1,8 +1,8 @@
 ---
 title: "Slice 40 — Architecture Coherence Enforcement Hardening"
 slice: 40
-status: in-progress
-version: 0.4.0
+status: complete
+version: 0.5.0
 last_updated: 2026-11-17
 ---
 
@@ -47,7 +47,7 @@ and cross-domain execution safety.
 
 - N1: complete. Server-minted Tool Tokens bind session, actor, organization, site, module, expiry, and the configured runtime tool allowlist; tokens are validated before tools enter interpreter/command contexts or direct invocation.
 - N2: complete. Institutional-memory ingest rejects conversational record types and recursively rejects raw chat/conversation payload fields before embedding or persistence.
-- N3: open. Pipeline ordering still requires enforced order checks or explicit degraded-mode telemetry.
+- N3: complete. Auth and deterministic NLP precede model-capable interceptors and semantic routing; order violations fail closed, and explicit early-return/NLP bypasses carry degraded pipeline metadata.
 - N4: complete. Cross-domain API-only boundary is enforced in daemon scheduling and adapter paths.
 - N5: complete. Daemon audit-commit parity is enforced for success and exception paths.
 - N6: complete. Actor liveness is enforced in shared auth dependencies with deny-closed fallback.
@@ -68,6 +68,15 @@ and cross-domain execution safety.
 - Tests: `tests/test_institutional_memory.py` covers prohibited record types, top-level and nested raw conversation fields, and verifies rejection precedes embedding and persistence; transcript-free `ThreadSummaryRecord` and `DecisionPrecedentRecord` ingestion remains supported.
 - Regression verification: institutional-memory and decision-precedent service/API tests (27 passed).
 - Rollback: if the guard rejects valid transcript-free records, fix the field/type allowlist; do not bypass the ingest guard or persist conversation records.
+
+## N3 Closure Evidence
+
+- Runtime guard: `_pipeline_order_violation` in `src/lumina/api/processing.py` checks prerequisite presence and canonical order before semantic interpretation and PPA.
+- Denial taxonomy: `missing_auth_stage`, `missing_nlp_stage`, `missing_semantic_routing_stage`, and `pipeline_stage_order_invalid` produce a deterministic denied result before PPA. NLP may be bypassed only with an explicit degraded reason.
+- Interceptor order: deterministic NLP runs before glossary and turn-0 paths that may invoke a model. Glossary, turn-0, greeting, and inspection-denial shortcuts include explicit PPA/semantic bypass metadata.
+- Tests: `tests/test_processing_pipeline_order.py` verifies canonical order, reordered-stage denial before semantic interpretation, explicit NLP degradation, and early-interceptor ordering.
+- Regression verification: processing-order, timing, pipeline, domain, and route tests (119 passed); full backend suite (5,205 passed, 1 skipped, 85.52% coverage).
+- Rollback: on order-check regression, disable model-capable shortcut paths or return a denied result; do not bypass the guard or silently invoke a later stage.
 
 ## N6 Closure Evidence
 
