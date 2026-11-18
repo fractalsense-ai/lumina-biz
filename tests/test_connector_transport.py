@@ -52,6 +52,37 @@ def test_query_retries_transient_status_and_propagates_correlation() -> None:
 
 
 @pytest.mark.unit
+def test_get_query_parameters_are_encoded_without_a_json_body() -> None:
+    observed: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        observed.append(request)
+        return httpx.Response(200, json={"data": []})
+
+    request = ConnectorTransportRequest(
+        method="GET",
+        url="https://erp.example.test/api/resource/User",
+        payload={},
+        action_class="query",
+        capability_namespace=None,
+        correlation_id="corr-user-1",
+        query_params={
+            "filters": '[["User","name","=","actor-1"]]',
+            "fields": '["name","enabled"]',
+            "limit_page_length": "1",
+        },
+    )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = send_json(request, client=client)
+
+    assert result.payload == {"data": []}
+    assert observed[0].url.params["filters"] == '[["User","name","=","actor-1"]]'
+    assert observed[0].url.params["fields"] == '["name","enabled"]'
+    assert observed[0].content == b""
+
+
+@pytest.mark.unit
 def test_mutation_is_not_retried_and_propagates_idempotency() -> None:
     attempts = 0
     observed_headers: list[httpx.Headers] = []

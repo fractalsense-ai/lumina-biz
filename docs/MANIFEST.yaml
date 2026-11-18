@@ -813,10 +813,10 @@ artifacts:
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.7.0
+  doc_version: 1.8.0
   status: active
   last_updated: 2026-11-18
-  sha256: d12dc156d38efce6cf53425327436d5108268bdbdf6a7c381ea5e2dbf1c20e1b
+  sha256: 0197593cff0fd7024e13520aae13a47ae3961bf7207f6b6b0b8f8446cba6a154
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
@@ -1137,17 +1137,17 @@ artifacts:
 - path: docs/roadmap/slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md
   type: doc
   section: 0
-  doc_version: 0.4.0
+  doc_version: 0.5.0
   status: in-progress
   last_updated: 2026-11-18
-  sha256: 06c5f375ff58907f3679d5710dda82956e5dab225eab822adaff703c3d157fbe
+  sha256: 28155b2959a921b155a7461bf934a7ba8594fde8647e68bf189c8d36cde83fea
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
   section: 0
-  doc_version: 0.3.0
+  doc_version: 0.4.0
   status: in-progress
   last_updated: 2026-11-18
-  sha256: 017b64997295b9c0d5acb5545c469af63e42fa5a51a683612e53ff84f8be7d4c
+  sha256: 397306bdaa3f847db35b5c2096aabc831e00198213abc4494be4ef8b8f269499
 - path: docs/roadmap/slices/44-mutation-safety-and-idempotency-ledger.md
   type: doc
   section: 0

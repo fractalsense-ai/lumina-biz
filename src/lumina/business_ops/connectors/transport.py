@@ -42,10 +42,11 @@ class ConnectorTransportRequest:
     url: str
     payload: dict[str, Any]
     action_class: str
-    capability_namespace: str
+    capability_namespace: str | None
     correlation_id: str
     headers: Mapping[str, str] | None = None
     idempotency_key: str | None = None
+    query_params: Mapping[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -153,13 +154,17 @@ def send_json(
     headers = _request_headers(request)
     for attempt in range(1, max_attempts + 1):
         try:
-            response = client.request(
-                method,
-                request.url,
-                json=request.payload,
-                headers=headers,
-                timeout=policy.timeout_seconds,
-            )
+            request_options: dict[str, Any] = {
+                "headers": headers,
+                "timeout": policy.timeout_seconds,
+            }
+            if method == "GET":
+                if request.payload:
+                    raise ValueError("GET connector requests must use query_params, not a JSON body")
+                request_options["params"] = request.query_params
+            else:
+                request_options["json"] = request.payload
+            response = client.request(method, request.url, **request_options)
         except httpx.RequestError:
             if attempt < max_attempts:
                 continue
