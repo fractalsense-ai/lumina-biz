@@ -1,8 +1,8 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.4.0
+version: 1.5.0
 status: active
-last_updated: 2026-11-17
+last_updated: 2026-11-18
 ---
 
 # Runtime Implementation Program
@@ -85,7 +85,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 
 ## RI-21 Progress
 
-- The protected-context hook now distinguishes malformed non-boolean verifier output (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`), with deny-closed pseudonymous observations. The liveness matrix passes (7 tests).
+- The protected-context hook consumes a structured `ActorLivenessResult` with strict boolean `allow`, deterministic `deny_reason`, and a format-restricted non-PII `evidence_code`; malformed outputs and unavailable/timeouts remain distinct deny-closed outcomes with pseudonymous observations. The liveness matrix passes (11 tests).
 - The provider-specific live SoR verifier and shared transport remain open; RI-21 must use Slice 43 for network calls and does not add business-operation transport or mutations.
 
 ## Dependency Order

@@ -11,6 +11,14 @@ from fastapi.security import HTTPAuthorizationCredentials
 
 from lumina.api import config as _cfg
 from lumina.api.middleware import _bearer_scheme, get_current_user, require_auth
+from lumina.auth.actor_liveness import (
+    ACTOR_ACTIVE,
+    ACTOR_INACTIVE,
+    ACTOR_MALFORMED,
+    ACTOR_UNAVAILABLE,
+    ActorLivenessResult,
+    validate_actor_liveness_result,
+)
 from lumina.auth.auth import build_token_verification_observation
 from lumina.auth.operating_context import operating_context_from_claims
 
@@ -19,9 +27,9 @@ if TYPE_CHECKING:
 
 _INSTITUTIONAL_INDEX_DIR = _cfg._REPO_ROOT / "data" / "retrieval-index" / "institutional-memory"
 _ACTOR_LIVENESS_CONTRACT = "actor_liveness_enforcement_v1"
-_ACTOR_LIVENESS_REASON_INACTIVE = "actor_inactive_in_sor"
-_ACTOR_LIVENESS_REASON_UNAVAILABLE = "actor_liveness_unavailable"
-_ACTOR_LIVENESS_REASON_MALFORMED = "actor_liveness_malformed"
+_ACTOR_LIVENESS_REASON_INACTIVE = ACTOR_INACTIVE
+_ACTOR_LIVENESS_REASON_UNAVAILABLE = ACTOR_UNAVAILABLE
+_ACTOR_LIVENESS_REASON_MALFORMED = ACTOR_MALFORMED
 
 log = logging.getLogger("lumina-auth")
 
@@ -75,6 +83,7 @@ def _emit_actor_liveness_observation(
     *,
     outcome: str,
     reason: str,
+    evidence_code: str,
 ) -> None:
     """Emit pseudonymous actor-liveness observability fields."""
     try:
@@ -93,6 +102,7 @@ def _emit_actor_liveness_observation(
             site_id=user.get("site_id") if isinstance(user.get("site_id"), str) else None,
         )
         observation["event_type"] = "actor_liveness_verification"
+        observation["evidence_code"] = evidence_code
     except Exception:
         # Observability must never weaken auth-path determinism.
         observation = {
@@ -100,6 +110,7 @@ def _emit_actor_liveness_observation(
             "verification_source": _ACTOR_LIVENESS_CONTRACT,
             "outcome": outcome,
             "reason": reason,
+            "evidence_code": evidence_code,
             "subject_present": isinstance(user.get("sub"), str),
             "organization_present": isinstance(user.get("organization_id"), str),
             "site_present": isinstance(user.get("site_id"), str),
@@ -110,7 +121,7 @@ def _emit_actor_liveness_observation(
     )
 
 
-def _default_actor_liveness_verifier(user: dict[str, Any]) -> bool:
+def _default_actor_liveness_verifier(user: dict[str, Any]) -> ActorLivenessResult:
     """Return True when actor is active in the current System of Record.
 
     Uses persistence user state as SoR authority for local/runtime verification.
@@ -129,8 +140,29 @@ def _default_actor_liveness_verifier(user: dict[str, Any]) -> bool:
 
     record = get_user(subject)
     if record is None:
-        return False
-    return bool(record.get("active", False))
+        return ActorLivenessResult(
+            allow=False,
+            deny_reason=ACTOR_INACTIVE,
+            evidence_code="actor_record_missing",
+        )
+    active = record.get("active")
+    if type(active) is not bool:
+        return ActorLivenessResult(
+            allow=False,
+            deny_reason=ACTOR_MALFORMED,
+            evidence_code="actor_active_field_malformed",
+        )
+    if not active:
+        return ActorLivenessResult(
+            allow=False,
+            deny_reason=ACTOR_INACTIVE,
+            evidence_code="actor_record_inactive",
+        )
+    return ActorLivenessResult(
+        allow=True,
+        deny_reason=None,
+        evidence_code="actor_record_active",
+    )
 
 
 def _enforce_actor_liveness(user: dict[str, Any]) -> None:
@@ -143,12 +175,14 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
             user,
             outcome="deny",
             reason=_ACTOR_LIVENESS_REASON_UNAVAILABLE,
+            evidence_code="adapter_not_callable",
         )
         raise HTTPException(
             status_code=403,
             detail={
                 "error": "Actor liveness verification unavailable",
                 "reason": _ACTOR_LIVENESS_REASON_UNAVAILABLE,
+                "evidence_code": "adapter_not_callable",
                 "contract": _ACTOR_LIVENESS_CONTRACT,
             },
         )
@@ -160,44 +194,56 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
             user,
             outcome="deny",
             reason=_ACTOR_LIVENESS_REASON_UNAVAILABLE,
+            evidence_code="adapter_exception",
         )
         raise HTTPException(
             status_code=403,
             detail={
                 "error": "Actor liveness verification unavailable",
                 "reason": _ACTOR_LIVENESS_REASON_UNAVAILABLE,
+                "evidence_code": "adapter_exception",
                 "contract": _ACTOR_LIVENESS_CONTRACT,
             },
         )
 
-    if not isinstance(verifier_result, bool):
+    try:
+        liveness_result = validate_actor_liveness_result(verifier_result)
+    except ValueError:
         _emit_actor_liveness_observation(
             user,
             outcome="deny",
             reason=_ACTOR_LIVENESS_REASON_MALFORMED,
+            evidence_code="adapter_result_malformed",
         )
         raise HTTPException(
             status_code=403,
             detail={
                 "error": "Actor liveness verifier returned a malformed result",
                 "reason": _ACTOR_LIVENESS_REASON_MALFORMED,
+                "evidence_code": "adapter_result_malformed",
                 "contract": _ACTOR_LIVENESS_CONTRACT,
             },
         )
 
-    is_active = verifier_result
-
-    if not is_active:
+    if not liveness_result.allow:
+        reason = liveness_result.deny_reason or _ACTOR_LIVENESS_REASON_MALFORMED
+        error_message = (
+            "Actor is not active in system of record"
+            if reason == _ACTOR_LIVENESS_REASON_INACTIVE
+            else "Actor liveness verifier denied the actor"
+        )
         _emit_actor_liveness_observation(
             user,
             outcome="deny",
-            reason=_ACTOR_LIVENESS_REASON_INACTIVE,
+            reason=reason,
+            evidence_code=liveness_result.evidence_code,
         )
         raise HTTPException(
             status_code=403,
             detail={
-                "error": "Actor is not active in system of record",
-                "reason": _ACTOR_LIVENESS_REASON_INACTIVE,
+                "error": error_message,
+                "reason": reason,
+                "evidence_code": liveness_result.evidence_code,
                 "contract": _ACTOR_LIVENESS_CONTRACT,
             },
         )
@@ -205,7 +251,8 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
     _emit_actor_liveness_observation(
         user,
         outcome="allow",
-        reason="actor_active_in_sor",
+        reason=ACTOR_ACTIVE,
+        evidence_code=liveness_result.evidence_code,
     )
 
 

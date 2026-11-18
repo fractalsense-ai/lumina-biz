@@ -8,6 +8,7 @@ import pytest
 from fastapi import HTTPException
 
 from lumina.api import dependencies
+from lumina.auth.actor_liveness import ActorLivenessResult
 
 
 def _extract_actor_liveness_events(caplog: pytest.LogCaptureFixture) -> list[dict]:
@@ -211,14 +212,29 @@ def test_get_active_operating_context_deny_closed_for_non_callable_verifier(monk
 
 
 @pytest.mark.unit
-def test_get_active_operating_context_uses_custom_verifier_when_configured(monkeypatch):
+def test_get_active_operating_context_uses_structured_custom_verifier(monkeypatch, caplog):
+    from lumina.auth.actor_liveness import ActorLivenessResult
+
     calls: list[dict] = []
 
-    def _verifier(user: dict) -> bool:
+    def _verifier(user: dict) -> ActorLivenessResult:
         calls.append(user)
-        return True
+        return ActorLivenessResult(
+            allow=True,
+            deny_reason=None,
+            evidence_code="membership_active",
+        )
 
+    caplog.set_level(logging.INFO, logger="lumina-auth")
     monkeypatch.setattr(dependencies._cfg, "ACTOR_LIVENESS_VERIFIER", _verifier, raising=False)
+    monkeypatch.setattr(dependencies, "build_token_verification_observation", lambda **kwargs: {
+        "event_type": "actor_liveness_verification",
+        "verification_source": kwargs["verification_source"],
+        "outcome": kwargs["outcome"],
+        "reason": kwargs["reason"],
+        "evidence_code": kwargs.get("evidence_code"),
+        "subject_hash": "active-hash",
+    })
 
     user = {
         "sub": "u-1",
@@ -230,14 +246,32 @@ def test_get_active_operating_context_uses_custom_verifier_when_configured(monke
     context = dependencies.get_active_operating_context(user)
     assert context["device_id"] == "dev-1"
     assert len(calls) == 1
+    events = _extract_actor_liveness_events(caplog)
+    assert len(events) == 1
+    assert events[0]["evidence_code"] == "membership_active"
 
 
 @pytest.mark.unit
-def test_get_active_operating_context_rejects_non_bool_verifier_result(monkeypatch, caplog):
+@pytest.mark.parametrize(
+    "invalid_result",
+    [
+        "true",
+        ActorLivenessResult(allow=1, deny_reason=None, evidence_code="active"),
+        ActorLivenessResult(allow=True, deny_reason="actor_inactive_in_sor", evidence_code="active"),
+        ActorLivenessResult(allow=False, deny_reason="actor_inactive_in_sor", evidence_code=""),
+        ActorLivenessResult(allow=False, deny_reason=[], evidence_code="adapter_denied"),
+        ActorLivenessResult(allow=True, deny_reason=None, evidence_code="actor@example.com"),
+    ],
+)
+def test_get_active_operating_context_rejects_malformed_verifier_result(
+    invalid_result,
+    monkeypatch,
+    caplog,
+):
     caplog.set_level(logging.INFO, logger="lumina-auth")
 
     def _invalid_verifier(_user: dict):
-        return "true"
+        return invalid_result
 
     monkeypatch.setattr(dependencies._cfg, "ACTOR_LIVENESS_VERIFIER", _invalid_verifier, raising=False)
     monkeypatch.setattr(dependencies, "build_token_verification_observation", lambda **kwargs: {
@@ -266,3 +300,4 @@ def test_get_active_operating_context_rejects_non_bool_verifier_result(monkeypat
     event = events[0]
     assert event["outcome"] == "deny"
     assert event["reason"] == "actor_liveness_malformed"
+    assert event["evidence_code"] == "adapter_result_malformed"

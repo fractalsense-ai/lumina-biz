@@ -2,8 +2,8 @@
 title: "Slice 42 - ERP Trust Runtime and Live Actor-Liveness Adapter"
 slice: 42
 status: in-progress
-version: 0.3.0
-last_updated: 2026-11-17
+version: 0.4.0
+last_updated: 2026-11-18
 ---
 
 ## Purpose
@@ -43,7 +43,8 @@ SoR liveness adapter contract used by protected API flows.
 
 - `erp_actor_liveness_adapter_v1` must define:
   - actor identity inputs (organization, site, actor claims, token metadata).
-  - deterministic output shape (`allow: bool`, `deny_reason`, `evidence_code`).
+  - a structured `ActorLivenessResult` with strict boolean `allow`, nullable `deny_reason`, and a lowercase identifier-format non-PII `evidence_code`.
+  - accepted deny reasons limited to `actor_inactive_in_sor`, `actor_liveness_unavailable`, and `actor_liveness_malformed`; allow results use `actor_active_in_sor`.
   - timeout semantics and explicit unavailable behavior.
 
 ### Deterministic Failure Matrix
@@ -100,7 +101,8 @@ SoR liveness adapter contract used by protected API flows.
 
 ## Runtime Progress
 
-- The injected actor-liveness verifier now distinguishes malformed non-boolean results (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`); both remain deny-closed and emit pseudonymous observations.
+- The injected actor-liveness verifier now consumes a structured `ActorLivenessResult`, validates the strict boolean/reason/evidence fields, and distinguishes malformed results (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`); both remain deny-closed and emit pseudonymous observations.
+- Local persistence verification and injected adapters use the same result contract; failure-matrix coverage passes (11 tests).
 - The live ERP/Frappe actor-liveness adapter and transport/deadline implementation remain open; this progress item does not claim Slice 42 completion.
 
 ## Follow-Up Slices
