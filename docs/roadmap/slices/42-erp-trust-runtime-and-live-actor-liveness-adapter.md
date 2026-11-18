@@ -1,9 +1,9 @@
 ---
 title: "Slice 42 - ERP Trust Runtime and Live Actor-Liveness Adapter"
 slice: 42
-status: planned
-version: 0.2.0
-last_updated: 2026-08-09
+status: in-progress
+version: 0.3.0
+last_updated: 2026-11-17
 ---
 
 ## Purpose
@@ -97,6 +97,11 @@ SoR liveness adapter contract used by protected API flows.
 
 - Strengthens trust boundary evidence for actor validity checks.
 - Prevents silent auth degradation during ERP outages.
+
+## Runtime Progress
+
+- The injected actor-liveness verifier now distinguishes malformed non-boolean results (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`); both remain deny-closed and emit pseudonymous observations.
+- The live ERP/Frappe actor-liveness adapter and transport/deadline implementation remain open; this progress item does not claim Slice 42 completion.
 
 ## Follow-Up Slices
 
