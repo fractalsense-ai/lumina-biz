@@ -164,7 +164,11 @@ def send_json(
                 request_options["params"] = request.query_params
             else:
                 request_options["json"] = request.payload
-            response = client.request(method, request.url, **request_options)
+            outbound = client.build_request(method, request.url, **request_options)
+            if request.action_class not in _MUTATION_ACTIONS or not request.idempotency_key:
+                if "Idempotency-Key" in outbound.headers:
+                    del outbound.headers["Idempotency-Key"]
+            response = client.send(outbound, follow_redirects=False)
         except httpx.RequestError:
             if attempt < max_attempts:
                 continue

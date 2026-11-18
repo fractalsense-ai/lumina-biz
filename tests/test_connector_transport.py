@@ -116,6 +116,46 @@ def test_mutation_is_not_retried_and_propagates_idempotency() -> None:
 
 
 @pytest.mark.unit
+@pytest.mark.parametrize("action_class", ["query", "request_commit"])
+def test_client_default_idempotency_key_is_removed_when_not_requested(action_class: str) -> None:
+    observed_headers: list[httpx.Headers] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        observed_headers.append(request.headers)
+        return httpx.Response(200, json={"data": []})
+
+    with httpx.Client(
+        headers={"Idempotency-Key": "client-default"},
+        transport=httpx.MockTransport(handler),
+    ) as client:
+        request = replace(_request(action_class), idempotency_key=None)
+        result = send_json(request, client=client)
+
+    assert result.error is None
+    assert "Idempotency-Key" not in observed_headers[0]
+
+
+@pytest.mark.unit
+def test_redirect_enabled_client_does_not_replay_mutation() -> None:
+    observed_requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        observed_requests.append(request)
+        return httpx.Response(307, headers={"Location": "/replayed"})
+
+    with httpx.Client(
+        follow_redirects=True,
+        transport=httpx.MockTransport(handler),
+    ) as client:
+        result = send_json(_request("request_commit"), client=client)
+
+    assert len(observed_requests) == 1
+    assert result.status_code == 307
+    assert result.error is not None
+    assert result.error["code"] == "UPSTREAM_ERROR"
+
+
+@pytest.mark.unit
 def test_query_timeout_retries_then_returns_canonical_error() -> None:
     attempts = 0
 
