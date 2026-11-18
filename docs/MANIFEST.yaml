@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-11-17
+last_updated: 2026-11-18
 artifacts:
 - path: docs/1-commands/README.md
   type: doc
@@ -813,10 +813,10 @@ artifacts:
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.2.0
+  doc_version: 1.5.0
   status: active
-  last_updated: 2026-11-08
-  sha256: fa0ed7d14c275357a0c02831a973588aa2eed5c4a7e980fce4ff8dfb7c51bb10
+  last_updated: 2026-11-18
+  sha256: c8a66aa38bb0b560b77572dad6cc27ff67d3d0015cd5259ea29ca0c68bfff207
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
@@ -1137,10 +1137,10 @@ artifacts:
 - path: docs/roadmap/slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md
   type: doc
   section: 0
-  doc_version: 0.3.0
+  doc_version: 0.4.0
   status: in-progress
-  last_updated: 2026-11-17
-  sha256: 03784f5ecb22fc2d65487dec5ead8334898798f69567a85041b0b3bb89dc0a46
+  last_updated: 2026-11-18
+  sha256: 06c5f375ff58907f3679d5710dda82956e5dab225eab822adaff703c3d157fbe
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
   section: 0
