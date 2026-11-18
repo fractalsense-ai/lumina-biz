@@ -1,7 +1,7 @@
 ---
 title: "Architecture Coherence Gap Register"
 status: active
-version: 0.5.0
+version: 0.6.0
 last_updated: 2026-11-17
 ---
 
@@ -16,7 +16,7 @@ and map each gap to a dependency-DAG node, owner hotspot, and closure evidence.
 |---|---|---|---|
 | G1 | Closed: session-bound Tool Tokens gate interpreter context, command assembly, and direct tool invocation | low | `src/lumina/auth/tool_token.py`, `src/lumina/api/runtime_helpers.py`, `src/lumina/api/routes/chat.py`, `src/lumina/api/routes/system.py` |
 | G2 | Closed: institutional-memory ingest rejects conversational record types and raw chat-shaped payloads before embedding | low | `src/lumina/retrieval/institutional.py` |
-| G3 | Pipeline ordering is documented but not uniformly hard-failed/degraded when stages are missing or reordered | high | `src/lumina/api/processing.py` |
+| G3 | Closed: pipeline ordering is checked before semantic interpretation and PPA; approved bypasses carry explicit degraded metadata | low | `src/lumina/api/processing.py`, `tests/test_processing_pipeline_order.py` |
 | G4 | Cross-domain API-only boundary is partial policy-level, not fully runtime-enforced | high | `src/lumina/daemon/cross_domain.py`, `src/lumina/daemon/task_adapter.py` |
 | G5 | Daemon audit-commit coverage parity is not consistently guaranteed | medium | `src/lumina/orchestrator/system_log_writer.py`, daemon task paths |
 | G6 | Active SoR actor-liveness verification is enforced in shared auth dependencies with deterministic deny-closed fallback | low | `src/lumina/api/dependencies.py` |
@@ -70,6 +70,7 @@ Gate scope boundaries:
 
 ## Recent Closure Notes
 
+- G3 closure evidence (N3): `_pipeline_order_violation` enforces prerequisite presence and canonical order before semantic interpretation and PPA. Deterministic NLP now precedes model-capable early interceptors; deliberate early returns record their bypass reasons. Tests: `tests/test_processing_pipeline_order.py` and related pipeline suites; full backend suite passes at 5,205 passed, 1 skipped, 85.52% coverage.
 - G2 closure evidence (N2): `record_to_chunk` rejects conversational record-type markers and recursively rejects raw chat/conversation field names before embedding or persistence. Transcript-free thread and decision-precedent summaries remain supported. Tests: `tests/test_institutional_memory.py`, `tests/test_decision_precedent_service.py`, and `tests/test_decision_precedent_api.py` (27 passed).
 - G1 closure evidence (N1): internal tokens are minted after module `EXECUTE` and active actor/site checks, then validated against session, actor, org/site, module, expiry, and current runtime allowlist. Denials fail closed with pseudonymous observations. Regression coverage is in `tests/test_tool_token.py`, `tests/test_pipeline_fix.py`, `tests/test_routes_chat.py`, `tests/test_api_chat_tool_log_integration.py`, and `tests/test_runtime_helpers_coercion.py`.
 - G6 closure evidence (N6): actor-liveness guard added to `get_active_operating_context` in `src/lumina/api/dependencies.py`.

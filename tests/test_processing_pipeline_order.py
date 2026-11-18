@@ -83,6 +83,87 @@ def _common_patches(proc, *, session: dict[str, Any], runtime: dict[str, Any]):
 
 
 @pytest.mark.unit
+def test_pipeline_order_guard_rejects_reordered_stages() -> None:
+    from lumina.api.processing import _pipeline_order_violation
+
+    assert _pipeline_order_violation(
+        ["nlp", "auth"],
+        [],
+        next_stage="semantic_routing",
+    ) == "pipeline_stage_order_invalid"
+
+
+@pytest.mark.unit
+def test_pipeline_order_guard_allows_nlp_bypass_only_with_degraded_reason() -> None:
+    from lumina.api.processing import _pipeline_order_violation
+
+    assert _pipeline_order_violation(
+        ["auth"],
+        ["nlp_stage_bypassed_deterministic"],
+        next_stage="semantic_routing",
+    ) is None
+    assert _pipeline_order_violation(
+        ["auth"],
+        [],
+        next_stage="semantic_routing",
+    ) == "missing_nlp_stage"
+
+
+@pytest.mark.unit
+def test_pipeline_order_violation_denies_before_semantic_interpretation() -> None:
+    from lumina.api import processing as proc
+
+    session = _make_session(task_presented_at=time.time() - 1)
+    runtime = _make_runtime()
+    interpreter = MagicMock(return_value={"query_type": "general"})
+
+    with ExitStack() as stack:
+        for patcher in _common_patches(proc, session=session, runtime=runtime):
+            stack.enter_context(patcher)
+        stack.enter_context(patch.object(proc, "interpret_turn_input", interpreter))
+        stack.enter_context(
+            patch.object(proc, "_pipeline_order_violation", return_value="pipeline_stage_order_invalid")
+        )
+        result = proc.process_message("sess-order-invalid", "hello", deterministic_response=False)
+
+    assert result["action"] == "pipeline_order_denied"
+    assert result["_pipeline_order"]["denied_reason"] == "pipeline_stage_order_invalid"
+    interpreter.assert_not_called()
+    session["orchestrator"].process_turn.assert_not_called()
+
+
+@pytest.mark.unit
+def test_glossary_intercept_runs_after_nlp_and_records_ppa_bypass() -> None:
+    from lumina.api import processing as proc
+
+    session = _make_session(task_presented_at=time.time() - 1)
+    events: list[str] = []
+    runtime = _make_runtime()
+    runtime["nlp_pre_interpreter_fn"] = lambda _text, _ctx: events.append("nlp") or {}
+
+    def _glossary_intercept(*_args, **_kwargs):
+        events.append("glossary")
+        return {
+            "response": "definition",
+            "action": "definition_lookup",
+            "prompt_type": "definition_lookup",
+            "escalated": False,
+            "tool_results": None,
+            "domain_id": "system",
+        }
+
+    with ExitStack() as stack:
+        for patcher in _common_patches(proc, session=session, runtime=runtime):
+            stack.enter_context(patcher)
+        stack.enter_context(patch.object(proc, "check_glossary", side_effect=_glossary_intercept))
+        result = proc.process_message("sess-order-glossary", "define term", deterministic_response=False)
+
+    assert events == ["nlp", "glossary"]
+    assert result["_pipeline_order"]["stage_trace"] == ["auth", "nlp", "semantic_routing"]
+    assert "ppa_bypassed_glossary_intercept" in result["_pipeline_order"]["degraded_reasons"]
+
+
+@pytest.mark.unit
 def test_pipeline_order_trace_includes_nlp_and_ppa() -> None:
     from lumina.api import processing as proc
 
