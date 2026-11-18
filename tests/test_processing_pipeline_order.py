@@ -6,6 +6,8 @@ runtime stage-order behavior in ``process_message``.
 from __future__ import annotations
 
 from contextlib import ExitStack
+import json
+import logging
 import time
 from types import SimpleNamespace
 from typing import Any
@@ -91,6 +93,11 @@ def test_pipeline_order_guard_rejects_reordered_stages() -> None:
         [],
         next_stage="semantic_routing",
     ) == "pipeline_stage_order_invalid"
+    assert _pipeline_order_violation(
+        ["auth", "nlp", "ppa"],
+        [],
+        next_stage="semantic_routing",
+    ) == "pipeline_stage_order_invalid"
 
 
 @pytest.mark.unit
@@ -133,9 +140,10 @@ def test_pipeline_order_violation_denies_before_semantic_interpretation() -> Non
 
 
 @pytest.mark.unit
-def test_glossary_intercept_runs_after_nlp_and_records_ppa_bypass() -> None:
+def test_glossary_intercept_runs_after_nlp_and_records_ppa_bypass(caplog) -> None:
     from lumina.api import processing as proc
 
+    caplog.set_level(logging.INFO, logger="lumina-api")
     session = _make_session(task_presented_at=time.time() - 1)
     events: list[str] = []
     runtime = _make_runtime()
@@ -161,6 +169,13 @@ def test_glossary_intercept_runs_after_nlp_and_records_ppa_bypass() -> None:
     assert events == ["nlp", "glossary"]
     assert result["_pipeline_order"]["stage_trace"] == ["auth", "nlp", "semantic_routing"]
     assert "ppa_bypassed_glossary_intercept" in result["_pipeline_order"]["degraded_reasons"]
+    observations = [
+        json.loads(record.getMessage().split("pipeline_order_observation ", 1)[1])
+        for record in caplog.records
+        if record.name == "lumina-api" and record.getMessage().startswith("pipeline_order_observation ")
+    ]
+    assert observations[-1]["degraded_reasons"] == ["ppa_bypassed_glossary_intercept"]
+    assert observations[-1]["session_ref"]
 
 
 @pytest.mark.unit

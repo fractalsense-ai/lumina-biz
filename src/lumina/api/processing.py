@@ -101,8 +101,9 @@ def _pipeline_order_violation(
     if next_stage not in _PIPELINE_STAGE_ORDER:
         raise ValueError(f"Unknown pipeline stage: {next_stage}")
 
-    actual_ordered_stages = [stage for stage in stage_trace if stage in _PIPELINE_STAGE_ORDER]
-    expected_ordered_stages = [stage for stage in _PIPELINE_STAGE_ORDER if stage in stage_trace]
+    proposed_trace = [*stage_trace, next_stage]
+    actual_ordered_stages = [stage for stage in proposed_trace if stage in _PIPELINE_STAGE_ORDER]
+    expected_ordered_stages = [stage for stage in _PIPELINE_STAGE_ORDER if stage in proposed_trace]
     if actual_ordered_stages != expected_ordered_stages:
         return "pipeline_stage_order_invalid"
 
@@ -114,6 +115,14 @@ def _pipeline_order_violation(
             continue
         return f"missing_{stage}_stage"
     return None
+
+
+def _emit_pipeline_order_observation(payload: dict[str, Any]) -> None:
+    """Persist pipeline-order evidence for response paths that bypass PPA."""
+    log.info(
+        "pipeline_order_observation %s",
+        json.dumps(payload, separators=(",", ":"), sort_keys=True),
+    )
 
 
 def _pipeline_order_payload(
@@ -148,6 +157,7 @@ def _pipeline_order_denied_result(
         degraded_reasons,
     )
     _payload["denied_reason"] = reason
+    _emit_pipeline_order_observation(_payload)
     return {
         "response": "I cannot process this input because runtime stage-order validation failed.",
         "action": "pipeline_order_denied",
@@ -469,6 +479,7 @@ def process_message(
             _pipeline_stage_trace,
             _pipeline_degraded_reasons,
         )
+        _emit_pipeline_order_observation(_glossary_result["_pipeline_order"])
         return _glossary_result
 
     _t0_result = check_turn_0(
@@ -490,6 +501,7 @@ def process_message(
             _pipeline_stage_trace,
             _pipeline_degraded_reasons,
         )
+        _emit_pipeline_order_observation(_t0_result["_pipeline_order"])
         return _t0_result
 
     # If check_turn_0 did not intercept, _has_equation is False.
@@ -708,6 +720,7 @@ def process_message(
                 _pipeline_stage_trace,
                 _pipeline_degraded_reasons,
             )
+            _emit_pipeline_order_observation(_g_result["_pipeline_order"])
             return _g_result
 
     # ── Layer 2½b: Post-interpretation enrichment (SLM context + telemetry) ──
@@ -781,6 +794,7 @@ def process_message(
             _pipeline_stage_trace,
             _pipeline_degraded_reasons,
         )
+        _emit_pipeline_order_observation(denied_result["_pipeline_order"])
         return denied_result
     turn_data = _inspection_result.sanitized_payload or turn_data
 
