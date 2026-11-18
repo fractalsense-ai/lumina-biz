@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
@@ -270,6 +271,29 @@ def test_record_to_chunk_rejects_conversation_record_type() -> None:
     record["record_type"] = "ConversationTranscriptRecord"
     with pytest.raises(ValueError, match="prohibited"):
         record_to_chunk(record)
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("messages", [{"role": "user", "content": "private chat text"}]),
+        ("turns", [{"user": "private chat text", "assistant": "reply"}]),
+        ("metadata", {"conversation": [{"content": "private chat text"}]}),
+    ],
+)
+def test_indexer_rejects_raw_conversation_payload_before_embedding(field, value, tmp_path) -> None:
+    record = _record()
+    record[field] = value
+    embedder = Mock(wraps=_FakeEmbedder())
+    store = VectorStore(tmp_path / "vs")
+    indexer = InstitutionalMemoryIndexer(store, embedder)
+
+    with pytest.raises(ValueError, match="prohibited"):
+        indexer.ingest([record])
+
+    embedder.embed_chunks.assert_not_called()
+    assert store.size == 0
 
 
 @pytest.mark.unit

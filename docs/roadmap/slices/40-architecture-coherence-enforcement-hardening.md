@@ -2,7 +2,7 @@
 title: "Slice 40 — Architecture Coherence Enforcement Hardening"
 slice: 40
 status: in-progress
-version: 0.3.0
+version: 0.4.0
 last_updated: 2026-11-17
 ---
 
@@ -46,7 +46,7 @@ and cross-domain execution safety.
 ## Current Node Status
 
 - N1: complete. Server-minted Tool Tokens bind session, actor, organization, site, module, expiry, and the configured runtime tool allowlist; tokens are validated before tools enter interpreter/command contexts or direct invocation.
-- N2: open. Institutional-memory ingest still requires deterministic rejection tests for prohibited chat/conversation payload classes.
+- N2: complete. Institutional-memory ingest rejects conversational record types and recursively rejects raw chat/conversation payload fields before embedding or persistence.
 - N3: open. Pipeline ordering still requires enforced order checks or explicit degraded-mode telemetry.
 - N4: complete. Cross-domain API-only boundary is enforced in daemon scheduling and adapter paths.
 - N5: complete. Daemon audit-commit parity is enforced for success and exception paths.
@@ -60,6 +60,14 @@ and cross-domain execution safety.
 - Observability: exclusions emit `tool_boundary_verification` with pseudonymous actor/token/scope hashes, a deterministic deny reason, and counts; raw identifiers and tool IDs are omitted.
 - Tests: `tests/test_tool_token.py`, `tests/test_pipeline_fix.py`, `tests/test_routes_chat.py`, `tests/test_api_chat_tool_log_integration.py`, and `tests/test_runtime_helpers_coercion.py`.
 - Rollback: on token-validation or scope-binding regression, disable tool-bearing paths until fixed. Do not restore unscoped tool exposure.
+
+## N2 Closure Evidence
+
+- Runtime guard: `src/lumina/retrieval/institutional.py` rejects prohibited record-type markers and conversational payload keys at any nesting level before chunk conversion.
+- Denial taxonomy: deterministic `ValueError` with a prohibited conversational/transcript reason.
+- Tests: `tests/test_institutional_memory.py` covers prohibited record types, top-level and nested raw conversation fields, and verifies rejection precedes embedding and persistence; transcript-free `ThreadSummaryRecord` and `DecisionPrecedentRecord` ingestion remains supported.
+- Regression verification: institutional-memory and decision-precedent service/API tests (27 passed).
+- Rollback: if the guard rejects valid transcript-free records, fix the field/type allowlist; do not bypass the ingest guard or persist conversation records.
 
 ## N6 Closure Evidence
 

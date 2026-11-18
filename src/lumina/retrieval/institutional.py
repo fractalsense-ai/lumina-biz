@@ -21,6 +21,24 @@ _PROHIBITED_CONVERSATION_MARKERS = (
     "dialog",
     "transcript",
 )
+_PROHIBITED_CONVERSATION_FIELDS = frozenset(
+    {
+        "messages",
+        "turns",
+        "transcript",
+        "transcripts",
+        "conversation",
+        "conversation_history",
+        "chat_history",
+        "dialog",
+        "dialogue",
+        "user_message",
+        "assistant_message",
+        "raw_chat",
+        "chat_log",
+        "conversation_log",
+    }
+)
 
 
 def _required_identifier(record: dict[str, Any], field_name: str) -> str:
@@ -47,6 +65,21 @@ def _validate_record_type(record_type: str) -> str:
     return normalized
 
 
+def _validate_conversation_payload(value: Any) -> None:
+    """Reject raw conversational structures anywhere in an ingest record."""
+    if isinstance(value, dict):
+        for key, nested_value in value.items():
+            normalized_key = str(key).strip().lower().replace("-", "_")
+            if normalized_key in _PROHIBITED_CONVERSATION_FIELDS:
+                raise ValueError(
+                    "institutional record payload is prohibited for conversational/transcript content"
+                )
+            _validate_conversation_payload(nested_value)
+    elif isinstance(value, list):
+        for nested_value in value:
+            _validate_conversation_payload(nested_value)
+
+
 def _metadata(record: dict[str, Any]) -> dict[str, str | None]:
     reference = record.get("external_system_reference")
     reference = reference if isinstance(reference, dict) else {}
@@ -64,6 +97,7 @@ def _metadata(record: dict[str, Any]) -> dict[str, str | None]:
 
 def record_to_chunk(record: dict[str, Any]) -> DocChunk:
     """Convert one scoped memory record into a deterministic index chunk."""
+    _validate_conversation_payload(record)
     record_type = _validate_record_type(_required_identifier(record, "record_type"))
     record_id = _required_identifier(record, "record_id")
     organization_id = _required_identifier(record, "organization_id")
