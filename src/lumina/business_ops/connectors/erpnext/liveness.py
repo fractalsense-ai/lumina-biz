@@ -29,6 +29,8 @@ class ERPNextActorLivenessAdapter:
         self,
         *,
         base_url: str,
+        expected_organization_id: str,
+        expected_site_id: str,
         authorization_header_provider: Callable[[], str],
         client: httpx.Client,
         policy: TransportPolicy = TransportPolicy(),
@@ -36,9 +38,15 @@ class ERPNextActorLivenessAdapter:
         normalized_base_url = base_url.strip().rstrip("/")
         if not normalized_base_url.startswith(("http://", "https://")):
             raise ValueError("ERPNext base_url must use HTTP or HTTPS")
+        if not isinstance(expected_organization_id, str) or not expected_organization_id.strip():
+            raise ValueError("expected_organization_id must be a non-empty string")
+        if not isinstance(expected_site_id, str) or not expected_site_id.strip():
+            raise ValueError("expected_site_id must be a non-empty string")
         if not callable(authorization_header_provider):
             raise ValueError("authorization_header_provider must be callable")
         self._base_url = normalized_base_url
+        self._expected_organization_id = expected_organization_id.strip()
+        self._expected_site_id = expected_site_id.strip()
         self._authorization_header_provider = authorization_header_provider
         self._client = client
         self._policy = policy
@@ -52,6 +60,15 @@ class ERPNextActorLivenessAdapter:
                 allow=False,
                 deny_reason=ACTOR_MALFORMED,
                 evidence_code="actor_scope_malformed",
+            )
+        if (
+            organization_id.strip() != self._expected_organization_id
+            or site_id.strip() != self._expected_site_id
+        ):
+            return ActorLivenessResult(
+                allow=False,
+                deny_reason=ACTOR_MALFORMED,
+                evidence_code="actor_scope_mismatch",
             )
 
         try:
@@ -85,12 +102,6 @@ class ERPNextActorLivenessAdapter:
         )
         response = send_json(request, client=self._client, policy=self._policy)
         if response.error is not None:
-            if response.error.get("code") == "NOT_FOUND":
-                return ActorLivenessResult(
-                    allow=False,
-                    deny_reason=ACTOR_INACTIVE,
-                    evidence_code="user_record_missing",
-                )
             if response.error.get("code") == "MALFORMED_RESPONSE":
                 return ActorLivenessResult(
                     allow=False,
