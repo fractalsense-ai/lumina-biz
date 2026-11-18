@@ -1,9 +1,9 @@
 ---
 title: "Slice 43 - Generic Connector Transport Runtime"
 slice: 43
-status: planned
-version: 0.1.0
-last_updated: 2026-08-08
+status: in-progress
+version: 0.3.0
+last_updated: 2026-11-18
 ---
 
 ## Purpose
@@ -63,6 +63,11 @@ all ERP adapters, including timeout, retry, correlation, and idempotency-key plu
 
 - Standardizes external call behavior for consistent auditing.
 - Reduces provider coupling risk in execution runtime.
+
+## Runtime Progress
+
+- A provider-neutral HTTPX transport seam now applies bounded timeouts, retries only `query` actions, propagates correlation IDs and optional mutation idempotency keys, and maps failures to the canonical connector error shape without echoing provider response bodies.
+- Fixture-backed transport tests pass (17 tests), covering the HTTP error matrix, timeout/retry behavior, malformed bodies, and metadata propagation. Wiring ERPNext, Odoo, or actor-liveness adapters to live transport remains separate; no business-operation mutation or production cutover is enabled by this increment.
 
 ## Follow-Up Slices
 
