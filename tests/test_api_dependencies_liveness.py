@@ -144,6 +144,39 @@ def test_get_active_operating_context_deny_closed_when_verifier_unavailable(monk
 
 
 @pytest.mark.unit
+def test_get_active_operating_context_denies_closed_on_verifier_timeout(monkeypatch, caplog):
+    def _timeout_verifier(_user: dict):
+        raise TimeoutError("actor liveness timed out")
+
+    caplog.set_level(logging.INFO, logger="lumina-auth")
+    monkeypatch.setattr(dependencies._cfg, "ACTOR_LIVENESS_VERIFIER", _timeout_verifier, raising=False)
+    monkeypatch.setattr(dependencies, "build_token_verification_observation", lambda **kwargs: {
+        "event_type": "actor_liveness_verification",
+        "verification_source": kwargs["verification_source"],
+        "outcome": kwargs["outcome"],
+        "reason": kwargs["reason"],
+        "subject_hash": "timeout-hash",
+    })
+
+    user = {
+        "sub": "u-1",
+        "organization_id": "org-1",
+        "site_id": "site-1",
+    }
+
+    with pytest.raises(HTTPException) as exc_info:
+        dependencies.get_active_operating_context(user)
+
+    assert exc_info.value.status_code == 403
+    assert exc_info.value.detail["reason"] == "actor_liveness_unavailable"
+    events = _extract_actor_liveness_events(caplog)
+    assert len(events) == 1
+    assert events[0]["outcome"] == "deny"
+    assert events[0]["reason"] == "actor_liveness_unavailable"
+    assert events[0]["subject_hash"] == "timeout-hash"
+
+
+@pytest.mark.unit
 def test_get_active_operating_context_deny_closed_for_non_callable_verifier(monkeypatch, caplog):
     caplog.set_level(logging.INFO, logger="lumina-auth")
     monkeypatch.setattr(dependencies._cfg, "ACTOR_LIVENESS_VERIFIER", "not-callable", raising=False)

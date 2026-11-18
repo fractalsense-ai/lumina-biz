@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.3.0
+version: 1.4.0
 status: active
 last_updated: 2026-11-17
 ---
@@ -44,6 +44,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-18 | Implement deterministic F&B trends, seasonal/daypart velocity, par and reorder calculations using systems-of-record data; reserve AI for unresolved ambiguity or requested qualitative synthesis | `lumina-fnb` | RI-04, RI-05, RI-07 | Planned |
 | RI-19 | Implement consented proof-of-work image capture and bounded VLM review with confidence, evidence, retention, and human escalation | `lumina-biz` plus vertical policy | RI-08, RI-15 | Planned |
 | RI-20 | Deliver freshness-aware knowledge refresh and a reviewed, privacy-limited outcome corpus for offline model evaluation and controlled improvement | `lumina-biz` plus vertical-approved data policy | 55, 80, RI-08 | Planned |
+| RI-21 | Implement the provider-neutral live SoR actor-liveness adapter boundary, bounded timeout handling, deny taxonomy, and pseudonymous evidence | `lumina-biz` | Slice 42, Slice 40 N1-N3 closure; Slice 43 for shared live transport | In progress |
 
 RI-00 is an audit, not a rewrite. The source-level baseline below records what exists in the `lumina-biz` checkout as of 2026-11-08; re-check the relevant tests before implementation estimates are committed.
 
@@ -82,6 +83,11 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - Focused ERPNext connector, conformance, and routing tests pass (31 passed). Full backend suite passes (5,183 passed, 1 skipped) at 85.48% coverage.
 - This adds a fixture-backed mapping, not live transport or checkout/session-close mutations. Those remain separate RI-04 work and subject to the Slice 41 gate and existing approval controls.
 
+## RI-21 Progress
+
+- The protected-context hook now distinguishes malformed non-boolean verifier output (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`), with deny-closed pseudonymous observations. The liveness matrix passes (7 tests).
+- The provider-specific live SoR verifier and shared transport remain open; RI-21 must use Slice 43 for network calls and does not add business-operation transport or mutations.
+
 ## Dependency Order
 
 - RI-00 precedes scope commitment for every implementation workstream.
@@ -95,6 +101,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - RI-19 requires the bounded compute cascade and task/evidence surface; VLM output is advisory, never sole proof.
 - RI-08 is bounded by the compute-cascade contract; RI-09 follows it and includes failure/recovery tests.
 - RI-20 requires the knowledge-index lifecycle and compute-cascade evidence contracts. Knowledge refresh remains separate from training; any model improvement uses reviewed, purpose-limited examples and offline evaluation, never raw-chat training or autonomous online updates.
+- RI-21 owns the Slice 42 actor-liveness runtime outcome. The Slice 42 contract is its prerequisite; any live network call must use Slice 43's generic transport, and RI-21 does not include business-operation transport or mutations.
 - RI-12 begins after any one supported public vertical release and customer-specific configuration boundaries are defined.
 
 ## Active Runtime Dependency DAG
