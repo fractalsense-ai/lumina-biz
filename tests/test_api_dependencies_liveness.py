@@ -259,6 +259,7 @@ def test_get_active_operating_context_uses_structured_custom_verifier(monkeypatc
         ActorLivenessResult(allow=1, deny_reason=None, evidence_code="active"),
         ActorLivenessResult(allow=True, deny_reason="actor_inactive_in_sor", evidence_code="active"),
         ActorLivenessResult(allow=False, deny_reason="actor_inactive_in_sor", evidence_code=""),
+        ActorLivenessResult(allow=False, deny_reason=[], evidence_code="adapter_denied"),
         ActorLivenessResult(allow=True, deny_reason=None, evidence_code="actor@example.com"),
     ],
 )

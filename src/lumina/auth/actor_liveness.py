@@ -32,6 +32,8 @@ def validate_actor_liveness_result(value: object) -> ActorLivenessResult:
         or _EVIDENCE_CODE_PATTERN.fullmatch(value.evidence_code) is None
     ):
         raise ValueError("actor liveness result requires a stable evidence_code")
+    if value.deny_reason is not None and not isinstance(value.deny_reason, str):
+        raise ValueError("actor liveness result has a malformed deny_reason")
     if value.allow:
         if value.deny_reason not in (None, ACTOR_ACTIVE):
             raise ValueError("allowed actor liveness result has an invalid deny_reason")
