@@ -132,6 +132,20 @@ def test_auth_failure_is_normalized_without_retry() -> None:
 
 
 @pytest.mark.unit
+def test_redirect_response_is_not_treated_as_success() -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(302, text="redirected")
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        result = send_json(_request(), client=client)
+
+    assert result.status_code == 302
+    assert result.error is not None
+    assert result.error["code"] == "UPSTREAM_ERROR"
+    assert "redirected" not in result.error["message"]
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "status_code,expected_code,expected_retryable",
     [

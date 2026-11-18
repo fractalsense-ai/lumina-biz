@@ -174,7 +174,7 @@ def send_json(
 
         if response.status_code in _RETRYABLE_STATUSES and attempt < max_attempts:
             continue
-        if response.is_error:
+        if not response.is_success:
             return _error_for_status(
                 request,
                 status_code=response.status_code,
