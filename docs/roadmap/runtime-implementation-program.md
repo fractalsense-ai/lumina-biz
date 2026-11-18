@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.5.0
+version: 1.6.0
 status: active
 last_updated: 2026-11-18
 ---
@@ -45,6 +45,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-19 | Implement consented proof-of-work image capture and bounded VLM review with confidence, evidence, retention, and human escalation | `lumina-biz` plus vertical policy | RI-08, RI-15 | Planned |
 | RI-20 | Deliver freshness-aware knowledge refresh and a reviewed, privacy-limited outcome corpus for offline model evaluation and controlled improvement | `lumina-biz` plus vertical-approved data policy | 55, 80, RI-08 | Planned |
 | RI-21 | Implement the provider-neutral live SoR actor-liveness adapter boundary, bounded timeout handling, deny taxonomy, and pseudonymous evidence | `lumina-biz` | Slice 42, Slice 40 N1-N3 closure; Slice 43 for shared live transport | In progress |
+| RI-22 | Implement provider-agnostic outbound connector transport with bounded timeouts, query-only retries, correlation/idempotency metadata, and canonical errors | `lumina-biz` | Slice 43, RI-04 | In progress |
 
 RI-00 is an audit, not a rewrite. The source-level baseline below records what exists in the `lumina-biz` checkout as of 2026-11-08; re-check the relevant tests before implementation estimates are committed.
 
@@ -88,12 +89,17 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - The protected-context hook consumes a structured `ActorLivenessResult` with strict boolean `allow`, deterministic `deny_reason`, and a format-restricted non-PII `evidence_code`; malformed outputs and unavailable/timeouts remain distinct deny-closed outcomes with pseudonymous observations. The liveness matrix passes (11 tests).
 - The provider-specific live SoR verifier and shared transport remain open; RI-21 must use Slice 43 for network calls and does not add business-operation transport or mutations.
 
+## RI-22 Progress
+
+- The shared `lumina.business_ops.connectors.transport` seam now supports bounded HTTPX timeouts, query-only retries, correlation IDs, mutation idempotency-key propagation, and canonical transport errors without echoing provider response bodies.
+- Targeted tests cover transient query retry, mutation non-replay, timeout normalization, auth errors, and metadata propagation (4 passed). Provider-specific execution wiring remains separate work.
+
 ## Dependency Order
 
 - RI-00 precedes scope commitment for every implementation workstream.
 - RI-01 precedes all shared UI, authentication, connector, and vertical bootstrap work.
 - RI-14 can proceed after RI-01; RI-02 depends on identity hooks, and RI-03 follows both the deterministic surface and authentication boundary.
-- RI-04 and RI-14 can proceed in parallel after RI-01. RI-05, RI-10, RI-11, and RI-13 each require RI-01 and the shared capability boundary; no vertical blocks another.
+- RI-04 and RI-14 can proceed in parallel after RI-01. RI-22 provides generic transport for RI-04 adapters and RI-21; provider-specific live execution remains subject to Slice 41. RI-05, RI-10, RI-11, and RI-13 each require RI-01 and the shared capability boundary; no vertical blocks another.
 - RI-06 requires the F&B repo and compute cascade. RI-07 can proceed independently after the F&B repo is bootstrapped; both preserve human review before mutations.
 - RI-15 requires the shared UI and authentication foundations. RI-16 additionally requires edge packaging; stale alerts route through role-authorized tasks.
 - RI-17 requires the F&B vertical, identity, and task primitives. It must not move or redirect wages/tips without approved jurisdictional policy and human review.
