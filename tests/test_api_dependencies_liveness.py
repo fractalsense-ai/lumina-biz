@@ -226,10 +226,10 @@ def test_get_active_operating_context_rejects_non_bool_verifier_result(monkeypat
 
     assert exc_info.value.status_code == 403
     detail = exc_info.value.detail
-    assert detail["reason"] == "actor_liveness_unavailable"
+    assert detail["reason"] == "actor_liveness_malformed"
 
     events = _extract_actor_liveness_events(caplog)
     assert len(events) == 1
     event = events[0]
     assert event["outcome"] == "deny"
-    assert event["reason"] == "actor_liveness_unavailable"
+    assert event["reason"] == "actor_liveness_malformed"

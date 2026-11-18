@@ -21,6 +21,7 @@ _INSTITUTIONAL_INDEX_DIR = _cfg._REPO_ROOT / "data" / "retrieval-index" / "insti
 _ACTOR_LIVENESS_CONTRACT = "actor_liveness_enforcement_v1"
 _ACTOR_LIVENESS_REASON_INACTIVE = "actor_inactive_in_sor"
 _ACTOR_LIVENESS_REASON_UNAVAILABLE = "actor_liveness_unavailable"
+_ACTOR_LIVENESS_REASON_MALFORMED = "actor_liveness_malformed"
 
 log = logging.getLogger("lumina-auth")
 
@@ -173,13 +174,13 @@ def _enforce_actor_liveness(user: dict[str, Any]) -> None:
         _emit_actor_liveness_observation(
             user,
             outcome="deny",
-            reason=_ACTOR_LIVENESS_REASON_UNAVAILABLE,
+            reason=_ACTOR_LIVENESS_REASON_MALFORMED,
         )
         raise HTTPException(
             status_code=403,
             detail={
-                "error": "Actor liveness verification unavailable",
-                "reason": _ACTOR_LIVENESS_REASON_UNAVAILABLE,
+                "error": "Actor liveness verifier returned a malformed result",
+                "reason": _ACTOR_LIVENESS_REASON_MALFORMED,
                 "contract": _ACTOR_LIVENESS_CONTRACT,
             },
         )
