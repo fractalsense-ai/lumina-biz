@@ -813,10 +813,10 @@ artifacts:
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.9.0
+  doc_version: 1.9.1
   status: active
   last_updated: 2026-11-25
-  sha256: 2c12816491028833223b40af707fe6df0195bd8c6cb2813fe2ab3537e977aee1
+  sha256: 669f6265d276faa8824a05eb429d3e83064cc96077a743080598ebcaf4719018
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
@@ -1137,10 +1137,10 @@ artifacts:
 - path: docs/roadmap/slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md
   type: doc
   section: 0
-  doc_version: 0.5.1
+  doc_version: 0.5.2
   status: in-progress
-  last_updated: 2026-11-18
-  sha256: ccf8fc65d069120164c551e4fad4216c925160513cfe909a2e3942b76dd1f522
+  last_updated: 2026-11-25
+  sha256: 2b651c207c57b9d7b477834dc55a6c8271bd136a86414ad92b5bbba6b17298d0
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
   section: 0

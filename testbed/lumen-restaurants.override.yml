@@ -1,0 +1,52 @@
+services:
+  backend:
+    image: lumina-lumen-evaluation:local
+    environment:
+      MYSQL_ROOT_PASSWORD: ${LUMEN_EVAL_DB_PASSWORD:?Database password required}
+      MARIADB_ROOT_PASSWORD: ${LUMEN_EVAL_DB_PASSWORD:?Database password required}
+  configurator:
+    image: lumina-lumen-evaluation:local
+  create-site:
+    image: lumina-lumen-evaluation:local
+    environment:
+      LUMEN_EVAL_DB_PASSWORD: ${LUMEN_EVAL_DB_PASSWORD:?Database password required}
+      LUMEN_EVAL_ADMIN_PASSWORD: ${LUMEN_EVAL_ADMIN_PASSWORD:?Administrator password required}
+    depends_on:
+      db:
+        condition: service_healthy
+      configurator:
+        condition: service_completed_successfully
+    command:
+      - >
+        set -e;
+        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 redis-queue:6379;
+        if [ ! -d sites/frontend ]; then
+          bench new-site --mariadb-user-host-login-scope='%' --admin-password="$$LUMEN_EVAL_ADMIN_PASSWORD" --db-root-username=root --db-root-password="$$LUMEN_EVAL_DB_PASSWORD" --install-app erpnext --set-default frontend;
+        fi;
+        if ! bench --site frontend list-apps | grep -q '^lumen_restaurants '; then
+          bench --site frontend install-app lumen_restaurants;
+        fi
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${LUMEN_EVAL_DB_PASSWORD:?Database password required}
+      MARIADB_ROOT_PASSWORD: ${LUMEN_EVAL_DB_PASSWORD:?Database password required}
+  frontend:
+    image: lumina-lumen-evaluation:local
+    networks:
+      - frappe_network
+      - ingress
+    ports: !override
+      - "127.0.0.1:${LUMEN_EVAL_PORT:-18081}:8080"
+  queue-long:
+    image: lumina-lumen-evaluation:local
+  queue-short:
+    image: lumina-lumen-evaluation:local
+  scheduler:
+    image: lumina-lumen-evaluation:local
+  websocket:
+    image: lumina-lumen-evaluation:local
+networks:
+  frappe_network:
+    internal: true
+  ingress:

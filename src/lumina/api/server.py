@@ -163,11 +163,34 @@ from lumina.api.routes.panels import router as panels_router  # noqa: E402
 
 @asynccontextmanager
 async def _api_lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    await _start_background_tasks()
+    from lumina.business_ops.connectors.erpnext.runtime import (
+        create_erpnext_actor_liveness_runtime,
+    )
+
+    liveness_runtime = create_erpnext_actor_liveness_runtime()
+    missing_verifier = object()
+    previous_verifier = getattr(_config_module, "ACTOR_LIVENESS_VERIFIER", missing_verifier)
+    if liveness_runtime is not None:
+        _config_module.ACTOR_LIVENESS_VERIFIER = liveness_runtime.verifier
+    background_tasks_started = False
     try:
+        await _start_background_tasks()
+        background_tasks_started = True
         yield
     finally:
-        await _stop_background_tasks()
+        try:
+            if background_tasks_started:
+                await _stop_background_tasks()
+        finally:
+            if liveness_runtime is not None:
+                try:
+                    liveness_runtime.close()
+                finally:
+                    if getattr(_config_module, "ACTOR_LIVENESS_VERIFIER", missing_verifier) is liveness_runtime.verifier:
+                        if previous_verifier is missing_verifier:
+                            delattr(_config_module, "ACTOR_LIVENESS_VERIFIER")
+                        else:
+                            _config_module.ACTOR_LIVENESS_VERIFIER = previous_verifier
 
 app = FastAPI(
     title="Project Lumina API",
