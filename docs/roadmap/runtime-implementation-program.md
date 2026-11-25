@@ -1,8 +1,8 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.8.0
+version: 1.9.0
 status: active
-last_updated: 2026-11-18
+last_updated: 2026-11-25
 ---
 
 # Runtime Implementation Program
@@ -25,18 +25,18 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 |---|---|---|---|---|
 | RI-00 | Inventory current runtime behavior and identify implemented, partial, missing, and conflicting surfaces before estimating work | `lumina-biz` | Slices 73-81 review | Completed |
 | RI-01 | Establish the business-core package/release boundary and remove or relocate only vertical-specific behavior; preserve shared business capabilities | `lumina-biz` | 73, 76 | In progress |
-| RI-02 | Deliver Gear 1 deterministic operator screens, permission-aware commands, and screen-context handling | `lumina-biz` | 74, RI-01, RI-14 | Planned |
+| RI-02 | Deliver the shared employee-facing app shell and Gear 1 deterministic operator screens, permission-aware commands, app switching, persisted work, and screen-context handling | `lumina-biz` | Slice 74, RI-01, RI-14 | Planned |
 | RI-03 | Deliver Gear 2 assistant drawer, screen context lock, staged drafts, human approval, and privacy-safe telemetry | `lumina-biz` | 75, RI-02, RI-14 | Planned |
 | RI-04 | Implement provider-neutral POS and back-office capability interfaces, adapters, and conformance tests | `lumina-biz` | 76, RI-01 | In progress |
-| RI-05 | Bootstrap `lumina-fnb` from a tagged business-core release with independent CI and core compatibility tests | `lumina-fnb` | F&B repository charter, RI-01, RI-04 | Planned |
+| RI-05 | Bootstrap `lumina-fnb` from a supported tagged business-core release with independent CI and core compatibility tests | `lumina-fnb` | Slice 77, RI-01, RI-04, RI-25 | Planned |
 | RI-06 | Implement local-first DSD invoice intake, extraction review, deposit/CRV and credit flags, and staged receiving handoff | `lumina-fnb` | Invoice intake contract, RI-05, RI-08 | Planned |
 | RI-07 | Implement deterministic unit conversion and reviewed recipe/yield-to-BOM drafts | `lumina-fnb` | Recipe and unit contract, RI-05 | Planned |
-| RI-08 | Implement workflow- and modality-aware model selection and the four-stage compute cascade across text, vision, and audio capabilities, with bounded escalation, versioned evidence, and safe degraded modes | `lumina-biz` plus vertical configuration | 80, RI-01 | Planned |
+| RI-08 | Implement workflow- and modality-aware model selection and the four-stage compute cascade across text, vision, and audio capabilities, with bounded escalation, versioned evidence, and safe degraded modes; expose optional configured local/OpenAI-compatible providers without making inference an operations dependency | `lumina-biz` plus vertical configuration | 80, RI-01 | Planned |
 | RI-09 | Deliver local-first edge packaging, offline/degraded operation, and upgrade/rollback behavior | `lumina-biz` plus vertical deployment | 81, RI-08 | Planned |
-| RI-10 | Bootstrap `lumina-auto` from a tagged business-core release and port only auto-care, repair, and towing modules and tests | `lumina-auto` | Auto vertical charter, RI-01 | Planned |
-| RI-11 | Bootstrap `lumina-cstore` from a tagged business-core release and port only convenience-store and fuel modules and tests | `lumina-cstore` | C-store vertical charter, RI-01 | Planned |
+| RI-10 | Bootstrap `lumina-auto` from a supported tagged business-core release and port only auto-care, repair, and towing modules and tests | `lumina-auto` | Auto vertical charter, RI-01, RI-25 | Planned |
+| RI-11 | Bootstrap `lumina-cstore` from a supported tagged business-core release and port only convenience-store and fuel modules and tests | `lumina-cstore` | C-store vertical charter, RI-01, RI-25 | Planned |
 | RI-12 | Establish private customer solution repos from supported vertical releases, with configuration, deployment, upgrade, and acceptance gates | Customer private repo(s) | Vertical release; topology contract | Planned |
-| RI-13 | Bootstrap `lumina-retail` from a tagged business-core release and port standard dry-retail workflows and tests | `lumina-retail` | Retail vertical charter, RI-01 | Planned |
+| RI-13 | Bootstrap `lumina-retail` from a supported tagged business-core release and port standard dry-retail workflows and tests | `lumina-retail` | Retail vertical charter, RI-01, RI-25 | Planned |
 | RI-14 | Implement revocable PIN, signed QR, and supported-device NFC employee authentication; BLE may preselect identity but never authenticate | `lumina-biz` | RI-01, identity/fast-auth acceptance policy | Planned |
 | RI-15 | Deliver role-filtered operational tasks with accessible completion controls and auditable status transitions | `lumina-biz` | RI-01, RI-02, RI-14 | Planned |
 | RI-16 | Implement authenticated sensor ingestion, buffered BLE gateway delivery, stale-reading state, and role-scoped notifications | `lumina-biz` plus vertical sensor profiles | RI-09, RI-14, RI-15 | Planned |
@@ -45,7 +45,28 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-19 | Implement consented proof-of-work image capture and bounded VLM review with confidence, evidence, retention, and human escalation | `lumina-biz` plus vertical policy | RI-08, RI-15 | Planned |
 | RI-20 | Deliver freshness-aware knowledge refresh and a reviewed, privacy-limited outcome corpus for offline model evaluation and controlled improvement | `lumina-biz` plus vertical-approved data policy | 55, 80, RI-08 | Planned |
 | RI-21 | Implement the provider-neutral live SoR actor-liveness adapter boundary, bounded timeout handling, deny taxonomy, and pseudonymous evidence | `lumina-biz` | Slice 42, Slice 40 N1-N3 closure; Slice 43 for shared live transport | In progress |
-| RI-22 | Implement provider-agnostic outbound connector transport with bounded timeouts, query-only retries, correlation/idempotency metadata, and canonical errors | `lumina-biz` | Slice 43, RI-04 | In progress |
+| RI-22 | Implement provider-agnostic outbound connector transport with bounded timeouts, query-only retries, correlation/idempotency metadata, and canonical errors | `lumina-biz` | Slice 43, RI-04 | Completed |
+| RI-23 | Deliver manager-led employee onboarding and location/register assignment in the operational app shell using Frappe users, roles, and ERPNext records; email invitation is optional | `lumina-biz` | Slice 74, RI-01, RI-02, RI-14 | Planned |
+| RI-24 | Deliver shared ERPNext-backed inventory operations: barcode-first receiving and counts, optional stock locations, discrepancy review, and auditable stock-document handoff without a shadow quantity ledger | `lumina-biz` | Slice 76, RI-01, RI-04 | Planned |
+| RI-25 | Establish the vertical fork/release kit: pinned core and ERPNext matrix, independent build/CI, shared-core conformance, migration/upgrade checks, and tagged release/downstream guide | `lumina-biz` | Slice 73, Slice 77, RI-01 | Planned |
+| RI-26 | Deliver the first F&B operating pilot over shared POS, inventory, receiving, and identity foundations, including restaurant order, table, kitchen, menu/modifier, and acceptance workflows | `lumina-fnb` | RI-04, RI-05, RI-14, RI-23, RI-24; Slice 41 live-execution gate | Planned |
+| RI-27 | Deliver the C-store operating pilot by configuring shared inventory/POS/task capabilities, then adding fuel and convenience workflows without copying F&B rules | `lumina-cstore` | RI-04, RI-11, RI-14, RI-23, RI-24 | Planned |
+
+## Platform and Fork Sequence
+
+This sequence is a planning baseline, not a claim that the capabilities are implemented. It turns the product direction and contract slices into executable, repository-owned work.
+
+| Phase | Work | Exit gate |
+|---|---|---|
+| Shared operator foundation | RI-02 app shell, RI-14 authentication, RI-23 employee onboarding, and RI-24 inventory workflows. ERPNext/Frappe users, employees, items, warehouses, stock documents, and ledgers remain authoritative. | A manager can onboard and assign a cashier without a required email flow; the worker can reach only authorized apps/locations. Receiving and count discrepancies are auditable and post only through approved ERPNext documents. |
+| Fork/release foundation | RI-25 defines a supported `lumina-biz` tag, app/dependency pin, clean-site build, compatibility matrix, independent CI, conformance suite, migration/upgrade test, and downstream change policy. | A fresh vertical checkout installs from its own manifest and passes CI against the pinned core/Frappe/ERPNext matrix without source-tree coupling, customer data, or secrets. |
+| F&B first | Complete RI-05 bootstrap, then RI-26 restaurant acceptance pilot. Evaluate Lumen Restaurants and URY as replaceable candidate implementations; reuse ideas and adapters only after version, license, permissions, accounting, stock, recovery, and workflow checks. | A selected restaurant scenario passes table/order-to-kitchen-to-payment-to-close, item/ingredient stock accounting, authorized roles, retry/recovery, and offline-boundary tests on a pinned stack. No vendor UI is assumed to be the Lumina shell. |
+| C-store second | Complete RI-11 bootstrap, then RI-27. Reuse shared receiving, counts, inspections, forecasting, and restaurant-compatible food workflows only where operational meanings match; fuel, tank, dispenser, and forecourt rules stay C-store-owned. | A C-store acceptance suite passes inventory, convenience POS, and fuel-specific workflows without F&B rule leakage or duplicate shared capabilities. |
+| Other verticals | RI-10 and RI-13 follow the same RI-25 gate after their own charter and acceptance scenarios are approved. | Independent install, compatibility, conformance, upgrade, and domain acceptance gates pass for each vertical. |
+
+### Vertical Fork Minimum Contents
+
+Every public vertical fork starts from a supported `lumina-biz` release tag and contains only its vertical app/module code, model-pack configuration, vertical schemas/fixtures, documentation, and acceptance tests. It must include its own package/bench manifest, build and CI, pinned compatibility matrix, shared-core conformance tests, clean-site installation test, migration/upgrade test, release notes, and upstream sync procedure. Shared shell, authentication, connector transport, audit, and inventory primitives stay upstream in `lumina-biz`; verticals configure or extend them through documented hooks rather than copy them. Private customer repositories begin only from tagged vertical releases and contain customer configuration/integration, never production data or secrets in public repositories.
 
 RI-00 is an audit, not a rewrite. The source-level baseline below records what exists in the `lumina-biz` checkout as of 2026-11-08; re-check the relevant tests before implementation estimates are committed.
 
@@ -87,20 +108,25 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 ## RI-21 Progress
 
 - The protected-context hook consumes a structured `ActorLivenessResult` with strict boolean `allow`, deterministic `deny_reason`, and a format-restricted non-PII `evidence_code`; malformed outputs and unavailable/timeouts remain distinct deny-closed outcomes with pseudonymous observations. The liveness matrix passes (11 tests).
-- `ERPNextActorLivenessAdapter` performs a read-only Frappe `User.enabled` check through RI-22 transport, requesting only `name`/`enabled` and using an injected authorization-header provider.
-- Fixture tests cover active, disabled, missing, malformed, unavailable, missing-scope, credential-provider failure, and public package export (9 passed). Production base-URL/secret-resolver registration and live-instance verification remain open; no business-operation mutation is added.
+- `ERPNextActorLivenessAdapter` performs a read-only Frappe `User.enabled` check through RI-22 transport, requesting only `name`/`enabled`, binding each instance to an expected organization/site, and using an injected authorization-header provider.
+- API startup now composes the verifier only when all five `LUMINA_ERP_ACTOR_LIVENESS_*` settings are present; API key/secret values are read at verification time and the owned HTTP client is closed at shutdown. Partial configuration fails fast; absent configuration preserves the current verifier path.
+- Fixture tests cover active, disabled, missing, malformed, unavailable, scope mismatch, HTTPX URL-log suppression, credential-provider failure, and public package export (12 passed); runtime composition, rotation, scope, and lifecycle tests pass (4 passed). Live-instance verification remains open; no business-operation mutation is added.
 
 ## RI-22 Progress
 
-- The shared `lumina.business_ops.connectors.transport` seam now supports bounded HTTPX timeouts, query-only retries, correlation IDs, mutation idempotency-key propagation, and canonical transport errors without echoing provider response bodies.
-- Targeted tests cover transient query retry, mutation non-replay, GET query-parameter encoding, timeout normalization, the HTTP error matrix, malformed responses, safe metadata propagation, and policy bounds (19 passed). Provider-specific execution wiring remains separate work.
+- The shared `lumina.business_ops.connectors.transport` seam supports bounded HTTPX timeouts, query-only retries, correlation IDs, explicit mutation idempotency-key propagation, and canonical transport errors without echoing provider response bodies. Redirects are disabled per request and inherited idempotency defaults are removed unless explicitly requested.
+- Targeted tests cover transient query retry, mutation non-replay under redirects, GET query-parameter encoding, timeout normalization, the HTTP error matrix, malformed responses, safe metadata propagation, and policy bounds (22 passed). RI-22 is complete; provider-specific business-operation execution remains separate work.
 
 ## Dependency Order
 
 - RI-00 precedes scope commitment for every implementation workstream.
-- RI-01 precedes all shared UI, authentication, connector, and vertical bootstrap work.
+- RI-01 precedes shared UI, authentication, connector, inventory, and fork/release work.
+- RI-02 implements Slice 74 and provides the app host/state contract. RI-14 provides authentication; together they enable RI-23 employee onboarding and app availability. ERPNext/Frappe remains the user, role, employee, and transaction authority.
+- RI-24 uses Slice 76 and RI-04's provider-neutral boundary. ERPNext warehouses and stock ledgers remain authoritative; optional location records describe placement/count evidence and never become a shadow quantity ledger.
+- RI-25 implements the lifecycle in Slice 73 and Slice 77. It precedes RI-05, RI-10, RI-11, and RI-13; no vertical repo is considered supported until its clean install, independent CI, compatibility, conformance, migration, and upgrade checks pass.
 - RI-14 can proceed after RI-01; RI-02 depends on identity hooks, and RI-03 follows both the deterministic surface and authentication boundary.
-- RI-04 and RI-14 can proceed in parallel after RI-01. RI-22 provides generic transport for RI-04 adapters and RI-21; provider-specific live execution remains subject to Slice 41. RI-05, RI-10, RI-11, and RI-13 each require RI-01 and the shared capability boundary; no vertical blocks another.
+- RI-04 and RI-14 can proceed in parallel after RI-01. RI-22 provides generic transport for RI-04 adapters and RI-21; provider-specific live execution remains subject to Slice 41.
+- RI-05 bootstraps the F&B repo after RI-25. RI-26 is the first F&B operating pilot and follows shared identity, shell, POS, and inventory foundations; candidate POS apps are evaluation inputs, not architecture decisions. RI-27 follows the same shared foundations after RI-11, with fuel and convenience logic owned by `lumina-cstore`.
 - RI-06 requires the F&B repo and compute cascade. RI-07 can proceed independently after the F&B repo is bootstrapped; both preserve human review before mutations.
 - RI-15 requires the shared UI and authentication foundations. RI-16 additionally requires edge packaging; stale alerts route through role-authorized tasks.
 - RI-17 requires the F&B vertical, identity, and task primitives. It must not move or redirect wages/tips without approved jurisdictional policy and human review.
@@ -121,8 +147,13 @@ flowchart TD
 	RI01 --> RI08[RI-08 Compute cascade]
 	RI01 --> RI14[RI-14 Fast authentication]
 	RI14 --> RI02
+	RI02 --> RI23[RI-23 Employee onboarding and assignments]
+	RI14 --> RI23
+	RI02 --> RI24[RI-24 Shared inventory operations]
+	RI04 --> RI24
+	RI01 --> RI25[RI-25 Vertical fork and release kit]
 	RI02 --> RI03[RI-03 Gear 2 assistant]
-	RI01 --> RI05[RI-05 lumina-fnb bootstrap]
+	RI25 --> RI05[RI-05 lumina-fnb bootstrap]
 	RI04 --> RI05
 	RI05 --> RI06[RI-06 DSD invoice intake]
 	RI08 --> RI06
@@ -138,17 +169,27 @@ flowchart TD
 	RI05 --> RI17[RI-17 F&B cash cohorts]
 	RI14 --> RI17
 	RI15 --> RI17
+	RI05 --> RI26[RI-26 F&B operating pilot]
+	RI04 --> RI26
+	RI14 --> RI26
+	RI23 --> RI26
+	RI24 --> RI26
 	RI04 --> RI18[RI-18 F&B par/prep suggestions]
 	RI05 --> RI18
 	RI07 --> RI18
 	RI08 --> RI19[RI-19 VLM proof-of-work]
 	RI15 --> RI19
-	RI01 --> RI10[RI-10 lumina-auto bootstrap]
+	RI25 --> RI10[RI-10 lumina-auto bootstrap]
 	RI04 --> RI10
-	RI01 --> RI11[RI-11 lumina-cstore bootstrap]
+	RI25 --> RI11[RI-11 lumina-cstore bootstrap]
 	RI04 --> RI11
-	RI01 --> RI13[RI-13 lumina-retail bootstrap]
+	RI25 --> RI13[RI-13 lumina-retail bootstrap]
 	RI04 --> RI13
+	RI11 --> RI27[RI-27 C-store operating pilot]
+	RI04 --> RI27
+	RI14 --> RI27
+	RI23 --> RI27
+	RI24 --> RI27
 	RI05 --> RI12[RI-12 Private customer solution]
 	RI10 --> RI12
 	RI11 --> RI12
@@ -175,4 +216,4 @@ Every runtime PR must:
 
 The authoritative capability brief is [SMB Operations Product Direction](smb-operations-product-direction.md). Numbered slice files are supporting planning artifacts, not the source of product names or vertical priority. Reconcile them to the product brief as they are revised; do not infer implementation completion from a documentation slice being merged.
 
-Related product documents may be reviewed in one roadmap-alignment PR or a few capability-oriented PRs, provided each included contract and its acceptance evidence are listed. Runtime implementation is released separately in code PRs using RI-00 through RI-20; documentation merge does not count as runtime delivery.
+Related product documents may be reviewed in one roadmap-alignment PR or a few capability-oriented PRs, provided each included contract and its acceptance evidence are listed. Runtime implementation is released separately in code PRs using RI-00 through RI-27; documentation merge does not count as runtime delivery.
