@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-11-18
+last_updated: 2026-11-25
 artifacts:
 - path: docs/1-commands/README.md
   type: doc
@@ -806,24 +806,24 @@ artifacts:
   sha256: 98d72043029e0712c25ef4cb7cbd6560e35247516cab48b284b3cdaaad29588f
 - path: docs/roadmap/README.md
   type: doc
-  doc_version: 1.9.0
+  doc_version: 1.9.3
   status: active
-  last_updated: 2026-11-08
-  sha256: 78195679eca076f92c5a44f1a7a055d8a0e5703366bae27e7c7d9a8886482f8f
+  last_updated: 2026-11-25
+  sha256: 36b2e83f42c66935d8ea4beb3a5253cb84cc258a824003ea87149cbb523f01fb
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.8.0
+  doc_version: 1.9.0
   status: active
-  last_updated: 2026-11-18
-  sha256: 0197593cff0fd7024e13520aae13a47ae3961bf7207f6b6b0b8f8446cba6a154
+  last_updated: 2026-11-25
+  sha256: 2c12816491028833223b40af707fe6df0195bd8c6cb2813fe2ab3537e977aee1
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
-  doc_version: 1.0.0
+  doc_version: 1.1.0
   status: active
-  last_updated: 2026-11-08
-  sha256: d6f29d79de1fba61b35f2203b7339877f60aac3ddddb9ddda3fd91a6ea0359d4
+  last_updated: 2026-11-25
+  sha256: 7667c8b4325cbf990826cfaa80ecea12ebe977d05fb5843f06898f7617d5c97e
 - path: docs/roadmap/architecture-coherence-gap-register.md
   type: doc
   doc_version: 0.6.0
@@ -1137,17 +1137,17 @@ artifacts:
 - path: docs/roadmap/slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md
   type: doc
   section: 0
-  doc_version: 0.5.0
+  doc_version: 0.5.1
   status: in-progress
   last_updated: 2026-11-18
-  sha256: 28155b2959a921b155a7461bf934a7ba8594fde8647e68bf189c8d36cde83fea
+  sha256: ccf8fc65d069120164c551e4fad4216c925160513cfe909a2e3942b76dd1f522
 - path: docs/roadmap/slices/43-generic-connector-transport-runtime.md
   type: doc
   section: 0
-  doc_version: 0.4.0
-  status: in-progress
+  doc_version: 0.4.1
+  status: delivered
   last_updated: 2026-11-18
-  sha256: 397306bdaa3f847db35b5c2096aabc831e00198213abc4494be4ef8b8f269499
+  sha256: 7bc22ce4ae640dff360f004348fb99e05843c615ea7213656de389896f9d65a5
 - path: docs/roadmap/slices/44-mutation-safety-and-idempotency-ledger.md
   type: doc
   section: 0

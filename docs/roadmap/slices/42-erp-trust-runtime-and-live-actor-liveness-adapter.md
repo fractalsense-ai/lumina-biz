@@ -2,7 +2,7 @@
 title: "Slice 42 - ERP Trust Runtime and Live Actor-Liveness Adapter"
 slice: 42
 status: in-progress
-version: 0.5.0
+version: 0.5.1
 last_updated: 2026-11-18
 ---
 
@@ -103,8 +103,9 @@ SoR liveness adapter contract used by protected API flows.
 
 - The injected actor-liveness verifier now consumes a structured `ActorLivenessResult`, validates the strict boolean/reason/evidence fields, and distinguishes malformed results (`actor_liveness_malformed`) from unavailable or timeout failures (`actor_liveness_unavailable`); both remain deny-closed and emit pseudonymous observations.
 - Local persistence verification and injected adapters use the same result contract; failure-matrix coverage passes (11 tests).
-- `ERPNextActorLivenessAdapter` now checks the read-only Frappe `User.enabled` field through the generic transport seam, with credentials supplied by an injected authorization-header provider. Fixture tests cover active, disabled, missing, malformed, unavailable, missing-scope, credential-provider failure, and public package export (9 passed).
-- Production adapter selection/base-URL and secret-resolver wiring, plus live-instance verification, remain open. No credentials or endpoint values are committed, and Slice 42 is not complete.
+- `ERPNextActorLivenessAdapter` checks the read-only Frappe `User.enabled` field through the generic transport seam, with expected organization/site binding and an injected authorization-header provider. Fixture tests cover active, disabled, missing, malformed, unavailable, scope mismatch, HTTPX URL-log suppression, credential-provider failure, and public package export (12 passed).
+- API lifespan composition is opt-in and requires `LUMINA_ERP_ACTOR_LIVENESS_BASE_URL`, `LUMINA_ERP_ACTOR_LIVENESS_ORGANIZATION_ID`, `LUMINA_ERP_ACTOR_LIVENESS_SITE_ID`, `LUMINA_ERP_ACTOR_LIVENESS_API_KEY`, and `LUMINA_ERP_ACTOR_LIVENESS_API_SECRET`. Incomplete configuration fails startup; credentials are read from the process environment at each check, and the owned HTTP client is closed at shutdown. This config binds one ERP organization/site per API process; other scopes are denied before network access.
+- Runtime-composition tests cover opt-in behavior, partial configuration, credential rotation, scope enforcement, and lifespan cleanup (4 passed). No live ERP instance was available or contacted; production acceptance still requires approved live-instance verification. No credentials or endpoint values are committed, and Slice 42 remains in progress.
 
 ## Follow-Up Slices
 

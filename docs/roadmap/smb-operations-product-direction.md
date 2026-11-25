@@ -1,8 +1,8 @@
 ---
 title: "SMB Operations Product Direction"
-version: 1.0.0
+version: 1.1.0
 status: active
-last_updated: 2026-11-17
+last_updated: 2026-11-25
 ---
 
 # SMB Operations Product Direction
@@ -27,6 +27,31 @@ Capture the intended SMB product family and capability boundaries for `lumina-bi
 
 These names and scopes replace earlier draft labels. A capability may be shared or configurable across verticals, but vertical business rules remain owned by the relevant vertical repository.
 
+## Architecture and Ownership
+
+The product has four cooperating layers:
+
+| Layer | Owns |
+|---|---|
+| `lumina-framework` | Generic orchestration, governance, PPA/context assembly, model/provider selection, and bounded execution. It does not own business transactions or vertical workflow policy. |
+| `lumina-biz` | Shared Frappe applications and contracts: employee-facing app shell, shared team/location onboarding, identity and authorization adapters, tasks and notifications, reusable inventory/receiving/count mechanics, audit evidence, and provider-neutral APIs. |
+| ERPNext/Frappe and approved site apps | Authoritative users, items, warehouses, stock ledgers, suppliers, purchase records, POS invoices, accounting, employees, and transactions. Use supported documents, APIs, permissions, validations, and extension hooks; do not modify ERPNext/Frappe core or create a parallel business database. |
+| Public vertical repositories | Vertical workflows, vocabulary, domain physics, validation policy, provider mapping, fixtures, and acceptance scenarios. They extend shared contracts and own vertical-only records and rules. |
+
+The edge node hosts these cooperating services in one deployable system where practical. Logical ownership boundaries do not require one container or one database per layer. Custom operational records should live in the same Frappe site and database unless a documented technical or governance constraint requires otherwise.
+
+### Shared and Vertical Capabilities
+
+| Capability | Shared in `lumina-biz` | Owned by verticals |
+|---|---|---|
+| Team and access | Manager-led creation and assignment flow, role/location primitives, account lifecycle adapters, audit and authorization checks. | Required roles, skills, restaurant/c-store positions, and job-specific permissions. |
+| Inventory | Barcode input, item and warehouse lookup, inventory inquiry, receiving/cycle-count session mechanics, discrepancy evidence, optional stock-location registry, and ERPNext stock-document adapters. Never maintain a second authoritative quantity ledger. | Units, recipes/yield, food waste, prepared inventory, fuel, regulated product rules, planograms, count cadence, and domain-specific variance handling. |
+| POS and service | App shell, payment/connector boundary, reusable cart and transaction state primitives, provider-neutral POS capabilities. | Restaurant tables, open checks, courses, modifiers, kitchen routing/KDS, tips, restaurant service; or convenience checkout, fuel, and store-specific sales. |
+| Operations | Task, inspection, maintenance, notification, schedule, and evidence primitives where their lifecycle is common. | Inspection templates, thresholds, terminology, schedules, escalation rules, and workflow physics. |
+| Intelligence | Authorized context/tool interfaces and provenance contracts; optional, configurable model-provider endpoints, including OpenAI-compatible endpoints. | Domain vocabulary, deterministic rules, model-pack configuration, and approved context requirements. |
+
+Treat external Frappe apps such as Lumen Restaurants and URY as candidates to evaluate or integrate through supported boundaries, not as the product architecture by default. Record exact source revisions, version compatibility, license, setup behavior, offline limits, and workflow evidence before adoption. An ERPNext AI-provider setting is not a Lumina dependency: model access is optional and routed through Lumina's orchestration/provider boundary.
+
 ### Initial delivery order and reuse
 
 1. **F&B first:** Use `lumina-fnb` as the flagship vertical to build and validate the first complete set of SMB operating workflows against real acceptance scenarios.
@@ -44,6 +69,14 @@ Lumina is an integrated, local-first product, not a headless overlay that requir
 No third-party POS, labor, scheduling, or accounting SaaS is mandatory. External SaaS connectors remain optional for businesses that already use those systems and choose to retain them; Lumina does not force a rip-and-replace. Keep canonical capability contracts provider-neutral and provider-specific mapping and transport behind connector boundaries. Card acquiring may require a payment processor, but that is a replaceable integration behind the POS workflow, not a reason to couple register access or the operator app to one provider.
 
 ## Operator Experience
+
+### App-driven workflow
+
+- The employee-facing shell is the primary operational interface; ERPNext Desk remains available for system administration and advanced business management.
+- The workflow is the interface. Employees enter through role-aware apps and see task-specific information, not ERPNext DocTypes or an undifferentiated administration dashboard.
+- Put routine actions in the app where the work occurs. Keep settings for configuration, policy, permissions, and defaults; do not make staff navigate settings dashboards to perform ordinary tasks.
+- Preserve unfinished work while switching applications. Persist important drafts and transactional state through Frappe where appropriate; browser memory alone is not authoritative.
+- App switching, role visibility, and client-side controls improve usability but never replace backend permission checks.
 
 ### Mobile and tablet shell
 
@@ -63,6 +96,7 @@ No third-party POS, labor, scheduling, or accounting SaaS is mandatory. External
 - Offer contextual drafting and inline suggestions; a local SLM may propose ghost text or calculations for explicit operator acceptance.
 - Distinguish deterministic values, external data, and model-generated suggestions in the UI. A Tab/accept action is an explicit user decision, not an authorization to commit a mutation.
 - Model output remains a draft until reviewed. Final submission follows the system-of-record, Tool Token, and human-approval boundaries.
+- A local model or OpenAI-compatible endpoint is an optional provider configuration, not a requirement for installation or core operations. With every model endpoint unavailable, login, POS, receiving, inventory, inspections, and reconciliation must still perform their deterministic functions.
 
 ### Inline business completion and optional assistant
 
@@ -123,9 +157,16 @@ Maintenance frequencies are configurable by vertical, site, equipment, and opera
 - Vertical terminology, physics, workflows, demand rules, units, hardware profiles, and provider mappings belong in the corresponding public vertical repository unless demonstrably generic.
 - Customer credentials, operational records, legal/payroll configuration, and deployment secrets stay in private customer systems and secret stores, not public source repositories.
 - Every vertical and customer fork records its upstream tag/commit and tests compatibility when syncing updates.
+- A vertical starts from a supported, tagged `lumina-biz` release; it owns its independent app package, CI, fixtures, and acceptance tests. CI validates the pinned core/ERPNext compatibility matrix and a deliberate upstream-update path before a vertical release is supported.
+- Shared code is contributed upstream instead of copied into verticals. A vertical may configure shared behavior but must not fork a second stock ledger, user directory, POS invoice, payment ledger, or accounting authority.
 
 ## Open Decisions Before Runtime Commitment
 
+- Approve the employee onboarding and operational app-shell MVP, including the first target device/browser and app-state persistence contract.
+- Decide the shared inventory MVP boundary: ERPNext warehouses and stock ledgers remain authoritative; determine which optional location/count/receiving records are needed in Frappe.
+- Establish the vertical starter/release gate and supported core/ERPNext matrix before creating public vertical repositories.
+- Select the F&B restaurant service flow after the isolated Lumen Restaurants/URY evaluation, including licensing review, offline behavior, and payment/printer hardware tests.
+- Decide the first local/OpenAI-compatible model endpoint configuration for Lumina orchestration; do not couple it to ERPNext or make it a prerequisite for operations.
 - Select the first supported tablet/browser and whether NFC/BLE requires a native wrapper or dedicated edge gateway.
 - Define pass issuance, revocation, offline authentication, and device-loss recovery.
 - Select sensor identity, calibration, integrity, and retry protocols.

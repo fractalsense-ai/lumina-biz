@@ -1,8 +1,8 @@
 ---
 title: "Slice 43 - Generic Connector Transport Runtime"
 slice: 43
-status: in-progress
-version: 0.4.0
+status: delivered
+version: 0.4.1
 last_updated: 2026-11-18
 ---
 
@@ -66,8 +66,8 @@ all ERP adapters, including timeout, retry, correlation, and idempotency-key plu
 
 ## Runtime Progress
 
-- A provider-neutral HTTPX transport seam now applies bounded timeouts, retries only `query` actions, encodes GET query parameters, propagates correlation IDs and optional mutation idempotency keys, and maps failures to the canonical connector error shape without echoing provider response bodies.
-- Fixture-backed transport tests pass (19 tests), covering the HTTP error matrix, timeout/retry behavior, malformed bodies, and metadata propagation. ERPNext liveness consumes this seam in fixtures; live adapter wiring remains separate, and no business-operation mutation or production cutover is enabled by this increment.
+- The provider-neutral HTTPX transport applies bounded timeouts, retries only `query` actions, encodes GET query parameters, propagates correlation IDs and explicitly requested mutation idempotency keys, disables redirect following per request, and maps failures to the canonical connector error shape without echoing provider response bodies.
+- Fixture-backed transport tests pass (22 tests), covering the HTTP error matrix, timeout/retry behavior, malformed bodies, metadata propagation, mutation non-replay under redirects, and removal of inherited idempotency defaults. ERPNext liveness consumes this seam in fixtures; provider-specific business-operation transport and production cutover remain separate, with no business mutations enabled.
 
 ## Follow-Up Slices
 
@@ -91,11 +91,11 @@ Slice 43: generic connector transport runtime
 
 ### Test Checklist
 
-- [ ] Timeout/retry policy tests.
-- [ ] Correlation ID propagation tests.
-- [ ] Error envelope normalization tests.
-- [ ] `.venv/Scripts/python.exe -m lumina.systools.verify_repo`
-- [ ] `.venv/Scripts/python.exe -m lumina.systools.manifest_integrity check`
+- [x] Timeout/retry policy tests.
+- [x] Correlation ID propagation tests.
+- [x] Error envelope normalization tests.
+- [x] `.venv/Scripts/python.exe -m lumina.systools.verify_repo`
+- [x] `.venv/Scripts/python.exe -m lumina.systools.manifest_integrity check`
 
 ### Out of Scope Confirmations
 

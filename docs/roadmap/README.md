@@ -1,14 +1,14 @@
 ---
 title: "Lumina Biz Roadmap"
-version: 1.9.0
-last_updated: 2026-11-08
+version: 1.9.3
+last_updated: 2026-11-25
 ---
 
 # Lumina Biz Roadmap
 
-**Version:** 1.9.0
+**Version:** 1.9.3
 **Status:** Active
-**Last updated:** 2026-11-08
+**Last updated:** 2026-11-25
 
 ---
 
@@ -17,6 +17,10 @@ last_updated: 2026-11-08
 The `lumina-biz` roadmap tracks the shared business core built on `lumina-framework`, followed by distinct vertical repositories and downstream private customer solutions. Each slice has explicit scope, dependencies, and acceptance criteria.
 
 Each slice is documented under `docs/roadmap/slices/`. Closely related documentation slices may be delivered in a small dependency-oriented PR bundle; runtime implementation remains separately tracked and must target its owning repository.
+
+## Runtime Direction
+
+The current implementation sequence is tracked in [Runtime Implementation Program](runtime-implementation-program.md). Shared app-shell, employee onboarding, and ERPNext-backed inventory foundations precede the vertical fork/release gate. F&B is first; C-store follows on the shared capabilities. Public verticals start from supported tagged `lumina-biz` releases and maintain independent compatibility and acceptance gates.
 
 ---
 
@@ -65,8 +69,8 @@ Each slice is documented under `docs/roadmap/slices/`. Closely related documenta
 | [39](slices/39-generic-erp-service-core-and-vertical-profile-layer.md) | Generic ERP Service Core and Vertical Profile Layer | Planned |
 | [40](slices/40-architecture-coherence-enforcement-hardening.md) | Architecture Coherence Enforcement Hardening | Planned |
 | [41](slices/41-erp-integration-program-charter-and-dependency-lock.md) | ERP Integration Program Charter and Dependency Lock | Active |
-| [42](slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md) | ERP Trust Runtime and Live Actor-Liveness Adapter | Planned |
-| [43](slices/43-generic-connector-transport-runtime.md) | Generic Connector Transport Runtime | Planned |
+| [42](slices/42-erp-trust-runtime-and-live-actor-liveness-adapter.md) | ERP Trust Runtime and Live Actor-Liveness Adapter | Active |
+| [43](slices/43-generic-connector-transport-runtime.md) | Generic Connector Transport Runtime | Delivered |
 | [44](slices/44-mutation-safety-and-idempotency-ledger.md) | Mutation Safety and Idempotency Ledger | Planned |
 | [45](slices/45-erpnext-live-execution-adapter-and-error-normalization.md) | ERPNext Live Execution Adapter and Error Normalization | Planned |
 | [46](slices/46-connector-operational-resilience-and-tenant-fairness.md) | Connector Operational Resilience and Tenant Fairness | Planned |
