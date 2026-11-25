@@ -1,0 +1,28 @@
+services:
+  backend:
+    image: lumina-ury-evaluation:local
+  configurator:
+    image: lumina-ury-evaluation:local
+  create-site:
+    image: lumina-ury-evaluation:local
+    command:
+      - >
+        set -e;
+        wait-for-it -t 120 redis-cache:6379;
+        wait-for-it -t 120 redis-queue:6379;
+        if [ ! -d sites/frontend ]; then
+          bench new-site --mariadb-user-host-login-scope='%' --admin-password="$$LUMEN_EVAL_ADMIN_PASSWORD" --db-root-username=root --db-root-password="$$LUMEN_EVAL_DB_PASSWORD" --install-app erpnext --set-default frontend;
+        fi;
+        if ! bench --site frontend list-apps | grep -q '^ury '; then
+          bench --site frontend install-app ury;
+        fi
+  frontend:
+    image: lumina-ury-evaluation:local
+  queue-long:
+    image: lumina-ury-evaluation:local
+  queue-short:
+    image: lumina-ury-evaluation:local
+  scheduler:
+    image: lumina-ury-evaluation:local
+  websocket:
+    image: lumina-ury-evaluation:local

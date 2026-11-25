@@ -2,8 +2,8 @@
 title: "Slice 42 - ERP Trust Runtime and Live Actor-Liveness Adapter"
 slice: 42
 status: in-progress
-version: 0.5.1
-last_updated: 2026-11-18
+version: 0.5.2
+last_updated: 2026-11-25
 ---
 
 ## Purpose
@@ -105,7 +105,7 @@ SoR liveness adapter contract used by protected API flows.
 - Local persistence verification and injected adapters use the same result contract; failure-matrix coverage passes (11 tests).
 - `ERPNextActorLivenessAdapter` checks the read-only Frappe `User.enabled` field through the generic transport seam, with expected organization/site binding and an injected authorization-header provider. Fixture tests cover active, disabled, missing, malformed, unavailable, scope mismatch, HTTPX URL-log suppression, credential-provider failure, and public package export (12 passed).
 - API lifespan composition is opt-in and requires `LUMINA_ERP_ACTOR_LIVENESS_BASE_URL`, `LUMINA_ERP_ACTOR_LIVENESS_ORGANIZATION_ID`, `LUMINA_ERP_ACTOR_LIVENESS_SITE_ID`, `LUMINA_ERP_ACTOR_LIVENESS_API_KEY`, and `LUMINA_ERP_ACTOR_LIVENESS_API_SECRET`. Incomplete configuration fails startup; credentials are read from the process environment at each check, and the owned HTTP client is closed at shutdown. This config binds one ERP organization/site per API process; other scopes are denied before network access.
-- Runtime-composition tests cover opt-in behavior, partial configuration, credential rotation, scope enforcement, and lifespan cleanup (4 passed). No live ERP instance was available or contacted; production acceptance still requires approved live-instance verification. No credentials or endpoint values are committed, and Slice 42 remains in progress.
+- Runtime-composition tests cover opt-in behavior, partial configuration, credential rotation, scope enforcement, and lifespan cleanup (4 passed). A disposable ERPNext 16.60.0 Docker site verified the real read-only `User.enabled` call plus a signed-bearer protected-context HTTP allow/deny probe; no production tenant or business records were used. Production identity/secret-store integration and approved live-tenant verification remain open. No credentials or endpoint values are committed, and Slice 42 remains in progress.
 
 ## Follow-Up Slices
 

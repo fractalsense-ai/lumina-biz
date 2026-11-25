@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.9.0
+version: 1.9.1
 status: active
 last_updated: 2026-11-25
 ---
@@ -110,7 +110,8 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - The protected-context hook consumes a structured `ActorLivenessResult` with strict boolean `allow`, deterministic `deny_reason`, and a format-restricted non-PII `evidence_code`; malformed outputs and unavailable/timeouts remain distinct deny-closed outcomes with pseudonymous observations. The liveness matrix passes (11 tests).
 - `ERPNextActorLivenessAdapter` performs a read-only Frappe `User.enabled` check through RI-22 transport, requesting only `name`/`enabled`, binding each instance to an expected organization/site, and using an injected authorization-header provider.
 - API startup now composes the verifier only when all five `LUMINA_ERP_ACTOR_LIVENESS_*` settings are present; API key/secret values are read at verification time and the owned HTTP client is closed at shutdown. Partial configuration fails fast; absent configuration preserves the current verifier path.
-- Fixture tests cover active, disabled, missing, malformed, unavailable, scope mismatch, HTTPX URL-log suppression, credential-provider failure, and public package export (12 passed); runtime composition, rotation, scope, and lifecycle tests pass (4 passed). Live-instance verification remains open; no business-operation mutation is added.
+- Fixture tests cover active, disabled, missing, malformed, unavailable, scope mismatch, HTTPX URL-log suppression, credential-provider failure, and public package export (12 passed); runtime composition, rotation, scope, and lifecycle tests pass (4 passed).
+- A disposable ERPNext 16.60.0 Docker site verified the real `User.enabled` read through the runtime composition and a signed-bearer protected-context HTTP probe: enabled Administrator allowed, wrong site denied with HTTP 403. The temporary ERP API secret was rotated; no production SoR or customer data was used. Production identity/secret-store configuration and live-tenant acceptance remain open; no business-operation mutation is added.
 
 ## RI-22 Progress
 
