@@ -20,10 +20,24 @@ def _request(*, request_id: str, action_class: str, capability_namespace: str, p
     }
 
 
-def _payload_for_action(action_class: str) -> dict[str, object]:
+def _payload_for_action(
+    action_class: str,
+    capability_namespace: str,
+) -> dict[str, object]:
     if action_class == "create_draft":
+        if capability_namespace == "inventory":
+            return {
+                "operation_kind": "receiving",
+                "record": {"name": "fixture-record"},
+            }
         return {"record": {"name": "fixture-record"}}
     if action_class == "update_draft":
+        if capability_namespace == "inventory":
+            return {
+                "operation_kind": "receiving",
+                "record_id": "fixture-record",
+                "record": {"status": "Open"},
+            }
         return {"record_id": "fixture-record", "record": {"status": "Open"}}
     if action_class == "request_commit":
         return {"record_id": "fixture-record"}
@@ -93,7 +107,7 @@ def test_manifest_declared_pairs_have_executable_mappings(provider_module) -> No
                         request_id=f"req-{scenario_id}",
                         action_class=action_class,
                         capability_namespace=namespace,
-                        payload=_payload_for_action(action_class),
+                        payload=_payload_for_action(action_class, namespace),
                     ),
                     fixture_result={"status": "succeeded", "data": {}},
                 )

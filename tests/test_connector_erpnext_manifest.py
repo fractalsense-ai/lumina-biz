@@ -19,7 +19,7 @@ def test_manifest_declares_provider_and_capabilities() -> None:
 
     caps = {c["namespace"]: tuple(c["supported_actions"]) for c in manifest["capabilities"]}  # type: ignore[index]
     assert "service/work-order" in caps
-    assert "inventory" in caps
+    assert caps.get("inventory") == ("query", "create_draft", "update_draft")
     assert caps.get("sales/pos") == ("query",)
     assert "warehouse/storage" in caps
     assert "logistics/dispatch" in caps
@@ -64,7 +64,28 @@ def test_mapping_query_pos_invoices() -> None:
 
 
 @pytest.mark.unit
-def test_mapping_update_draft_requires_record_envelope() -> None:
+@pytest.mark.parametrize(
+    ("operation_kind", "doctype"),
+    [("receiving", "Stock Entry"), ("count", "Stock Reconciliation")],
+)
+def test_mapping_inventory_create_draft(operation_kind: str, doctype: str) -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "create_draft",
+            "capability_namespace": "inventory",
+            "payload": {
+                "operation_kind": operation_kind,
+                "record": {"items": [{"item_code": "ITEM-1", "qty": 2}]},
+            },
+        }
+    )
+    assert payload["doctype"] == doctype
+    assert payload["operation"] == "insert"
+    assert payload["submit"] is False
+
+
+@pytest.mark.unit
+def test_mapping_inventory_update_draft_requires_record_envelope() -> None:
     payload = map_operation_to_erpnext(
         {
             "action_class": "update_draft",
@@ -77,6 +98,36 @@ def test_mapping_update_draft_requires_record_envelope() -> None:
     )
     assert payload["operation"] == "update"
     assert payload["name"] == "WO-0001"
+
+
+@pytest.mark.unit
+def test_mapping_inventory_update_draft_keeps_stock_document_unsubmitted() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "update_draft",
+            "capability_namespace": "inventory",
+            "payload": {
+                "operation_kind": "receiving",
+                "record_id": "STE-0001",
+                "record": {"items": [{"item_code": "ITEM-1", "qty": 3}]},
+            },
+        }
+    )
+    assert payload["doctype"] == "Stock Entry"
+    assert payload["operation"] == "update"
+    assert payload["name"] == "STE-0001"
+
+
+@pytest.mark.unit
+def test_mapping_inventory_request_commit_remains_unsupported() -> None:
+    with pytest.raises(ValueError):
+        map_operation_to_erpnext(
+            {
+                "action_class": "request_commit",
+                "capability_namespace": "inventory",
+                "payload": {"record_id": "STE-0001"},
+            }
+        )
 
 
 @pytest.mark.unit
