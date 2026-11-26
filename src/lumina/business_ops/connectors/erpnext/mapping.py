@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 
 def _as_dict(payload: object, *, field_name: str) -> dict[str, object]:
     if not isinstance(payload, dict):
@@ -109,9 +111,10 @@ def _validate_count_create_record(record: dict[str, object]) -> dict[str, object
                 isinstance(value, bool)
                 or not isinstance(value, (int, float))
                 or value < 0
+                or (isinstance(value, float) and not math.isfinite(value))
             ):
                 raise ValueError(
-                    f"count draft record.items[{index}].{field_name} must be a non-negative number"
+                    f"count draft record.items[{index}].{field_name} must be a finite non-negative number"
                 )
 
     mapped["purpose"] = "Stock Reconciliation"

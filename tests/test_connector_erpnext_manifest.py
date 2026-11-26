@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from lumina.business_ops.connectors.erpnext import (
@@ -234,7 +236,7 @@ def test_mapping_count_rejects_non_reconciliation_purpose(purpose: str) -> None:
                 "company": "Test Company",
                 "items": [{"item_code": "ITEM-1", "warehouse": "STORE - T", "qty": -1}],
             },
-            "must be a non-negative number",
+            "must be a finite non-negative number",
         ),
     ],
 )
@@ -250,6 +252,52 @@ def test_mapping_count_create_validates_required_reconciliation_fields(
                 "payload": {"operation_kind": "count", "record": record},
             }
         )
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("field_name", ["qty", "valuation_rate"])
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_mapping_count_rejects_non_finite_numeric_fields(field_name: str, value: float) -> None:
+    row: dict[str, object] = {
+        "item_code": "ITEM-1",
+        "warehouse": "STORE - T",
+        "qty": 1,
+        "valuation_rate": 1,
+    }
+    row[field_name] = value
+
+    with pytest.raises(ValueError, match="must be a finite non-negative number"):
+        map_operation_to_erpnext(
+            {
+                "action_class": "create_draft",
+                "capability_namespace": "inventory",
+                "payload": {
+                    "operation_kind": "count",
+                    "record": {"company": "Test Company", "items": [row]},
+                },
+            }
+        )
+
+
+@pytest.mark.unit
+def test_mapping_count_preserves_zero_quantity_for_strict_json() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "create_draft",
+            "capability_namespace": "inventory",
+            "payload": {
+                "operation_kind": "count",
+                "record": {
+                    "company": "Test Company",
+                    "items": [
+                        {"item_code": "ITEM-1", "warehouse": "STORE - T", "qty": 0}
+                    ],
+                },
+            },
+        }
+    )
+
+    json.dumps(payload, allow_nan=False)
 
 
 @pytest.mark.unit
