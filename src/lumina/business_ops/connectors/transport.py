@@ -89,6 +89,27 @@ def _error(
     )
 
 
+def transport_error_response(
+    request: ConnectorTransportRequest,
+    *,
+    code: str,
+    message: str,
+    severity: str,
+    retryable: bool = False,
+    status_code: int | None = None,
+) -> ConnectorTransportResponse:
+    """Build a canonical transport error before an HTTP request is sent."""
+    return _error(
+        request,
+        code=code,
+        message=message,
+        severity=severity,
+        retryable=retryable,
+        attempts=0,
+        status_code=status_code,
+    )
+
+
 def _error_for_status(
     request: ConnectorTransportRequest,
     *,
