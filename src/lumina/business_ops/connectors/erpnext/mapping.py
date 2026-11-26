@@ -67,16 +67,54 @@ def _validate_draft_docstatus(record: dict[str, object], action_class: str) -> N
 
 
 def _map_inventory_record(record: dict[str, object], operation_kind: str) -> dict[str, object]:
-    if operation_kind != "receiving":
-        return record
+    if operation_kind == "receiving":
+        for field_name in ("stock_entry_type", "purpose"):
+            value = record.get(field_name)
+            if value is not None and value != "Material Receipt":
+                raise ValueError(f"receiving draft {field_name} must be Material Receipt")
 
-    for field_name in ("stock_entry_type", "purpose"):
-        value = record.get(field_name)
-        if value is not None and value != "Material Receipt":
-            raise ValueError(f"receiving draft {field_name} must be Material Receipt")
+        mapped = {key: value for key, value in record.items() if key != "purpose"}
+        mapped["stock_entry_type"] = "Material Receipt"
+        return mapped
 
-    mapped = {key: value for key, value in record.items() if key != "purpose"}
-    mapped["stock_entry_type"] = "Material Receipt"
+    mapped = dict(record)
+    purpose = mapped.get("purpose")
+    if purpose is not None and purpose != "Stock Reconciliation":
+        raise ValueError("count draft purpose must be Stock Reconciliation")
+    return mapped
+
+
+def _validate_count_create_record(record: dict[str, object]) -> dict[str, object]:
+    mapped = _map_inventory_record(record, "count")
+    _as_str(mapped, "company")
+    items = mapped.get("items")
+    if not isinstance(items, list) or not items:
+        raise ValueError("count draft record.items must be a non-empty list")
+
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise ValueError(f"count draft record.items[{index}] must be an object")
+        _as_str(item, "item_code")
+        _as_str(item, "warehouse")
+        quantity = item.get("qty")
+        valuation_rate = item.get("valuation_rate")
+        if quantity in (None, "") and valuation_rate in (None, ""):
+            raise ValueError(
+                f"count draft record.items[{index}] requires qty or valuation_rate"
+            )
+        for field_name, value in (("qty", quantity), ("valuation_rate", valuation_rate)):
+            if value in (None, ""):
+                continue
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or value < 0
+            ):
+                raise ValueError(
+                    f"count draft record.items[{index}].{field_name} must be a non-negative number"
+                )
+
+    mapped["purpose"] = "Stock Reconciliation"
     return mapped
 
 
@@ -192,7 +230,11 @@ def map_operation_to_erpnext(request: dict[str, object]) -> dict[str, object]:
                 doctype = "Stock Reconciliation"
             else:
                 raise ValueError("inventory create_draft requires operation_kind receiving or count")
-            record = _map_inventory_record(create["record"], str(operation_kind))
+            record = (
+                _validate_count_create_record(create["record"])
+                if operation_kind == "count"
+                else _map_inventory_record(create["record"], str(operation_kind))
+            )
             return {
                 "doctype": doctype,
                 "operation": "insert",

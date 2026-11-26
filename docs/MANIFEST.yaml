@@ -813,10 +813,10 @@ artifacts:
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.9.3
+  doc_version: 1.9.4
   status: active
-  last_updated: 2026-11-25
-  sha256: 4a93064a5c459494249b5c3e5a4fbe5f5b0721d2715eb8c8d1d4b66f7bd3a0d2
+  last_updated: 2026-11-26
+  sha256: 83db849f4bd5cf19844a54413ac841a3a6183b2954fe924b77083537295893cd
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0
