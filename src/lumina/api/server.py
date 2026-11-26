@@ -169,7 +169,15 @@ async def _api_lifespan(_app: FastAPI) -> AsyncIterator[None]:
     )
 
     liveness_runtime = create_erpnext_actor_liveness_runtime()
-    inventory_scan_runtime = create_erpnext_inventory_scan_runtime()
+    try:
+        inventory_scan_runtime = create_erpnext_inventory_scan_runtime()
+    except BaseException:
+        if liveness_runtime is not None:
+            try:
+                liveness_runtime.close()
+            except Exception:
+                pass
+        raise
     missing_verifier = object()
     previous_verifier = getattr(_config_module, "ACTOR_LIVENESS_VERIFIER", missing_verifier)
     if liveness_runtime is not None:
@@ -188,24 +196,26 @@ async def _api_lifespan(_app: FastAPI) -> AsyncIterator[None]:
             if background_tasks_started:
                 await _stop_background_tasks()
         finally:
-            if liveness_runtime is not None:
-                try:
-                    liveness_runtime.close()
-                finally:
-                    if getattr(_config_module, "ACTOR_LIVENESS_VERIFIER", missing_verifier) is liveness_runtime.verifier:
-                        if previous_verifier is missing_verifier:
-                            delattr(_config_module, "ACTOR_LIVENESS_VERIFIER")
-                        else:
-                            _config_module.ACTOR_LIVENESS_VERIFIER = previous_verifier
-            if inventory_scan_runtime is not None:
-                try:
-                    inventory_scan_runtime.close()
-                finally:
-                    if getattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER", missing_scan_adapter) is inventory_scan_runtime.adapter:
-                        if previous_scan_adapter is missing_scan_adapter:
-                            delattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER")
-                        else:
-                            _config_module.ERPNext_INVENTORY_SCAN_ADAPTER = previous_scan_adapter
+            try:
+                if liveness_runtime is not None:
+                    try:
+                        liveness_runtime.close()
+                    finally:
+                        if getattr(_config_module, "ACTOR_LIVENESS_VERIFIER", missing_verifier) is liveness_runtime.verifier:
+                            if previous_verifier is missing_verifier:
+                                delattr(_config_module, "ACTOR_LIVENESS_VERIFIER")
+                            else:
+                                _config_module.ACTOR_LIVENESS_VERIFIER = previous_verifier
+            finally:
+                if inventory_scan_runtime is not None:
+                    try:
+                        inventory_scan_runtime.close()
+                    finally:
+                        if getattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER", missing_scan_adapter) is inventory_scan_runtime.adapter:
+                            if previous_scan_adapter is missing_scan_adapter:
+                                delattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER")
+                            else:
+                                _config_module.ERPNext_INVENTORY_SCAN_ADAPTER = previous_scan_adapter
 
 app = FastAPI(
     title="Project Lumina API",

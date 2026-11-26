@@ -186,3 +186,78 @@ def test_api_lifespan_installs_and_restores_inventory_scan_adapter(monkeypatch: 
     else:
         assert getattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER") is previous_adapter
     assert runtime.closed is True
+
+
+@pytest.mark.unit
+def test_inventory_startup_failure_closes_liveness_runtime(monkeypatch: pytest.MonkeyPatch) -> None:
+    liveness_runtime = SimpleNamespace(verifier=object(), closed=False)
+    liveness_runtime.close = lambda: setattr(liveness_runtime, "closed", True)
+    monkeypatch.setattr(
+        erpnext_runtime,
+        "create_erpnext_actor_liveness_runtime",
+        lambda: liveness_runtime,
+    )
+
+    def fail_inventory_runtime():
+        raise RuntimeError("inventory startup failed")
+
+    monkeypatch.setattr(
+        erpnext_runtime,
+        "create_erpnext_inventory_scan_runtime",
+        fail_inventory_runtime,
+    )
+
+    async def exercise_lifespan() -> None:
+        async with api_server._api_lifespan(api_server.app):
+            raise AssertionError("lifespan should not yield")
+
+    with pytest.raises(RuntimeError, match="inventory startup failed"):
+        asyncio.run(exercise_lifespan())
+
+    assert liveness_runtime.closed is True
+
+
+@pytest.mark.unit
+def test_liveness_close_failure_still_closes_and_restores_inventory(monkeypatch: pytest.MonkeyPatch) -> None:
+    previous_verifier = getattr(api_config, "ACTOR_LIVENESS_VERIFIER", None)
+    previous_adapter = getattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", None)
+
+    liveness_verifier = object()
+
+    def fail_liveness_close() -> None:
+        raise RuntimeError("liveness close failed")
+
+    liveness_runtime = SimpleNamespace(verifier=liveness_verifier)
+    liveness_runtime.close = fail_liveness_close
+    inventory_adapter = object()
+    inventory_runtime = SimpleNamespace(adapter=inventory_adapter, closed=False)
+    inventory_runtime.close = lambda: setattr(inventory_runtime, "closed", True)
+
+    monkeypatch.setattr(
+        erpnext_runtime,
+        "create_erpnext_actor_liveness_runtime",
+        lambda: liveness_runtime,
+    )
+    monkeypatch.setattr(
+        erpnext_runtime,
+        "create_erpnext_inventory_scan_runtime",
+        lambda: inventory_runtime,
+    )
+
+    async def no_op() -> None:
+        return None
+
+    monkeypatch.setattr(api_server, "_start_background_tasks", no_op)
+    monkeypatch.setattr(api_server, "_stop_background_tasks", no_op)
+
+    async def exercise_lifespan() -> None:
+        async with api_server._api_lifespan(api_server.app):
+            assert api_config.ACTOR_LIVENESS_VERIFIER is liveness_verifier
+            assert getattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER") is inventory_adapter
+
+    with pytest.raises(RuntimeError, match="liveness close failed"):
+        asyncio.run(exercise_lifespan())
+
+    assert inventory_runtime.closed is True
+    assert getattr(api_config, "ACTOR_LIVENESS_VERIFIER", None) is previous_verifier
+    assert getattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", None) is previous_adapter
