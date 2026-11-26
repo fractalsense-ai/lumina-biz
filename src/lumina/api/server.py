@@ -165,13 +165,19 @@ from lumina.api.routes.panels import router as panels_router  # noqa: E402
 async def _api_lifespan(_app: FastAPI) -> AsyncIterator[None]:
     from lumina.business_ops.connectors.erpnext.runtime import (
         create_erpnext_actor_liveness_runtime,
+        create_erpnext_inventory_scan_runtime,
     )
 
     liveness_runtime = create_erpnext_actor_liveness_runtime()
+    inventory_scan_runtime = create_erpnext_inventory_scan_runtime()
     missing_verifier = object()
     previous_verifier = getattr(_config_module, "ACTOR_LIVENESS_VERIFIER", missing_verifier)
     if liveness_runtime is not None:
         _config_module.ACTOR_LIVENESS_VERIFIER = liveness_runtime.verifier
+    missing_scan_adapter = object()
+    previous_scan_adapter = getattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER", missing_scan_adapter)
+    if inventory_scan_runtime is not None:
+        _config_module.ERPNext_INVENTORY_SCAN_ADAPTER = inventory_scan_runtime.adapter
     background_tasks_started = False
     try:
         await _start_background_tasks()
@@ -191,6 +197,15 @@ async def _api_lifespan(_app: FastAPI) -> AsyncIterator[None]:
                             delattr(_config_module, "ACTOR_LIVENESS_VERIFIER")
                         else:
                             _config_module.ACTOR_LIVENESS_VERIFIER = previous_verifier
+            if inventory_scan_runtime is not None:
+                try:
+                    inventory_scan_runtime.close()
+                finally:
+                    if getattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER", missing_scan_adapter) is inventory_scan_runtime.adapter:
+                        if previous_scan_adapter is missing_scan_adapter:
+                            delattr(_config_module, "ERPNext_INVENTORY_SCAN_ADAPTER")
+                        else:
+                            _config_module.ERPNext_INVENTORY_SCAN_ADAPTER = previous_scan_adapter
 
 app = FastAPI(
     title="Project Lumina API",
