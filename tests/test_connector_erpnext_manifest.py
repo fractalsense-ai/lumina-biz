@@ -101,6 +101,30 @@ def test_mapping_inventory_rejects_unknown_query_type(query_type: object) -> Non
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
+    "capability_namespace",
+    [
+        "service/work-order",
+        "sales/pos",
+        "warehouse/storage",
+        "logistics/dispatch",
+        "scheduling",
+    ],
+)
+def test_mapping_rejects_inventory_query_type_for_other_namespaces(
+    capability_namespace: str,
+) -> None:
+    with pytest.raises(ValueError, match="payload for query must only include"):
+        map_operation_to_erpnext(
+            {
+                "action_class": "query",
+                "capability_namespace": capability_namespace,
+                "payload": {"query_type": "stock_balances"},
+            }
+        )
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
     ("operation_kind", "doctype"),
     [("receiving", "Stock Entry"), ("count", "Stock Reconciliation")],
 )
