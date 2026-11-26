@@ -164,6 +164,12 @@ def test_inventory_scan_rejects_scope_before_http(
     error_code: str,
 ) -> None:
     requests: list[httpx.Request] = []
+    credential_provider_calls = 0
+
+    def provide_credentials() -> str:
+        nonlocal credential_provider_calls
+        credential_provider_calls += 1
+        return "token key:secret"
 
     def handler(request: httpx.Request) -> httpx.Response:
         requests.append(request)
@@ -174,7 +180,7 @@ def test_inventory_scan_rejects_scope_before_http(
             base_url="https://erp.example.test",
             expected_organization_id=_ORG_ID,
             expected_site_id=_SITE_ID,
-            authorization_header_provider=lambda: "token key:secret",
+            authorization_header_provider=provide_credentials,
             client=client,
         )
         result = adapter.lookup(
@@ -185,5 +191,7 @@ def test_inventory_scan_rejects_scope_before_http(
 
     assert result.error is not None
     assert result.error["code"] == error_code
+    assert result.error["retryable"] is False
     assert result.error["details"]["attempts"] == 0  # type: ignore[index]
+    assert credential_provider_calls == 0
     assert requests == []
