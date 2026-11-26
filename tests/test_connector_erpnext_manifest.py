@@ -66,6 +66,40 @@ def test_mapping_query_pos_invoices() -> None:
 
 
 @pytest.mark.unit
+def test_mapping_inventory_stock_balance_query() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "query",
+            "capability_namespace": "inventory",
+            "payload": {
+                "query_type": "stock_balances",
+                "filters": {"warehouse": "STORE - T"},
+                "limit": 50,
+            },
+        }
+    )
+
+    assert payload["doctype"] == "Bin"
+    assert payload["operation"] == "get_list"
+    assert payload["filters"] == {"warehouse": "STORE - T"}
+    assert payload["fields"] == ["item_code", "warehouse", "actual_qty", "stock_uom"]
+    assert payload["limit"] == 50
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("query_type", ["stock_ledger", [], {}])
+def test_mapping_inventory_rejects_unknown_query_type(query_type: object) -> None:
+    with pytest.raises(ValueError, match="query_type must be items or stock_balances"):
+        map_operation_to_erpnext(
+            {
+                "action_class": "query",
+                "capability_namespace": "inventory",
+                "payload": {"query_type": query_type},
+            }
+        )
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize(
     ("operation_kind", "doctype"),
     [("receiving", "Stock Entry"), ("count", "Stock Reconciliation")],

@@ -27,9 +27,11 @@ def _as_optional_dict(payload: dict[str, object], key: str) -> dict[str, object]
     return dict(value)
 
 
-def _as_query_envelope(payload: object) -> dict[str, object]:
+def _as_query_envelope(payload: object, *, allow_query_type: bool = False) -> dict[str, object]:
     data = _as_dict(payload, field_name="payload")
     allowed = {"filters", "fields", "limit", "order_by"}
+    if allow_query_type:
+        allowed.add("query_type")
     extra = sorted(set(data.keys()) - allowed)
     if extra:
         raise ValueError(
@@ -38,6 +40,11 @@ def _as_query_envelope(payload: object) -> dict[str, object]:
         )
     filters = _as_optional_dict(data, "filters")
     result: dict[str, object] = {"filters": filters}
+    if "query_type" in data:
+        query_type = data["query_type"]
+        if not isinstance(query_type, str) or query_type not in {"items", "stock_balances"}:
+            raise ValueError("payload.query_type must be items or stock_balances")
+        result["query_type"] = query_type
     fields = data.get("fields")
     if fields is not None:
         if not isinstance(fields, list) or not all(isinstance(item, str) and item.strip() for item in fields):
@@ -215,7 +222,18 @@ def map_operation_to_erpnext(request: dict[str, object]) -> dict[str, object]:
 
     if capability_namespace == "inventory":
         if action_class == "query":
-            query = _as_query_envelope(payload)
+            query = _as_query_envelope(payload, allow_query_type=True)
+            query_type = query.get("query_type", "items")
+            if query_type == "stock_balances":
+                fields = query.get("fields", ["item_code", "warehouse", "actual_qty", "stock_uom"])
+                return {
+                    "doctype": "Bin",
+                    "operation": "get_list",
+                    "filters": query.get("filters", {}),
+                    "fields": fields,
+                    **({"limit": query["limit"]} if "limit" in query else {}),
+                    **({"order_by": query["order_by"]} if "order_by" in query else {}),
+                }
             return {
                 "doctype": "Item",
                 "operation": "get_list",
