@@ -101,21 +101,61 @@ def test_mapping_inventory_update_draft_requires_record_envelope() -> None:
 
 
 @pytest.mark.unit
-def test_mapping_inventory_update_draft_keeps_stock_document_unsubmitted() -> None:
+@pytest.mark.parametrize(
+    ("operation_kind", "doctype", "record_id"),
+    [
+        ("receiving", "Stock Entry", "STE-0001"),
+        ("count", "Stock Reconciliation", "SR-0001"),
+    ],
+)
+def test_mapping_inventory_update_draft_keeps_stock_document_unsubmitted(
+    operation_kind: str,
+    doctype: str,
+    record_id: str,
+) -> None:
+    record = {"items": [{"item_code": "ITEM-1", "qty": 3}], "docstatus": 0}
     payload = map_operation_to_erpnext(
         {
             "action_class": "update_draft",
             "capability_namespace": "inventory",
             "payload": {
-                "operation_kind": "receiving",
-                "record_id": "STE-0001",
-                "record": {"items": [{"item_code": "ITEM-1", "qty": 3}]},
+                "operation_kind": operation_kind,
+                "record_id": record_id,
+                "record": record,
             },
         }
     )
-    assert payload["doctype"] == "Stock Entry"
+    assert payload["doctype"] == doctype
     assert payload["operation"] == "update"
-    assert payload["name"] == "STE-0001"
+    assert payload["name"] == record_id
+    assert payload["data"] == record
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("action_class", ["create_draft", "update_draft"])
+@pytest.mark.parametrize("docstatus", [1, 2, True, "1"])
+def test_mapping_inventory_rejects_non_draft_docstatus(action_class: str, docstatus: object) -> None:
+    payload: dict[str, object]
+    if action_class == "create_draft":
+        payload = {
+            "operation_kind": "receiving",
+            "record": {"items": [{"item_code": "ITEM-1", "qty": 2}], "docstatus": docstatus},
+        }
+    else:
+        payload = {
+            "operation_kind": "count",
+            "record_id": "SR-0001",
+            "record": {"items": [{"item_code": "ITEM-1", "qty": 2}], "docstatus": docstatus},
+        }
+
+    with pytest.raises(ValueError, match="docstatus must be 0"):
+        map_operation_to_erpnext(
+            {
+                "action_class": action_class,
+                "capability_namespace": "inventory",
+                "payload": payload,
+            }
+        )
 
 
 @pytest.mark.unit

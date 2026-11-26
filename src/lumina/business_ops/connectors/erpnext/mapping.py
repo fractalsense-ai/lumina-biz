@@ -54,6 +54,18 @@ def _as_query_envelope(payload: object) -> dict[str, object]:
     return result
 
 
+def _validate_draft_docstatus(record: dict[str, object], action_class: str) -> None:
+    if "docstatus" not in record:
+        return
+    docstatus = record["docstatus"]
+    is_draft = (
+        (isinstance(docstatus, int) and not isinstance(docstatus, bool) and docstatus == 0)
+        or (isinstance(docstatus, str) and docstatus.strip() == "0")
+    )
+    if not is_draft:
+        raise ValueError(f"payload.record.docstatus must be 0 for inventory {action_class}")
+
+
 def _as_create_draft_envelope(payload: object) -> dict[str, object]:
     data = _as_dict(payload, field_name="payload")
     allowed = {"record", "operation_kind"}
@@ -63,6 +75,7 @@ def _as_create_draft_envelope(payload: object) -> dict[str, object]:
     record = _as_optional_dict(data, "record")
     if not record:
         raise ValueError("payload.record must be a non-empty object for create_draft")
+    _validate_draft_docstatus(record, "create_draft")
     operation_kind = data.get("operation_kind")
     if operation_kind is not None:
         if not isinstance(operation_kind, str) or operation_kind not in {"receiving", "count"}:
@@ -80,6 +93,7 @@ def _as_update_draft_envelope(payload: object) -> dict[str, object]:
     record = _as_optional_dict(data, "record")
     if not record:
         raise ValueError("payload.record must be a non-empty object for update_draft")
+    _validate_draft_docstatus(record, "update_draft")
     operation_kind = data.get("operation_kind")
     if operation_kind is not None:
         if not isinstance(operation_kind, str) or operation_kind not in {"receiving", "count"}:

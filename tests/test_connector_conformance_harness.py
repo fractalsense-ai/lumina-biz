@@ -23,20 +23,21 @@ def _request(*, request_id: str, action_class: str, capability_namespace: str, p
 def _payload_for_action(
     action_class: str,
     capability_namespace: str,
+    operation_kind: str = "receiving",
 ) -> dict[str, object]:
     if action_class == "create_draft":
         if capability_namespace == "inventory":
             return {
-                "operation_kind": "receiving",
-                "record": {"name": "fixture-record"},
+                "operation_kind": operation_kind,
+                "record": {"name": "fixture-record", "docstatus": 0},
             }
         return {"record": {"name": "fixture-record"}}
     if action_class == "update_draft":
         if capability_namespace == "inventory":
             return {
-                "operation_kind": "receiving",
+                "operation_kind": operation_kind,
                 "record_id": "fixture-record",
-                "record": {"status": "Open"},
+                "record": {"status": "Open", "docstatus": 0},
             }
         return {"record_id": "fixture-record", "record": {"status": "Open"}}
     if action_class == "request_commit":
@@ -100,18 +101,25 @@ def test_manifest_declared_pairs_have_executable_mappings(provider_module) -> No
             action_class = str(action_class)
             scenario_id = f"{namespace}:{action_class}"
             declared_pairs.add((namespace, action_class))
-            scenarios.append(
-                conformance.ConformanceScenario(
-                    scenario_id=scenario_id,
-                    request=_request(
-                        request_id=f"req-{scenario_id}",
-                        action_class=action_class,
-                        capability_namespace=namespace,
-                        payload=_payload_for_action(action_class, namespace),
-                    ),
-                    fixture_result={"status": "succeeded", "data": {}},
-                )
+            operation_kinds = (
+                ("receiving", "count")
+                if namespace == "inventory" and action_class in {"create_draft", "update_draft"}
+                else ("receiving",)
             )
+            for operation_kind in operation_kinds:
+                variant_id = f"{scenario_id}:{operation_kind}" if namespace == "inventory" and action_class in {"create_draft", "update_draft"} else scenario_id
+                scenarios.append(
+                    conformance.ConformanceScenario(
+                        scenario_id=variant_id,
+                        request=_request(
+                            request_id=f"req-{variant_id}",
+                            action_class=action_class,
+                            capability_namespace=namespace,
+                            payload=_payload_for_action(action_class, namespace, operation_kind),
+                        ),
+                        fixture_result={"status": "succeeded", "data": {}},
+                    )
+                )
 
     results = conformance.run_conformance_suite(
         provider_module,
