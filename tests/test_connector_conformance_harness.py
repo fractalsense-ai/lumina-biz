@@ -27,9 +27,22 @@ def _payload_for_action(
 ) -> dict[str, object]:
     if action_class == "create_draft":
         if capability_namespace == "inventory":
+            record: dict[str, object] = {"name": "fixture-record", "docstatus": 0}
+            if operation_kind == "count":
+                record = {
+                    "company": "Fixture Company",
+                    "items": [
+                        {
+                            "item_code": "ITEM-1",
+                            "warehouse": "STORE - T",
+                            "qty": 2,
+                        }
+                    ],
+                    "docstatus": 0,
+                }
             return {
                 "operation_kind": operation_kind,
-                "record": {"name": "fixture-record", "docstatus": 0},
+                "record": record,
             }
         return {"record": {"name": "fixture-record"}}
     if action_class == "update_draft":

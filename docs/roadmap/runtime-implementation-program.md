@@ -1,8 +1,8 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.9.3
+version: 1.9.4
 status: active
-last_updated: 2026-11-25
+last_updated: 2026-11-26
 ---
 
 # Runtime Implementation Program
@@ -116,7 +116,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 ## RI-24 Progress
 
 - ERPNext inventory capability declarations now expose draft-only `create_draft` and `update_draft` operations alongside read-only `query`; `request_commit`, `request_cancel`, and live stock submission remain undeclared and unsupported.
-- Receiving drafts map to ERPNext `Stock Entry` with the required `stock_entry_type=Material Receipt`; conflicting type/purpose values are rejected and the derived read-only `purpose` field is omitted. Count drafts map to ERPNext `Stock Reconciliation`, and both remain unsubmitted; updates preserve the receiving/count operation kind and target the corresponding draft document doctype.
+- Receiving drafts map to ERPNext `Stock Entry` with the required `stock_entry_type=Material Receipt`; conflicting type/purpose values are rejected and the derived read-only `purpose` field is omitted. Count creation requires a company and non-empty item rows with item code, warehouse, and non-negative quantity or valuation rate; it sets the required `Stock Reconciliation` purpose and rejects opening-stock/adjustment-entry purposes. Count drafts remain unsubmitted; updates preserve the receiving/count operation kind and target the corresponding draft document doctype.
 - This establishes provider-neutral draft and discrepancy evidence without creating a local quantity ledger or submitting stock documents. Live mutation, barcode-first UI, warehouse/location assignment, discrepancy approval, and ERPNext stock-document execution remain follow-on work under the existing live-execution gate.
 - Focused ERPNext manifest and conformance tests pass (14 passed), including canonical schema validation and the unsupported inventory commit mapping.
 

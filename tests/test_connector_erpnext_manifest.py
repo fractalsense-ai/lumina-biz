@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from lumina.business_ops.connectors.erpnext import (
@@ -69,13 +71,18 @@ def test_mapping_query_pos_invoices() -> None:
     [("receiving", "Stock Entry"), ("count", "Stock Reconciliation")],
 )
 def test_mapping_inventory_create_draft(operation_kind: str, doctype: str) -> None:
+    record = {
+        "items": [{"item_code": "ITEM-1", "warehouse": "STORE - T", "qty": 2}],
+    }
+    if operation_kind == "count":
+        record["company"] = "Test Company"
     payload = map_operation_to_erpnext(
         {
             "action_class": "create_draft",
             "capability_namespace": "inventory",
             "payload": {
                 "operation_kind": operation_kind,
-                "record": {"items": [{"item_code": "ITEM-1", "qty": 2}]},
+                "record": record,
             },
         }
     )
@@ -84,6 +91,8 @@ def test_mapping_inventory_create_draft(operation_kind: str, doctype: str) -> No
     assert payload["submit"] is False
     if operation_kind == "receiving":
         assert payload["data"]["stock_entry_type"] == "Material Receipt"  # type: ignore[index]
+    else:
+        assert payload["data"]["purpose"] == "Stock Reconciliation"  # type: ignore[index]
 
 
 @pytest.mark.unit
@@ -177,6 +186,118 @@ def test_mapping_receiving_omits_read_only_purpose_field() -> None:
 
     assert payload["data"]["stock_entry_type"] == "Material Receipt"  # type: ignore[index]
     assert "purpose" not in payload["data"]  # type: ignore[operator]
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("purpose", ["Opening Stock", "Adjustment Entry"])
+def test_mapping_count_rejects_non_reconciliation_purpose(purpose: str) -> None:
+    with pytest.raises(ValueError, match="purpose must be Stock Reconciliation"):
+        map_operation_to_erpnext(
+            {
+                "action_class": "create_draft",
+                "capability_namespace": "inventory",
+                "payload": {
+                    "operation_kind": "count",
+                    "record": {
+                        "company": "Test Company",
+                        "purpose": purpose,
+                        "items": [
+                            {"item_code": "ITEM-1", "warehouse": "STORE - T", "qty": 2}
+                        ],
+                    },
+                },
+            }
+        )
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    ("record", "message"),
+    [
+        ({"items": []}, "company"),
+        ({"company": "Test Company", "items": []}, "non-empty list"),
+        (
+            {"company": "Test Company", "items": [{"warehouse": "STORE - T", "qty": 2}]},
+            "item_code",
+        ),
+        (
+            {"company": "Test Company", "items": [{"item_code": "ITEM-1", "qty": 2}]},
+            "warehouse",
+        ),
+        (
+            {
+                "company": "Test Company",
+                "items": [{"item_code": "ITEM-1", "warehouse": "STORE - T"}],
+            },
+            "requires qty or valuation_rate",
+        ),
+        (
+            {
+                "company": "Test Company",
+                "items": [{"item_code": "ITEM-1", "warehouse": "STORE - T", "qty": -1}],
+            },
+            "must be a finite non-negative number",
+        ),
+    ],
+)
+def test_mapping_count_create_validates_required_reconciliation_fields(
+    record: dict[str, object],
+    message: str,
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        map_operation_to_erpnext(
+            {
+                "action_class": "create_draft",
+                "capability_namespace": "inventory",
+                "payload": {"operation_kind": "count", "record": record},
+            }
+        )
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("field_name", ["qty", "valuation_rate"])
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_mapping_count_rejects_non_finite_numeric_fields(field_name: str, value: float) -> None:
+    row: dict[str, object] = {
+        "item_code": "ITEM-1",
+        "warehouse": "STORE - T",
+        "qty": 1,
+        "valuation_rate": 1,
+    }
+    row[field_name] = value
+
+    with pytest.raises(ValueError, match="must be a finite non-negative number"):
+        map_operation_to_erpnext(
+            {
+                "action_class": "create_draft",
+                "capability_namespace": "inventory",
+                "payload": {
+                    "operation_kind": "count",
+                    "record": {"company": "Test Company", "items": [row]},
+                },
+            }
+        )
+
+
+@pytest.mark.unit
+def test_mapping_count_preserves_zero_quantity_for_strict_json() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "create_draft",
+            "capability_namespace": "inventory",
+            "payload": {
+                "operation_kind": "count",
+                "record": {
+                    "company": "Test Company",
+                    "items": [
+                        {"item_code": "ITEM-1", "warehouse": "STORE - T", "qty": 0}
+                    ],
+                },
+            },
+        }
+    )
+
+    json.dumps(payload, allow_nan=False)
 
 
 @pytest.mark.unit
