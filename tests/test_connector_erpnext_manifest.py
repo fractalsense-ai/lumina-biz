@@ -82,6 +82,8 @@ def test_mapping_inventory_create_draft(operation_kind: str, doctype: str) -> No
     assert payload["doctype"] == doctype
     assert payload["operation"] == "insert"
     assert payload["submit"] is False
+    if operation_kind == "receiving":
+        assert payload["data"]["stock_entry_type"] == "Material Receipt"  # type: ignore[index]
 
 
 @pytest.mark.unit
@@ -128,7 +130,53 @@ def test_mapping_inventory_update_draft_keeps_stock_document_unsubmitted(
     assert payload["doctype"] == doctype
     assert payload["operation"] == "update"
     assert payload["name"] == record_id
-    assert payload["data"] == record
+    expected_record = dict(record)
+    if operation_kind == "receiving":
+        expected_record["stock_entry_type"] = "Material Receipt"
+    assert payload["data"] == expected_record
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("action_class", ["create_draft", "update_draft"])
+@pytest.mark.parametrize(
+    ("field_name", "value"),
+    [("stock_entry_type", "Material Issue"), ("purpose", "Material Transfer")],
+)
+def test_mapping_receiving_rejects_conflicting_stock_entry_intent(
+    action_class: str,
+    field_name: str,
+    value: str,
+) -> None:
+    record = {"items": [{"item_code": "ITEM-1", "qty": 2}], field_name: value}
+    payload: dict[str, object] = {"operation_kind": "receiving", "record": record}
+    if action_class == "update_draft":
+        payload["record_id"] = "STE-0001"
+
+    with pytest.raises(ValueError, match=f"{field_name} must be Material Receipt"):
+        map_operation_to_erpnext(
+            {
+                "action_class": action_class,
+                "capability_namespace": "inventory",
+                "payload": payload,
+            }
+        )
+
+
+@pytest.mark.unit
+def test_mapping_receiving_omits_read_only_purpose_field() -> None:
+    payload = map_operation_to_erpnext(
+        {
+            "action_class": "create_draft",
+            "capability_namespace": "inventory",
+            "payload": {
+                "operation_kind": "receiving",
+                "record": {"items": [{"item_code": "ITEM-1", "qty": 2}], "purpose": "Material Receipt"},
+            },
+        }
+    )
+
+    assert payload["data"]["stock_entry_type"] == "Material Receipt"  # type: ignore[index]
+    assert "purpose" not in payload["data"]  # type: ignore[operator]
 
 
 @pytest.mark.unit

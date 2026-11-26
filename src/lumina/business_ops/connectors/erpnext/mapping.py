@@ -66,6 +66,20 @@ def _validate_draft_docstatus(record: dict[str, object], action_class: str) -> N
         raise ValueError(f"payload.record.docstatus must be 0 for inventory {action_class}")
 
 
+def _map_inventory_record(record: dict[str, object], operation_kind: str) -> dict[str, object]:
+    if operation_kind != "receiving":
+        return record
+
+    for field_name in ("stock_entry_type", "purpose"):
+        value = record.get(field_name)
+        if value is not None and value != "Material Receipt":
+            raise ValueError(f"receiving draft {field_name} must be Material Receipt")
+
+    mapped = {key: value for key, value in record.items() if key != "purpose"}
+    mapped["stock_entry_type"] = "Material Receipt"
+    return mapped
+
+
 def _as_create_draft_envelope(payload: object) -> dict[str, object]:
     data = _as_dict(payload, field_name="payload")
     allowed = {"record", "operation_kind"}
@@ -178,10 +192,11 @@ def map_operation_to_erpnext(request: dict[str, object]) -> dict[str, object]:
                 doctype = "Stock Reconciliation"
             else:
                 raise ValueError("inventory create_draft requires operation_kind receiving or count")
+            record = _map_inventory_record(create["record"], str(operation_kind))
             return {
                 "doctype": doctype,
                 "operation": "insert",
-                "data": create["record"],
+                "data": record,
                 "submit": False,
             }
         if action_class == "update_draft":
@@ -193,11 +208,12 @@ def map_operation_to_erpnext(request: dict[str, object]) -> dict[str, object]:
                 doctype = "Stock Reconciliation"
             else:
                 raise ValueError("inventory update_draft requires operation_kind receiving or count")
+            record = _map_inventory_record(update["record"], str(operation_kind))
             return {
                 "doctype": doctype,
                 "operation": "update",
                 "name": update["record_id"],
-                "data": update["record"],
+                "data": record,
             }
 
     if capability_namespace == "sales/pos" and action_class == "query":
