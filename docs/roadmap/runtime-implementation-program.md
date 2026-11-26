@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.9.1
+version: 1.9.2
 status: active
 last_updated: 2026-11-25
 ---
@@ -47,7 +47,7 @@ This program and [SMB Operations Product Direction](smb-operations-product-direc
 | RI-21 | Implement the provider-neutral live SoR actor-liveness adapter boundary, bounded timeout handling, deny taxonomy, and pseudonymous evidence | `lumina-biz` | Slice 42, Slice 40 N1-N3 closure; Slice 43 for shared live transport | In progress |
 | RI-22 | Implement provider-agnostic outbound connector transport with bounded timeouts, query-only retries, correlation/idempotency metadata, and canonical errors | `lumina-biz` | Slice 43, RI-04 | Completed |
 | RI-23 | Deliver manager-led employee onboarding and location/register assignment in the operational app shell using Frappe users, roles, and ERPNext records; email invitation is optional | `lumina-biz` | Slice 74, RI-01, RI-02, RI-14 | Planned |
-| RI-24 | Deliver shared ERPNext-backed inventory operations: barcode-first receiving and counts, optional stock locations, discrepancy review, and auditable stock-document handoff without a shadow quantity ledger | `lumina-biz` | Slice 76, RI-01, RI-04 | Planned |
+| RI-24 | Deliver shared ERPNext-backed inventory operations: barcode-first receiving and counts, optional stock locations, discrepancy review, and auditable stock-document handoff without a shadow quantity ledger | `lumina-biz` | Slice 76, RI-01, RI-04 | In progress |
 | RI-25 | Establish the vertical fork/release kit: pinned core and ERPNext matrix, independent build/CI, shared-core conformance, migration/upgrade checks, and tagged release/downstream guide | `lumina-biz` | Slice 73, Slice 77, RI-01 | Planned |
 | RI-26 | Deliver the first F&B operating pilot over shared POS, inventory, receiving, and identity foundations, including restaurant order, table, kitchen, menu/modifier, and acceptance workflows | `lumina-fnb` | RI-04, RI-05, RI-14, RI-23, RI-24; Slice 41 live-execution gate | Planned |
 | RI-27 | Deliver the C-store operating pilot by configuring shared inventory/POS/task capabilities, then adding fuel and convenience workflows without copying F&B rules | `lumina-cstore` | RI-04, RI-11, RI-14, RI-23, RI-24 | Planned |
@@ -112,6 +112,13 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 - API startup now composes the verifier only when all five `LUMINA_ERP_ACTOR_LIVENESS_*` settings are present; API key/secret values are read at verification time and the owned HTTP client is closed at shutdown. Partial configuration fails fast; absent configuration preserves the current verifier path.
 - Fixture tests cover active, disabled, missing, malformed, unavailable, scope mismatch, HTTPX URL-log suppression, credential-provider failure, and public package export (12 passed); runtime composition, rotation, scope, and lifecycle tests pass (4 passed).
 - A disposable ERPNext 16.60.0 Docker site verified the real `User.enabled` read through the runtime composition and a signed-bearer protected-context HTTP probe: enabled Administrator allowed, wrong site denied with HTTP 403. The temporary ERP API secret was rotated; no production SoR or customer data was used. Production identity/secret-store configuration and live-tenant acceptance remain open; no business-operation mutation is added.
+
+## RI-24 Progress
+
+- ERPNext inventory capability declarations now expose draft-only `create_draft` and `update_draft` operations alongside read-only `query`; `request_commit`, `request_cancel`, and live stock submission remain undeclared and unsupported.
+- Receiving drafts map to ERPNext `Stock Entry`, and count drafts map to ERPNext `Stock Reconciliation`, always with `submit=False`; updates preserve the receiving/count operation kind and target the corresponding draft document doctype.
+- This establishes provider-neutral draft and discrepancy evidence without creating a local quantity ledger or submitting stock documents. Live mutation, barcode-first UI, warehouse/location assignment, discrepancy approval, and ERPNext stock-document execution remain follow-on work under the existing live-execution gate.
+- Focused ERPNext manifest and conformance tests pass (14 passed), including canonical schema validation and the unsupported inventory commit mapping.
 
 ## RI-22 Progress
 
