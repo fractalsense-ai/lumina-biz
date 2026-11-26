@@ -71,6 +71,56 @@ def test_inventory_scan_normalizes_permission_failure() -> None:
 
 
 @pytest.mark.unit
+def test_inventory_scan_normalizes_credential_provider_exception_without_leaking_details() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200)
+
+    def unavailable_credentials() -> str:
+        raise RuntimeError("secret provider diagnostics")
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        adapter = ERPNextInventoryScanAdapter(
+            base_url="https://erp.example.test",
+            authorization_header_provider=unavailable_credentials,
+            client=client,
+        )
+        result = adapter.lookup("BAR-1")
+
+    assert result.error is not None
+    assert result.error["code"] == "AUTH_FAILED"
+    assert result.error["message"] == "Connector credentials are unavailable"
+    assert result.error["details"]["attempts"] == 0  # type: ignore[index]
+    assert "secret provider diagnostics" not in repr(result.error)
+    assert requests == []
+
+
+@pytest.mark.unit
+def test_inventory_scan_normalizes_empty_authorization_header() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200)
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        adapter = ERPNextInventoryScanAdapter(
+            base_url="https://erp.example.test",
+            authorization_header_provider=lambda: "  ",
+            client=client,
+        )
+        result = adapter.lookup("BAR-1")
+
+    assert result.error is not None
+    assert result.error["code"] == "AUTH_FAILED"
+    assert result.error["message"] == "Connector credentials are unavailable"
+    assert result.error["details"]["attempts"] == 0  # type: ignore[index]
+    assert requests == []
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize("search_value", ["", "  "])
 def test_inventory_scan_rejects_empty_search_value(search_value: str) -> None:
     with httpx.Client(transport=httpx.MockTransport(lambda _request: httpx.Response(200))) as client:

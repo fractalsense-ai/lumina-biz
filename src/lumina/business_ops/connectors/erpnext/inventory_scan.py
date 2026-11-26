@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import replace
 from uuid import uuid4
 
 import httpx
@@ -12,6 +13,7 @@ from lumina.business_ops.connectors.transport import (
     ConnectorTransportResponse,
     TransportPolicy,
     send_json,
+    transport_error_response,
 )
 
 
@@ -40,10 +42,6 @@ class ERPNextInventoryScanAdapter:
         """Call ERPNext's permission-checked scan method without mutating stock."""
         if not isinstance(search_value, str) or not search_value.strip():
             raise ValueError("search_value must be a non-empty string")
-        authorization = self._authorization_header_provider()
-        if not isinstance(authorization, str) or not authorization.strip():
-            raise ValueError("ERPNext authorization header is unavailable")
-
         request = ConnectorTransportRequest(
             method="GET",
             url=f"{self._base_url}/api/method/erpnext.stock.utils.scan_barcode",
@@ -51,7 +49,24 @@ class ERPNextInventoryScanAdapter:
             action_class="query",
             capability_namespace="inventory",
             correlation_id=f"inventory-scan-{uuid4().hex}",
-            headers={"Authorization": authorization},
             query_params={"search_value": search_value.strip()},
         )
-        return send_json(request, client=self._client, policy=self._policy)
+        try:
+            authorization = self._authorization_header_provider()
+        except Exception:
+            return transport_error_response(
+                request,
+                code="AUTH_FAILED",
+                message="Connector credentials are unavailable",
+                severity="critical",
+            )
+        if not isinstance(authorization, str) or not authorization.strip():
+            return transport_error_response(
+                request,
+                code="AUTH_FAILED",
+                message="Connector credentials are unavailable",
+                severity="critical",
+            )
+
+        authenticated_request = replace(request, headers={"Authorization": authorization})
+        return send_json(authenticated_request, client=self._client, policy=self._policy)
