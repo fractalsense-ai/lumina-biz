@@ -82,16 +82,6 @@ class ScopedPersistenceAdapter:
             ledger_path = self._inner.get_domain_ledger_path(self.domain_id)
         return self._inner.append_linked_log_record(session_id, record, ledger_path=ledger_path)
 
-    def append_linked_log_record(
-        self,
-        session_id: str,
-        record: dict[str, Any],
-        ledger_path: str | None = None,
-    ) -> dict[str, Any]:
-        if ledger_path is None:
-            ledger_path = self._inner.get_domain_ledger_path(self.domain_id)
-        return self._inner.append_linked_log_record(session_id, record, ledger_path=ledger_path)
-
     def append_log_record(
         self,
         session_id: str,
