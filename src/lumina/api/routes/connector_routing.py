@@ -1,6 +1,9 @@
 """Authenticated, scope-safe connector-routing preflight API."""
 from __future__ import annotations
 
+import hashlib
+import re
+
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.concurrency import run_in_threadpool
 
@@ -11,6 +14,8 @@ from lumina.api.models import (
     ConnectorExecutionFixtureResponse,
     ConnectorRoutingPreflightRequest,
     ConnectorRoutingPreflightResponse,
+    ERPNextInventoryScanRequest,
+    ERPNextInventoryScanResponse,
 )
 from lumina.business_ops.connectors.erpnext import (
     DeterministicFixtureRunner,
@@ -28,6 +33,23 @@ from lumina.system_log.admin_operations import build_trace_event
 from lumina.system_log.commit_guard import requires_log_commit
 
 router = APIRouter()
+_SAFE_SESSION_ID = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+
+
+def _scan_session_id(
+    *,
+    caller_session_id: str | None,
+    actor_id: str,
+    organization_id: str,
+    site_id: str,
+) -> str:
+    if caller_session_id:
+        if not _SAFE_SESSION_ID.fullmatch(caller_session_id):
+            raise HTTPException(status_code=422, detail="session_id contains unsupported characters")
+        return caller_session_id
+    identity = f"{organization_id}|{site_id}|{actor_id}".encode("utf-8")
+    return "erpnext-scan-" + hashlib.sha256(identity).hexdigest()[:24]
+
 
 _ALLOWED_ACTION_CLASSES = frozenset({
     "query",
@@ -446,3 +468,63 @@ async def execute_fixture(
     )
 
     return ConnectorExecutionFixtureResponse(**result)
+
+
+@router.post(
+    "/api/connectors/erpnext/scan",
+    response_model=ERPNextInventoryScanResponse,
+)
+@requires_log_commit
+async def execute_erpnext_inventory_scan(
+    req: ERPNextInventoryScanRequest,
+    user: dict[str, object] = Depends(get_authenticated_user),
+    context: dict[str, str | None] = Depends(get_active_operating_context),
+) -> ERPNextInventoryScanResponse:
+    """Resolve a barcode, serial, batch, or warehouse through ERPNext read-only lookup."""
+    organization_id = str(context["organization_id"])
+    site_id = str(context["site_id"])
+    if not req.search_value.strip():
+        raise HTTPException(status_code=422, detail="search_value must not be whitespace")
+    scan_session_id = _scan_session_id(
+        caller_session_id=req.session_id,
+        actor_id=str(user["sub"]),
+        organization_id=organization_id,
+        site_id=site_id,
+    )
+    adapter = getattr(_cfg, "ERPNext_INVENTORY_SCAN_ADAPTER", None)
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="ERPNext inventory scan is not configured")
+
+    result = await run_in_threadpool(
+        adapter.lookup,
+        req.search_value,
+        organization_id=organization_id,
+        site_id=site_id,
+    )
+
+    trace_event = build_trace_event(
+        session_id=scan_session_id,
+        actor_id=str(user["sub"]),
+        event_type="other",
+        decision="erpnext_inventory_scan_evaluated",
+        evidence_summary={
+            "status_code": result.status_code,
+            "correlation_id": result.correlation_id,
+            "attempts": result.attempts,
+            "error_code": result.error.get("code") if result.error else None,
+        },
+    )
+    await run_in_threadpool(
+        _cfg.PERSISTENCE.append_linked_log_record,
+        scan_session_id,
+        trace_event,
+        _cfg.PERSISTENCE.get_system_ledger_path(scan_session_id),
+    )
+
+    return ERPNextInventoryScanResponse(
+        status_code=result.status_code,
+        correlation_id=result.correlation_id,
+        attempts=result.attempts,
+        payload=result.payload,
+        error=result.error,
+    )

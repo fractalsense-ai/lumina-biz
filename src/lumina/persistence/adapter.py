@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import threading
 from typing import Any
 
 from lumina.system_log.commit_guard import notify_log_commit
@@ -260,6 +261,10 @@ class PersistenceAdapter(SystemPersistence, DomainPersistence):
         """Append one System Log record for the session."""
 
     @abstractmethod
+    def append_linked_log_record(self, session_id: str, record: dict[str, Any], ledger_path: str | None = None) -> dict[str, Any]:
+        """Link one record to the current ledger tail and append it atomically."""
+
+    @abstractmethod
     def load_session_state(self, session_id: str) -> dict[str, Any] | None:
         """Load persisted session metadata if present."""
 
@@ -325,6 +330,8 @@ class NullPersistenceAdapter(PersistenceAdapter):
     def __init__(self) -> None:
         self._session_state: dict[str, dict[str, Any]] = {}
         self._profiles: dict[str, dict[str, dict[str, Any]]] = {}  # user_id → domain_key → data
+        self._log_records: dict[str, list[dict[str, Any]]] = {}
+        self._log_records_lock = threading.Lock()
 
     def load_domain_physics(self, path: str) -> dict[str, Any]:
         import json
@@ -383,6 +390,17 @@ class NullPersistenceAdapter(PersistenceAdapter):
     def append_log_record(self, session_id: str, record: dict[str, Any], ledger_path: str | None = None) -> None:
         notify_log_commit()
         return None
+
+    def append_linked_log_record(self, session_id: str, record: dict[str, Any], ledger_path: str | None = None) -> dict[str, Any]:
+        from lumina.orchestrator.system_log_writer import hash_record
+
+        with getattr(self, "_log_records_lock"):
+            previous = getattr(self, "_log_records", {}).get(session_id, [])
+            linked = dict(record)
+            linked["prev_record_hash"] = "genesis" if not previous else hash_record(previous[-1])
+            getattr(self, "_log_records", {}).setdefault(session_id, []).append(dict(linked))
+            self.append_log_record(session_id, linked, ledger_path=ledger_path)
+        return linked
 
     def load_session_state(self, session_id: str) -> dict[str, Any] | None:
         return dict(self._session_state[session_id]) if session_id in self._session_state else None

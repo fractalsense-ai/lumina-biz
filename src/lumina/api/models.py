@@ -242,6 +242,19 @@ class ConnectorExecutionFixtureResponse(BaseModel):
     metadata: dict[str, Any] | None = None
 
 
+class ERPNextInventoryScanRequest(BaseModel):
+    search_value: str = Field(min_length=1)
+    session_id: str | None = None
+
+
+class ERPNextInventoryScanResponse(BaseModel):
+    status_code: int | None = None
+    correlation_id: str
+    attempts: int
+    payload: dict[str, Any] | None = None
+    error: dict[str, Any] | None = None
+
+
 # ── Holodeck Sandbox ─────────────────────────────────────────
 
 class HolodeckSimulateRequest(BaseModel):

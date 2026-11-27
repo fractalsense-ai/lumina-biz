@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from lumina.persistence.sqlite import SQLitePersistenceAdapter
+from lumina.orchestrator.system_log_writer import hash_record
 
 
 @pytest.fixture
@@ -83,3 +84,21 @@ def test_sqlite_log_chain_validation(sqlite_adapter: SQLitePersistenceAdapter) -
     result = sqlite_adapter.validate_log_chain(sid)
     assert result["intact"] is True
     assert result["records_checked"] == 2
+
+
+@pytest.mark.unit
+def test_sqlite_append_linked_log_record_chains_tail(sqlite_adapter: SQLitePersistenceAdapter) -> None:
+    sid = "s-linked"
+
+    r1 = sqlite_adapter.append_linked_log_record(
+        sid,
+        {"record_type": "TraceEvent", "record_id": "r1", "event_type": "scan"},
+    )
+    r2 = sqlite_adapter.append_linked_log_record(
+        sid,
+        {"record_type": "TraceEvent", "record_id": "r2", "event_type": "scan"},
+    )
+
+    assert r1["prev_record_hash"] == "genesis"
+    assert r2["prev_record_hash"] == hash_record(r1)
+    assert sqlite_adapter.validate_log_chain(sid)["intact"] is True
