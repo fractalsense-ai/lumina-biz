@@ -1,6 +1,9 @@
 """Authenticated, scope-safe connector-routing preflight API."""
 from __future__ import annotations
 
+import hashlib
+import re
+
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.concurrency import run_in_threadpool
 
@@ -30,6 +33,23 @@ from lumina.system_log.admin_operations import build_trace_event
 from lumina.system_log.commit_guard import requires_log_commit
 
 router = APIRouter()
+_SAFE_SESSION_ID = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
+
+
+def _scan_session_id(
+    *,
+    caller_session_id: str | None,
+    actor_id: str,
+    organization_id: str,
+    site_id: str,
+) -> str:
+    if caller_session_id:
+        if not _SAFE_SESSION_ID.fullmatch(caller_session_id):
+            raise HTTPException(status_code=422, detail="session_id contains unsupported characters")
+        return caller_session_id
+    identity = f"{organization_id}|{site_id}|{actor_id}".encode("utf-8")
+    return "erpnext-scan-" + hashlib.sha256(identity).hexdigest()[:24]
+
 
 _ALLOWED_ACTION_CLASSES = frozenset({
     "query",
@@ -463,6 +483,14 @@ async def execute_erpnext_inventory_scan(
     """Resolve a barcode, serial, batch, or warehouse through ERPNext read-only lookup."""
     organization_id = str(context["organization_id"])
     site_id = str(context["site_id"])
+    if not req.search_value.strip():
+        raise HTTPException(status_code=422, detail="search_value must not be whitespace")
+    scan_session_id = _scan_session_id(
+        caller_session_id=req.session_id,
+        actor_id=str(user["sub"]),
+        organization_id=organization_id,
+        site_id=site_id,
+    )
     adapter = getattr(_cfg, "ERPNext_INVENTORY_SCAN_ADAPTER", None)
     if adapter is None:
         raise HTTPException(status_code=503, detail="ERPNext inventory scan is not configured")
@@ -474,7 +502,6 @@ async def execute_erpnext_inventory_scan(
         site_id=site_id,
     )
 
-    scan_session_id = req.session_id or "erpnext-inventory-scan"
     trace_event = build_trace_event(
         session_id=scan_session_id,
         actor_id=str(user["sub"]),
@@ -488,7 +515,7 @@ async def execute_erpnext_inventory_scan(
         },
     )
     await run_in_threadpool(
-        _cfg.PERSISTENCE.append_log_record,
+        _cfg.PERSISTENCE.append_linked_log_record,
         scan_session_id,
         trace_event,
         _cfg.PERSISTENCE.get_system_ledger_path(scan_session_id),

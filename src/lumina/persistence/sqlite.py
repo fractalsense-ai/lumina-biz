@@ -253,6 +253,38 @@ class SQLitePersistenceAdapter(PersistenceAdapter):
             asyncio.run(self._append_log_record_async(session_id, record))
         notify_log_commit()
 
+    def append_linked_log_record(self, session_id: str, record: dict[str, Any], ledger_path: str | None = None) -> dict[str, Any]:
+        return asyncio.run(self._append_linked_log_record_async(session_id, record))
+
+    async def _append_linked_log_record_async(self, session_id: str, record: dict[str, Any]) -> dict[str, Any]:
+        from sqlalchemy import insert, select
+
+        async with self._engine.begin() as conn:
+            result = await conn.execute(
+                select(self._SystemLogRecord.payload_json)
+                .where(self._SystemLogRecord.session_id == session_id)
+                .order_by(self._SystemLogRecord.id.desc())
+                .limit(1)
+            )
+            row = result.scalar_one_or_none()
+            previous = json.loads(row) if row else None
+            linked = dict(record)
+            linked["prev_record_hash"] = (
+                "genesis"
+                if not isinstance(previous, dict)
+                else __import__("lumina.orchestrator.system_log_writer", fromlist=["hash_record"]).hash_record(previous)
+            )
+            stmt = insert(self._SystemLogRecord).values(
+                session_id=session_id,
+                record_type=str(linked.get("record_type", "unknown")),
+                record_id=str(linked.get("record_id", "")),
+                prev_record_hash=str(linked["prev_record_hash"]),
+                payload_json=json.dumps(linked, sort_keys=True, separators=(",", ":"), ensure_ascii=False),
+            )
+            await conn.execute(stmt)
+        notify_log_commit()
+        return linked
+
     async def _append_log_record_async(self, session_id: str, record: dict[str, Any]) -> None:
         from sqlalchemy import insert
 

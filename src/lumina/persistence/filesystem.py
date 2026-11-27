@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import threading
 from typing import Any
 
 from lumina.core.pack_identity import get_model_pack_id
@@ -81,6 +82,8 @@ def _dump_yaml(data: Any) -> str:
 
 class FilesystemPersistenceAdapter(PersistenceAdapter):
     """Filesystem-backed persistence preserving current reference behavior."""
+
+    _linked_append_lock = threading.Lock()
 
     def __init__(self, repo_root: Path, log_dir: Path) -> None:
         self.repo_root = repo_root
@@ -164,6 +167,19 @@ class FilesystemPersistenceAdapter(PersistenceAdapter):
             fh.write(json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
             fh.write("\n")
         notify_log_commit()
+
+    def append_linked_log_record(self, session_id: str, record: dict[str, Any], ledger_path: str | None = None) -> dict[str, Any]:
+        target_path = Path(ledger_path) if ledger_path else Path(self.get_system_ledger_path(session_id))
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        with self._linked_append_lock:
+            records = self._load_ledger_records(target_path)
+            linked = dict(record)
+            linked["prev_record_hash"] = "genesis" if not records else self._hash_record(records[-1])
+            with open(target_path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(linked, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+                fh.write("\n")
+        notify_log_commit()
+        return linked
 
     def load_session_state(self, session_id: str) -> dict[str, Any] | None:
         path = self.session_dir / f"session-{session_id}.json"
@@ -292,6 +308,20 @@ class FilesystemPersistenceAdapter(PersistenceAdapter):
             fh.write(json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
             fh.write("\n")
         notify_log_commit()
+
+    def append_linked_log_record(self, session_id: str, record: dict[str, Any], ledger_path: str | None = None) -> dict[str, Any]:
+        target_path = Path(ledger_path) if ledger_path else Path(self.get_system_ledger_path(session_id))
+        records = self._load_ledger_records(target_path)
+        linked = dict(record)
+        linked["prev_record_hash"] = (
+            "genesis" if not records else self._hash_record(records[-1])
+        )
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(target_path, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(linked, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+            fh.write("\n")
+        notify_log_commit()
+        return linked
 
     def _load_ledger_records(self, path: Path) -> list[dict[str, Any]]:
         if not path.exists():

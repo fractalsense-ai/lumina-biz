@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient
 from lumina.auth import auth
 from lumina.persistence.adapter import NullPersistenceAdapter
 from lumina.business_ops.connectors.transport import ConnectorTransportResponse
+from lumina.orchestrator.system_log_writer import hash_record
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -236,6 +237,60 @@ def test_erpnext_inventory_scan_requires_configured_adapter(client, monkeypatch:
     )
 
     assert response.status_code == 503
+
+
+@pytest.mark.integration
+def test_erpnext_inventory_scan_rejects_whitespace(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    test_client, _ = client
+    adapter = _ScanAdapter()
+    from lumina.api import config as api_config
+    monkeypatch.setattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", adapter, raising=False)
+
+    response = test_client.post(
+        "/api/connectors/erpnext/scan",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={"search_value": "   "},
+    )
+
+    assert response.status_code == 422
+    assert adapter.calls == []
+
+
+@pytest.mark.integration
+def test_erpnext_inventory_scan_rejects_traversal_session_id(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    test_client, _ = client
+    adapter = _ScanAdapter()
+    from lumina.api import config as api_config
+    monkeypatch.setattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", adapter, raising=False)
+
+    response = test_client.post(
+        "/api/connectors/erpnext/scan",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={"search_value": "BAR-1", "session_id": "x/../../../outside"},
+    )
+
+    assert response.status_code == 422
+    assert adapter.calls == []
+
+
+@pytest.mark.integration
+def test_erpnext_inventory_scan_repeated_session_hash_chain(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    test_client, persistence = client
+    adapter = _ScanAdapter()
+    from lumina.api import config as api_config
+    monkeypatch.setattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", adapter, raising=False)
+
+    for _ in range(2):
+        response = test_client.post(
+            "/api/connectors/erpnext/scan",
+            headers={"Authorization": f"Bearer {_token()}"},
+            json={"search_value": "BAR-1", "session_id": "scan-session-chain"},
+        )
+        assert response.status_code == 200
+
+    assert len(persistence.records) == 2
+    assert persistence.records[0]["prev_record_hash"] == "genesis"
+    assert persistence.records[1]["prev_record_hash"] == hash_record(persistence.records[0])
 
 
 @pytest.mark.integration

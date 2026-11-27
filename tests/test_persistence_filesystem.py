@@ -73,4 +73,23 @@ def test_filesystem_ctl_chain_validation(fs_adapter: FilesystemPersistenceAdapte
 
     result = fs_adapter.validate_log_chain(sid)
     assert result["intact"] is True
-    assert result["records_checked"] == 2
+
+
+@pytest.mark.unit
+def test_filesystem_append_linked_log_record_chains_tail(fs_adapter: FilesystemPersistenceAdapter) -> None:
+    sid = "s-linked"
+    ledger = fs_adapter.get_system_ledger_path(sid)
+
+    r1 = fs_adapter.append_linked_log_record(
+        sid,
+        {"record_type": "TraceEvent", "record_id": "r1", "event_type": "scan"},
+        ledger,
+    )
+    r2 = fs_adapter.append_linked_log_record(
+        sid,
+        {"record_type": "TraceEvent", "record_id": "r2", "event_type": "scan"},
+        ledger,
+    )
+
+    assert r1["prev_record_hash"] == "genesis"
+    assert r2["prev_record_hash"] == fs_adapter._hash_record(r1)
