@@ -34,6 +34,9 @@ def calculate_inventory_discrepancy(
     counted = _finite_number(counted_qty, "counted_qty")
     on_hand = _finite_number(on_hand_qty, "on_hand_qty")
     variance = counted - on_hand
+    absolute_variance = abs(variance)
+    if not math.isfinite(variance) or not math.isfinite(absolute_variance):
+        raise ValueError("variance_qty is outside the finite numeric range")
 
     evidence: dict[str, Any] = {
         "item_code": item_code.strip(),
@@ -41,7 +44,7 @@ def calculate_inventory_discrepancy(
         "counted_qty": counted,
         "on_hand_qty": on_hand,
         "variance_qty": variance,
-        "absolute_variance_qty": abs(variance),
+        "absolute_variance_qty": absolute_variance,
         "review_required": variance != 0,
         "stock_mutation_requested": False,
     }
@@ -49,6 +52,9 @@ def calculate_inventory_discrepancy(
     if valuation_rate is not None:
         rate = _finite_number(valuation_rate, "valuation_rate")
         evidence["valuation_rate"] = rate
-        evidence["estimated_variance_value"] = round(variance * rate, 6)
+        estimated_variance_value = variance * rate
+        if not math.isfinite(estimated_variance_value):
+            raise ValueError("estimated_variance_value is outside the finite numeric range")
+        evidence["estimated_variance_value"] = round(estimated_variance_value, 6)
 
     return evidence

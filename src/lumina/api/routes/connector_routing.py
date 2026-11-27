@@ -544,13 +544,16 @@ async def calculate_inventory_discrepancy_review(
     context: dict[str, str | None] = Depends(get_active_operating_context),
 ) -> InventoryDiscrepancyResponse:
     """Create deterministic discrepancy review evidence without posting stock."""
-    result_data = calculate_inventory_discrepancy(
-        item_code=req.item_code,
-        warehouse=req.warehouse,
-        counted_qty=req.counted_qty,
-        on_hand_qty=req.on_hand_qty,
-        valuation_rate=req.valuation_rate,
-    )
+    try:
+        result_data = calculate_inventory_discrepancy(
+            item_code=req.item_code,
+            warehouse=req.warehouse,
+            counted_qty=req.counted_qty,
+            on_hand_qty=req.on_hand_qty,
+            valuation_rate=req.valuation_rate,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     scan_session_id = _scan_session_id(
         caller_session_id=req.session_id,

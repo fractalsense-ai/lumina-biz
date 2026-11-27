@@ -374,6 +374,28 @@ def test_inventory_discrepancy_returns_completed_for_match(client) -> None:
 @pytest.mark.parametrize(
     "payload",
     [
+        {"item_code": "   ", "warehouse": "STORE - T", "counted_qty": 10, "on_hand_qty": 10},
+        {"item_code": "ITEM-1", "warehouse": "   ", "counted_qty": 10, "on_hand_qty": 10},
+        {"item_code": "ITEM-1", "warehouse": "STORE - T", "counted_qty": 1e308, "on_hand_qty": 0, "valuation_rate": 2},
+    ],
+)
+def test_inventory_discrepancy_malformed_input_returns_422(client, payload: dict) -> None:
+    test_client, persistence = client
+
+    response = test_client.post(
+        "/api/connectors/inventory/discrepancy",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    assert len(persistence.records) == 0
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "payload",
+    [
         {"item_code": "ITEM-1", "warehouse": "STORE - T", "counted_qty": -1, "on_hand_qty": 10},
         {"item_code": "ITEM-1", "warehouse": "STORE - T", "counted_qty": 10, "on_hand_qty": -1},
     ],

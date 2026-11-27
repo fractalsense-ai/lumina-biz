@@ -64,6 +64,18 @@ def test_inventory_discrepancy_rejects_non_finite_values(value: float) -> None:
 
 
 @pytest.mark.unit
+def test_inventory_discrepancy_rejects_overflowed_variance() -> None:
+    with pytest.raises(ValueError, match="outside the finite numeric range"):
+        calculate_inventory_discrepancy(
+            item_code="ITEM-1",
+            warehouse="STORE - T",
+            counted_qty=1e308,
+            on_hand_qty=0,
+            valuation_rate=2,
+        )
+
+
+@pytest.mark.unit
 def test_inventory_discrepancy_rejects_negative_quantity() -> None:
     with pytest.raises(ValueError, match="non-negative"):
         calculate_inventory_discrepancy(
