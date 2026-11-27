@@ -1,6 +1,6 @@
 ---
 title: "Runtime Implementation Program"
-version: 1.9.8
+version: 1.9.9
 status: active
 last_updated: 2026-11-26
 ---
@@ -117,7 +117,7 @@ This snapshot is an inventory, not proof that each existing surface meets its co
 
 - ERPNext inventory capability declarations now expose draft-only `create_draft` and `update_draft` operations alongside read-only `query`; `request_commit`, `request_cancel`, and live stock submission remain undeclared and unsupported.
 - Inventory `query` keeps the existing Item catalog default and accepts the explicit `query_type=stock_balances` view, which maps to ERPNext `Bin` with item, warehouse, actual quantity, and stock UOM fields. Unknown or malformed query types are rejected; `Bin` remains a read-only system-of-record view, not a Lumina quantity ledger.
-- `ERPNextInventoryScanAdapter` uses ERPNext's permission-checked `scan_barcode` method over the shared bounded query transport and returns canonical transport results for barcode, serial, batch, or warehouse scans. Each instance is bound to an expected organization/site and rejects malformed or mismatched caller scope before network access. API lifespan optionally composes and restores this adapter using the existing fixed ERPNext base/org/site/credential settings and closes only factory-owned HTTP clients. It performs no stock mutation; operator UI integration and warehouse/location authorization remain open.
+- `ERPNextInventoryScanAdapter` uses ERPNext's permission-checked `scan_barcode` method over the shared bounded query transport and returns canonical transport results for barcode, serial, batch, or warehouse scans. Each instance is bound to an expected organization/site and rejects malformed or mismatched caller scope before network access. API lifespan optionally composes and restores this adapter using the existing fixed ERPNext base/org/site/credential settings and closes only factory-owned HTTP clients. Authenticated `POST /api/connectors/erpnext/scan` exposes read-only lookup to the active operating context and appends sanitized trace evidence; it performs no stock mutation, and operator UI integration and warehouse/location authorization remain open.
 - Receiving drafts map to ERPNext `Stock Entry` with the required `stock_entry_type=Material Receipt`; conflicting type/purpose values are rejected and the derived read-only `purpose` field is omitted. Count creation requires a company and non-empty item rows with item code, warehouse, and non-negative quantity or valuation rate; it sets the required `Stock Reconciliation` purpose and rejects opening-stock/adjustment-entry purposes. Count drafts remain unsubmitted; updates preserve the receiving/count operation kind and target the corresponding draft document doctype.
 - This establishes provider-neutral draft and discrepancy evidence without creating a local quantity ledger or submitting stock documents. Live mutation, barcode-first UI, warehouse/location assignment, discrepancy approval, and ERPNext stock-document execution remain follow-on work under the existing live-execution gate.
 - Focused ERPNext mapping tests cover catalog and stock-balance query views, count/receiving draft mappings, strict numeric validation, and unsupported live inventory commits.

@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 
 from lumina.auth import auth
 from lumina.persistence.adapter import NullPersistenceAdapter
+from lumina.business_ops.connectors.transport import ConnectorTransportResponse
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -182,6 +183,86 @@ def test_execute_fixture_returns_scoped_success_and_trace_event(client) -> None:
     assert len(persistence.records) == 1
     evidence = persistence.records[0].get("evidence_summary", {})
     assert evidence["connector_operation_result"]["request_id"] == "req-exec-1"
+
+
+class _ScanAdapter:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, str, str]] = []
+        self.error: dict[str, object] | None = None
+
+    def lookup(self, search_value: str, *, organization_id: str, site_id: str):
+        self.calls.append((search_value, organization_id, site_id))
+        return ConnectorTransportResponse(
+            status_code=403 if self.error else 200,
+            payload=None if self.error else {"message": {"item_code": "ITEM-1", "barcode": "BAR-1"}},
+            correlation_id="inventory-scan-test",
+            attempts=1,
+            error=self.error,
+        )
+
+
+@pytest.mark.integration
+def test_erpnext_inventory_scan_returns_result_and_trace_event(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    test_client, persistence = client
+    adapter = _ScanAdapter()
+    from lumina.api import config as api_config
+    monkeypatch.setattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", adapter, raising=False)
+
+    response = test_client.post(
+        "/api/connectors/erpnext/scan",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={"search_value": " BAR-1 ", "session_id": "session-scan-1"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["payload"] == {"message": {"item_code": "ITEM-1", "barcode": "BAR-1"}}
+    assert adapter.calls == [(" BAR-1 ", "org-a", "site-a")]
+    assert len(persistence.records) == 1
+    evidence = persistence.records[0].get("evidence_summary", {})
+    assert evidence["correlation_id"] == "inventory-scan-test"
+
+
+@pytest.mark.integration
+def test_erpnext_inventory_scan_requires_configured_adapter(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    test_client, _ = client
+    from lumina.api import config as api_config
+    monkeypatch.delattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", raising=False)
+
+    response = test_client.post(
+        "/api/connectors/erpnext/scan",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={"search_value": "BAR-1"},
+    )
+
+    assert response.status_code == 503
+
+
+@pytest.mark.integration
+def test_erpnext_inventory_scan_rejects_cross_scope(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    test_client, persistence = client
+    adapter = _ScanAdapter()
+    adapter.error = {
+        "code": "SCOPE_MISMATCH",
+        "message": "Inventory scan is outside the configured organization and site scope",
+        "severity": "critical",
+        "retryable": False,
+    }
+    from lumina.api import config as api_config
+    monkeypatch.setattr(api_config, "ERPNext_INVENTORY_SCAN_ADAPTER", adapter, raising=False)
+
+    response = test_client.post(
+        "/api/connectors/erpnext/scan",
+        headers={"Authorization": f"Bearer {_token(organization_id='org-b', site_id='site-a')}"},
+        json={"search_value": "BAR-1"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["error"]["code"] == "SCOPE_MISMATCH"
+    assert body["error"]["retryable"] is False
+    assert adapter.calls == [("BAR-1", "org-b", "site-a")]
+    assert len(persistence.records) == 1
 
 
 @pytest.mark.integration
