@@ -413,6 +413,60 @@ def test_inventory_discrepancy_rejects_negative_quantities(client, payload: dict
 
 
 @pytest.mark.integration
+@pytest.mark.parametrize(
+    ("operation_kind", "draft_record_id"),
+    [("receiving", "STE-0001"), ("count", "SR-0001")],
+)
+def test_inventory_stock_handoff_returns_pending_submission(
+    client,
+    operation_kind: str,
+    draft_record_id: str,
+) -> None:
+    test_client, persistence = client
+
+    response = test_client.post(
+        "/api/connectors/inventory/handoff",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={
+            "operation_kind": operation_kind,
+            "draft_record_id": draft_record_id,
+            "approval_status": "approved",
+            "idempotency_key": "idem-1",
+            "session_id": "inventory-handoff-chain",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "accepted"
+    assert body["handoff_status"] == "pending_submission"
+    assert body["live_submit_requested"] is False
+    assert len(persistence.records) == 1
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"operation_kind": "receiving", "draft_record_id": "   ", "approval_status": "approved", "idempotency_key": "idem-1"},
+        {"operation_kind": "count", "draft_record_id": "SR-0001", "approval_status": "pending", "idempotency_key": "idem-1"},
+        {"operation_kind": "receiving", "draft_record_id": "STE-0001", "approval_status": "approved", "idempotency_key": "   "},
+    ],
+)
+def test_inventory_stock_handoff_rejects_invalid_input(client, payload: dict) -> None:
+    test_client, persistence = client
+
+    response = test_client.post(
+        "/api/connectors/inventory/handoff",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+    assert len(persistence.records) == 0
+
+
+@pytest.mark.integration
 def test_execute_fixture_rejects_cross_scope_organization(client) -> None:
     test_client, _ = client
     payload = _payload()

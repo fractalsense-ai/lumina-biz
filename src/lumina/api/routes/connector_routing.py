@@ -18,6 +18,8 @@ from lumina.api.models import (
     ERPNextInventoryScanResponse,
     InventoryDiscrepancyRequest,
     InventoryDiscrepancyResponse,
+    InventoryStockHandoffRequest,
+    InventoryStockHandoffResponse,
 )
 from lumina.business_ops.connectors.erpnext import (
     DeterministicFixtureRunner,
@@ -33,6 +35,7 @@ from lumina.connector_routing.router import (
 )
 from lumina.system_log.admin_operations import build_trace_event
 from lumina.business_ops.inventory_discrepancy import calculate_inventory_discrepancy
+from lumina.business_ops.inventory_handoff import build_inventory_handoff
 from lumina.system_log.commit_guard import requires_log_commit
 
 router = APIRouter()
@@ -585,3 +588,52 @@ async def calculate_inventory_discrepancy_review(
         status="pending" if result_data["review_required"] else "completed",
         result_data=result_data,
     )
+
+
+@router.post(
+    "/api/connectors/inventory/handoff",
+    response_model=InventoryStockHandoffResponse,
+)
+@requires_log_commit
+async def handoff_inventory_stock_document(
+    req: InventoryStockHandoffRequest,
+    user: dict[str, object] = Depends(get_authenticated_user),
+    context: dict[str, str | None] = Depends(get_active_operating_context),
+) -> InventoryStockHandoffResponse:
+    """Create a reviewed pending-submission handoff without live stock mutation."""
+    try:
+        handoff = build_inventory_handoff(
+            operation_kind=req.operation_kind,
+            draft_record_id=req.draft_record_id,
+            approval_status=req.approval_status,
+            idempotency_key=req.idempotency_key,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    scan_session_id = _scan_session_id(
+        caller_session_id=req.session_id,
+        actor_id=str(user["sub"]),
+        organization_id=str(context["organization_id"]),
+        site_id=str(context["site_id"]),
+    )
+    trace_event = build_trace_event(
+        session_id=scan_session_id,
+        actor_id=str(user["sub"]),
+        event_type="inventory_stock_handoff_pending",
+        decision="inventory_stock_handoff_reviewed",
+        evidence_summary={
+            "operation_kind": handoff["operation_kind"],
+            "draft_record_id": handoff["draft_record_id"],
+            "handoff_status": handoff["handoff_status"],
+            "live_submit_requested": False,
+        },
+    )
+    await run_in_threadpool(
+        _cfg.PERSISTENCE.append_linked_log_record,
+        scan_session_id,
+        trace_event,
+        _cfg.PERSISTENCE.get_system_ledger_path(scan_session_id),
+    )
+
+    return InventoryStockHandoffResponse(**handoff)

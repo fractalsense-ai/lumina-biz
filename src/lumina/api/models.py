@@ -269,7 +269,22 @@ class InventoryDiscrepancyResponse(BaseModel):
     result_data: dict[str, Any]
 
 
-# ── Holodeck Sandbox ─────────────────────────────────────────
+class InventoryStockHandoffRequest(BaseModel):
+    operation_kind: Literal["receiving", "count"]
+    draft_record_id: str = Field(min_length=1)
+    approval_status: Literal["approved"]
+    idempotency_key: str = Field(min_length=1)
+    session_id: str | None = None
+
+
+class InventoryStockHandoffResponse(BaseModel):
+    status: Literal["accepted"]
+    handoff_status: Literal["pending_submission"]
+    operation_kind: Literal["receiving", "count"]
+    draft_record_id: str
+    idempotency_key: str
+    live_submit_requested: Literal[False]
+
 
 class HolodeckSimulateRequest(BaseModel):
     """Run a test message through the pipeline with proposed physics changes.
