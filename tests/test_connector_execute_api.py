@@ -321,6 +321,76 @@ def test_erpnext_inventory_scan_rejects_cross_scope(client, monkeypatch: pytest.
 
 
 @pytest.mark.integration
+def test_inventory_discrepancy_returns_pending_evidence_and_trace(client) -> None:
+    test_client, persistence = client
+
+    response = test_client.post(
+        "/api/connectors/inventory/discrepancy",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={
+            "item_code": "ITEM-1",
+            "warehouse": "STORE - T",
+            "counted_qty": 12,
+            "on_hand_qty": 10,
+            "valuation_rate": 2.5,
+            "session_id": "inventory-discrepancy-chain",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "pending"
+    assert body["result_data"]["variance_qty"] == 2
+    assert body["result_data"]["review_required"] is True
+    assert body["result_data"]["stock_mutation_requested"] is False
+    assert len(persistence.records) == 1
+    evidence = persistence.records[0].get("evidence_summary", {})
+    assert evidence["review_required"] is True
+    assert persistence.records[0]["event_type"] == "discrepancy_detected"
+
+
+@pytest.mark.integration
+def test_inventory_discrepancy_returns_completed_for_match(client) -> None:
+    test_client, _ = client
+
+    response = test_client.post(
+        "/api/connectors/inventory/discrepancy",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={
+            "item_code": "ITEM-1",
+            "warehouse": "STORE - T",
+            "counted_qty": 10,
+            "on_hand_qty": 10,
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "completed"
+    assert body["result_data"]["review_required"] is False
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"item_code": "ITEM-1", "warehouse": "STORE - T", "counted_qty": -1, "on_hand_qty": 10},
+        {"item_code": "ITEM-1", "warehouse": "STORE - T", "counted_qty": 10, "on_hand_qty": -1},
+    ],
+)
+def test_inventory_discrepancy_rejects_negative_quantities(client, payload: dict) -> None:
+    test_client, _ = client
+
+    response = test_client.post(
+        "/api/connectors/inventory/discrepancy",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.integration
 def test_execute_fixture_rejects_cross_scope_organization(client) -> None:
     test_client, _ = client
     payload = _payload()
