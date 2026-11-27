@@ -255,6 +255,20 @@ class ERPNextInventoryScanResponse(BaseModel):
     error: dict[str, Any] | None = None
 
 
+class InventoryDiscrepancyRequest(BaseModel):
+    item_code: str = Field(min_length=1)
+    warehouse: str = Field(min_length=1)
+    counted_qty: float = Field(ge=0)
+    on_hand_qty: float = Field(ge=0)
+    valuation_rate: float | None = Field(default=None, ge=0)
+    session_id: str | None = None
+
+
+class InventoryDiscrepancyResponse(BaseModel):
+    status: Literal["pending", "completed"]
+    result_data: dict[str, Any]
+
+
 # ── Holodeck Sandbox ─────────────────────────────────────────
 
 class HolodeckSimulateRequest(BaseModel):

@@ -16,6 +16,8 @@ from lumina.api.models import (
     ConnectorRoutingPreflightResponse,
     ERPNextInventoryScanRequest,
     ERPNextInventoryScanResponse,
+    InventoryDiscrepancyRequest,
+    InventoryDiscrepancyResponse,
 )
 from lumina.business_ops.connectors.erpnext import (
     DeterministicFixtureRunner,
@@ -30,6 +32,7 @@ from lumina.connector_routing.router import (
     resolve_connector,
 )
 from lumina.system_log.admin_operations import build_trace_event
+from lumina.business_ops.inventory_discrepancy import calculate_inventory_discrepancy
 from lumina.system_log.commit_guard import requires_log_commit
 
 router = APIRouter()
@@ -527,4 +530,58 @@ async def execute_erpnext_inventory_scan(
         attempts=result.attempts,
         payload=result.payload,
         error=result.error,
+    )
+
+
+@router.post(
+    "/api/connectors/inventory/discrepancy",
+    response_model=InventoryDiscrepancyResponse,
+)
+@requires_log_commit
+async def calculate_inventory_discrepancy_review(
+    req: InventoryDiscrepancyRequest,
+    user: dict[str, object] = Depends(get_authenticated_user),
+    context: dict[str, str | None] = Depends(get_active_operating_context),
+) -> InventoryDiscrepancyResponse:
+    """Create deterministic discrepancy review evidence without posting stock."""
+    try:
+        result_data = calculate_inventory_discrepancy(
+            item_code=req.item_code,
+            warehouse=req.warehouse,
+            counted_qty=req.counted_qty,
+            on_hand_qty=req.on_hand_qty,
+            valuation_rate=req.valuation_rate,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    scan_session_id = _scan_session_id(
+        caller_session_id=req.session_id,
+        actor_id=str(user["sub"]),
+        organization_id=str(context["organization_id"]),
+        site_id=str(context["site_id"]),
+    )
+    trace_event = build_trace_event(
+        session_id=scan_session_id,
+        actor_id=str(user["sub"]),
+        event_type="discrepancy_detected" if result_data["review_required"] else "inventory_count_matched",
+        decision="inventory_discrepancy_review",
+        evidence_summary={
+            "item_code": result_data["item_code"],
+            "warehouse": result_data["warehouse"],
+            "variance_qty": result_data["variance_qty"],
+            "review_required": result_data["review_required"],
+            "stock_mutation_requested": False,
+        },
+    )
+    await run_in_threadpool(
+        _cfg.PERSISTENCE.append_linked_log_record,
+        scan_session_id,
+        trace_event,
+        _cfg.PERSISTENCE.get_system_ledger_path(scan_session_id),
+    )
+
+    return InventoryDiscrepancyResponse(
+        status="pending" if result_data["review_required"] else "completed",
+        result_data=result_data,
     )
