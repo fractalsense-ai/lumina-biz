@@ -105,6 +105,63 @@ class TestListAndGet:
 
 
 # ------------------------------------------------------------------
+# Inventory stock handoff
+# ------------------------------------------------------------------
+
+class TestInventoryStockHandoff:
+    def test_stages_receiving_handoff_pending(self, svc: StagingService) -> None:
+        env = svc.stage_inventory_handoff(
+            operation_kind="receiving",
+            draft_record_id="STE-0001",
+            idempotency_key="idem-1",
+            actor_id="actor-1",
+        )
+
+        assert env.template_id == "inventory-stock-handoff"
+        assert env.approval_status == "pending"
+        assert env.payload["live_submit_requested"] is False
+
+    def test_stages_count_handoff_pending(self, svc: StagingService) -> None:
+        env = svc.stage_inventory_handoff(
+            operation_kind="count",
+            draft_record_id="SR-0001",
+            idempotency_key="idem-2",
+            actor_id="actor-1",
+        )
+
+        assert env.payload["operation_kind"] == "count"
+        assert env.payload["draft_record_id"] == "SR-0001"
+
+    def test_rejects_invalid_handoff(self, svc: StagingService) -> None:
+        with pytest.raises(ValueError, match="operation_kind"):
+            svc.stage_inventory_handoff(
+                operation_kind="transfer",
+                draft_record_id="STE-0001",
+                idempotency_key="idem-1",
+                actor_id="actor-1",
+            )
+
+    def test_approve_writes_evidence_not_stock_mutation(self, svc: StagingService, tmp_path: Path) -> None:
+        env = svc.stage_inventory_handoff(
+            operation_kind="receiving",
+            draft_record_id="STE-0001",
+            idempotency_key="idem-1",
+            actor_id="actor-1",
+        )
+
+        final = svc.approve_inventory_handoff(
+            env.staged_id,
+            approver_id="approver-1",
+        )
+
+        assert final.exists()
+        data = json.loads(final.read_text(encoding="utf-8"))
+        assert data["live_submit_requested"] is False
+        assert data["draft_record_id"] == "STE-0001"
+        assert not hasattr(svc, "submit_inventory_stock")
+
+
+# ------------------------------------------------------------------
 # Approve
 # ------------------------------------------------------------------
 

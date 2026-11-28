@@ -103,6 +103,23 @@ _register(Template(
 ))
 
 _register(Template(
+    template_id="inventory-stock-handoff",
+    description="Reviewed receiving/count stock-document handoff evidence",
+    required_fields=(
+        "operation_kind",
+        "draft_record_id",
+        "idempotency_key",
+        "live_submit_requested",
+    ),
+    default_structure={
+        "approval_status": "pending",
+        "handoff_status": "pending_submission",
+    },
+    target_pattern="data/staging/approved/inventory-handoff-{draft_record_id}.json",
+    file_format="json",
+))
+
+_register(Template(
     template_id="context-hint",
     description="Context hint generated during daemon batch",
     required_fields=("hint_id", "domain_id", "content"),
