@@ -178,6 +178,64 @@ class StagingService:
 
     # -- List ---------------------------------------------------------
 
+    def stage_inventory_handoff(
+        self,
+        *,
+        operation_kind: str,
+        draft_record_id: str,
+        idempotency_key: str,
+        actor_id: str,
+        actor_role: str = "admin",
+    ) -> StagedFile:
+        """Stage an approved? No: reviewed inventory handoff pending approval."""
+        if operation_kind not in {"receiving", "count"}:
+            raise ValueError("operation_kind must be receiving or count")
+        if not isinstance(draft_record_id, str) or not draft_record_id.strip():
+            raise ValueError("draft_record_id must be a non-empty string")
+        if not isinstance(idempotency_key, str) or not idempotency_key.strip():
+            raise ValueError("idempotency_key must be a non-empty string")
+
+        return self.stage_file(
+            payload={
+                "operation_kind": operation_kind,
+                "draft_record_id": draft_record_id.strip(),
+                "idempotency_key": idempotency_key.strip(),
+                "live_submit_requested": False,
+            },
+            template_id="inventory-stock-handoff",
+            actor_id=actor_id,
+            actor_role=actor_role,
+        )
+
+    def approve_inventory_handoff(
+        self,
+        staged_id: str,
+        approver_id: str,
+        approver_role: str = "admin",
+    ) -> Path:
+        """Approve a staged handoff as evidence only; never submit ERP stock."""
+        envelope = self.get_staged(staged_id)
+        if envelope is None:
+            raise ValueError(f"Staged file not found: {staged_id!r}")
+        if envelope.template_id != "inventory-stock-handoff":
+            raise ValueError("Staged file is not an inventory stock handoff")
+
+        payload = envelope.payload
+        if payload.get("live_submit_requested") is not False:
+            raise ValueError("live_submit_requested must remain false")
+        if payload.get("operation_kind") not in {"receiving", "count"}:
+            raise ValueError("operation_kind must be receiving or count")
+        draft_record_id = payload.get("draft_record_id")
+        if not isinstance(draft_record_id, str) or not draft_record_id.strip():
+            raise ValueError("draft_record_id must be a non-empty string")
+
+        return self.approve_staged(
+            staged_id,
+            approver_id,
+            approver_role=approver_role,
+            target_overrides={"draft_record_id": draft_record_id.strip()},
+        )
+
     def list_staged(self, actor_id: str | None = None) -> list[StagedFile]:
         """Return all staged file envelopes, optionally filtered by *actor_id*."""
         results: list[StagedFile] = []
