@@ -1,5 +1,5 @@
 schema_version: 1.0.0
-last_updated: 2026-11-26
+last_updated: 2026-11-27
 artifacts:
 - path: docs/1-commands/README.md
   type: doc
@@ -813,10 +813,10 @@ artifacts:
 - path: docs/roadmap/runtime-implementation-program.md
   type: doc
   section: 0
-  doc_version: 1.10.1
+  doc_version: 1.10.2
   status: active
   last_updated: 2026-11-26
-  sha256: ec1346934af28ef1ea7dcb86bd31b154a5dd6de8f17425cb51a7fa79c0307390
+  sha256: b85166500ec6c028c8d24fb52a01cc61511d5f62faee97ad26e7db5e9d19234d
 - path: docs/roadmap/smb-operations-product-direction.md
   type: doc
   section: 0

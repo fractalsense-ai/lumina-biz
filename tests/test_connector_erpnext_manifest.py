@@ -386,8 +386,8 @@ def test_mapping_inventory_rejects_non_draft_docstatus(action_class: str, docsta
 
 
 @pytest.mark.unit
-def test_mapping_inventory_request_commit_remains_unsupported() -> None:
-    with pytest.raises(ValueError):
+def test_mapping_inventory_request_commit_remains_gate_blocked() -> None:
+    with pytest.raises(ValueError, match="blocked until Slice 44.*Slice 45"):
         map_operation_to_erpnext(
             {
                 "action_class": "request_commit",
