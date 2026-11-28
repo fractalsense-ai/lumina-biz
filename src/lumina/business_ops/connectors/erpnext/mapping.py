@@ -221,6 +221,11 @@ def map_operation_to_erpnext(request: dict[str, object]) -> dict[str, object]:
             }
 
     if capability_namespace == "inventory":
+        if action_class == "request_commit":
+            raise ValueError(
+                "Inventory live ERPNext stock submission is blocked until Slice 44 mutation safety "
+                "and Slice 45 live execution gates are complete"
+            )
         if action_class == "query":
             query = _as_query_envelope(payload, allow_query_type=True)
             query_type = query.get("query_type", "items")
