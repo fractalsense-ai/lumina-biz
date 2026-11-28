@@ -431,7 +431,7 @@ def test_inventory_stock_handoff_returns_pending_submission(
             "operation_kind": operation_kind,
             "draft_record_id": draft_record_id,
             "approval_status": "approved",
-            "idempotency_key": "idem-1",
+            "idempotency_key": f"idem-pending-{operation_kind}-{draft_record_id}",
             "session_id": "inventory-handoff-chain",
         },
     )
@@ -441,6 +441,68 @@ def test_inventory_stock_handoff_returns_pending_submission(
     assert body["status"] == "accepted"
     assert body["handoff_status"] == "pending_submission"
     assert body["live_submit_requested"] is False
+    assert len(persistence.records) == 1
+    assert persistence.records[0]["event_type"] == "other"
+
+
+@pytest.mark.integration
+def test_inventory_stock_handoff_retry_is_idempotent(client) -> None:
+    test_client, persistence = client
+    payload = {
+        "operation_kind": "receiving",
+        "draft_record_id": "STE-0001",
+        "approval_status": "approved",
+        "idempotency_key": "idem-retry-1",
+        "session_id": "inventory-handoff-idempotent",
+    }
+
+    first = test_client.post(
+        "/api/connectors/inventory/handoff",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+    second = test_client.post(
+        "/api/connectors/inventory/handoff",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json=payload,
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert second.json() == first.json()
+    assert len(persistence.records) == 2
+    assert persistence.records[0]["decision"] == "inventory_stock_handoff_reviewed"
+    assert persistence.records[1]["decision"] == "inventory_stock_handoff_idempotent_replay"
+
+
+@pytest.mark.integration
+def test_inventory_stock_handoff_rejects_conflicting_idempotency(client) -> None:
+    test_client, persistence = client
+
+    first = test_client.post(
+        "/api/connectors/inventory/handoff",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={
+            "operation_kind": "receiving",
+            "draft_record_id": "STE-0001",
+            "approval_status": "approved",
+            "idempotency_key": "idem-conflict-1",
+        },
+    )
+    conflict = test_client.post(
+        "/api/connectors/inventory/handoff",
+        headers={"Authorization": f"Bearer {_token()}"},
+        json={
+            "operation_kind": "count",
+            "draft_record_id": "SR-0001",
+            "approval_status": "approved",
+            "idempotency_key": "idem-conflict-1",
+        },
+    )
+
+    assert first.status_code == 200
+    assert conflict.status_code == 409
+    assert conflict.json()["detail"] == "IDEMPOTENCY_KEY_CONFLICT"
     assert len(persistence.records) == 1
 
 

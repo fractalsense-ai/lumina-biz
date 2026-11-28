@@ -611,6 +611,49 @@ async def handoff_inventory_stock_document(
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+    organization_id = str(context["organization_id"])
+    site_id = str(context["site_id"])
+    idempotency_scope = (
+        f"{organization_id}|{site_id}|{req.operation_kind}|"
+        f"{req.draft_record_id.strip()}"
+    )
+    idempotency_state_key = f"inventory-handoff:{req.idempotency_key.strip()}"
+    idempotency_state = _cfg.PERSISTENCE.load_session_state(idempotency_state_key) or {}
+    prior_scope = idempotency_state.get("scope")
+    prior_handoff = idempotency_state.get("handoff")
+    if prior_scope is not None:
+        if prior_scope != idempotency_scope:
+            raise HTTPException(status_code=409, detail="IDEMPOTENCY_KEY_CONFLICT")
+        if isinstance(prior_handoff, dict):
+            scan_session_id = _scan_session_id(
+                caller_session_id=req.session_id,
+                actor_id=str(user["sub"]),
+                organization_id=organization_id,
+                site_id=site_id,
+            )
+            replay_event = build_trace_event(
+                session_id=scan_session_id,
+                actor_id=str(user["sub"]),
+                event_type="other",
+                decision="inventory_stock_handoff_idempotent_replay",
+                evidence_summary={
+                    "operation_kind": prior_handoff["operation_kind"],
+                    "draft_record_id": prior_handoff["draft_record_id"],
+                    "handoff_status": prior_handoff["handoff_status"],
+                    "live_submit_requested": False,
+                },
+            )
+            _cfg.PERSISTENCE.append_linked_log_record(
+                scan_session_id,
+                replay_event,
+                _cfg.PERSISTENCE.get_system_ledger_path(scan_session_id),
+            )
+            return InventoryStockHandoffResponse(**prior_handoff)
+    _cfg.PERSISTENCE.save_session_state(
+        idempotency_state_key,
+        {"scope": idempotency_scope, "handoff": dict(handoff)},
+    )
+
     scan_session_id = _scan_session_id(
         caller_session_id=req.session_id,
         actor_id=str(user["sub"]),
@@ -620,7 +663,7 @@ async def handoff_inventory_stock_document(
     trace_event = build_trace_event(
         session_id=scan_session_id,
         actor_id=str(user["sub"]),
-        event_type="inventory_stock_handoff_pending",
+        event_type="other",
         decision="inventory_stock_handoff_reviewed",
         evidence_summary={
             "operation_kind": handoff["operation_kind"],
